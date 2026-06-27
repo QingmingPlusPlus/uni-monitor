@@ -6,7 +6,7 @@
 
 ### 1. 部门维度（Department）
 
-- 路由：`pages/index/index`
+- 路由：`pages/department/index`
 - 描述：以部门为粒度展示工厂的组织架构与整体状态。每个部门负责一个或多个工序，部门维度关注的是"谁在负责什么"。
 - 页面布局：左侧为主展示区（`StagePlaceholder`），右侧为部门卡片瀑布流。
 
@@ -55,6 +55,6 @@
 
 | 路由 | 维度 | 布局 |
 | --- | --- | --- |
-| `pages/index/index` | 部门 | 左主展示区 + 右瀑布流 |
+| `pages/department/index` | 部门 | 左主展示区 + 右瀑布流 |
 | `pages/process/index` | 工序 | 左主展示区 + 右瀑布流 |
 | `pages/equipment/index` | 设备 | 全宽瀑布流 + 返回按钮 |

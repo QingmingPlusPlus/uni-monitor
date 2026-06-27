@@ -1,13 +1,15 @@
 <template>
   <view class="home-page">
     <HomeHeader />
+    <DimensionSwitcher active="department" />
     <HomeContent />
   </view>
 </template>
 
 <script setup lang="ts">
-import HomeContent from "./components/HomeContent.vue"
-import HomeHeader from "./components/HomeHeader.vue"
+import DimensionSwitcher from "../index/components/DimensionSwitcher.vue"
+import HomeContent from "../index/components/HomeContent.vue"
+import HomeHeader from "../index/components/HomeHeader.vue"
 </script>
 
 <style scoped>

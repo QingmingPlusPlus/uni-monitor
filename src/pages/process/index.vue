@@ -1,11 +1,13 @@
 <template>
   <view class="home-page">
     <HomeHeader />
+    <DimensionSwitcher active="process" />
     <HomeContent dimension="process" />
   </view>
 </template>
 
 <script setup lang="ts">
+import DimensionSwitcher from "../index/components/DimensionSwitcher.vue"
 import HomeContent from "../index/components/HomeContent.vue"
 import HomeHeader from "../index/components/HomeHeader.vue"
 </script>

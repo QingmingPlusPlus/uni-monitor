@@ -15,25 +15,8 @@ import { equipmentCards } from "../equipmentData"
 
 <style scoped>
 .equipment-waterfall {
+  width: 100%;
   column-count: 1;
   column-gap: var(--space-3);
-}
-
-@media (min-width: 768px) {
-  .equipment-waterfall {
-    column-count: 2;
-  }
-}
-
-@media (min-width: 1280px) {
-  .equipment-waterfall {
-    column-count: 3;
-  }
-}
-
-@media (min-width: 1920px) {
-  .equipment-waterfall {
-    column-count: 4;
-  }
 }
 </style>

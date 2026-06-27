@@ -1,7 +1,7 @@
 {
 	"pages": [
 		{
-			"path": "pages/index/index",
+			"path": "pages/department/index",
 			"style": {
 				"navigationBarTitleText": "部门维度",
 				"navigationBarBackgroundColor": "#F2F5F8",

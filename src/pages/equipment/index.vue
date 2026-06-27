@@ -33,7 +33,7 @@ const handleBack = () => {
   if (pages.length > 1) {
     uni.navigateBack({ delta: 1 })
   } else {
-    uni.navigateTo({ url: "/pages/index/index" })
+    uni.navigateTo({ url: "/pages/department/index" })
   }
 }
 </script>
