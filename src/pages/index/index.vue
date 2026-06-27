@@ -1,41 +1,42 @@
 <template>
-  <view class="content">
-    <image class="logo" src="/static/logo.png" />
-    <view class="text-area">
-      <text class="title">{{ title }}</text>
-    </view>
+  <view class="home-page">
+    <HomeHeader />
+    <HomeContent />
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-const title = ref('Hello')
+import HomeContent from "./components/HomeContent.vue"
+import HomeHeader from "./components/HomeHeader.vue"
 </script>
 
-<style>
-.content {
+<style scoped>
+.home-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: var(--space-3);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-3);
+  background: var(--um-color-page);
+  box-sizing: border-box;
 }
 
-.logo {
-  height: 200rpx;
-  width: 200rpx;
-  margin-top: 200rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50rpx;
+@media (min-width: 768px) {
+  .home-page {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: var(--space-4);
+  }
 }
 
-.text-area {
-  display: flex;
-  justify-content: center;
-}
-
-.title {
-  font-size: 36rpx;
-  color: #8f8f94;
+@media (min-width: 1920px) {
+  .home-page {
+    height: 100vh;
+    height: 100dvh;
+    gap: var(--space-2);
+    overflow: hidden;
+    padding: var(--space-4);
+  }
 }
 </style>
