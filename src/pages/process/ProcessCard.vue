@@ -1,27 +1,33 @@
 <template>
-  <view :class="['booth-card', `booth-card--${item.tone}`, `booth-card--${item.size}`]">
-    <view class="booth-card__head">
-      <text class="booth-card__code">{{ item.code }}</text>
-      <text class="booth-card__status">{{ item.status }}</text>
+  <view
+    :class="[
+      'process-card',
+      `process-card--${item.tone}`,
+      `process-card--${item.size}`,
+    ]"
+  >
+    <view class="process-card__head">
+      <text class="process-card__code">{{ item.code }}</text>
+      <text class="process-card__status">{{ item.status }}</text>
     </view>
-    <view class="booth-card__body">
-      <text class="booth-card__title">{{ item.title }}</text>
-      <text class="booth-card__description">{{ item.description }}</text>
+    <view class="process-card__body">
+      <text class="process-card__title">{{ item.title }}</text>
+      <text class="process-card__description">{{ item.description }}</text>
     </view>
-    <text class="booth-card__area">{{ item.area }}</text>
+    <text class="process-card__department">{{ item.department }}</text>
   </view>
 </template>
 
 <script setup lang="ts">
-import type { BoothCardItem } from "./boothData"
+import type { ProcessCardItem } from "./processData"
 
 defineProps<{
-  readonly item: BoothCardItem
+  readonly item: ProcessCardItem
 }>()
 </script>
 
 <style scoped>
-.booth-card {
+.process-card {
   display: flex;
   break-inside: avoid;
   flex-direction: column;
@@ -37,98 +43,106 @@ defineProps<{
   box-sizing: border-box;
 }
 
-.booth-card--compact {
+.process-card--compact {
   min-height: 260rpx;
 }
 
-.booth-card--tall {
+.process-card--tall {
   min-height: 420rpx;
 }
 
-.booth-card__head {
+.process-card__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
 }
 
-.booth-card__code,
-.booth-card__status,
-.booth-card__area,
-.booth-card__description {
+.process-card__code,
+.process-card__status,
+.process-card__department,
+.process-card__description {
   color: var(--um-color-text-secondary);
   font-size: 22rpx;
   font-weight: 500;
   line-height: 1.4;
 }
 
-.booth-card__code {
+.process-card__code {
   color: var(--um-color-accent);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
 
-.booth-card__status {
+.process-card__status {
   white-space: nowrap;
 }
 
-.booth-card__body {
+.process-card__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.booth-card__title {
+.process-card__title {
   color: var(--um-color-text-primary);
   font-size: 30rpx;
   font-weight: 700;
   line-height: 1.35;
 }
 
-.booth-card--featured {
+.process-card--running {
   border-left-color: var(--um-color-success);
 }
 
-.booth-card--featured .booth-card__status {
+.process-card--running .process-card__status {
   color: var(--um-color-success);
 }
 
-.booth-card--service {
+.process-card--maintenance {
   border-left-color: var(--um-color-warning);
 }
 
-.booth-card--service .booth-card__status {
+.process-card--maintenance .process-card__status {
   color: var(--um-color-warning);
 }
 
-.booth-card--idle {
+.process-card--warning {
+  border-left-color: var(--um-color-warning);
+}
+
+.process-card--warning .process-card__status {
+  color: var(--um-color-warning);
+}
+
+.process-card--idle {
   border-left-color: var(--um-color-rail);
 }
 
 @media (min-width: 768px) {
-  .booth-card {
+  .process-card {
     min-height: 220px;
     margin-bottom: var(--space-3);
     border-left-width: 4px;
     border-radius: 14px;
   }
 
-  .booth-card--compact {
+  .process-card--compact {
     min-height: 186px;
   }
 
-  .booth-card--tall {
+  .process-card--tall {
     min-height: 285px;
   }
 
-  .booth-card__code,
-  .booth-card__status,
-  .booth-card__area,
-  .booth-card__description {
+  .process-card__code,
+  .process-card__status,
+  .process-card__department,
+  .process-card__description {
     font-size: 13px;
   }
 
-  .booth-card__title {
+  .process-card__title {
     font-size: 18px;
   }
 }

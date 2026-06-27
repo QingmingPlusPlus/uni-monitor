@@ -6,18 +6,44 @@
       </view>
       <view class="home-content__waterfall">
         <view class="home-content__waterfall-head">
-          <text class="home-content__title">展位瀑布流</text>
-          <text class="home-content__note">重点、开放、维护与空闲状态统一呈现</text>
+          <text class="home-content__title">{{ waterfallTitle }}</text>
+          <text class="home-content__note">{{ waterfallNote }}</text>
         </view>
-        <BoothWaterfall />
+        <scroll-view
+          class="home-content__waterfall-scroll"
+          scroll-y
+          :show-scrollbar="true"
+        >
+          <DepartmentWaterfall v-if="dimension === 'department'" />
+          <ProcessWaterfall v-else />
+        </scroll-view>
       </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import BoothWaterfall from "./BoothWaterfall.vue"
+import { computed } from "vue"
+import DepartmentWaterfall from "./DepartmentWaterfall.vue"
+import ProcessWaterfall from "../../process/ProcessWaterfall.vue"
 import StagePlaceholder from "./StagePlaceholder.vue"
+
+const props = withDefaults(
+  defineProps<{
+    readonly dimension?: "department" | "process"
+  }>(),
+  { dimension: "department" },
+)
+
+const waterfallTitle = computed(() =>
+  props.dimension === "process" ? "工序瀑布流" : "部门瀑布流",
+)
+
+const waterfallNote = computed(() =>
+  props.dimension === "process"
+    ? "各工序的运行状态、节拍与质量情况"
+    : "各部门的重点、开放、维护与空闲状态统一呈现",
+)
 </script>
 
 <style scoped>
@@ -31,6 +57,7 @@ import StagePlaceholder from "./StagePlaceholder.vue"
   display: grid;
   width: 100%;
   min-height: 0;
+  flex: 1;
   grid-template-columns: 1fr;
   gap: var(--space-4);
   padding: var(--space-4);
@@ -40,24 +67,37 @@ import StagePlaceholder from "./StagePlaceholder.vue"
   box-sizing: border-box;
 }
 
-.home-content__stage,
-.home-content__waterfall {
+.home-content__stage {
+  display: flex;
   min-width: 0;
+  min-height: 0;
+  flex-direction: column;
 }
 
 .home-content__waterfall {
   display: flex;
+  min-width: 0;
   min-height: 0;
   flex-direction: column;
   gap: var(--space-3);
+  overflow: hidden;
 }
 
 .home-content__waterfall-head {
   display: flex;
+  flex-shrink: 0;
   flex-direction: column;
   gap: var(--space-1);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--um-color-rail);
+}
+
+.home-content__waterfall-scroll {
+  display: flex;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
 }
 
 .home-content__title {
@@ -91,7 +131,6 @@ import StagePlaceholder from "./StagePlaceholder.vue"
 @media (min-width: 1024px) {
   .home-content__block {
     grid-template-columns: minmax(360px, 0.92fr) minmax(0, 1.08fr);
-    align-items: start;
   }
 }
 

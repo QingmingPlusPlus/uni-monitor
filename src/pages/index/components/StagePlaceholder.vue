@@ -1,5 +1,5 @@
 <template>
-  <view class="stage-placeholder">
+  <view class="stage-placeholder" @dblclick="handleDblClick">
     <view class="stage-placeholder__corner stage-placeholder__corner--top"></view>
     <view class="stage-placeholder__content">
       <text class="stage-placeholder__eyebrow">主展示区</text>
@@ -9,18 +9,24 @@
       </text>
     </view>
     <view class="stage-placeholder__meta">
-      <text>推荐比例 1:1</text>
+      <text>双击进入设备维度</text>
       <text>触摸热区预留</text>
     </view>
   </view>
 </template>
+
+<script setup lang="ts">
+const handleDblClick = () => {
+  uni.navigateTo({ url: "/pages/equipment/index" })
+}
+</script>
 
 <style scoped>
 .stage-placeholder {
   position: relative;
   display: flex;
   overflow: hidden;
-  aspect-ratio: 1;
+  flex: 1;
   min-height: 520rpx;
   align-items: center;
   justify-content: center;
@@ -30,6 +36,7 @@
   background:
     linear-gradient(135deg, var(--um-color-surface) 0%, var(--um-color-surface-subtle) 100%);
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .stage-placeholder__corner {
@@ -84,7 +91,7 @@
 
 @media (min-width: 768px) {
   .stage-placeholder {
-    min-height: 0;
+    min-height: 480px;
     border-radius: 16px;
   }
 

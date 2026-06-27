@@ -5,6 +5,7 @@
 | 路径/模块 | 先读 doc | 先读 spec | 触发 skill | 改后同步 | 状态 |
 | --- | --- | --- | --- | --- | --- |
 | `AGENTS.md`、`doc/agent-guide.md`、`doc/agent-memory-map.md`、`.agents/skills` | `doc/agent-guide.md`、`doc/agent-memory-map.md` | `openspec/specs/governance/spec.md` | `cross-memory-routing` | 更新治理 spec、路由表或对应 skill | 生效 |
+| `pages/index/index`、`pages/process/index`、`pages/equipment/index`、工厂可视化三维度 | `doc/factory-dimensions.md` | — | — | 更新工厂维度 doc、页面组件 | 生效 |
 | `<module-path>` | `doc/<module-doc>.md` | `<spec-path>` | `<skill-name>` | 更新模块 doc/spec/skill | 生效 |
 
 ## 兜底策略
