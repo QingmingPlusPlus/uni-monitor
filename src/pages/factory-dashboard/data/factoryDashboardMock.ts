@@ -20,6 +20,7 @@ import type {
   FactoryDashboardData,
   FactoryKpiItem,
 } from './factoryDashboardTypes'
+import { createPersonnelAttendanceData } from './factoryAttendanceMock'
 
 const percentFormatter = (value: string | number | null | undefined): string => {
   if (typeof value === 'number') {
@@ -200,17 +201,19 @@ function createKpis(scopeLabel: string, seed: number): readonly FactoryKpiItem[]
 export function getDepartmentDashboardData(
   value: CssMapDepartmentValue,
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
+  refreshedAt: Date = new Date(),
 ): FactoryDashboardData {
   const label = getCssMapDepartmentLabel(value, selectionConfig)
 
   return {
+    kind: 'department',
     eyebrow: `部门维度 · 2026-06 · ${label}`,
     title: `${label} 展示计划`,
     subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷，当前为 Mock 数据。',
     kpis: createKpis(label, 2929),
+    attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     cards: [
       createDashboardCard({ id: 'staff-plan', title: '人员配置', subtitle: '按部门、工序、班次和人时统计', base: 461, unit: 'count' }),
-      createDashboardCard({ id: 'staff-attendance', title: '人员出勤', subtitle: '出勤人数与请假、异常缺勤趋势', base: 432, unit: 'count' }),
       createDashboardCard({ id: 'production-pulse', title: '生产性活动', subtitle: '稼动、停线、换型和清扫活动', base: 2969, unit: 'minute' }),
       createDashboardCard({ id: 'plan-result', title: '生产计划实绩', subtitle: '计划、实绩、差异与达成率', base: 2989512, unit: 'count' }),
       createDashboardCard({ id: 'sync-plan', title: '可动率、阻碍时间与改善计划', subtitle: '可动率目标、损失时间和改善趋势', base: 48647, unit: 'minute' }),
@@ -225,6 +228,7 @@ export function getProcessDashboardData(
   const label = getCssMapProcessLabel(value, selectionConfig)
 
   return {
+    kind: 'process',
     eyebrow: `工序维度 · 2026-06 · ${label}`,
     title: `${label} 展示计划`,
     subtitle: '工序口径聚焦当前流程的人员、产出、计划与异常阻碍。',

@@ -1,0 +1,154 @@
+.personnel-attendance-grid {
+  min-width: 0;
+}
+
+.personnel-attendance-grid__scroll {
+  width: 100%;
+  border: 1px solid var(--um-color-rail);
+  border-radius: 10rpx;
+  box-sizing: border-box;
+}
+
+.personnel-attendance-table {
+  display: grid;
+  min-width: 1120rpx;
+  grid-template-columns: 104rpx 92rpx 132rpx 92rpx 92rpx repeat(6, 92rpx) 104rpx 104rpx;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+.personnel-attendance-table__cell {
+  display: flex;
+  min-width: 0;
+  min-height: 54rpx;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 8rpx;
+  border-right: 1px solid var(--um-color-rail);
+  border-bottom: 1px solid var(--um-color-rail);
+  color: var(--um-color-text-primary);
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.personnel-attendance-table__cell:nth-last-child(-n + 13) {
+  border-bottom: 0;
+}
+
+.personnel-attendance-table__cell--head {
+  background: var(--um-color-surface-subtle);
+  color: var(--um-color-text-primary);
+  font-size: 21rpx;
+  font-weight: 800;
+}
+
+.personnel-attendance-table__cell--process-head {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+}
+
+.personnel-attendance-table__cell--shift-head {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
+.personnel-attendance-table__cell--roster-head {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  background: rgba(34, 160, 107, 0.16);
+}
+
+.personnel-attendance-table__cell--indirect-head {
+  grid-column: 4 / 6;
+  grid-row: 1;
+}
+
+.personnel-attendance-table__cell--direct-head {
+  grid-column: 6 / 14;
+  grid-row: 1;
+  background: rgba(36, 113, 255, 0.14);
+}
+
+.personnel-attendance-table__cell--indirect-roster {
+  grid-column: 4;
+  grid-row: 2;
+}
+
+.personnel-attendance-table__cell--indirect-attendance {
+  grid-column: 5;
+  grid-row: 2;
+}
+
+.personnel-attendance-table__cell--direct-roster {
+  grid-column: 6 / 12;
+  grid-row: 2;
+}
+
+.personnel-attendance-table__cell--actual-attendance {
+  grid-column: 12 / 14;
+  grid-row: 2;
+  background: rgba(36, 113, 255, 0.14);
+}
+
+.personnel-attendance-table__cell--group,
+.personnel-attendance-table__cell--shift {
+  font-weight: 800;
+}
+
+.personnel-attendance-table__cell--metric {
+  justify-content: flex-end;
+  font-weight: 650;
+}
+
+.personnel-attendance-table__cell--total {
+  background: rgba(83, 101, 122, 0.12);
+  font-weight: 800;
+}
+
+.personnel-attendance-table__cell--department-total {
+  background: rgba(36, 113, 255, 0.12);
+}
+
+.personnel-attendance-table__cell--group.personnel-attendance-table__cell--department-total {
+  color: var(--um-color-operation);
+}
+
+@media (min-width: 768px) {
+  .personnel-attendance-grid__scroll {
+    border-radius: 8px;
+  }
+
+  .personnel-attendance-table {
+    min-width: 880px;
+    grid-template-columns: 74px 62px 104px 62px 62px repeat(6, 62px) 72px 72px;
+  }
+
+  .personnel-attendance-table__cell {
+    min-height: 34px;
+    padding: 0 6px;
+    font-size: 13px;
+  }
+
+  .personnel-attendance-table__cell--head {
+    font-size: 12px;
+  }
+
+  .personnel-attendance-grid--modal .personnel-attendance-table {
+    min-width: 1180px;
+    grid-template-columns: 100px 84px 124px 84px 84px repeat(6, 84px) 94px 94px;
+  }
+
+  .personnel-attendance-grid--modal .personnel-attendance-table__cell {
+    min-height: 42px;
+    font-size: 16px;
+  }
+
+  .personnel-attendance-grid--modal .personnel-attendance-table__cell--head {
+    font-size: 15px;
+  }
+}

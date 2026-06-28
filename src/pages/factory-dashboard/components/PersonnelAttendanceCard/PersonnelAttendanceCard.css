@@ -1,0 +1,173 @@
+.personnel-attendance-card {
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--um-color-border);
+  border-radius: 18rpx;
+  background: var(--um-color-surface);
+  box-sizing: border-box;
+}
+
+.personnel-attendance-card__head,
+.personnel-attendance-card__modal-head {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.personnel-attendance-card__title-group {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-right: 144rpx;
+}
+
+.personnel-attendance-card__tag {
+  align-self: flex-start;
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  background: var(--um-color-accent-soft);
+  color: var(--um-color-accent);
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.personnel-attendance-card__title,
+.personnel-attendance-card__modal-title {
+  color: var(--um-color-text-primary);
+  font-size: 36rpx;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.personnel-attendance-card__subtitle {
+  color: var(--um-color-text-secondary);
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.personnel-attendance-card__actions {
+  display: flex;
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+  gap: var(--space-1);
+}
+
+.personnel-attendance-card__action {
+  display: flex;
+  width: 64rpx;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--um-color-border);
+  border-radius: 10rpx;
+  background: var(--um-color-surface);
+  color: var(--um-color-text-secondary);
+  line-height: 1;
+}
+
+.personnel-attendance-card__action::after {
+  display: none;
+}
+
+.personnel-attendance-card__action:active {
+  opacity: 0.75;
+  transform: translateY(1px);
+}
+
+.personnel-attendance-card__icon {
+  display: block;
+  width: 32rpx;
+  height: 32rpx;
+  fill: currentcolor;
+}
+
+.personnel-attendance-card__modal-layer {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(16, 24, 32, 0.42);
+  box-sizing: border-box;
+}
+
+.personnel-attendance-card__modal {
+  display: flex;
+  width: min(96vw, 1680px);
+  max-height: 88vh;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--um-color-border);
+  border-radius: 16rpx;
+  background: var(--um-color-surface);
+  box-shadow: var(--um-shadow-panel, 0 8px 20px rgba(21, 43, 70, 0.12));
+  box-sizing: border-box;
+}
+
+.personnel-attendance-card__modal {
+  position: relative;
+}
+
+.personnel-attendance-card__modal-body {
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  .personnel-attendance-card {
+    border-radius: 16px;
+  }
+
+  .personnel-attendance-card__title-group {
+    padding-right: 104px;
+  }
+
+  .personnel-attendance-card__tag {
+    padding: 4px 12px;
+    font-size: 16px;
+  }
+
+  .personnel-attendance-card__title,
+  .personnel-attendance-card__modal-title {
+    font-size: 30px;
+  }
+
+  .personnel-attendance-card__subtitle {
+    font-size: 18px;
+  }
+
+  .personnel-attendance-card__actions {
+    gap: 8px;
+  }
+
+  .personnel-attendance-card__action {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  .personnel-attendance-card__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .personnel-attendance-card__modal {
+    border-radius: 12px;
+  }
+}

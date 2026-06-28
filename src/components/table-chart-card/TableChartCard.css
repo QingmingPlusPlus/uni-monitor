@@ -27,7 +27,7 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--space-1);
-  padding-right: 72rpx;
+  padding-right: 144rpx;
 }
 
 .table-chart-card__tag {
@@ -55,12 +55,17 @@
   line-height: 1.45;
 }
 
-.table-chart-card__expand {
+.table-chart-card__actions {
   display: flex;
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
   z-index: 2;
+  gap: var(--space-1);
+}
+
+.table-chart-card__action {
+  display: flex;
   width: 64rpx;
   height: 64rpx;
   flex-shrink: 0;
@@ -74,11 +79,11 @@
   line-height: 1;
 }
 
-.table-chart-card__expand::after {
+.table-chart-card__action::after {
   display: none;
 }
 
-.table-chart-card__expand:active {
+.table-chart-card__action:active {
   opacity: 0.75;
   transform: translateY(1px);
 }
@@ -137,7 +142,7 @@
   }
 
   .table-chart-card__title-group {
-    padding-right: 64px;
+    padding-right: 104px;
   }
 
   .table-chart-card__tag {
@@ -154,7 +159,11 @@
     font-size: 18px;
   }
 
-  .table-chart-card__expand {
+  .table-chart-card__actions {
+    gap: 8px;
+  }
+
+  .table-chart-card__action {
     width: 44px;
     height: 44px;
     border-radius: 8px;

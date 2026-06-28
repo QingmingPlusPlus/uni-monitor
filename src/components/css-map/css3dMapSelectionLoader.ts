@@ -33,6 +33,10 @@ interface CssMapSelectionJsonConfig {
   readonly processes: readonly CssMapSelectionJsonProcess[]
 }
 
+export interface CssMapSelectionConfigLoadOptions {
+  readonly forceRefresh?: boolean
+}
+
 const selectionConfigUrls = [
   '/factory-map/selection.json',
   '/static/factory-map/selection.json',
@@ -141,8 +145,17 @@ function createSelectionConfig(payload: CssMapSelectionJsonConfig): CssMapSelect
   }
 }
 
-async function fetchCssMapSelectionConfig(url: string): Promise<CssMapSelectionConfig> {
-  const response = await fetch(url)
+function addCacheBuster(url: string): string {
+  const separator = url.includes('?') ? '&' : '?'
+
+  return `${url}${separator}t=${Date.now()}`
+}
+
+async function fetchCssMapSelectionConfig(
+  url: string,
+  forceRefresh: boolean,
+): Promise<CssMapSelectionConfig> {
+  const response = await fetch(forceRefresh ? addCacheBuster(url) : url)
 
   if (!response.ok) {
     throw new CssMapSelectionConfigLoadError(
@@ -161,12 +174,12 @@ async function fetchCssMapSelectionConfig(url: string): Promise<CssMapSelectionC
   return createSelectionConfig(payload)
 }
 
-async function fetchFirstCssMapSelectionConfig(): Promise<CssMapSelectionConfig> {
+async function fetchFirstCssMapSelectionConfig(forceRefresh: boolean): Promise<CssMapSelectionConfig> {
   const errors: string[] = []
 
   for (const url of selectionConfigUrls) {
     try {
-      return await fetchCssMapSelectionConfig(url)
+      return await fetchCssMapSelectionConfig(url, forceRefresh)
     } catch (error: unknown) {
       errors.push(error instanceof Error ? error.message : `Unknown CSS map selection load error: ${url}`)
     }
@@ -175,15 +188,19 @@ async function fetchFirstCssMapSelectionConfig(): Promise<CssMapSelectionConfig>
   throw new CssMapSelectionConfigLoadError(errors.join(' | '))
 }
 
-export async function loadCssMapSelectionConfig(): Promise<CssMapSelectionConfig> {
-  selectionConfigPromise ??= fetchFirstCssMapSelectionConfig()
-    .catch((error: unknown) => {
-      if (error instanceof Error) {
-        return defaultCssMapSelectionConfig
-      }
+export async function loadCssMapSelectionConfig(
+  options: CssMapSelectionConfigLoadOptions = {},
+): Promise<CssMapSelectionConfig> {
+  if (selectionConfigPromise === null || options.forceRefresh === true) {
+    selectionConfigPromise = fetchFirstCssMapSelectionConfig(options.forceRefresh === true)
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          return defaultCssMapSelectionConfig
+        }
 
-      return defaultCssMapSelectionConfig
-    })
+        return defaultCssMapSelectionConfig
+      })
+  }
 
   return selectionConfigPromise
 }

@@ -20,6 +20,7 @@ const emit = defineEmits<{
   selectDepartment: [value: CssMapDepartmentValue]
   selectProcess: [value: CssMapProcessValue]
   openDevice: [payload: { readonly deviceId: string }]
+  refreshDashboard: []
 }>()
 </script>
 
@@ -49,7 +50,10 @@ const emit = defineEmits<{
         scroll-y
         :show-scrollbar="true"
       >
-        <FactoryDashboardPanel :data="data" />
+        <FactoryDashboardPanel
+          :data="data"
+          @refresh="emit('refreshDashboard')"
+        />
       </scroll-view>
     </view>
   </view>

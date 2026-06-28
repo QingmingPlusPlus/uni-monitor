@@ -8,8 +8,9 @@
 
 - 路由：`pages/department/index?departmentId=department1`
 - 描述：以部门为粒度展示组织单元的计划、实绩、人员配置与工序覆盖关系。
-- 页面布局：左侧为 `css-map`，右侧为 KPI 总览 + 5 个 `TableChartCard` 仪表盘。
+- 页面布局：左侧为 `css-map`，右侧第一行是人员出勤情况专用表格卡片，下方为两列瀑布流展位卡片。
 - 状态来源：`departmentId` query 是页面状态源。
+- 长屏刷新：部门页按设备本地时间每天 06:20 软刷新一次显示数据；人员出勤卡和下方展位卡右上角均提供手动刷新与展开按钮，刷新不执行整页 reload。
 
 ### 2. 工序维度（Process）
 
@@ -46,6 +47,7 @@
 ```
 
 - **部门 → 工序**：由 `public/factory-map/selection.json` 维护部门与工序的聚合关系，当前为制造1课负责前处理1/前处理2、制造2课负责加硫1、制造3课负责后处理1、制造4课负责加硫2/后处理2。
+- **部门人员出勤表**：由部门对应的 `processIds` 决定显示哪些工序类别；同类工序按去除尾部数字后的工序名合并，例如前处理1/前处理2 显示为一组“前处理”，制造4课的加硫2/后处理2 显示为“加硫”“后处理”并追加“制造4课全体”合计。
 - **工序 → 设备**：由 `devices.json` 中设备的 `section` 字段关联。
 - **设备详情**：以 `devices.json` 中的设备 `id` 作为 URL 主状态，当前 Mock 数据可共用，但代码结构按未来真实接口预留。
 
@@ -53,6 +55,6 @@
 
 | 路由 | 维度 | 状态 query | 布局 |
 | --- | --- | --- | --- |
-| `pages/department/index` | 部门 | `departmentId` | `css-map` + KPI + 5 个 `TableChartCard` |
+| `pages/department/index` | 部门 | `departmentId` | `css-map` + 人员出勤卡 + 两列瀑布流展位卡 |
 | `pages/process/index` | 工序 | `processId` | `css-map` + KPI + 4 个 `TableChartCard` |
 | `pages/equipment/index` | 设备 | `deviceId`、`from` | 单设备详情分析面板 |

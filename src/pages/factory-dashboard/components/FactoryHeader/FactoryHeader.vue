@@ -148,4 +148,14 @@ defineProps<{
     font-size: 17px;
   }
 }
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .factory-header {
+    flex-direction: column;
+  }
+
+  .factory-header__stats {
+    width: 100%;
+  }
+}
 </style>

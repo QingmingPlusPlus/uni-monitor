@@ -26,13 +26,58 @@ export interface FactoryDashboardCard {
   readonly chartData: ChartDataConfig
 }
 
-export interface FactoryDashboardData {
+export type FactoryDashboardKind = 'department' | 'process'
+
+export type PersonnelAttendanceShift = 'day' | 'night' | 'regular' | 'total'
+
+export interface PersonnelAttendanceRow {
+  readonly id: string
+  readonly shift: PersonnelAttendanceShift
+  readonly shiftLabel: string
+  readonly indirectDirectRoster: number
+  readonly indirectLeaderRoster: number
+  readonly indirectLeaderAttendance: number | null
+  readonly directTeamLeader: number
+  readonly directRegular: number
+  readonly directDispatched: number
+  readonly directTemporary: number
+  readonly directStandby: number
+  readonly directRosterTotal: number
+  readonly actualAttendance: number
+  readonly attendanceRate: number | null
+}
+
+export interface PersonnelAttendanceProcessGroup {
+  readonly id: string
+  readonly label: string
+  readonly rows: readonly PersonnelAttendanceRow[]
+}
+
+export interface PersonnelAttendanceData {
+  readonly title: string
+  readonly subtitle: string
+  readonly refreshedAt: string
+  readonly groups: readonly PersonnelAttendanceProcessGroup[]
+}
+
+interface FactoryDashboardBaseData {
   readonly eyebrow: string
   readonly title: string
   readonly subtitle: string
   readonly kpis: readonly FactoryKpiItem[]
   readonly cards: readonly FactoryDashboardCard[]
 }
+
+export interface DepartmentDashboardData extends FactoryDashboardBaseData {
+  readonly kind: 'department'
+  readonly attendance: PersonnelAttendanceData
+}
+
+export interface ProcessDashboardData extends FactoryDashboardBaseData {
+  readonly kind: 'process'
+}
+
+export type FactoryDashboardData = DepartmentDashboardData | ProcessDashboardData
 
 export interface EquipmentDetailRow {
   readonly label: string
