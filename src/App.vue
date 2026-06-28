@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
+
 onLaunch(() => {
   console.log("App Launch");
 });
@@ -17,16 +18,21 @@ body,
   --um-color-page: #F2F5F8;
   --um-color-surface: #FFFFFF;
   --um-color-surface-subtle: #E7EEF6;
-  --um-color-rail: #D8E1EB;
+  --um-color-rail: #D8E2EE;
   --um-color-text-primary: #162033;
-  --um-color-text-secondary: #566579;
+  --um-color-text-secondary: #53657A;
   --um-color-text-inverse: #FFFFFF;
   --um-color-border: #D5DEE8;
-  --um-color-accent: #126B72;
-  --um-color-accent-soft: #DDEFF0;
-  --um-color-success: #15905D;
-  --um-color-warning: #B7791F;
-  --um-color-danger: #C2413A;
+  --um-color-accent: #2471FF;
+  --um-color-accent-soft: #E7F0FF;
+  --um-color-operation: #2471FF;
+  --um-color-operation-soft: #E7F0FF;
+  --um-color-success: #22A06B;
+  --um-color-success-soft: #E6F6EE;
+  --um-color-warning: #F5B638;
+  --um-color-warning-soft: #FFF4D8;
+  --um-color-danger: #E55353;
+  --um-color-danger-soft: #FDE7E7;
   --space-1: 8rpx;
   --space-2: 16rpx;
   --space-3: 24rpx;

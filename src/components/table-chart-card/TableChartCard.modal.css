@@ -99,7 +99,6 @@
 }
 
 .table-chart-card__chart--modal,
-.table-chart-card__chart--modal :deep(.uni-echarts__canvas),
 .table-chart-card__chart--modal :deep(.uni-canvas),
 .table-chart-card__chart--modal :deep(.uni-canvas-canvas) {
   height: 100%;
@@ -127,7 +126,6 @@
 
   .table-chart-card__chart-area--modal,
   .table-chart-card__chart--modal,
-  .table-chart-card__chart--modal :deep(.uni-echarts__canvas),
   .table-chart-card__chart--modal :deep(.uni-canvas),
   .table-chart-card__chart--modal :deep(.uni-canvas-canvas) {
     min-height: min(520px, 28vh);

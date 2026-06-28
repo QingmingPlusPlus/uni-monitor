@@ -32,15 +32,13 @@
     />
 
     <view class="table-chart-card__chart-area">
-      <UniEcharts
+      <TableChartEchart
         v-if="hasChartData"
         ref="inlineChartRef"
         class="table-chart-card__chart"
         :option="resolvedChartOptions"
         :init-options="chartInitOptions"
         :update-options="chartUpdateOptions"
-        :autoresize="chartAutoResize"
-        :support-hover="true"
         @inited="handleChartInited"
       />
       <view v-else class="table-chart-card__empty table-chart-card__empty--chart">
@@ -92,15 +90,13 @@
           />
 
           <view class="table-chart-card__chart-area table-chart-card__chart-area--modal">
-            <UniEcharts
+            <TableChartEchart
               v-if="hasChartData"
               ref="modalChartRef"
               class="table-chart-card__chart table-chart-card__chart--modal"
               :option="resolvedChartOptions"
               :init-options="chartInitOptions"
               :update-options="chartUpdateOptions"
-              :autoresize="chartAutoResize"
-              :support-hover="true"
               @inited="handleChartInited"
             />
             <view v-else class="table-chart-card__empty table-chart-card__empty--chart">
@@ -114,11 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import * as echarts from "echarts"
 import type { SetOptionOpts } from "echarts"
-import UniEcharts from "uni-echarts"
-import { provideEcharts } from "uni-echarts/shared"
 import { computed, nextTick, onMounted, ref, watch } from "vue"
+import TableChartEchart from "./TableChartEchart.vue"
 import TableChartCardTable from "./TableChartCardTable.vue"
 import {
   hasRenderableChartData,
@@ -131,8 +125,6 @@ import type {
   TableData,
   TableRowConfig,
 } from "./TableChartCard.types"
-
-provideEcharts(echarts)
 
 const props = withDefaults(
   defineProps<{
@@ -181,10 +173,6 @@ const chartUpdateOptions: SetOptionOpts = {
 const chartInitOptions = {
   renderer: "canvas",
 } as const
-
-const chartAutoResize = {
-  throttle: 120,
-}
 
 const resizeOneChart = async (chart: ChartResizeHandle | null): Promise<void> => {
   if (chart === null) {

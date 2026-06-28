@@ -43,6 +43,8 @@ interface CreateCss3dMapSceneOptions {
 export interface Css3dMapScene {
   render: () => void
   resize: () => void
+  panBy: (deltaX: number, deltaZ: number) => void
+  zoomBy: (factor: number) => void
   resetView: () => void
   focusRect: (rect: CssMapRect) => void
   dispose: () => void
@@ -239,6 +241,8 @@ export function createCss3dMapScene(options: CreateCss3dMapSceneOptions): Css3dM
   return {
     render,
     resize,
+    panBy: controls.panBy,
+    zoomBy: controls.zoomBy,
     focusRect,
     resetView: controls.reset,
     dispose() {

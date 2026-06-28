@@ -165,6 +165,17 @@ export interface CssMapDisplayOptions {
 
 export type CssMapDeviceDisplayMode = 'full' | 'compact' | 'summary' | 'micro'
 
+export type CssMapScreenControlAction =
+  | 'pan-up'
+  | 'pan-down'
+  | 'pan-left'
+  | 'pan-right'
+  | 'zoom-in'
+  | 'zoom-out'
+  | 'reset'
+  | 'focus'
+  | 'select'
+
 export interface CssMapDeviceScreenRect {
   width: number
   height: number

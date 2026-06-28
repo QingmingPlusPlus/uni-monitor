@@ -12,12 +12,16 @@ interface Css3dMapControlsOptions {
 export interface Css3dMapControls {
   reset: () => void
   focusAt: (target: THREE.Vector3, distance: number) => void
+  panBy: (deltaX: number, deltaZ: number) => void
+  zoomBy: (factor: number) => void
   setMaxDistance: (distance: number) => void
   dispose: () => void
 }
 
 export function createCss3dMapControls(options: Css3dMapControlsOptions): Css3dMapControls {
   const controls = new MapControls(options.camera, options.domElement)
+  let maxDistance = options.maxDistance ?? Number.POSITIVE_INFINITY
+  const minDistance = 120
 
   controls.enablePan = true
   controls.enableZoom = true
@@ -59,7 +63,27 @@ export function createCss3dMapControls(options: Css3dMapControlsOptions): Css3dM
       controls.update()
       options.render()
     },
+    panBy(deltaX, deltaZ) {
+      options.camera.position.x += deltaX
+      options.camera.position.z += deltaZ
+      controls.target.x += deltaX
+      controls.target.z += deltaZ
+      controls.update()
+      options.render()
+    },
+    zoomBy(factor) {
+      const offset = new THREE.Vector3().subVectors(options.camera.position, controls.target)
+      const currentDistance = Math.max(offset.length(), minDistance)
+      const nextDistance = THREE.MathUtils.clamp(currentDistance * factor, minDistance, maxDistance)
+
+      offset.setLength(nextDistance)
+      options.camera.position.copy(controls.target).add(offset)
+      options.camera.updateMatrixWorld()
+      controls.update()
+      options.render()
+    },
     setMaxDistance(distance: number) {
+      maxDistance = distance
       controls.maxDistance = distance
       controls.update()
     },

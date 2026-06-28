@@ -2,35 +2,129 @@ import type {
   CssMapDevice,
   CssMapDeviceRuntime,
   CssMapDeviceStatus,
-  CssMapJsonDevice,
   CssMapJsonConfig,
+  CssMapJsonDevice,
+  CssMapJsonDeviceChild,
+  CssMapJsonSection,
+  CssMapPoint,
   CssMapProcessBoundary,
+  CssMapProcessValue,
   CssMapSize,
 } from './css3dMapTypes'
-import { getDeviceRealtimeList } from '../../api/deviceRealtime'
-import { getScheduleDeviceLoadByMonth } from '../../api/schedule'
-import type { DeviceRealtimeItem } from '../../api/deviceRealtime'
-import type { ScheduleDeviceLoadRecord } from '../../api/schedule'
+import { getCssMapProcessLabel, isCssMapProcessValue } from './css3dMapSelection'
 
-const FACTORY_MAP_CONFIG_URL = '/factory-map/devices.json'
+const factoryMapConfigUrls = [
+  '/static/factory-map/devices.json',
+  '/factory-map/devices.json',
+] as const
 
-export interface CssMapData {
-  size: CssMapSize
-  sections: CssMapProcessBoundary[]
-  devices: CssMapDevice[]
+const mockStatuses = [
+  'production',
+  'production',
+  'plannedStop',
+  'changeover',
+  'abnormalStop',
+  'cleaning',
+  'neutral',
+] as const satisfies readonly CssMapDeviceStatus[]
+
+const mockFiveMCategories = ['man', 'machine', 'material', 'method', 'environment'] as const
+
+export class CssMapDataLoadError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'CssMapDataLoadError'
+  }
 }
 
-function normalizeDeviceCode(value: string | null | undefined) {
+export interface CssMapData {
+  readonly size: CssMapSize
+  readonly sections: readonly CssMapProcessBoundary[]
+  readonly devices: readonly CssMapDevice[]
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isPoint(value: unknown): value is CssMapPoint {
+  return isRecord(value) && typeof value.x === 'number' && typeof value.y === 'number'
+}
+
+function isDeviceChild(value: unknown): value is CssMapJsonDeviceChild {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.name === 'string' &&
+    typeof value.deviceCode === 'string' &&
+    typeof value.x === 'number' &&
+    typeof value.y === 'number' &&
+    typeof value.width === 'number' &&
+    typeof value.height === 'number'
+  )
+}
+
+function isDevice(value: unknown): value is CssMapJsonDevice {
+  if (
+    !isRecord(value) ||
+    typeof value.id !== 'string' ||
+    typeof value.name !== 'string' ||
+    typeof value.x !== 'number' ||
+    typeof value.y !== 'number' ||
+    typeof value.width !== 'number' ||
+    typeof value.height !== 'number'
+  ) {
+    return false
+  }
+
+  const section = value.section
+  const children = value.children
+  const deviceCodes = value.deviceCodes
+
+  return (
+    (section === null || isCssMapProcessValue(typeof section === 'string' ? section : undefined)) &&
+    (value.deviceCode === undefined || typeof value.deviceCode === 'string') &&
+    (deviceCodes === undefined || (Array.isArray(deviceCodes) && deviceCodes.every((code) => typeof code === 'string'))) &&
+    (children === undefined || (Array.isArray(children) && children.every(isDeviceChild)))
+  )
+}
+
+function isSection(value: unknown): value is CssMapJsonSection {
+  return (
+    isRecord(value) &&
+    isCssMapProcessValue(typeof value.id === 'string' ? value.id : undefined) &&
+    typeof value.stroke === 'string' &&
+    Array.isArray(value.points) &&
+    value.points.every(isPoint)
+  )
+}
+
+function isCssMapJsonConfig(value: unknown): value is CssMapJsonConfig {
+  return (
+    isRecord(value) &&
+    isRecord(value.source) &&
+    typeof value.source.imageWidth === 'number' &&
+    typeof value.source.imageHeight === 'number' &&
+    value.source.coordinateOrigin === 'top-left' &&
+    value.source.unit === 'px' &&
+    Array.isArray(value.sections) &&
+    value.sections.every(isSection) &&
+    Array.isArray(value.devices) &&
+    value.devices.every(isDevice)
+  )
+}
+
+function normalizeDeviceCode(value: string | null | undefined): string {
   return String(value ?? '').trim().toUpperCase()
 }
 
-function appendUniqueDeviceCode(codes: string[], code: string | null | undefined) {
+function appendUniqueDeviceCode(codes: string[], code: string | null | undefined): void {
   const normalizedCode = normalizeDeviceCode(code)
   if (!normalizedCode || codes.includes(normalizedCode)) return
   codes.push(normalizedCode)
 }
 
-function collectDeviceRuntimeCodes(device: CssMapJsonDevice) {
+function collectDeviceRuntimeCodes(device: CssMapJsonDevice): string[] {
   const codes: string[] = []
   appendUniqueDeviceCode(codes, device.deviceCode)
   device.deviceCodes?.forEach((code) => appendUniqueDeviceCode(codes, code))
@@ -38,185 +132,42 @@ function collectDeviceRuntimeCodes(device: CssMapJsonDevice) {
   return codes
 }
 
-function createDeviceCodeLookup<T>(
-  records: T[],
-  getRecordCode: (record: T) => string | null | undefined,
-) {
-  const lookup = new Map<string, T[]>()
-
-  records.forEach((record) => {
-    const code = normalizeDeviceCode(getRecordCode(record))
-    if (!code) return
-
-    const bucket = lookup.get(code)
-    if (bucket) {
-      bucket.push(record)
-      return
-    }
-
-    lookup.set(code, [record])
-  })
-
-  return lookup
+function hashText(value: string): number {
+  return Array.from(value).reduce((hash, char) => {
+    const nextHash = (hash * 31 + char.charCodeAt(0)) % 9973
+    return nextHash
+  }, 17)
 }
 
-function getRecordsByDeviceCodes<T>(lookup: Map<string, T[]>, codes: string[]) {
-  const result: T[] = []
-  const seenRecords = new Set<T>()
-
-  codes.forEach((code) => {
-    lookup.get(normalizeDeviceCode(code))?.forEach((record) => {
-      if (seenRecords.has(record)) return
-      seenRecords.add(record)
-      result.push(record)
-    })
-  })
-
-  return result
-}
-
-function mapDeviceStatus(device: DeviceRealtimeItem): CssMapDeviceStatus | null {
-  const statusText = [
-    device.actualStatus,
-    device.actualStatusName,
-    device.deviceStatus,
-    device.deviceStatusName,
-    device.deviceParseTypeName,
-  ]
-    .filter((value): value is string => Boolean(value))
-    .join(' ')
-    .toLowerCase()
-
-  if (/异常|故障|error|fault|alarm/.test(statusText)) return 'abnormalStop'
-  if (/换型|切替|change/.test(statusText)) return 'changeover'
-  if (/清扫|clean/.test(statusText)) return 'cleaning'
-  if (/停|pause|stop|idle/.test(statusText)) return 'plannedStop'
-  if (/正常|运行|normal|running/.test(statusText)) return 'production'
-
-  return null
-}
-
-function selectDeviceStatus(devices: DeviceRealtimeItem[]) {
-  const statusPriority: Record<CssMapDeviceStatus, number> = {
-    abnormalStop: 5,
-    changeover: 4,
-    plannedStop: 3,
-    cleaning: 2,
-    production: 1,
-    neutral: 0,
-  }
-
-  const statuses = devices
-    .map(mapDeviceStatus)
-    .filter((status): status is CssMapDeviceStatus => status !== null)
-    .sort((left, right) => statusPriority[right] - statusPriority[left])[0] ?? null
-
-  return statuses
-}
-
-function toPercentLoadRate(load: ScheduleDeviceLoadRecord) {
-  const rawValue = Number(load.fuhe)
-  if (!Number.isFinite(rawValue)) return null
-
-  return Math.round(rawValue * 1000) / 10
-}
-
-function averageLoadRate(loads: ScheduleDeviceLoadRecord[]) {
-  const values = loads
-    .map(toPercentLoadRate)
-    .filter((value): value is number => value !== null)
-
-  if (values.length === 0) return null
-
-  return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10
-}
-
-function createRuntimeFromApi(
-  realtimeItems: DeviceRealtimeItem[],
-  loadItems: ScheduleDeviceLoadRecord[],
-): CssMapDeviceRuntime {
-  const staffByKey = new Map<string, CssMapDeviceRuntime['staff'][number]>()
-  const fiveMChangesByKey = new Map<string, CssMapDeviceRuntime['fiveMChanges'][number]>()
-
-  function addFiveMChange(category: CssMapDeviceRuntime['fiveMChanges'][number]['category'], label: string | null | undefined) {
-    const changeLabel = String(label ?? '').trim()
-    if (!changeLabel) return
-
-    const key = `${category}:${changeLabel}`
-    if (fiveMChangesByKey.has(key)) return
-
-    fiveMChangesByKey.set(key, {
-      id: key,
-      category,
-      label: changeLabel,
-    })
-  }
-
-  realtimeItems.forEach((item) => {
-    item.onlinePersonList.forEach((person, index) => {
-      const staffKey = [
-        person.employeeId,
-        person.employeeNumber,
-        person.recordId,
-        person.employeeName,
-        `${item.deviceCode}-${index}`,
-      ].find((value) => String(value ?? '').trim()) as string
-
-      if (!staffByKey.has(staffKey)) {
-        staffByKey.set(staffKey, {
-          id: staffKey,
-          name: person.employeeName,
-          category: 'operator',
-          shift: 'full',
-        })
-      }
-
-      if (person.employeePauseStatus === 1) {
-        addFiveMChange('man', person.employeePauseTypeName ?? person.employeePauseStatusName)
-      }
-    })
-
-    addFiveMChange('machine', item.deviceParseTypeName)
-  })
+function createMockRuntime(seed: string): CssMapDeviceRuntime {
+  const hash = hashText(seed)
+  const status = mockStatuses[hash % mockStatuses.length] ?? 'neutral'
+  const loadRate = Math.round((28 + (hash % 82) + ((hash % 7) / 10)) * 10) / 10
+  const staffCount = hash % 3
+  const fiveMCount = hash % 4 === 0 ? 1 : 0
 
   return {
-    status: selectDeviceStatus(realtimeItems),
-    loadRate: averageLoadRate(loadItems),
-    staff: Array.from(staffByKey.values()),
-    fiveMChanges: Array.from(fiveMChangesByKey.values()),
+    status,
+    loadRate,
+    staff: Array.from({ length: staffCount }, (_, index) => ({
+      id: `${seed}-staff-${index + 1}`,
+      name: `作业员${index + 1}`,
+      category: 'operator',
+      shift: index % 2 === 0 ? 'full' : 'short',
+    })),
+    fiveMChanges: Array.from({ length: fiveMCount }, (_, index) => {
+      const category = mockFiveMCategories[(hash + index) % mockFiveMCategories.length] ?? 'machine'
+
+      return {
+        id: `${seed}-five-m-${index + 1}`,
+        category,
+        label: category === 'man' ? '人员短缺' : '状态偏离',
+      }
+    }),
   }
 }
 
-function formatMonth(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-
-  return `${year}-${month}`
-}
-
-async function loadCurrentMonthDeviceLoads() {
-  const currentMonth = formatMonth(new Date())
-  const currentResponse = await getScheduleDeviceLoadByMonth(currentMonth)
-
-  return currentResponse.data.success ? currentResponse.data.data : []
-}
-
-export function createCssMapData(
-  mapConfig: CssMapJsonConfig,
-  apiRuntime: {
-    realtimeItems: DeviceRealtimeItem[]
-    loadItems: ScheduleDeviceLoadRecord[]
-  },
-): CssMapData {
-  const realtimeLookup = createDeviceCodeLookup(
-    apiRuntime.realtimeItems,
-    (item) => item.deviceCode,
-  )
-  const loadLookup = createDeviceCodeLookup(
-    apiRuntime.loadItems,
-    (item) => item.devCode,
-  )
-
+function createCssMapData(mapConfig: CssMapJsonConfig): CssMapData {
   return {
     size: {
       width: mapConfig.source.imageWidth,
@@ -224,7 +175,7 @@ export function createCssMapData(
     },
     sections: mapConfig.sections.map((section) => ({
       process: section.id,
-      labelKey: section.labelKey,
+      labelKey: getCssMapProcessLabel(section.id),
       points: section.points,
       stroke: section.stroke,
     })),
@@ -241,58 +192,48 @@ export function createCssMapData(
         h: device.height,
         deviceCode: device.deviceCode,
         deviceCodes: runtimeCodes,
-        children: (device.children ?? []).map((child) => {
-          const childCodes = [normalizeDeviceCode(child.deviceCode)].filter(Boolean)
-
-          return {
-            id: child.id,
-            name: child.name,
-            deviceCode: child.deviceCode,
-            x: child.x,
-            y: child.y,
-            w: child.width,
-            h: child.height,
-            runtime: createRuntimeFromApi(
-              getRecordsByDeviceCodes(realtimeLookup, childCodes),
-              getRecordsByDeviceCodes(loadLookup, childCodes),
-            ),
-          }
-        }),
-        runtime: createRuntimeFromApi(
-          getRecordsByDeviceCodes(realtimeLookup, runtimeCodes),
-          getRecordsByDeviceCodes(loadLookup, runtimeCodes),
-        ),
+        children: (device.children ?? []).map((child) => ({
+          id: child.id,
+          name: child.name,
+          deviceCode: child.deviceCode,
+          x: child.x,
+          y: child.y,
+          w: child.width,
+          h: child.height,
+          runtime: createMockRuntime(child.deviceCode),
+        })),
+        runtime: createMockRuntime(runtimeCodes[0] ?? device.id),
       }
     }),
   }
 }
 
-export async function loadCssMapData(): Promise<CssMapData> {
-  const response = await fetch(FACTORY_MAP_CONFIG_URL)
+async function fetchFactoryMapConfig(url: string): Promise<unknown> {
+  const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(`Failed to load ${FACTORY_MAP_CONFIG_URL}: ${response.status}`)
+    throw new CssMapDataLoadError(`Failed to load factory map config ${url}: ${response.status}`)
   }
 
-  const mapConfig = await response.json() as CssMapJsonConfig
+  return response.json()
+}
 
-  try {
-    const [realtimeResponse, loadItems] = await Promise.all([
-      getDeviceRealtimeList(),
-      loadCurrentMonthDeviceLoads(),
-    ])
+export async function loadCssMapData(): Promise<CssMapData> {
+  const errors: string[] = []
 
-    const apiRuntime = {
-      realtimeItems: realtimeResponse.data.success ? realtimeResponse.data.data : [],
-      loadItems,
+  for (const url of factoryMapConfigUrls) {
+    try {
+      const payload = await fetchFactoryMapConfig(url)
+
+      if (!isCssMapJsonConfig(payload)) {
+        throw new CssMapDataLoadError(`Factory map config shape is invalid: ${url}`)
+      }
+
+      return createCssMapData(payload)
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : `Unknown factory map load error: ${url}`)
     }
-
-    return createCssMapData(mapConfig, apiRuntime)
-  } catch (error) {
-    console.warn('Failed to load live css map runtime, using empty runtime.', error)
-    return createCssMapData(mapConfig, {
-      realtimeItems: [],
-      loadItems: [],
-    })
   }
+
+  throw new CssMapDataLoadError(errors.join(' | '))
 }

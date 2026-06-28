@@ -1,173 +1,158 @@
-<template>
-  <view class="equipment-page">
-    <view class="equipment-page__header">
-      <view class="equipment-page__header-copy">
-        <text class="equipment-page__label">Equipment Dimension</text>
-        <text class="equipment-page__title">设备维度</text>
-        <text class="equipment-page__subtitle">
-          展示各工序下的具体设备状态、运行参数与维护信息。
-        </text>
-      </view>
-      <view class="equipment-page__actions">
-        <view class="equipment-page__back" @click="handleBack">
-          <text class="equipment-page__back-text">← 返回上一维度</text>
-        </view>
-      </view>
-    </view>
-
-    <scroll-view
-      class="equipment-page__scroll"
-      scroll-y
-      :show-scrollbar="true"
-    >
-      <EquipmentWaterfall />
-    </scroll-view>
-  </view>
-</template>
-
 <script setup lang="ts">
-import EquipmentWaterfall from "./components/EquipmentWaterfall.vue"
+import { onLoad } from '@dcloudio/uni-app'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import type {
+  CssMapDevice,
+  CssMapDeviceChild,
+  CssMapProcessValue,
+} from '../../components/css-map/css3dMapTypes'
+import {
+  defaultCssMapSelectionValues,
+  getCssMapDepartmentForProcess,
+} from '../../components/css-map/css3dMapSelection'
+import { loadCssMapData } from '../../components/css-map/css3dMapLiveData'
+import EquipmentDetailView from '../factory-dashboard/components/EquipmentDetailView/EquipmentDetailView.vue'
+import { getEquipmentDetailData } from '../factory-dashboard/data/equipmentDetailMock'
+import {
+  buildDepartmentUrl,
+  buildProcessUrl,
+  parseRouteSource,
+  readCurrentFactoryRouteQuery,
+  readQueryValue,
+  redirectToFactoryUrl,
+  subscribeFactoryRouteQueryChange,
+  type FactoryRouteSource,
+} from '../factory-dashboard/utils/factoryRoutes'
 
-const handleBack = () => {
-  const pages = getCurrentPages()
-  if (pages.length > 1) {
-    uni.navigateBack({ delta: 1 })
-  } else {
-    uni.navigateTo({ url: "/pages/department/index" })
+const requestedDeviceId = ref('')
+const source = ref<FactoryRouteSource>('department')
+const devices = ref<readonly CssMapDevice[]>([])
+const loadError = ref('')
+let stopRouteQuerySync: (() => void) | null = null
+
+const activeDevice = computed<CssMapDevice | null>(() => {
+  if (devices.value.length === 0) return null
+
+  const requested = requestedDeviceId.value
+  const directDevice = devices.value.find((device) => device.id === requested)
+  if (directDevice) return directDevice
+
+  const childDevice = findChildDevice(requested)
+  if (childDevice) return childDevice
+
+  return devices.value[0] ?? null
+})
+
+const detailData = computed(() => getEquipmentDetailData(activeDevice.value))
+
+function syncRouteQuery(query: Readonly<Record<string, string | undefined>> | undefined): void {
+  requestedDeviceId.value = readQueryValue(query, 'deviceId') ?? ''
+  source.value = parseRouteSource(readQueryValue(query, 'from'))
+}
+
+onLoad(syncRouteQuery)
+
+onMounted(() => {
+  syncRouteQuery(readCurrentFactoryRouteQuery())
+  stopRouteQuerySync = subscribeFactoryRouteQueryChange(() => {
+    syncRouteQuery(readCurrentFactoryRouteQuery())
+  })
+
+  loadCssMapData()
+    .then((mapData) => {
+      devices.value = mapData.devices
+    })
+    .catch((error: unknown) => {
+      loadError.value = error instanceof Error ? error.message : '设备数据加载失败'
+    })
+})
+
+onBeforeUnmount(() => {
+  stopRouteQuerySync?.()
+  stopRouteQuerySync = null
+})
+
+function createDeviceFromChild(parent: CssMapDevice, child: CssMapDeviceChild): CssMapDevice {
+  return {
+    id: child.id,
+    name: child.name,
+    section: parent.section,
+    x: parent.x,
+    y: parent.y,
+    w: parent.w,
+    h: parent.h,
+    deviceCode: child.deviceCode,
+    deviceCodes: [child.deviceCode],
+    children: [],
+    runtime: child.runtime,
   }
+}
+
+function findChildDevice(deviceId: string): CssMapDevice | null {
+  for (const parent of devices.value) {
+    const child = parent.children.find((item) => item.id === deviceId)
+    if (child) return createDeviceFromChild(parent, child)
+  }
+
+  return null
+}
+
+function getFallbackProcess(): CssMapProcessValue {
+  return activeDevice.value?.section ?? 'pretreatment1'
+}
+
+function handleBack(): void {
+  const processId = getFallbackProcess()
+
+  if (source.value === 'process') {
+    redirectToFactoryUrl(buildProcessUrl(processId))
+    return
+  }
+
+  const departmentId = activeDevice.value?.section
+    ? getCssMapDepartmentForProcess(activeDevice.value.section)
+    : defaultCssMapSelectionValues.department
+
+  redirectToFactoryUrl(buildDepartmentUrl(departmentId))
 }
 </script>
 
+<template>
+  <EquipmentDetailView
+    :data="detailData"
+    @back="handleBack"
+  />
+
+  <view
+    v-if="loadError"
+    class="equipment-load-error"
+  >
+    {{ loadError }}
+  </view>
+</template>
+
 <style scoped>
-.equipment-page {
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  padding: var(--space-3);
-  background: var(--um-color-page);
-  box-sizing: border-box;
-}
-
-.equipment-page__header {
-  display: flex;
-  flex-shrink: 0;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--um-color-border);
-  border-radius: 18rpx;
+.equipment-load-error {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 10;
+  max-width: 520rpx;
+  border: 1px solid var(--um-color-danger);
+  border-radius: 10rpx;
   background: var(--um-color-surface);
-}
-
-.equipment-page__header-copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.equipment-page__label {
-  color: var(--um-color-accent);
-  font-size: 22rpx;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.equipment-page__title {
-  color: var(--um-color-text-primary);
-  font-size: 44rpx;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.equipment-page__subtitle {
-  max-width: 760rpx;
-  color: var(--um-color-text-secondary);
-  font-size: 26rpx;
-  line-height: 1.5;
-}
-
-.equipment-page__actions {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.equipment-page__back {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--um-color-border);
-  border-radius: 12rpx;
-  background: var(--um-color-surface-subtle);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.equipment-page__back:hover {
-  background: var(--um-color-border);
-}
-
-.equipment-page__back-text {
-  color: var(--um-color-text-primary);
+  color: var(--um-color-danger);
   font-size: 24rpx;
-  font-weight: 600;
+  font-weight: 800;
   line-height: 1.4;
-}
-
-.equipment-page__scroll {
-  display: flex;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-  flex-direction: column;
-  padding-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
 }
 
 @media (min-width: 768px) {
-  .equipment-page {
-    padding: var(--space-4);
-  }
-
-  .equipment-page__header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 16px;
-  }
-
-  .equipment-page__label {
-    font-size: 13px;
-  }
-
-  .equipment-page__title {
-    font-size: 32px;
-  }
-
-  .equipment-page__subtitle {
-    max-width: 720px;
-    font-size: 15px;
-  }
-
-  .equipment-page__back {
-    padding: 10px 18px;
-    border-radius: 10px;
-  }
-
-  .equipment-page__back-text {
-    font-size: 14px;
-  }
-
-  .equipment-page__scroll {
-    padding-top: var(--space-4);
-  }
-}
-
-@media (min-width: 1920px) {
-  .equipment-page__header {
-    min-height: 96px;
-    padding-block: 14px;
+  .equipment-load-error {
+    max-width: 420px;
+    border-radius: 8px;
+    font-size: 16px;
   }
 }
 </style>

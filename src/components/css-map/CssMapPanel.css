@@ -1,0 +1,98 @@
+.css-map-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid var(--um-color-border);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(21, 43, 70, 0.045) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(0deg, rgba(21, 43, 70, 0.045) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--um-color-surface);
+  color: var(--um-color-text-primary);
+}
+
+.css-map-panel__scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+}
+
+.css-map-panel__scene:active {
+  cursor: grabbing;
+}
+
+.css-map-panel__source {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+}
+
+.css-map-panel__device-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  cursor: pointer;
+  touch-action: manipulation;
+  transform-style: preserve-3d;
+  user-select: none;
+}
+
+.css-map-panel__error {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 5;
+  width: min(480px, calc(100% - 48px));
+  border: 1px solid var(--um-color-danger);
+  border-radius: 8px;
+  background: var(--um-color-surface);
+  color: var(--um-color-danger);
+  font-size: 16px;
+  font-weight: 800;
+  padding: 16px 18px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.css3d-map-renderer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.css3d-map-process-boundaries,
+.css3d-map-process-boundaries__svg,
+.css3d-map-process-boundaries__polygon {
+  pointer-events: none !important;
+}
+
+.css3d-map-process-boundaries {
+  overflow: visible;
+}
+
+.css3d-map-process-boundaries__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.css3d-map-process-boundaries__polygon {
+  stroke-width: 6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (max-width: 900px) {
+  .css-map-panel {
+    min-height: 460px;
+  }
+}
