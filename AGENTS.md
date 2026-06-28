@@ -20,6 +20,7 @@
 - 约束未来行为、验收场景和长期业务规则，写入 `spec/` 或 `openspec/specs/`。
 - 当前项目状态、模块说明、路由、页面、字段、接口和迁移记录，写入 `doc/`。
 - 稳定、重复、值得复用且有明确步骤和自检的操作流程，写入 `.agents/skills/`。
+- 项目级通用 skill 以 `.agents/skills/` 为唯一正文来源；`.codex/skills/`、`.opencode/skills/`、`.qoder/skills/` 仅作为各 agent 的发现入口或必要适配层。
 
 ### 记忆保鲜
 
