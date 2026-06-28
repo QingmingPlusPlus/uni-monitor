@@ -7,7 +7,6 @@ import CssMapToolbar from './CssMapToolbar.vue'
 import { createCss3dMapScene, type Css3dMapScene } from './css3dMapScene'
 import { getCssMapProcessBoundaryFocusRect, getCssMapProcessBoundaryGroupFocusRect } from './css3dMapProcessBoundaries'
 import { loadCssMapData } from './css3dMapLiveData'
-import { cssMapDepartmentProcessMap } from './css3dMapSelection'
 import { runCssMapScreenAction } from './css3dMapScreenActions'
 import {
   createCssMapDeviceNavigation,
@@ -19,6 +18,7 @@ import type {
   CssMapDeviceChild,
   CssMapDeviceScreenRect,
   CssMapDisplayOptions,
+  CssMapSelectionConfig,
   CssMapProcessBoundary,
   CssMapProcessValue,
   CssMapScreenControlAction,
@@ -30,6 +30,7 @@ defineOptions({
 })
 
 const props = defineProps<{
+  readonly selectionConfig: CssMapSelectionConfig
   readonly selectedDepartment: CssMapDepartmentValue
   readonly selectedProcess: CssMapProcessValue | null
 }>()
@@ -86,7 +87,7 @@ function focusProcessBoundary(value: CssMapProcessValue): void {
 function focusDepartmentBoundary(value: CssMapDepartmentValue): void {
   const rect = getCssMapProcessBoundaryGroupFocusRect(
     [...cssMapSections.value],
-    cssMapDepartmentProcessMap[value],
+    props.selectionConfig.departmentProcessMap[value],
   )
   if (!rect) return
   scene?.focusRect(rect)
@@ -127,7 +128,7 @@ function handleScreenControl(action: CssMapScreenControlAction): void {
 }
 
 async function initializeScene(): Promise<void> {
-  const mapData = await loadCssMapData()
+  const mapData = await loadCssMapData(props.selectionConfig)
 
   cssMapDevices.value = mapData.devices
   cssMapSections.value = mapData.sections
@@ -166,7 +167,7 @@ onBeforeUnmount(() => {
 })
 
 watch(
-  () => [props.selectedDepartment, props.selectedProcess, cssMapSections.value.length] as const,
+  () => [props.selectedDepartment, props.selectedProcess, props.selectionConfig, cssMapSections.value.length] as const,
   () => {
     nextTick(focusActiveSelection).catch((error: unknown) => {
       loadError.value = error instanceof Error ? error.message : '地图聚焦失败'
@@ -184,6 +185,7 @@ watch(
     />
 
     <CssMapToolbar
+      :selection-config="selectionConfig"
       :selected-department="selectedDepartment"
       :selected-process="selectedProcess"
       @select-department="emit('selectDepartment', $event)"

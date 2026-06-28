@@ -5,11 +5,13 @@ import type {
   CssMapDevice,
   CssMapDeviceChild,
   CssMapProcessValue,
+  CssMapSelectionConfig,
 } from '../../components/css-map/css3dMapTypes'
 import {
-  defaultCssMapSelectionValues,
+  defaultCssMapSelectionConfig,
   getCssMapDepartmentForProcess,
 } from '../../components/css-map/css3dMapSelection'
+import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import { loadCssMapData } from '../../components/css-map/css3dMapLiveData'
 import EquipmentDetailView from '../factory-dashboard/components/EquipmentDetailView/EquipmentDetailView.vue'
 import { getEquipmentDetailData } from '../factory-dashboard/data/equipmentDetailMock'
@@ -27,6 +29,7 @@ import {
 const requestedDeviceId = ref('')
 const source = ref<FactoryRouteSource>('department')
 const devices = ref<readonly CssMapDevice[]>([])
+const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 const loadError = ref('')
 let stopRouteQuerySync: (() => void) | null = null
 
@@ -58,7 +61,11 @@ onMounted(() => {
     syncRouteQuery(readCurrentFactoryRouteQuery())
   })
 
-  loadCssMapData()
+  loadCssMapSelectionConfig()
+    .then((config) => {
+      selectionConfig.value = config
+      return loadCssMapData(config)
+    })
     .then((mapData) => {
       devices.value = mapData.devices
     })
@@ -98,7 +105,7 @@ function findChildDevice(deviceId: string): CssMapDevice | null {
 }
 
 function getFallbackProcess(): CssMapProcessValue {
-  return activeDevice.value?.section ?? 'pretreatment1'
+  return activeDevice.value?.section ?? selectionConfig.value.defaults.process
 }
 
 function handleBack(): void {
@@ -110,8 +117,8 @@ function handleBack(): void {
   }
 
   const departmentId = activeDevice.value?.section
-    ? getCssMapDepartmentForProcess(activeDevice.value.section)
-    : defaultCssMapSelectionValues.department
+    ? getCssMapDepartmentForProcess(activeDevice.value.section, selectionConfig.value)
+    : selectionConfig.value.defaults.department
 
   redirectToFactoryUrl(buildDepartmentUrl(departmentId))
 }

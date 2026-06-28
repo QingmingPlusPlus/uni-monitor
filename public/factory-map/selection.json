@@ -1,0 +1,54 @@
+{
+  "defaults": {
+    "departmentId": "department1",
+    "processId": "pretreatment1"
+  },
+  "departments": [
+    {
+      "id": "department1",
+      "label": "制造1课",
+      "processIds": ["pretreatment1", "pretreatment2"]
+    },
+    {
+      "id": "department2",
+      "label": "制造2课",
+      "processIds": ["vulcanization1"]
+    },
+    {
+      "id": "department3",
+      "label": "制造3课",
+      "processIds": ["posttreatment1"]
+    },
+    {
+      "id": "department4",
+      "label": "制造4课",
+      "processIds": ["vulcanization2", "posttreatment2"]
+    }
+  ],
+  "processes": [
+    {
+      "id": "pretreatment1",
+      "label": "前处理1"
+    },
+    {
+      "id": "vulcanization1",
+      "label": "加硫1"
+    },
+    {
+      "id": "posttreatment1",
+      "label": "后处理1"
+    },
+    {
+      "id": "pretreatment2",
+      "label": "前处理2"
+    },
+    {
+      "id": "vulcanization2",
+      "label": "加硫2"
+    },
+    {
+      "id": "posttreatment2",
+      "label": "后处理2"
+    }
+  ]
+}

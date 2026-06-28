@@ -8,8 +8,10 @@ import type {
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
+  CssMapSelectionConfig,
 } from '../../../components/css-map/css3dMapTypes'
 import {
+  defaultCssMapSelectionConfig,
   getCssMapDepartmentLabel,
   getCssMapProcessLabel,
 } from '../../../components/css-map/css3dMapSelection'
@@ -195,8 +197,11 @@ function createKpis(scopeLabel: string, seed: number): readonly FactoryKpiItem[]
   ]
 }
 
-export function getDepartmentDashboardData(value: CssMapDepartmentValue): FactoryDashboardData {
-  const label = getCssMapDepartmentLabel(value)
+export function getDepartmentDashboardData(
+  value: CssMapDepartmentValue,
+  selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
+): FactoryDashboardData {
+  const label = getCssMapDepartmentLabel(value, selectionConfig)
 
   return {
     eyebrow: `部门维度 · 2026-06 · ${label}`,
@@ -213,8 +218,11 @@ export function getDepartmentDashboardData(value: CssMapDepartmentValue): Factor
   }
 }
 
-export function getProcessDashboardData(value: CssMapProcessValue): FactoryDashboardData {
-  const label = getCssMapProcessLabel(value)
+export function getProcessDashboardData(
+  value: CssMapProcessValue,
+  selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
+): FactoryDashboardData {
+  const label = getCssMapProcessLabel(value, selectionConfig)
 
   return {
     eyebrow: `工序维度 · 2026-06 · ${label}`,

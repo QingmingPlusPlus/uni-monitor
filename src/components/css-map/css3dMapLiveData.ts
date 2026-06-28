@@ -9,9 +9,14 @@ import type {
   CssMapPoint,
   CssMapProcessBoundary,
   CssMapProcessValue,
+  CssMapSelectionConfig,
   CssMapSize,
 } from './css3dMapTypes'
-import { getCssMapProcessLabel, isCssMapProcessValue } from './css3dMapSelection'
+import {
+  defaultCssMapSelectionConfig,
+  getCssMapProcessLabel,
+  isCssMapProcessValue,
+} from './css3dMapSelection'
 
 const factoryMapConfigUrls = [
   '/static/factory-map/devices.json',
@@ -167,7 +172,10 @@ function createMockRuntime(seed: string): CssMapDeviceRuntime {
   }
 }
 
-function createCssMapData(mapConfig: CssMapJsonConfig): CssMapData {
+function createCssMapData(
+  mapConfig: CssMapJsonConfig,
+  selectionConfig: CssMapSelectionConfig,
+): CssMapData {
   return {
     size: {
       width: mapConfig.source.imageWidth,
@@ -175,7 +183,7 @@ function createCssMapData(mapConfig: CssMapJsonConfig): CssMapData {
     },
     sections: mapConfig.sections.map((section) => ({
       process: section.id,
-      labelKey: getCssMapProcessLabel(section.id),
+      labelKey: getCssMapProcessLabel(section.id, selectionConfig),
       points: section.points,
       stroke: section.stroke,
     })),
@@ -218,7 +226,9 @@ async function fetchFactoryMapConfig(url: string): Promise<unknown> {
   return response.json()
 }
 
-export async function loadCssMapData(): Promise<CssMapData> {
+export async function loadCssMapData(
+  selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
+): Promise<CssMapData> {
   const errors: string[] = []
 
   for (const url of factoryMapConfigUrls) {
@@ -229,7 +239,7 @@ export async function loadCssMapData(): Promise<CssMapData> {
         throw new CssMapDataLoadError(`Factory map config shape is invalid: ${url}`)
       }
 
-      return createCssMapData(payload)
+      return createCssMapData(payload, selectionConfig)
     } catch (error) {
       errors.push(error instanceof Error ? error.message : `Unknown factory map load error: ${url}`)
     }

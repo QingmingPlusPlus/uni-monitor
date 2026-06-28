@@ -76,7 +76,7 @@ export function getCssMapProcessBoundaryFocusRect(
 
 export function getCssMapProcessBoundaryGroupFocusRect(
   boundaries: CssMapProcessBoundary[],
-  processes: CssMapProcessValue[],
+  processes: readonly CssMapProcessValue[],
 ) {
   const processSet = new Set(processes)
   const processBoundaries = boundaries.filter((boundary) => processSet.has(boundary.process))

@@ -70,6 +70,20 @@ export interface CssMapSelectionOption<T extends CssMapSelectionValue = CssMapSe
   labelKey: string
 }
 
+export interface CssMapSelectionDefaults {
+  readonly department: CssMapDepartmentValue
+  readonly process: CssMapProcessValue
+}
+
+export type CssMapDepartmentProcessMap = Readonly<Record<CssMapDepartmentValue, readonly CssMapProcessValue[]>>
+
+export interface CssMapSelectionConfig {
+  readonly departmentOptions: readonly CssMapSelectionOption<CssMapDepartmentValue>[]
+  readonly processOptions: readonly CssMapSelectionOption<CssMapProcessValue>[]
+  readonly departmentProcessMap: CssMapDepartmentProcessMap
+  readonly defaults: CssMapSelectionDefaults
+}
+
 export interface CssMapJsonSource {
   imageWidth: number
   imageHeight: number

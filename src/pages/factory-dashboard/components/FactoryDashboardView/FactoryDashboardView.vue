@@ -3,6 +3,7 @@ import CssMapPanel from '../../../../components/css-map/index.vue'
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
+  CssMapSelectionConfig,
 } from '../../../../components/css-map/css3dMapTypes'
 import type { FactoryDashboardData } from '../../data/factoryDashboardTypes'
 import FactoryDashboardPanel from '../FactoryDashboardPanel/FactoryDashboardPanel.vue'
@@ -10,6 +11,7 @@ import FactoryHeader from '../FactoryHeader/FactoryHeader.vue'
 
 defineProps<{
   readonly data: FactoryDashboardData
+  readonly selectionConfig: CssMapSelectionConfig
   readonly selectedDepartment: CssMapDepartmentValue
   readonly selectedProcess: CssMapProcessValue | null
 }>()
@@ -33,6 +35,7 @@ const emit = defineEmits<{
     <view class="factory-dashboard-view__body">
       <view class="factory-dashboard-view__map">
         <CssMapPanel
+          :selection-config="selectionConfig"
           :selected-department="selectedDepartment"
           :selected-process="selectedProcess"
           @select-department="emit('selectDepartment', $event)"

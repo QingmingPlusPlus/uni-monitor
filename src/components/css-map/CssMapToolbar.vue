@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CssMapDepartmentValue, CssMapProcessValue } from './css3dMapTypes'
+import type {
+  CssMapDepartmentValue,
+  CssMapProcessValue,
+  CssMapSelectionConfig,
+} from './css3dMapTypes'
 import {
-  cssMapDepartmentOptions,
-  cssMapDepartmentProcessMap,
-  cssMapProcessOptions,
-  isCssMapDepartmentValue,
-  isCssMapProcessValue,
+  getCssMapProcessOptionsForDepartment,
+  isCssMapDepartmentValueInConfig,
+  isCssMapProcessValueInConfig,
 } from './css3dMapSelection'
 
 const props = defineProps<{
+  readonly selectionConfig: CssMapSelectionConfig
   readonly selectedDepartment: CssMapDepartmentValue
   readonly selectedProcess: CssMapProcessValue | null
 }>()
@@ -20,20 +23,19 @@ const emit = defineEmits<{
 }>()
 
 const processOptions = computed(() => {
-  const allowedProcesses = cssMapDepartmentProcessMap[props.selectedDepartment]
-  return cssMapProcessOptions.filter((option) => allowedProcesses.includes(option.value))
+  return getCssMapProcessOptionsForDepartment(props.selectedDepartment, props.selectionConfig)
 })
 
 function selectDepartment(event: Event): void {
   if (!(event.target instanceof HTMLSelectElement)) return
-  if (!isCssMapDepartmentValue(event.target.value)) return
+  if (!isCssMapDepartmentValueInConfig(event.target.value, props.selectionConfig)) return
   emit('selectDepartment', event.target.value)
 }
 
 function selectProcess(event: Event): void {
   if (!(event.target instanceof HTMLSelectElement)) return
   const value = event.target.value
-  if (!isCssMapProcessValue(value)) return
+  if (!isCssMapProcessValueInConfig(value, props.selectionConfig)) return
   emit('selectProcess', value)
 }
 </script>
@@ -55,7 +57,7 @@ function selectProcess(event: Event): void {
         @change="selectDepartment"
       >
         <option
-          v-for="option in cssMapDepartmentOptions"
+          v-for="option in selectionConfig.departmentOptions"
           :key="option.value"
           :value="option.value"
         >

@@ -4,12 +4,15 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
+  CssMapSelectionConfig,
 } from '../../components/css-map/css3dMapTypes'
 import {
+  defaultCssMapSelectionConfig,
   defaultCssMapSelectionValues,
   getCssMapDepartmentForProcess,
-  isCssMapProcessValue,
+  getCssMapProcessValue,
 } from '../../components/css-map/css3dMapSelection'
+import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import {
@@ -23,19 +26,23 @@ import {
   subscribeFactoryRouteQueryChange,
 } from '../factory-dashboard/utils/factoryRoutes'
 
-const selectedProcess = ref<CssMapProcessValue>('pretreatment1')
+const selectedProcess = ref<CssMapProcessValue>(defaultCssMapSelectionValues.process)
+const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 let stopRouteQuerySync: (() => void) | null = null
 
 const selectedDepartment = computed<CssMapDepartmentValue>(() =>
-  getCssMapDepartmentForProcess(selectedProcess.value),
+  getCssMapDepartmentForProcess(selectedProcess.value, selectionConfig.value),
 )
-const dashboardData = computed(() => getProcessDashboardData(selectedProcess.value))
+const dashboardData = computed(() =>
+  getProcessDashboardData(selectedProcess.value, selectionConfig.value),
+)
 
-function syncRouteQuery(query: Readonly<Record<string, string | undefined>> | undefined): void {
+function syncRouteQuery(
+  query: Readonly<Record<string, string | undefined>> | undefined,
+  config: CssMapSelectionConfig = selectionConfig.value,
+): void {
   const processId = readQueryValue(query, 'processId')
-  selectedProcess.value = isCssMapProcessValue(processId)
-    ? processId
-    : 'pretreatment1'
+  selectedProcess.value = getCssMapProcessValue(processId, config)
 }
 
 onLoad(syncRouteQuery)
@@ -45,6 +52,17 @@ onMounted(() => {
   stopRouteQuerySync = subscribeFactoryRouteQueryChange(() => {
     syncRouteQuery(readCurrentFactoryRouteQuery())
   })
+
+  loadCssMapSelectionConfig()
+    .then((config) => {
+      selectionConfig.value = config
+      syncRouteQuery(readCurrentFactoryRouteQuery(), config)
+    })
+    .catch((error: unknown) => {
+      if (error instanceof Error) {
+        selectionConfig.value = defaultCssMapSelectionConfig
+      }
+    })
 })
 
 onBeforeUnmount(() => {
@@ -69,6 +87,7 @@ function openDevice(payload: { readonly deviceId: string }): void {
 <template>
   <FactoryDashboardView
     :data="dashboardData"
+    :selection-config="selectionConfig"
     :selected-department="selectedDepartment"
     :selected-process="selectedProcess"
     @select-department="selectDepartment"

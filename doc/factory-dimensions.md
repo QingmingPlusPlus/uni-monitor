@@ -29,6 +29,7 @@
 ## `css-map` 数据与交互
 
 - 地图数据源：`public/factory-map/devices.json`。
+- 选择器配置源：`public/factory-map/selection.json`，维护部门列表、工序列表、默认值以及部门 → 工序对应关系；H5 构建同时保留 `src/static/factory-map/selection.json` 作为 Uni-app 静态资源副本，加载失败或格式非法时回退到代码内置默认配置。
 - 下拉选择部门：真实跳转到 `/pages/department/index?departmentId=<id>`，并同步右侧 Mock 数据。
 - 下拉选择工序：真实跳转到 `/pages/process/index?processId=<id>`，并同步右侧 Mock 数据。
 - 地图区域：只负责视觉聚焦，不通过点击区域切换维度。
@@ -44,7 +45,7 @@
         └── 设备（Equipment）—— 一个工序包含若干设备
 ```
 
-- **部门 → 工序**：由 `cssMapDepartmentProcessMap` 维护部门与工序的聚合关系。
+- **部门 → 工序**：由 `public/factory-map/selection.json` 维护部门与工序的聚合关系，当前为制造1课负责前处理1/前处理2、制造2课负责加硫1、制造3课负责后处理1、制造4课负责加硫2/后处理2。
 - **工序 → 设备**：由 `devices.json` 中设备的 `section` 字段关联。
 - **设备详情**：以 `devices.json` 中的设备 `id` 作为 URL 主状态，当前 Mock 数据可共用，但代码结构按未来真实接口预留。
 
