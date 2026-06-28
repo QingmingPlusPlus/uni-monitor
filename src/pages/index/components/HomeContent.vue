@@ -2,7 +2,18 @@
   <view class="home-content">
     <view class="home-content__block">
       <view class="home-content__stage">
-        <StagePlaceholder />
+        <TableChartCard
+          v-if="dimension === 'process'"
+          title="入库计划实绩"
+          subtitle="入库计划、入库实绩、差异和达成率"
+          tag="Mock 数据"
+          :table-rows="tableChartMockRows"
+          :table-columns="tableChartMockColumns"
+          :table-data="tableChartMockData"
+          :chart-options="tableChartMockOptions"
+          :chart-data="tableChartMockChartData"
+        />
+        <StagePlaceholder v-else />
       </view>
       <view class="home-content__waterfall">
         <view class="home-content__waterfall-head">
@@ -24,6 +35,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import TableChartCard from "../../../components/TableChartCard.vue"
+import {
+  tableChartMockChartData,
+  tableChartMockColumns,
+  tableChartMockData,
+  tableChartMockOptions,
+  tableChartMockRows,
+} from "../../../components/tableChartCardMock"
 import DepartmentWaterfall from "./DepartmentWaterfall.vue"
 import ProcessWaterfall from "../../process/ProcessWaterfall.vue"
 import StagePlaceholder from "./StagePlaceholder.vue"

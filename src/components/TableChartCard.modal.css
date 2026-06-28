@@ -1,0 +1,143 @@
+.table-chart-card__modal-layer {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
+  background: rgba(16, 24, 32, 0.62);
+  box-sizing: border-box;
+}
+
+.table-chart-card__modal {
+  display: flex;
+  position: relative;
+  width: 80vw;
+  height: 80vh;
+  max-width: 2048px;
+  max-height: 1152px;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--um-color-border);
+  border-radius: 18px;
+  background: var(--um-color-surface);
+  box-sizing: border-box;
+}
+
+.table-chart-card__modal-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  padding-right: 72rpx;
+}
+
+.table-chart-card__modal-title-group {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.table-chart-card__modal-title {
+  color: var(--um-color-text-primary);
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 1.22;
+}
+
+.table-chart-card__modal-subtitle {
+  color: var(--um-color-text-secondary);
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.table-chart-card__modal-close {
+  display: flex;
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  width: 64rpx;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--um-color-border);
+  border-radius: 10rpx;
+  background: var(--um-color-surface);
+  color: var(--um-color-text-secondary);
+  line-height: 1;
+}
+
+.table-chart-card__modal-close::after {
+  display: none;
+}
+
+.table-chart-card__modal-close:active {
+  opacity: 0.75;
+  transform: translateY(1px);
+}
+
+.table-chart-card__modal-body {
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.table-chart-card__chart-area--modal {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 420rpx;
+}
+
+.table-chart-card__chart--modal,
+.table-chart-card__chart--modal :deep(.uni-echarts__canvas),
+.table-chart-card__chart--modal :deep(.uni-canvas),
+.table-chart-card__chart--modal :deep(.uni-canvas-canvas) {
+  height: 100%;
+  min-height: 420rpx;
+}
+
+@media (min-width: 768px) {
+  .table-chart-card__modal-head {
+    padding-right: 74px;
+  }
+
+  .table-chart-card__modal-title {
+    font-size: 36px;
+  }
+
+  .table-chart-card__modal-subtitle {
+    font-size: 20px;
+  }
+
+  .table-chart-card__modal-close {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+  }
+
+  .table-chart-card__chart-area--modal,
+  .table-chart-card__chart--modal,
+  .table-chart-card__chart--modal :deep(.uni-echarts__canvas),
+  .table-chart-card__chart--modal :deep(.uni-canvas),
+  .table-chart-card__chart--modal :deep(.uni-canvas-canvas) {
+    min-height: min(520px, 28vh);
+  }
+}
+
+@media (max-width: 767px) {
+  .table-chart-card__modal {
+    width: 92vw;
+    height: 86vh;
+    padding: var(--space-4);
+  }
+}
