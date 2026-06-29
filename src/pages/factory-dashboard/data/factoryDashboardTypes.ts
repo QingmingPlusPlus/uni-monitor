@@ -94,6 +94,7 @@ export interface DepartmentDashboardData extends FactoryDashboardBaseData {
 export interface ProcessDashboardData extends FactoryDashboardBaseData {
   readonly kind: 'process'
   readonly attendance: PersonnelAttendanceData
+  readonly personnelDetail: PersonnelDetailData
 }
 
 export type FactoryDashboardData = DepartmentDashboardData | ProcessDashboardData

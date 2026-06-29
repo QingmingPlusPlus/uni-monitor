@@ -39,7 +39,7 @@ export const cssMapStatusPalette: Record<CssMapDeviceStatus, CssMapTitleStyle> =
   },
   neutral: {
     background: 'rgba(255, 255, 255, 0.86)',
-    border: 'var(--um-color-border)',
+    border: 'var(--um-color-text-secondary)',
     color: 'var(--um-color-text-primary)',
   },
 }

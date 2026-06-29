@@ -64,8 +64,15 @@
       </view>
     </view>
 
+    <DashboardExpandMockModal
+      v-if="isExpanded && useMockExpand"
+      :title="title"
+      :subtitle="subtitle"
+      @close="handleCloseExpanded"
+    />
+
     <view
-      v-if="isExpanded"
+      v-else-if="isExpanded"
       class="table-chart-card__modal-layer"
       role="dialog"
       aria-modal="true"
@@ -132,6 +139,7 @@ import type { SetOptionOpts } from "echarts"
 import { computed, nextTick, onMounted, ref, watch } from "vue"
 import TableChartEchart from "./TableChartEchart.vue"
 import TableChartCardTable from "./TableChartCardTable.vue"
+import DashboardExpandMockModal from "../../pages/factory-dashboard/components/DashboardExpandMockModal/DashboardExpandMockModal.vue"
 import {
   hasRenderableChartData,
   resolveChartOptions,
@@ -150,6 +158,7 @@ const props = withDefaults(
     readonly subtitle?: string
     readonly tag?: string
     readonly compact?: boolean
+    readonly useMockExpand?: boolean
     readonly tableRows: readonly TableRowConfig[]
     readonly tableColumns: readonly TableColumnConfig[]
     readonly tableData: TableData
@@ -160,6 +169,7 @@ const props = withDefaults(
     subtitle: "",
     tag: "",
     compact: false,
+    useMockExpand: false,
     chartData: undefined,
   },
 )

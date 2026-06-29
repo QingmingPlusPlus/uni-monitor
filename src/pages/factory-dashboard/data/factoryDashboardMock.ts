@@ -244,11 +244,7 @@ export function getProcessDashboardData(
     subtitle: '工序口径聚焦当前流程的人员、产出、计划与异常阻碍。',
     kpis: createKpis(label, 2969).slice(0, 6),
     attendance: createProcessPersonnelAttendanceData(value, selectionConfig, refreshedAt),
-    cards: [
-      createDashboardCard({ id: 'process-staff', title: '人员配置', subtitle: '工序内人员、班次和标准人时', base: 461, unit: 'count' }),
-      createDashboardCard({ id: 'process-attendance', title: '人员出勤', subtitle: '工序内出勤和临时支援记录', base: 432, unit: 'count' }),
-      createDashboardCard({ id: 'process-activity', title: '生产性活动', subtitle: '稼动、清扫、异常和切替活动', base: 2969, unit: 'minute' }),
-      createDashboardCard({ id: 'process-plan', title: '生产计划实绩', subtitle: '工序计划、实绩与达成率', base: 155160, unit: 'count' }),
-    ],
+    personnelDetail: createPersonnelDetailData(refreshedAt),
+    cards: [],
   }
 }

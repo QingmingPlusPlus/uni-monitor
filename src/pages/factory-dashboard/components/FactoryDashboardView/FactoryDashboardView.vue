@@ -53,6 +53,8 @@ const emit = defineEmits<{
       >
         <FactoryDashboardPanel
           :data="data"
+          :selected-department="selectedDepartment"
+          :selected-process="selectedProcess"
           @refresh="emit('refreshDashboard', $event)"
         />
       </scroll-view>
@@ -109,7 +111,9 @@ const emit = defineEmits<{
     grid-template-columns: minmax(520px, 0.9fr) minmax(520px, 1.1fr);
   }
 
-  .factory-dashboard-view--department .factory-dashboard-view__body {
+  /*部门和工序维度统一为左侧地图占三分之一，右侧瀑布流占三分之二 */
+  .factory-dashboard-view--department .factory-dashboard-view__body,
+  .factory-dashboard-view--process .factory-dashboard-view__body {
     grid-template-columns: minmax(360px, 1fr) minmax(0, 2fr);
   }
 }
@@ -124,7 +128,9 @@ const emit = defineEmits<{
     gap: var(--space-4);
   }
 
-  .factory-dashboard-view--department .factory-dashboard-view__body {
+  /*部门和工序维度统一为左侧地图占三分之一，右侧瀑布流占三分之二 */
+  .factory-dashboard-view--department .factory-dashboard-view__body,
+  .factory-dashboard-view--process .factory-dashboard-view__body {
     grid-template-columns: minmax(620px, 1fr) minmax(0, 2fr);
   }
 }

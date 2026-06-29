@@ -70,3 +70,24 @@
 - Loader 镜像 `loadMonthSegmentConfig` 模式：Promise 去重 + sessionStorage 缓存（TTL 60s）+ 降级到同步 mock
 - 四张卡通过 `Promise.allSettled` 并发加载，任一卡片失败不阻塞其他卡片，失败卡片降级为 fallback 值
 - KPI 网格和告警栏仍使用 mock 数据，不在本次改造范围内
+
+## 5. 部门/工序维度卡片接口现状（2026-06 增补）
+
+下表汇总 2026-06 新增瀑布流卡片、展开模态与 css-map 美化各组件对应的接口/mock 现状。
+
+| 卡片/组件 | 数据来源 | 接口现状 | 说明 |
+| --- | --- | --- | --- |
+| 人员出勤情况 | `getAttendanceSituation` | 真实接口 | 仍保留 #1 已记录的接口缺口 |
+| 出勤率推移表 | `getMonthlyAttendanceSituation` | 真实接口 | 仍保留 #2 已记录的接口缺口 |
+| 入库计划推移表 | `getScheduleRukuPlanByMonth` | 真实接口 | 仍保留 #3 已记录的接口缺口；1 课（部门为 `department1` 或工序为 `pretreatment1`/`pretreatment2`）不展示该组件 |
+| 人员明细及状态 | `getAttendanceDetailSituation` | 真实接口 | 仍保留 #4 已记录的接口缺口 |
+| 不良率计画实绩（金额） | `src/components/department-defect-amount-card/departmentDefectAmountMock.ts` | mock | 无对应真实接口：现有接口未返回按周维度的不良率金额计划/实绩数据；演示期间使用 mock |
+| 不良率计画实绩（个数） | `src/components/department-defect-count-card/departmentDefectCountMock.ts` | mock | 无对应真实接口：现有接口未返回按周维度的不良率个数计划/实绩数据；演示期间使用 mock |
+| MH实绩 | `src/components/department-mh-card/departmentMhMock.ts` | mock | 无对应真实接口：MH 计划分定时/平日加班/休日加班/祝日加班/合计，实绩同结构 + 直接出勤率，未对接工时统计接口；演示期间使用 mock |
+| 生产计划实绩推移表 | `src/components/process-production-plan-trend-card/processProductionPlanTrendMock.ts` | mock | 无对应真实接口：当前 mock 列覆盖月合计/4 周/任意 7 日，行简化为计划/实绩两行；最终接入时建议后端提供按工序的日计划/实绩推送 |
+| 卡片展开模态（演示） | `src/pages/factory-dashboard/components/DashboardExpandMockModal/DashboardExpandMockModal.vue` | mock | 演示不再开发而做的 mock 大表，列覆盖月合计/4 周/30 日，行为计划/实绩，所有卡片共用同一演示源；标题附加 `（mock）` 标识 |
+
+### 建议后端扩展
+
+- 不良率金额 / 不良率个数 / MH 实绩 / 生产计划实绩推移表：建议后端提供按部门+工序粒度、按月/周/日分汇总的接口（计划、实绩双值，必要时附带达成率/出勤率等派生字段），前端可复用现有周汇总逻辑（`src/utils/departmentTrendAggregation.ts`）切换到真实接口。
+- 展开模态切换为真实接口后，可在 `TableChartCard` / `PersonnelAttendanceCard` / `PersonnelDetailCard` 关闭 `use-mock-expand` 并传入月+周+日维度的扩展数据集。

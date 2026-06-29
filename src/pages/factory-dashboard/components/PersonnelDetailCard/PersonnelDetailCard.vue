@@ -34,56 +34,19 @@
 
     <PersonnelDetailGrid :data="data" />
 
-    <view
+    <DashboardExpandMockModal
       v-if="isExpanded"
-      class="personnel-detail-card__modal-layer"
-      role="dialog"
-      aria-modal="true"
-      @click="handleCloseExpanded"
-    >
-      <view class="personnel-detail-card__modal" @click.stop>
-        <view class="personnel-detail-card__modal-head">
-          <view class="personnel-detail-card__title-group">
-            <text class="personnel-detail-card__modal-title">{{ data.title }}</text>
-            <text class="personnel-detail-card__subtitle">
-              {{ data.subtitle }} · {{ data.refreshedAt }} 更新
-            </text>
-          </view>
-          <view class="personnel-detail-card__actions">
-            <button
-              class="personnel-detail-card__action"
-              type="button"
-              aria-label="刷新人员明细"
-              @click="emit('refresh')"
-            >
-              <svg class="personnel-detail-card__icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.45 5.08h-2.13A6 6 0 1 1 12 6a5.96 5.96 0 0 1 4.24 1.76L13 11h8V3l-3.35 3.35Z" />
-              </svg>
-            </button>
-            <button
-              class="personnel-detail-card__action"
-              type="button"
-              aria-label="收起人员明细"
-              @click="handleCloseExpanded"
-            >
-              <svg class="personnel-detail-card__icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 16h3v3h2v-5H5v2Zm3-8H5v2h5V5H8v3Zm6 11h2v-3h3v-2h-5v5Zm2-11V5h-2v5h5V8h-3Z" />
-              </svg>
-            </button>
-          </view>
-        </view>
-
-        <scroll-view class="personnel-detail-card__modal-body" scroll-y :show-scrollbar="true">
-          <PersonnelDetailGrid :data="data" is-modal />
-        </scroll-view>
-      </view>
-    </view>
+      :title="data.title"
+      :subtitle="`${data.subtitle} · ${data.refreshedAt} 更新`"
+      @close="handleCloseExpanded"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PersonnelDetailData } from '../../data/personnelDetailMock'
+import DashboardExpandMockModal from '../DashboardExpandMockModal/DashboardExpandMockModal.vue'
 import PersonnelDetailGrid from './PersonnelDetailGrid.vue'
 
 defineProps<{

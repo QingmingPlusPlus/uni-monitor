@@ -8,7 +8,8 @@
 
 - 路由：`pages/department/index?departmentId=department1`
 - 描述：以部门为粒度展示组织单元的计划、实绩、人员配置与工序覆盖关系。
-- 页面布局：顶部为 `Omni Monitor` + 当前部门 Mock 告警跑马灯；主体左侧三分之一为 `css-map`，右侧三分之二为可滚动瀑布流。宽屏右侧按 `2列 x 2排` 展示人员出勤情况（mock）、人员出勤率推移（mock）、人员明细及状态（mock）、入库计划推移（mock）；窄屏退化为单列。
+- 页面布局：顶部为 `Omni Monitor` + 当前部门 Mock 告警跑马灯；主体左侧三分之一为 `css-map`，右侧三分之二为可滚动瀑布流。宽屏瀑布流使用 CSS 多列布局（默认 2 列），按以下顺序依次累积：不良率计画实绩（金额）、不良率计画实绩（个数）、MH 实绩、人员出勤情况（mock）、出勤率推移表（mock）、入库计划推移表（mock）、人员明细及状态（mock）；窄屏退化为单列。
+- 特殊规则：当 `departmentId === 'department1'`（制造1课）时，瀑布流不展示入库计划推移表组件。
 - 状态来源：`departmentId` query 是页面状态源。
 - 长屏刷新：部门页按设备本地时间每天 06:20 软刷新一次显示数据；右侧各 mock 卡片右上角均提供手动刷新与展开按钮，刷新不执行整页 reload，且只重新加载当前被点击卡片对应的接口数据，不影响其他三张卡片。
 
@@ -16,7 +17,8 @@
 
 - 路由：`pages/process/index?processId=pretreatment1`
 - 描述：以工序为粒度展示生产流程，关注当前工序的人员、稼动、计划和异常。
-- 页面布局：顶部为 `Omni Monitor` + 当前工序 Mock 告警跑马灯；主体左侧为 `css-map`，右侧为 KPI 总览 + 瀑布流；瀑布流第一项是跨整行的人员出勤情况（mock）组件，后续保留 4 个 `TableChartCard` 仪表盘。
+- 页面布局：顶部为 `Omni Monitor` + 当前工序 Mock 告警跑马灯；主体仿照部门维度，左侧三分之一为 `css-map`，右侧三分之二为可滚动瀑布流（不再使用 1:1 等宽双栏）。瀑布流第一项是跨整行的人员出勤情况（mock）卡片，后续按以下顺序展示：不良率计画实绩（金额）、不良率计画实绩（个数）、MH 实绩、出勤率推移表（mock）、入库计划推移表（mock）、人员明细及状态（mock）、生产计划实绩推移表（mock，行简化为计划/实绩两行）。KPI 网格仍位于瀑布流之上。
+- 特殊规则：当前工序为 `pretreatment1` 或 `pretreatment2`（即 1 课的两个前处理工序）时，瀑布流不展示入库计划推移表组件。
 - 状态来源：`processId` query 是页面状态源。
 
 ### 3. 设备维度（Equipment）
@@ -41,6 +43,15 @@
 - KPI 中仅由 Mock 数据产生的项目在标签中显示 `（mock）`；对应 note 为空时不展示 note 行。
 - 部门页人员出勤率推移表与入库计划推移表只展示周数据，不展示月列或日列。
 - 部门页两个推移表的 mock 源数据按工序返回一个月中每一天的数据；页面首次加载时查询月周配置并写入 `sessionStorage`，再按各工序周配置汇总为周数据。配置缺失或加载失败时沿用自然周回退。
+- 新增三张部门维度 `TableChartCard`（不良率金额、不良率个数、MH 实绩）以及工序维度的生产计划实绩推移表同样在标题中携带 `（mock）` 标识。
+
+## 卡片展开模态（2026-06 增补）
+
+- 部门维度和工序维度所有卡片的展开按钮均打开近全屏模态，模态主体使用通用 mock 大表 `src/pages/factory-dashboard/components/DashboardExpandMockModal/DashboardExpandMockModal.vue`。
+- 模态列表覆盖月合计、4 周以及当前月每日 30 天，行为计划/实绩两行，左右/上下可滚动；模态标题附加 `（mock）`。
+- `TableChartCard` 通过 `use-mock-expand` prop 切换至该 mock 大表，覆盖原内联模态（同表同图）以适配演示节奏。
+- 人员出勤卡、人员明细及状态卡的展开按钮直接渲染该 mock 大表，原表头与下方说明组合被保留。
+- 后端按月/周/日维度推送数据时，可在 TableChartCard / PersonnelAttendanceCard / PersonnelDetailCard 关闭 `use-mock-expand`，改用扩展数据集驱动模态。
 
 ## `css-map` 数据与交互
 
@@ -72,6 +83,6 @@
 
 | 路由 | 维度 | 状态 query | 布局 |
 | --- | --- | --- | --- |
-| `pages/department/index` | 部门 | `departmentId` | 告警栏 + 左三分之一 `css-map` + 右侧 `2列 x 2排` 人员出勤/出勤率/人员明细/入库计划 mock 瀑布流 |
-| `pages/process/index` | 工序 | `processId` | 告警栏 + `css-map` + KPI + 人员出勤卡 + 4 个 `TableChartCard` |
+| `pages/department/index` | 部门 | `departmentId` | 告警栏 + 左三分之一 `css-map` + 右侧 CSS 多列瀑布流（不良率金额/个数/MH 实绩 + 人员出勤/出勤率/人员明细/入库计划，1 课隐藏入库计划） |
+| `pages/process/index` | 工序 | `processId` | 告警栏 + 左三分之一 `css-map` + 右侧 KPI + 单/双列多列瀑布流（部门维度所有组件 + 生产计划实绩推移，1 课工序隐藏入库计划） |
 | `pages/equipment/index` | 设备 | `deviceId`、`from` | 带返回按钮的告警栏 + 单设备详情分析面板 |

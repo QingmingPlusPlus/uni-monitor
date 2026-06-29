@@ -53,6 +53,7 @@ const handleRefresh = (): void => {
 <template>
   <TableChartCard
     tag="mock"
+    use-mock-expand
     :title="title"
     :subtitle="subtitle"
     :table-rows="tableRows"

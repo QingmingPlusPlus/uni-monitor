@@ -1,0 +1,159 @@
+.dashboard-expand-mock-modal__layer {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  align-items: center;
+  justify-content: center;
+  padding: 3vh 3vw;
+  background: rgba(16, 24, 32, 0.66);
+  box-sizing: border-box;
+}
+
+.dashboard-expand-mock-modal {
+  display: flex;
+  position: relative;
+  width: 94vw;
+  height: 92vh;
+  max-width: none;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--um-color-border);
+  border-radius: 18px;
+  background: var(--um-color-surface);
+  box-sizing: border-box;
+}
+
+.dashboard-expand-mock-modal__head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  padding-right: 80rpx;
+}
+
+.dashboard-expand-mock-modal__title-group {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dashboard-expand-mock-modal__title {
+  color: var(--um-color-text-primary);
+  font-size: 48rpx;
+  font-weight: 800;
+  line-height: 1.22;
+}
+
+.dashboard-expand-mock-modal__title-marker {
+  margin-left: 12rpx;
+  color: var(--um-color-text-secondary);
+  font-size: 0.78em;
+  font-weight: 800;
+}
+
+.dashboard-expand-mock-modal__subtitle {
+  color: var(--um-color-text-secondary);
+  font-size: 26rpx;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.dashboard-expand-mock-modal__close {
+  display: flex;
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  width: 64rpx;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--um-color-border);
+  border-radius: 10rpx;
+  background: var(--um-color-surface);
+  color: var(--um-color-text-secondary);
+  line-height: 1;
+}
+
+.dashboard-expand-mock-modal__close::after {
+  display: none;
+}
+
+.dashboard-expand-mock-modal__close:active {
+  opacity: 0.75;
+  transform: translateY(1px);
+}
+
+.dashboard-expand-mock-modal__icon {
+  display: block;
+  width: 36rpx;
+  height: 36rpx;
+  fill: currentcolor;
+}
+
+.dashboard-expand-mock-modal__body {
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dashboard-expand-mock-modal__note {
+  flex: 0 0 auto;
+  color: var(--um-color-text-secondary);
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .dashboard-expand-mock-modal {
+    border-radius: 16px;
+    padding: var(--space-4);
+  }
+
+  .dashboard-expand-mock-modal__head {
+    padding-right: 80px;
+  }
+
+  .dashboard-expand-mock-modal__title {
+    font-size: 40px;
+  }
+
+  .dashboard-expand-mock-modal__subtitle {
+    font-size: 22px;
+  }
+
+  .dashboard-expand-mock-modal__close {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+  }
+
+  .dashboard-expand-mock-modal__icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .dashboard-expand-mock-modal__note {
+    font-size: 18px;
+  }
+}
+
+/* 让模态表格滚动条更明显 */
+.dashboard-expand-mock-modal__body :deep(.table-chart-card__table-scroll--modal) {
+  max-height: none;
+  height: 100%;
+  flex: 1 1 auto;
+}
+
+.dashboard-expand-mock-modal__body :deep(.data-table--modal) {
+  min-width: 1800px;
+}

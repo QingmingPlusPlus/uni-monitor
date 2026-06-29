@@ -32,8 +32,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  border-bottom: 1px solid rgba(21, 43, 70, 0.12);
-  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 0;
+  background: var(--css-map-node-status-background);
   padding: 3px 6px;
   font-weight: 900;
 }
@@ -41,8 +41,8 @@
 .css-map-equipment-node__header strong {
   overflow: hidden;
   min-width: 0;
-  color: var(--css-map-node-status-border);
-  font-size: max(10px, calc(var(--css-map-node-font-size) * 1.02));
+  color: var(--css-map-node-status-color);
+  font-size: max(12px, calc(var(--css-map-node-font-size) * 1.22));
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -53,14 +53,14 @@
   max-width: 46%;
   min-width: 0;
   place-items: center;
-  border: 1px solid var(--css-map-node-status-border);
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: var(--css-map-node-status-background);
-  color: var(--css-map-node-status-color);
-  font-size: max(9px, calc(var(--css-map-node-font-size) * 0.78));
+  background: var(--css-map-node-status-border);
+  color: var(--um-color-text-inverse);
+  font-size: max(11px, calc(var(--css-map-node-font-size) * 1.08));
   font-weight: 900;
   line-height: 1;
-  padding: 3px 6px;
+  padding: 3px 7px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
