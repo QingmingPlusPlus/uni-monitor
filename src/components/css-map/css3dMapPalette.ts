@@ -20,8 +20,8 @@ export const cssMapStatusPalette: Record<CssMapDeviceStatus, CssMapTitleStyle> =
     color: '#ffffff',
   },
   plannedStop: {
-    background: 'rgba(255, 255, 255, 0.86)',
-    color: '#14213d',
+    background: 'rgba(100, 116, 139, 0.95)',
+    color: '#ffffff',
   },
   changeover: {
     background: 'rgba(250, 204, 21, 0.95)',
