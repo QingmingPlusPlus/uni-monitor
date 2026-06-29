@@ -22,3 +22,4 @@ dist
 
 # Agent workspace artifacts
 .omo/
+.playwright-mcp/
