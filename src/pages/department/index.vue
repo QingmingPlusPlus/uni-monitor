@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
@@ -14,8 +14,16 @@ import {
 import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
-import { loadDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardLoader'
+import {
+  invalidateDepartmentDashboardCache,
+  loadAttendanceCard,
+  loadAttendanceTrendCard,
+  loadDepartmentDashboardData,
+  loadInboundPlanTrendCard,
+  loadPersonnelDetailCard,
+} from '../factory-dashboard/data/factoryDashboardLoader'
 import { getDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
+import type { DepartmentCardId, DepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
   buildDepartmentUrl,
   buildEquipmentUrl,
@@ -46,7 +54,7 @@ const fallbackDashboardData = computed(() =>
     monthSegmentVersion.value,
   ),
 )
-const dashboardData = ref(fallbackDashboardData.value)
+const dashboardData = shallowRef(fallbackDashboardData.value)
 const alarmItems = computed(() =>
   getDepartmentAlarmItems(selectedDepartment.value, selectionConfig.value),
 )
@@ -124,6 +132,116 @@ function loadMonthSegments(): void {
 function refreshDashboard(): void {
   loadSelectionConfig(true)
   loadMonthSegments()
+}
+
+const DEPARTMENT_CARD_IDS: readonly DepartmentCardId[] = [
+  'attendance',
+  'attendanceTrend',
+  'inboundPlanTrend',
+  'personnelDetail',
+]
+
+function isDepartmentCardId(value: unknown): value is DepartmentCardId {
+  return typeof value === 'string' && (DEPARTMENT_CARD_IDS as readonly string[]).includes(value)
+}
+
+function handleCardRefreshError(cardId: DepartmentCardId, error: unknown): void {
+  if (error instanceof Error) {
+    console.warn(`[DepartmentDashboard] 卡片刷新失败 (${cardId}): ${error.message}`)
+  }
+}
+
+async function refreshCard(cardId: string): Promise<void> {
+  if (!isDepartmentCardId(cardId)) {
+    return
+  }
+  const department = selectedDepartment.value
+  const config = selectionConfig.value
+  const processTypes = config.departmentProcessMap[department] ?? []
+  const refreshedAt = new Date()
+
+  invalidateDepartmentDashboardCache(department, monthSegmentVersion.value)
+
+  const base: DepartmentDashboardData = dashboardData.value
+
+  try {
+    if (cardId === 'attendance') {
+      const attendance = await loadAttendanceCard(department, processTypes, config, refreshedAt)
+      const next: DepartmentDashboardData = {
+        kind: base.kind,
+        eyebrow: base.eyebrow,
+        title: base.title,
+        subtitle: base.subtitle,
+        kpis: base.kpis,
+        cards: base.cards,
+        attendance,
+        attendanceTrend: base.attendanceTrend,
+        inboundPlanTrend: base.inboundPlanTrend,
+        personnelDetail: base.personnelDetail,
+      }
+      dashboardData.value = next
+      return
+    }
+
+    if (cardId === 'attendanceTrend') {
+      const attendanceTrend = await loadAttendanceTrendCard(department, processTypes)
+      if (attendanceTrend !== null) {
+        const next: DepartmentDashboardData = {
+          kind: base.kind,
+          eyebrow: base.eyebrow,
+          title: base.title,
+          subtitle: base.subtitle,
+          kpis: base.kpis,
+          cards: base.cards,
+          attendance: base.attendance,
+          attendanceTrend,
+          inboundPlanTrend: base.inboundPlanTrend,
+          personnelDetail: base.personnelDetail,
+        }
+        dashboardData.value = next
+      }
+      return
+    }
+
+    if (cardId === 'inboundPlanTrend') {
+      const inboundPlanTrend = await loadInboundPlanTrendCard(processTypes)
+      if (inboundPlanTrend !== null) {
+        const next: DepartmentDashboardData = {
+          kind: base.kind,
+          eyebrow: base.eyebrow,
+          title: base.title,
+          subtitle: base.subtitle,
+          kpis: base.kpis,
+          cards: base.cards,
+          attendance: base.attendance,
+          attendanceTrend: base.attendanceTrend,
+          inboundPlanTrend,
+          personnelDetail: base.personnelDetail,
+        }
+        dashboardData.value = next
+      }
+      return
+    }
+
+    if (cardId === 'personnelDetail') {
+      const personnelDetail = await loadPersonnelDetailCard(department, processTypes, config, refreshedAt)
+      const next: DepartmentDashboardData = {
+        kind: base.kind,
+        eyebrow: base.eyebrow,
+        title: base.title,
+        subtitle: base.subtitle,
+        kpis: base.kpis,
+        cards: base.cards,
+        attendance: base.attendance,
+        attendanceTrend: base.attendanceTrend,
+        inboundPlanTrend: base.inboundPlanTrend,
+        personnelDetail,
+      }
+      dashboardData.value = next
+    }
+  } catch (error: unknown) {
+    handleCardRefreshError(cardId, error)
+  }
 }
 
 function createMorningRefreshDate(date: Date): Date {
@@ -231,6 +349,6 @@ function openDevice(payload: { readonly deviceId: string }): void {
     @select-process="selectProcess"
     @clear-process="clearProcess"
     @open-device="openDevice"
-    @refresh-dashboard="refreshDashboard"
+    @refresh-dashboard="refreshCard"
   />
 </template>

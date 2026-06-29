@@ -25,7 +25,7 @@ const emit = defineEmits<{
   selectProcess: [value: CssMapProcessValue]
   clearProcess: []
   openDevice: [payload: { readonly deviceId: string }]
-  refreshDashboard: []
+  refreshDashboard: [cardId: string]
 }>()
 </script>
 
@@ -53,7 +53,7 @@ const emit = defineEmits<{
       >
         <FactoryDashboardPanel
           :data="data"
-          @refresh="emit('refreshDashboard')"
+          @refresh="emit('refreshDashboard', $event)"
         />
       </scroll-view>
     </view>

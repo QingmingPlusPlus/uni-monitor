@@ -92,7 +92,7 @@ function openDevice(payload: { readonly deviceId: string }): void {
   navigateToFactoryUrl(buildEquipmentUrl(payload.deviceId, 'process'))
 }
 
-function refreshDashboard(): void {
+function refreshDashboard(_cardId: string): void {
   refreshedAt.value = new Date()
 }
 </script>

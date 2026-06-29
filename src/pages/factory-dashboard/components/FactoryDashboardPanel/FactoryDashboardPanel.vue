@@ -13,7 +13,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  refresh: []
+  refresh: [cardId: string]
 }>()
 </script>
 
@@ -25,7 +25,7 @@ const emit = defineEmits<{
       <template v-if="data.kind === 'department'">
         <PersonnelAttendanceCard
           :data="data.attendance"
-          @refresh="emit('refresh')"
+          @refresh="emit('refresh', 'attendance')"
         />
 
         <AttendanceTrendCard
@@ -38,7 +38,7 @@ const emit = defineEmits<{
           :table-data="data.attendanceTrend.tableData"
           :chart-options="data.attendanceTrend.chartOptions"
           :chart-data="data.attendanceTrend.chartData"
-          @refresh="emit('refresh')"
+          @refresh="emit('refresh', 'attendanceTrend')"
         />
         <view v-else class="factory-dashboard-panel__loading-card">
           <LoadingIcon />
@@ -46,7 +46,7 @@ const emit = defineEmits<{
 
         <PersonnelDetailCard
           :data="data.personnelDetail"
-          @refresh="emit('refresh')"
+          @refresh="emit('refresh', 'personnelDetail')"
         />
 
         <DepartmentInboundPlanTrendCard
@@ -59,7 +59,7 @@ const emit = defineEmits<{
           :table-data="data.inboundPlanTrend.tableData"
           :chart-options="data.inboundPlanTrend.chartOptions"
           :chart-data="data.inboundPlanTrend.chartData"
-          @refresh="emit('refresh')"
+          @refresh="emit('refresh', 'inboundPlanTrend')"
         />
         <view v-else class="factory-dashboard-panel__loading-card">
           <LoadingIcon />
@@ -70,7 +70,7 @@ const emit = defineEmits<{
         <PersonnelAttendanceCard
           class="factory-dashboard-panel__wide-card"
           :data="data.attendance"
-          @refresh="emit('refresh')"
+          @refresh="emit('refresh', 'attendance')"
         />
 
         <TableChartCard
@@ -84,7 +84,7 @@ const emit = defineEmits<{
           :table-data="card.tableData"
           :chart-options="card.chartOptions"
           :chart-data="card.chartData"
-          @refresh="emit('refresh')"
+          @refresh="emit('refresh', card.id)"
         />
       </template>
     </view>

@@ -21,7 +21,7 @@ import type { AttendanceTrendDailyRow } from '../../../components/attendance-tre
 import { createDepartmentInboundPlanTrendCardData } from '../../../components/department-inbound-plan-trend-card/departmentInboundPlanTrendMock'
 import type { DepartmentInboundDailyRow } from '../../../components/department-inbound-plan-trend-card/departmentInboundPlanTrendMock'
 import { getProcessSegments } from '../../../utils/monthSegment'
-import type { DepartmentDashboardData } from './factoryDashboardTypes'
+import type { DepartmentDashboardData, FactoryDashboardCard } from './factoryDashboardTypes'
 import type {
   PersonnelAttendanceData,
   PersonnelAttendanceProcessGroup,
@@ -214,7 +214,7 @@ function createAttendanceSummaryRow(
 /**
  * 人员出勤适配：按 processTypes[] 多次调用 getAttendanceSituation，前端按工序族分组聚合。
  */
-async function loadAttendanceCard(
+export async function loadAttendanceCard(
   department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
   config: CssMapSelectionConfig,
@@ -304,10 +304,10 @@ async function loadAttendanceCard(
  *
  * 接口不提供 targetRate（利记出勤率）字段，此处暂置 0，缺口见 doc/department-api-gaps.md。
  */
-async function loadAttendanceTrendCard(
+export async function loadAttendanceTrendCard(
   department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
-): Promise<ReturnType<typeof createAttendanceTrendCardData>> {
+): Promise<FactoryDashboardCard | null> {
   const departmentCode = toApiDepartmentCode(department)
   const month = getCurrentMonthParam()
 
@@ -355,9 +355,9 @@ async function loadAttendanceTrendCard(
  * 接口只返回 number（计划数），无实绩字段；actualInbound 暂置 0，缺口见 doc/department-api-gaps.md。
  * 接口无 processType 字段，所有记录归入 processTypes[0] 的桶以复用周汇总逻辑。
  */
-async function loadInboundPlanTrendCard(
+export async function loadInboundPlanTrendCard(
   processTypes: readonly CssMapProcessValue[],
-): Promise<ReturnType<typeof createDepartmentInboundPlanTrendCardData>> {
+): Promise<FactoryDashboardCard | null> {
   if (processTypes.length === 0) return null
 
   const month = getCurrentMonthParam()
@@ -475,7 +475,7 @@ function mapDetailRow(vo: AttendanceDetailSituationVO, index: number): Personnel
 /**
  * 人员明细适配：按 processTypes[] 多次调用 getAttendanceDetailSituation，扁平合并所有工序的人员。
  */
-async function loadPersonnelDetailCard(
+export async function loadPersonnelDetailCard(
   department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
   config: CssMapSelectionConfig,
@@ -533,6 +533,25 @@ let inflightKey = ''
 
 function buildCacheKey(department: CssMapDepartmentValue, version: number): string {
   return `${CACHE_KEY_PREFIX}${department}:v${version}`
+}
+
+/** 单卡片刷新后清除整页缓存，避免后续整页刷新命中旧缓存回滚该卡片数据。 */
+export function invalidateDepartmentDashboardCache(
+  department: CssMapDepartmentValue,
+  monthSegmentVersion: number,
+): void {
+  try {
+    window.sessionStorage.removeItem(buildCacheKey(department, monthSegmentVersion))
+    window.sessionStorage.removeItem(buildCacheKey(department, 0))
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.warn(`[DepartmentLoader] 缓存清理失败: ${error.message}`)
+    }
+  }
+  if (inflightKey === buildCacheKey(department, monthSegmentVersion) || inflightKey === buildCacheKey(department, 0)) {
+    inflightKey = ''
+    inflightPromise = null
+  }
 }
 
 function isCacheEntry(value: unknown): value is CacheEntry {
