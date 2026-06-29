@@ -39,7 +39,7 @@ function getRowToneClass(row: EquipmentDetailRow): string {
     </view>
 
     <view class="equipment-detail__grid">
-      <section class="equipment-detail__card equipment-detail__card--wide">
+      <section class="equipment-detail__card equipment-detail__card--plan">
         <text class="equipment-detail__card-title">当前设备计划</text>
         <view class="equipment-detail__row-table">
           <view
@@ -53,7 +53,7 @@ function getRowToneClass(row: EquipmentDetailRow): string {
         </view>
       </section>
 
-      <section class="equipment-detail__card">
+      <section class="equipment-detail__card equipment-detail__card--downtime">
         <text class="equipment-detail__card-title">停线计划展开</text>
         <view class="equipment-detail__row-table">
           <view
@@ -67,7 +67,7 @@ function getRowToneClass(row: EquipmentDetailRow): string {
         </view>
       </section>
 
-      <section class="equipment-detail__card">
+      <section class="equipment-detail__card equipment-detail__card--loss">
         <text class="equipment-detail__card-title">损耗明细</text>
         <view class="equipment-detail__row-table">
           <view
@@ -81,7 +81,7 @@ function getRowToneClass(row: EquipmentDetailRow): string {
         </view>
       </section>
 
-      <section class="equipment-detail__card">
+      <section class="equipment-detail__card equipment-detail__card--defect">
         <text class="equipment-detail__card-title">不良明细</text>
         <view class="equipment-detail__row-table">
           <view
@@ -95,7 +95,7 @@ function getRowToneClass(row: EquipmentDetailRow): string {
         </view>
       </section>
 
-      <section class="equipment-detail__card equipment-detail__card--wide">
+      <section class="equipment-detail__card equipment-detail__card--timeline">
         <text class="equipment-detail__card-title">停止时间轴</text>
         <view class="equipment-detail__timeline">
           <view
@@ -112,7 +112,7 @@ function getRowToneClass(row: EquipmentDetailRow): string {
         </view>
       </section>
 
-      <section class="equipment-detail__card">
+      <section class="equipment-detail__card equipment-detail__card--cycle">
         <text class="equipment-detail__card-title">设备人员周期</text>
         <view class="equipment-detail__row-table">
           <view

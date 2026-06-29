@@ -55,6 +55,14 @@
 
 .equipment-detail__grid {
   display: grid;
+  min-height: 0;
+  grid-template-areas:
+    "plan"
+    "downtime"
+    "loss"
+    "defect"
+    "timeline"
+    "cycle";
   grid-template-columns: 1fr;
   gap: var(--space-3);
 }
@@ -62,6 +70,30 @@
 .equipment-detail__card {
   gap: var(--space-2);
   padding: var(--space-3);
+}
+
+.equipment-detail__card--plan {
+  grid-area: plan;
+}
+
+.equipment-detail__card--downtime {
+  grid-area: downtime;
+}
+
+.equipment-detail__card--loss {
+  grid-area: loss;
+}
+
+.equipment-detail__card--defect {
+  grid-area: defect;
+}
+
+.equipment-detail__card--timeline {
+  grid-area: timeline;
+}
+
+.equipment-detail__card--cycle {
+  grid-area: cycle;
 }
 
 .equipment-detail__card-title {
@@ -73,6 +105,8 @@
 
 .equipment-detail__row-table {
   display: grid;
+  flex: 1;
+  grid-auto-rows: minmax(0, 1fr);
   border: 1px solid var(--um-color-rail);
   border-radius: 8rpx;
   overflow: hidden;
@@ -124,6 +158,8 @@
 
 .equipment-detail__timeline {
   display: grid;
+  flex: 1;
+  grid-auto-rows: minmax(0, 1fr);
   gap: var(--space-2);
 }
 
@@ -177,10 +213,6 @@
     border-radius: 10px;
   }
 
-  .equipment-detail__hero {
-    grid-template-columns: minmax(0, 0.72fr) minmax(560px, 1fr);
-  }
-
   .equipment-detail__title {
     font-size: 34px;
   }
@@ -190,11 +222,11 @@
   }
 
   .equipment-detail__grid {
-    grid-template-columns: 1.2fr 0.8fr 0.8fr;
-  }
-
-  .equipment-detail__card--wide {
-    grid-column: span 2;
+    grid-template-areas:
+      "plan downtime"
+      "loss defect"
+      "timeline cycle";
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .equipment-detail__card-title {
@@ -221,5 +253,31 @@
 
   .equipment-detail__timeline-detail {
     font-size: 15px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .equipment-detail__hero {
+    grid-template-columns: minmax(320px, 0.58fr) minmax(0, 1.42fr);
+  }
+
+  .equipment-detail__grid {
+    grid-template-areas:
+      "plan downtime loss"
+      "timeline defect cycle";
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.95fr);
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 900px) {
+  .equipment-detail {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .equipment-detail__grid {
+    flex: 1;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 }

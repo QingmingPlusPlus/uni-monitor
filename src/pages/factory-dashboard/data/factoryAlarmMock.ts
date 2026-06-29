@@ -102,26 +102,27 @@ export function getProcessAlarmItems(
 export function getEquipmentAlarmItems(
   device: CssMapDevice | null,
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
+  fallbackDeviceId = '',
 ): readonly FactoryAlarmItem[] {
-  if (device === null) {
-    return []
-  }
+  const fallbackId = fallbackDeviceId.trim()
+  const deviceId = device?.id ?? (fallbackId.length > 0 ? fallbackId : 'mock-device-01')
+  const deviceName = device?.name ?? `设备 ${deviceId}`
 
-  const processLabel = device.section
+  const processLabel = device?.section
     ? getCssMapProcessLabel(device.section, selectionConfig)
-    : '未分配工序'
+    : '设备维度'
 
   return [
     {
-      id: `${device.id}-temperature`,
+      id: `${deviceId}-temperature`,
       level: 'danger',
-      source: device.name,
+      source: deviceName,
       message: '温控报警',
       durationMinutes: 12,
       estimatedImpactMinutes: 0,
     },
     {
-      id: `${device.id}-material`,
+      id: `${deviceId}-material`,
       level: 'warning',
       source: processLabel,
       message: '待料',

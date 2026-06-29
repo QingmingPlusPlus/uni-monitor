@@ -47,9 +47,11 @@ const activeDevice = computed<CssMapDevice | null>(() => {
   return devices.value[0] ?? null
 })
 
-const detailData = computed(() => getEquipmentDetailData(activeDevice.value))
+const detailData = computed(() =>
+  getEquipmentDetailData(activeDevice.value, requestedDeviceId.value),
+)
 const alarmItems = computed(() =>
-  getEquipmentAlarmItems(activeDevice.value, selectionConfig.value),
+  getEquipmentAlarmItems(activeDevice.value, selectionConfig.value, requestedDeviceId.value),
 )
 
 function syncRouteQuery(query: Readonly<Record<string, string | undefined>> | undefined): void {

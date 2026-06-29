@@ -12,7 +12,6 @@ import type {
   CssMapProcessValue,
 } from '../../../../components/css-map/css3dMapTypes'
 import type { FactoryDashboardData } from '../../data/factoryDashboardTypes'
-import FactoryKpiGrid from '../FactoryKpiGrid/FactoryKpiGrid.vue'
 import PersonnelAttendanceCard from '../PersonnelAttendanceCard/PersonnelAttendanceCard.vue'
 import PersonnelDetailCard from '../PersonnelDetailCard/PersonnelDetailCard.vue'
 
@@ -38,8 +37,6 @@ const hideInboundPlan = computed<boolean>(() => {
 
 <template>
   <view :class="['factory-dashboard-panel', `factory-dashboard-panel--${data.kind}`]">
-    <FactoryKpiGrid v-if="data.kind === 'process'" :items="data.kpis" />
-
     <view class="factory-dashboard-panel__waterfall">
       <template v-if="data.kind === 'department'">
         <!-- 新增三个 TableChart 卡片（第一列） -->
