@@ -32,6 +32,7 @@ const emit = defineEmits<{
           v-if="data.attendanceTrend !== null"
           :title="data.attendanceTrend.title"
           :subtitle="data.attendanceTrend.subtitle"
+          :compact="true"
           :table-rows="data.attendanceTrend.tableRows"
           :table-columns="data.attendanceTrend.tableColumns"
           :table-data="data.attendanceTrend.tableData"
@@ -52,6 +53,7 @@ const emit = defineEmits<{
           v-if="data.inboundPlanTrend !== null"
           :title="data.inboundPlanTrend.title"
           :subtitle="data.inboundPlanTrend.subtitle"
+          :compact="true"
           :table-rows="data.inboundPlanTrend.tableRows"
           :table-columns="data.inboundPlanTrend.tableColumns"
           :table-data="data.inboundPlanTrend.tableData"
@@ -126,11 +128,37 @@ const emit = defineEmits<{
 @media (min-width: 1440px) {
   .factory-dashboard-panel__waterfall {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
     align-items: start;
   }
 
   .factory-dashboard-panel__wide-card {
     grid-column: 1 / -1;
+  }
+
+  /* 部门维度改用 CSS 多列瀑布流：每一列内的组件以自然高度首尾相接，
+     没有网格行对齐造成的多余空隙；列与列之间通过 column-gap 分隔，
+     因卡片高度不一而错落有致。 */
+  .factory-dashboard-panel--department .factory-dashboard-panel__waterfall {
+    display: block;
+    grid-template-columns: none;
+    grid-template-rows: none;
+    grid-auto-flow: unset;
+    align-items: unset;
+    column-count: 2;
+    column-gap: var(--space-3);
+  }
+
+  .factory-dashboard-panel--department .factory-dashboard-panel__waterfall > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 0 0 var(--space-3) 0;
+    width: 100%;
+  }
+
+  .factory-dashboard-panel--department .factory-dashboard-panel__waterfall > *:last-child {
+    margin-bottom: 0;
   }
 }
 </style>

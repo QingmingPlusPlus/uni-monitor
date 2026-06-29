@@ -20,6 +20,7 @@ const props = withDefaults(
   defineProps<{
     readonly title?: string
     readonly subtitle?: string
+    readonly compact?: boolean
     readonly tableRows?: readonly TableRowConfig[]
     readonly tableColumns?: readonly TableColumnConfig[]
     readonly tableData?: TableData
@@ -29,6 +30,7 @@ const props = withDefaults(
   {
     title: "入库计划推移表",
     subtitle: "按周汇总部门入库计划与实绩（mock）",
+    compact: false,
     tableRows: () => departmentInboundPlanTrendRows,
     tableColumns: () => departmentInboundPlanTrendColumns,
     tableData: () => departmentInboundPlanTrendTableData,
@@ -55,6 +57,7 @@ const handleRefresh = (): void => {
     tag="mock"
     :title="title"
     :subtitle="subtitle"
+    :compact="compact"
     :table-rows="tableRows"
     :table-columns="tableColumns"
     :table-data="currentTableData"

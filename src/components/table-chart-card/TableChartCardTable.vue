@@ -10,7 +10,7 @@
       :scroll-y="isModal"
       :show-scrollbar="true"
     >
-      <view :class="['data-table', { 'data-table--modal': isModal }]">
+      <view :class="['data-table', { 'data-table--modal': isModal, 'data-table--compact': compact }]">
         <view class="data-table__row data-table__row--head" :style="tableGridStyle">
           <text class="data-table__cell data-table__cell--label"></text>
           <text
@@ -68,9 +68,11 @@ const props = withDefaults(
     readonly tableData: TableData
     readonly tableGridStyle: Readonly<Record<"gridTemplateColumns", string>>
     readonly isModal?: boolean
+    readonly compact?: boolean
   }>(),
   {
     isModal: false,
+    compact: false,
   },
 )
 

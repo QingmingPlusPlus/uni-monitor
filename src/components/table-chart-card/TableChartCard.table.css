@@ -16,6 +16,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+.data-table--compact {
+  min-width: auto;
+}
+
 .data-table__row {
   display: grid;
   min-height: 64rpx;
@@ -94,6 +98,10 @@
 
   .data-table {
     min-width: 900px;
+  }
+
+  .data-table--compact {
+    min-width: auto;
   }
 
   .data-table__row {

@@ -46,6 +46,7 @@
       :table-columns="tableColumns"
       :table-data="tableData"
       :table-grid-style="tableGridStyle"
+      :compact="compact"
     />
 
     <view class="table-chart-card__chart-area">
@@ -102,6 +103,7 @@
             :table-columns="tableColumns"
             :table-data="tableData"
             :table-grid-style="tableGridStyle"
+            :compact="compact"
             is-modal
           />
 
@@ -147,6 +149,7 @@ const props = withDefaults(
     readonly title: string
     readonly subtitle?: string
     readonly tag?: string
+    readonly compact?: boolean
     readonly tableRows: readonly TableRowConfig[]
     readonly tableColumns: readonly TableColumnConfig[]
     readonly tableData: TableData
@@ -156,6 +159,7 @@ const props = withDefaults(
   {
     subtitle: "",
     tag: "",
+    compact: false,
     chartData: undefined,
   },
 )
@@ -182,12 +186,14 @@ type ChartResizeHandle = {
 }
 
 const tableGridStyle = computed(() => {
+  const defaultColumnWidth = props.compact ? "minmax(92px, 1fr)" : "minmax(132px, 1fr)"
+  const firstColumnTrack = props.compact ? "minmax(120px, 140px)" : "minmax(156px, 188px)"
   const columnTracks = props.tableColumns
-    .map((column) => column.width ?? "minmax(132px, 1fr)")
+    .map((column) => column.width ?? defaultColumnWidth)
     .join(" ")
 
   return {
-    gridTemplateColumns: `minmax(156px, 188px) ${columnTracks}`,
+    gridTemplateColumns: `${firstColumnTrack} ${columnTracks}`,
   }
 })
 

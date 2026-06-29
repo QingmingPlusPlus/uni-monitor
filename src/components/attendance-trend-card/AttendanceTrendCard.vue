@@ -20,6 +20,7 @@ const props = withDefaults(
   defineProps<{
     readonly title?: string
     readonly subtitle?: string
+    readonly compact?: boolean
     readonly tableRows?: readonly TableRowConfig[]
     readonly tableColumns?: readonly TableColumnConfig[]
     readonly tableData?: TableData
@@ -29,6 +30,7 @@ const props = withDefaults(
   {
     title: "出勤率推移表",
     subtitle: "按周汇总人员出勤情况（mock）",
+    compact: false,
     tableRows: () => attendanceTrendRows,
     tableColumns: () => attendanceTrendColumns,
     tableData: () => attendanceTrendTableData,
@@ -55,6 +57,7 @@ const handleRefresh = (): void => {
     tag="mock"
     :title="title"
     :subtitle="subtitle"
+    :compact="compact"
     :table-rows="tableRows"
     :table-columns="tableColumns"
     :table-data="currentTableData"
