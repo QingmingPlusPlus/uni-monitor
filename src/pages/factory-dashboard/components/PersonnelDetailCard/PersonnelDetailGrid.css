@@ -1,0 +1,138 @@
+.personnel-detail-grid {
+  min-width: 0;
+}
+
+.personnel-detail-grid__table-wrap {
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid var(--um-color-rail);
+  border-radius: 10rpx;
+  box-sizing: border-box;
+}
+
+.personnel-detail-table {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 0.8fr 0.7fr 0.7fr 0.9fr 0.9fr 0.85fr 0.85fr 0.5fr 1.3fr;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+.personnel-detail-table__cell {
+  display: flex;
+  min-width: 0;
+  min-height: 56rpx;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 8rpx;
+  border-right: 1px solid var(--um-color-rail);
+  border-bottom: 1px solid var(--um-color-rail);
+  color: var(--um-color-text-primary);
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.personnel-detail-table__cell:nth-last-child(-n + 9) {
+  border-bottom: 0;
+}
+
+.personnel-detail-table__cell:nth-child(9n) {
+  border-right: 0;
+}
+
+.personnel-detail-table__cell--head {
+  background: var(--um-color-surface-subtle);
+  color: var(--um-color-text-primary);
+  font-size: 21rpx;
+  font-weight: 800;
+}
+
+/* Zebra striping: 9 header cells, then 9 cells per data row. */
+/* Even data rows (2nd, 4th, 6th, 8th) span cells 19-27, 37-45, 55-63, 73-81. */
+.personnel-detail-table__cell:nth-child(18n + 19),
+.personnel-detail-table__cell:nth-child(18n + 20),
+.personnel-detail-table__cell:nth-child(18n + 21),
+.personnel-detail-table__cell:nth-child(18n + 22),
+.personnel-detail-table__cell:nth-child(18n + 23),
+.personnel-detail-table__cell:nth-child(18n + 24),
+.personnel-detail-table__cell:nth-child(18n + 25),
+.personnel-detail-table__cell:nth-child(18n + 26),
+.personnel-detail-table__cell:nth-child(18n + 27) {
+  background: rgba(34, 113, 255, 0.06);
+}
+
+.personnel-detail-table__cell--shift,
+.personnel-detail-table__cell--name {
+  font-weight: 800;
+}
+
+.personnel-detail-table__cell--code {
+  font-weight: 650;
+}
+
+.personnel-detail-table__cell--capability {
+  font-weight: 800;
+  color: var(--um-color-operation);
+}
+
+.personnel-detail-table__cell--hours {
+  justify-content: flex-end;
+  font-weight: 650;
+}
+
+.personnel-detail-table__cell--status {
+  font-weight: 800;
+}
+
+.personnel-detail-table__cell--status-present {
+  color: var(--um-color-success);
+  background: var(--um-color-success-soft);
+}
+
+.personnel-detail-table__cell--status-leave {
+  color: var(--um-color-warning);
+  background: var(--um-color-warning-soft);
+}
+
+.personnel-detail-table__cell--status-travel {
+  color: var(--um-color-operation);
+  background: var(--um-color-operation-soft);
+}
+
+.personnel-detail-table__cell--status-absent {
+  color: var(--um-color-danger);
+  background: var(--um-color-danger-soft);
+}
+
+@media (min-width: 768px) {
+  .personnel-detail-grid__table-wrap {
+    border-radius: 8px;
+  }
+
+  .personnel-detail-table__cell {
+    min-height: 36px;
+    padding: 0 6px;
+    font-size: 13px;
+  }
+
+  .personnel-detail-table__cell--head {
+    font-size: 12px;
+  }
+
+  .personnel-detail-grid--modal .personnel-detail-table__cell {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .personnel-detail-grid--modal .personnel-detail-table__cell--head {
+    font-size: 15px;
+  }
+}
