@@ -33,6 +33,10 @@ body,
   --um-color-warning-soft: #FFF4D8;
   --um-color-danger: #E55353;
   --um-color-danger-soft: #FDE7E7;
+  --um-color-changeover: #B7791F;
+  --um-color-changeover-soft: #FFF4D8;
+  --um-color-cleaning: #2471FF;
+  --um-color-cleaning-soft: #E7F0FF;
   --space-1: 8rpx;
   --space-2: 16rpx;
   --space-3: 24rpx;

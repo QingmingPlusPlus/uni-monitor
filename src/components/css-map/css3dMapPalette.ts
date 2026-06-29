@@ -7,39 +7,47 @@ import type {
 
 interface CssMapTitleStyle {
   background: string
+  border: string
   color: string
 }
 
 export const cssMapStatusPalette: Record<CssMapDeviceStatus, CssMapTitleStyle> = {
   production: {
-    background: 'rgba(187, 247, 208, 0.95)',
-    color: '#14213d',
+    background: 'var(--um-color-success-soft)',
+    border: 'var(--um-color-success)',
+    color: 'var(--um-color-text-primary)',
   },
   abnormalStop: {
-    background: 'rgba(255, 77, 79, 0.9)',
-    color: '#ffffff',
+    background: 'var(--um-color-danger)',
+    border: 'var(--um-color-danger)',
+    color: 'var(--um-color-text-inverse)',
   },
   plannedStop: {
-    background: 'rgba(100, 116, 139, 0.95)',
-    color: '#ffffff',
+    background: 'var(--um-color-text-secondary)',
+    border: 'var(--um-color-text-secondary)',
+    color: 'var(--um-color-text-inverse)',
   },
   changeover: {
-    background: 'rgba(250, 204, 21, 0.95)',
-    color: '#14213d',
+    background: 'var(--um-color-changeover-soft)',
+    border: 'var(--um-color-changeover)',
+    color: 'var(--um-color-text-primary)',
   },
   cleaning: {
-    background: 'rgba(250, 204, 21, 0.95)',
-    color: '#14213d',
+    background: 'var(--um-color-cleaning-soft)',
+    border: 'var(--um-color-cleaning)',
+    color: 'var(--um-color-text-primary)',
   },
   neutral: {
     background: 'rgba(255, 255, 255, 0.86)',
-    color: '#14213d',
+    border: 'var(--um-color-border)',
+    color: 'var(--um-color-text-primary)',
   },
 }
 
 const neutralTitle: CssMapTitleStyle = {
   background: 'rgba(255, 255, 255, 0.86)',
-  color: '#14213d',
+  border: 'var(--um-color-border)',
+  color: 'var(--um-color-text-primary)',
 }
 
 export const cssMapNeutralLoadRateBackground = 'rgba(255, 255, 255, 0.72)'

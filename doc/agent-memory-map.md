@@ -6,6 +6,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `AGENTS.md`、`doc/agent-guide.md`、`doc/agent-memory-map.md`、`.agents/skills`、`.codex/skills`、`.opencode/skills`、`.qoder/skills` | `doc/agent-guide.md`、`doc/agent-memory-map.md` | `openspec/specs/governance/spec.md` | `cross-memory-routing` | 更新治理 spec、路由表或对应 skill | 生效 |
 | `pages/department/index`、`pages/process/index`、`pages/equipment/index`、工厂可视化三维度 | `doc/factory-dimensions.md` | — | — | 更新工厂维度 doc、页面组件 | 生效 |
+| `src/components/css-map`、`public/factory-map`、`src/static/factory-map`、`css-map` 厂区地图 | `doc/factory-dimensions.md`、`DESIGN.md` | — | — | 更新工厂维度 doc、设计系统或地图组件 | 生效 |
 | `src/utils/monthSegment.ts`、`src/components/LoadingIcon.vue`、月分段/自然周/sessionStorage 缓存 | — | — | — | 更新月分段模块：自然周计算、session 读写、工序级查找键、加载器去重 | 生效 |
 | `<module-path>` | `doc/<module-doc>.md` | `<spec-path>` | `<skill-name>` | 更新模块 doc/spec/skill | 生效 |
 

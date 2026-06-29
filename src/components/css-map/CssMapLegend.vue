@@ -48,7 +48,10 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
           <td>
             <span
               v-if="statusItems[index]"
-              :style="{ background: cssMapStatusPalette[statusItems[index].status].background }"
+              :style="{
+                background: cssMapStatusPalette[statusItems[index].status].background,
+                borderColor: cssMapStatusPalette[statusItems[index].status].border,
+              }"
             />
           </td>
           <td>{{ statusItems[index]?.label ?? '' }}</td>
@@ -109,7 +112,9 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
   display: block;
   width: 100%;
   height: 100%;
+  border: 3px solid transparent;
   min-height: 28px;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
