@@ -105,8 +105,6 @@
 
 .equipment-detail__row-table {
   display: grid;
-  flex: 1;
-  grid-auto-rows: minmax(0, 1fr);
   border: 1px solid var(--um-color-rail);
   border-radius: 8rpx;
   overflow: hidden;
@@ -158,8 +156,6 @@
 
 .equipment-detail__timeline {
   display: grid;
-  flex: 1;
-  grid-auto-rows: minmax(0, 1fr);
   gap: var(--space-2);
 }
 
@@ -222,11 +218,14 @@
   }
 
   .equipment-detail__grid {
-    grid-template-areas:
-      "plan downtime"
-      "loss defect"
-      "timeline cycle";
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: block;
+    column-count: 2;
+    column-gap: var(--space-3);
+  }
+
+  .equipment-detail__card {
+    margin-bottom: var(--space-3);
+    break-inside: avoid;
   }
 
   .equipment-detail__card-title {
@@ -262,22 +261,6 @@
   }
 
   .equipment-detail__grid {
-    grid-template-areas:
-      "plan downtime loss"
-      "timeline defect cycle";
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.95fr);
-  }
-}
-
-@media (min-width: 1024px) and (min-height: 900px) {
-  .equipment-detail {
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-  }
-
-  .equipment-detail__grid {
-    flex: 1;
-    grid-template-rows: repeat(2, minmax(0, 1fr));
+    column-count: 3;
   }
 }
