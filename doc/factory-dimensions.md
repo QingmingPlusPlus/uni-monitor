@@ -8,9 +8,9 @@
 
 - 路由：`pages/department/index?departmentId=department1`
 - 描述：以部门为粒度展示组织单元的计划、实绩、人员配置与工序覆盖关系。
-- 页面布局：顶部为 `Omni Monitor` + 当前部门 Mock 告警跑马灯；主体左侧为 `css-map`，右侧第一项是人员出勤情况（mock）专用表格卡片，表格在卡片内按比例占满宽度且不横向滚动，下方为两列瀑布流展位卡片。
+- 页面布局：顶部为 `Omni Monitor` + 当前部门 Mock 告警跑马灯；主体左侧三分之一为 `css-map`，右侧三分之二为可滚动瀑布流。宽屏右侧按 `2列 x 2排` 展示人员出勤情况（mock）、人员出勤率推移（mock）、人员明细及状态（mock）、入库计划推移（mock）；窄屏退化为单列。
 - 状态来源：`departmentId` query 是页面状态源。
-- 长屏刷新：部门页按设备本地时间每天 06:20 软刷新一次显示数据；人员出勤卡和下方展位卡右上角均提供手动刷新与展开按钮，刷新不执行整页 reload。
+- 长屏刷新：部门页按设备本地时间每天 06:20 软刷新一次显示数据；右侧各 mock 卡片右上角均提供手动刷新与展开按钮，刷新不执行整页 reload。
 
 ### 2. 工序维度（Process）
 
@@ -37,8 +37,10 @@
 ## Mock 展示规则
 
 - 可见 Mock 标识统一放在对应块的标题或 KPI 标签中，格式为 `（mock）`，不再使用独立的 Mock 标签行或信息行。
-- 人员出勤卡、右侧 `TableChartCard` 和设备详情主标题在标题中显示 `（mock）`。
+- 人员出勤卡、人员出勤率推移、人员明细及状态、入库计划推移、右侧 `TableChartCard` 和设备详情主标题在标题中显示 `（mock）`。
 - KPI 中仅由 Mock 数据产生的项目在标签中显示 `（mock）`；对应 note 为空时不展示 note 行。
+- 部门页人员出勤率推移表与入库计划推移表只展示周数据，不展示月列或日列。
+- 部门页两个推移表的 mock 源数据按工序返回一个月中每一天的数据；页面首次加载时查询月周配置并写入 `sessionStorage`，再按各工序周配置汇总为周数据。配置缺失或加载失败时沿用自然周回退。
 
 ## `css-map` 数据与交互
 
@@ -70,6 +72,6 @@
 
 | 路由 | 维度 | 状态 query | 布局 |
 | --- | --- | --- | --- |
-| `pages/department/index` | 部门 | `departmentId` | 告警栏 + `css-map` + 人员出勤卡 + 两列瀑布流展位卡 |
+| `pages/department/index` | 部门 | `departmentId` | 告警栏 + 左三分之一 `css-map` + 右侧 `2列 x 2排` 人员出勤/出勤率/人员明细/入库计划 mock 瀑布流 |
 | `pages/process/index` | 工序 | `processId` | 告警栏 + `css-map` + KPI + 人员出勤卡 + 4 个 `TableChartCard` |
 | `pages/equipment/index` | 设备 | `deviceId`、`from` | 带返回按钮的告警栏 + 单设备详情分析面板 |

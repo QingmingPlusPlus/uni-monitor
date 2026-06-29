@@ -30,7 +30,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <view class="factory-dashboard-view">
+  <view :class="['factory-dashboard-view', `factory-dashboard-view--${data.kind}`]">
     <FactoryAlertHeader :alarms="alarms" />
 
     <view class="factory-dashboard-view__body">
@@ -108,6 +108,10 @@ const emit = defineEmits<{
   .factory-dashboard-view__body {
     grid-template-columns: minmax(520px, 0.9fr) minmax(520px, 1.1fr);
   }
+
+  .factory-dashboard-view--department .factory-dashboard-view__body {
+    grid-template-columns: minmax(360px, 1fr) minmax(0, 2fr);
+  }
 }
 
 @media (min-width: 1920px) {
@@ -118,6 +122,10 @@ const emit = defineEmits<{
   .factory-dashboard-view__body {
     grid-template-columns: minmax(860px, 0.95fr) minmax(760px, 1.05fr);
     gap: var(--space-4);
+  }
+
+  .factory-dashboard-view--department .factory-dashboard-view__body {
+    grid-template-columns: minmax(620px, 1fr) minmax(0, 2fr);
   }
 }
 </style>

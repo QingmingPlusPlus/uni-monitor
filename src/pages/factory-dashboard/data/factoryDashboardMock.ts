@@ -24,6 +24,10 @@ import {
   createPersonnelAttendanceData,
   createProcessPersonnelAttendanceData,
 } from './factoryAttendanceMock'
+import { createAttendanceTrendCardData } from '../../../components/attendance-trend-card/attendanceTrendMock'
+import { createDepartmentInboundPlanTrendCardData } from '../../../components/department-inbound-plan-trend-card/departmentInboundPlanTrendMock'
+import { createPersonnelDetailData } from './personnelDetailMock'
+import { getProcessSegments } from '../../../utils/monthSegment'
 
 const percentFormatter = (value: string | number | null | undefined): string => {
   if (typeof value === 'number') {
@@ -205,8 +209,11 @@ export function getDepartmentDashboardData(
   value: CssMapDepartmentValue,
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
   refreshedAt: Date = new Date(),
+  monthSegmentVersion = 0,
 ): FactoryDashboardData {
+  void monthSegmentVersion
   const label = getCssMapDepartmentLabel(value, selectionConfig)
+  const processTypes = selectionConfig.departmentProcessMap[value]
 
   return {
     kind: 'department',
@@ -215,12 +222,10 @@ export function getDepartmentDashboardData(
     subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷。',
     kpis: createKpis(label, 2929),
     attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
-    cards: [
-      createDashboardCard({ id: 'staff-plan', title: '人员配置', subtitle: '按部门、工序、班次和人时统计', base: 461, unit: 'count' }),
-      createDashboardCard({ id: 'production-pulse', title: '生产性活动', subtitle: '稼动、停线、换型和清扫活动', base: 2969, unit: 'minute' }),
-      createDashboardCard({ id: 'plan-result', title: '生产计划实绩', subtitle: '计划、实绩、差异与达成率', base: 2989512, unit: 'count' }),
-      createDashboardCard({ id: 'sync-plan', title: '可动率、阻碍时间与改善计划', subtitle: '可动率目标、损失时间和改善趋势', base: 48647, unit: 'minute' }),
-    ],
+    attendanceTrend: createAttendanceTrendCardData(processTypes, getProcessSegments),
+    inboundPlanTrend: createDepartmentInboundPlanTrendCardData(processTypes, getProcessSegments),
+    personnelDetail: createPersonnelDetailData(refreshedAt),
+    cards: [],
   }
 }
 

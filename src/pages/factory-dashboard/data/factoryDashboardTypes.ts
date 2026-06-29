@@ -5,6 +5,7 @@ import type {
   TableData,
   TableRowConfig,
 } from '../../../components/table-chart-card/TableChartCard.types'
+import type { PersonnelDetailData } from './personnelDetailMock'
 
 export type KpiTone = 'operation' | 'success' | 'warning' | 'danger' | 'neutral'
 
@@ -82,6 +83,9 @@ interface FactoryDashboardBaseData {
 export interface DepartmentDashboardData extends FactoryDashboardBaseData {
   readonly kind: 'department'
   readonly attendance: PersonnelAttendanceData
+  readonly attendanceTrend: FactoryDashboardCard | null
+  readonly inboundPlanTrend: FactoryDashboardCard | null
+  readonly personnelDetail: PersonnelDetailData
 }
 
 export interface ProcessDashboardData extends FactoryDashboardBaseData {

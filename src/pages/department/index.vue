@@ -25,10 +25,12 @@ import {
   redirectToFactoryUrl,
   subscribeFactoryRouteQueryChange,
 } from '../factory-dashboard/utils/factoryRoutes'
+import { loadMonthSegmentConfig } from '../../utils/monthSegment'
 
 const selectedDepartment = ref<CssMapDepartmentValue>(defaultCssMapSelectionValues.department)
 const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 const refreshedAt = ref(new Date())
+const monthSegmentVersion = ref(0)
 const morningRefreshHour = 6
 const morningRefreshMinute = 20
 let stopRouteQuerySync: (() => void) | null = null
@@ -36,7 +38,12 @@ let morningRefreshTimer: ReturnType<typeof globalThis.setTimeout> | null = null
 let lastMorningRefreshKey = ''
 
 const dashboardData = computed(() =>
-  getDepartmentDashboardData(selectedDepartment.value, selectionConfig.value, refreshedAt.value),
+  getDepartmentDashboardData(
+    selectedDepartment.value,
+    selectionConfig.value,
+    refreshedAt.value,
+    monthSegmentVersion.value,
+  ),
 )
 const alarmItems = computed(() =>
   getDepartmentAlarmItems(selectedDepartment.value, selectionConfig.value),
@@ -68,8 +75,26 @@ function loadSelectionConfig(forceRefresh: boolean): void {
     .catch(handleSelectionLoadError)
 }
 
+function handleMonthSegmentLoadError(error: unknown): void {
+  if (error instanceof Error) {
+    console.warn(`[DepartmentDashboard] Month segment refresh failed: ${error.message}`)
+    return
+  }
+
+  throw error
+}
+
+function loadMonthSegments(): void {
+  loadMonthSegmentConfig()
+    .then(() => {
+      monthSegmentVersion.value += 1
+    })
+    .catch(handleMonthSegmentLoadError)
+}
+
 function refreshDashboard(): void {
   loadSelectionConfig(true)
+  loadMonthSegments()
 }
 
 function createMorningRefreshDate(date: Date): Date {
@@ -136,6 +161,7 @@ onMounted(() => {
   })
 
   loadSelectionConfig(false)
+  loadMonthSegments()
   refreshIfMorningWasMissed()
 })
 

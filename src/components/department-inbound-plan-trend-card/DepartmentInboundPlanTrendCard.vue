@@ -28,7 +28,7 @@ const props = withDefaults(
   }>(),
   {
     title: "入库计划推移表",
-    subtitle: "部门维度入库计划与实绩推移（mock）",
+    subtitle: "按周汇总部门入库计划与实绩（mock）",
     tableRows: () => departmentInboundPlanTrendRows,
     tableColumns: () => departmentInboundPlanTrendColumns,
     tableData: () => departmentInboundPlanTrendTableData,

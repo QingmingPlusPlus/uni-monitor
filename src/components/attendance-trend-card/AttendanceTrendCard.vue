@@ -28,7 +28,7 @@ const props = withDefaults(
   }>(),
   {
     title: "出勤率推移表",
-    subtitle: "月、周、日维度人员出勤情况（mock）",
+    subtitle: "按周汇总人员出勤情况（mock）",
     tableRows: () => attendanceTrendRows,
     tableColumns: () => attendanceTrendColumns,
     tableData: () => attendanceTrendTableData,
