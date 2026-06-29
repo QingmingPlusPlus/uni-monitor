@@ -14,6 +14,7 @@ import {
 } from '../../components/css-map/css3dMapSelection'
 import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
+import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import {
   buildDepartmentUrl,
@@ -28,13 +29,17 @@ import {
 
 const selectedProcess = ref<CssMapProcessValue>(defaultCssMapSelectionValues.process)
 const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
+const refreshedAt = ref(new Date())
 let stopRouteQuerySync: (() => void) | null = null
 
 const selectedDepartment = computed<CssMapDepartmentValue>(() =>
   getCssMapDepartmentForProcess(selectedProcess.value, selectionConfig.value),
 )
 const dashboardData = computed(() =>
-  getProcessDashboardData(selectedProcess.value, selectionConfig.value),
+  getProcessDashboardData(selectedProcess.value, selectionConfig.value, refreshedAt.value),
+)
+const alarmItems = computed(() =>
+  getProcessAlarmItems(selectedProcess.value, selectionConfig.value),
 )
 
 function syncRouteQuery(
@@ -79,19 +84,30 @@ function selectProcess(value: CssMapProcessValue): void {
   redirectToFactoryUrl(buildProcessUrl(value))
 }
 
+function clearProcess(): void {
+  redirectToFactoryUrl(buildDepartmentUrl(selectedDepartment.value))
+}
+
 function openDevice(payload: { readonly deviceId: string }): void {
   navigateToFactoryUrl(buildEquipmentUrl(payload.deviceId, 'process'))
+}
+
+function refreshDashboard(): void {
+  refreshedAt.value = new Date()
 }
 </script>
 
 <template>
   <FactoryDashboardView
     :data="dashboardData"
+    :alarms="alarmItems"
     :selection-config="selectionConfig"
     :selected-department="selectedDepartment"
     :selected-process="selectedProcess"
     @select-department="selectDepartment"
     @select-process="selectProcess"
+    @clear-process="clearProcess"
     @open-device="openDevice"
+    @refresh-dashboard="refreshDashboard"
   />
 </template>

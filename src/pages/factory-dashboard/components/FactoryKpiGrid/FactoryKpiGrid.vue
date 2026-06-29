@@ -16,7 +16,7 @@ defineProps<{
     >
       <text class="factory-kpi-grid__label">{{ item.label }}</text>
       <text class="factory-kpi-grid__value">{{ item.value }}</text>
-      <text class="factory-kpi-grid__note">{{ item.note }}</text>
+      <text v-if="item.note" class="factory-kpi-grid__note">{{ item.note }}</text>
     </view>
   </view>
 </template>

@@ -38,6 +38,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   selectDepartment: [value: CssMapDepartmentValue]
   selectProcess: [value: CssMapProcessValue]
+  clearProcess: []
   openDevice: [payload: { readonly deviceId: string }]
 }>()
 
@@ -190,6 +191,7 @@ watch(
       :selected-process="selectedProcess"
       @select-department="emit('selectDepartment', $event)"
       @select-process="emit('selectProcess', $event)"
+      @clear-process="emit('clearProcess')"
     />
 
     <CssMapLegend />

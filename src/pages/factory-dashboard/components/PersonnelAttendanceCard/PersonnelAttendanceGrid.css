@@ -2,7 +2,8 @@
   min-width: 0;
 }
 
-.personnel-attendance-grid__scroll {
+.personnel-attendance-grid__table-wrap {
+  overflow: hidden;
   width: 100%;
   border: 1px solid var(--um-color-rail);
   border-radius: 10rpx;
@@ -11,8 +12,9 @@
 
 .personnel-attendance-table {
   display: grid;
-  min-width: 1120rpx;
-  grid-template-columns: 104rpx 92rpx 132rpx 92rpx 92rpx repeat(6, 92rpx) 104rpx 104rpx;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 1.1fr 0.78fr 1.22fr 0.76fr 0.76fr repeat(6, 0.76fr) 0.92fr 0.98fr;
   overflow: hidden;
   font-variant-numeric: tabular-nums;
 }
@@ -31,9 +33,10 @@
   font-size: 22rpx;
   font-weight: 600;
   line-height: 1.25;
+  overflow-wrap: anywhere;
   text-align: center;
-  text-overflow: ellipsis;
   white-space: normal;
+  word-break: break-word;
 }
 
 .personnel-attendance-table__cell:nth-last-child(-n + 13) {
@@ -119,13 +122,12 @@
 }
 
 @media (min-width: 768px) {
-  .personnel-attendance-grid__scroll {
+  .personnel-attendance-grid__table-wrap {
     border-radius: 8px;
   }
 
   .personnel-attendance-table {
-    min-width: 880px;
-    grid-template-columns: 74px 62px 104px 62px 62px repeat(6, 62px) 72px 72px;
+    grid-template-columns: 1.08fr 0.78fr 1.24fr 0.76fr 0.76fr repeat(6, 0.76fr) 0.92fr 0.98fr;
   }
 
   .personnel-attendance-table__cell {
@@ -139,8 +141,7 @@
   }
 
   .personnel-attendance-grid--modal .personnel-attendance-table {
-    min-width: 1180px;
-    grid-template-columns: 100px 84px 124px 84px 84px repeat(6, 84px) 94px 94px;
+    grid-template-columns: 1.08fr 0.78fr 1.24fr 0.76fr 0.76fr repeat(6, 0.76fr) 0.92fr 0.98fr;
   }
 
   .personnel-attendance-grid--modal .personnel-attendance-table__cell {

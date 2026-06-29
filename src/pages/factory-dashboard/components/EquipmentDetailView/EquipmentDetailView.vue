@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type {
+  FactoryAlarmItem,
   EquipmentDetailData,
   EquipmentDetailRow,
 } from '../../data/factoryDashboardTypes'
+import FactoryAlertHeader from '../FactoryAlertHeader/FactoryAlertHeader.vue'
 import FactoryKpiGrid from '../FactoryKpiGrid/FactoryKpiGrid.vue'
 
 defineProps<{
   readonly data: EquipmentDetailData
+  readonly alarms: readonly FactoryAlarmItem[]
 }>()
 
 const emit = defineEmits<{
@@ -20,16 +23,11 @@ function getRowToneClass(row: EquipmentDetailRow): string {
 
 <template>
   <view class="equipment-detail">
-    <view class="equipment-detail__topbar">
-      <button
-        class="equipment-detail__back"
-        type="button"
-        @click="emit('back')"
-      >
-        返回
-      </button>
-      <text class="equipment-detail__mode">显示 Mock 数据</text>
-    </view>
+    <FactoryAlertHeader
+      :alarms="alarms"
+      show-back
+      @back="emit('back')"
+    />
 
     <view class="equipment-detail__hero">
       <view class="equipment-detail__copy">

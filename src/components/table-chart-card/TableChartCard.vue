@@ -2,8 +2,7 @@
   <view class="table-chart-card">
     <view class="table-chart-card__head">
       <view class="table-chart-card__title-group">
-        <text v-if="tag" class="table-chart-card__tag">{{ tag }}</text>
-        <text class="table-chart-card__title">{{ title }}</text>
+        <text class="table-chart-card__title">{{ title }}<text v-if="titleMarker" class="table-chart-card__title-marker">{{ titleMarker }}</text></text>
         <text v-if="subtitle" class="table-chart-card__subtitle">{{ subtitle }}</text>
       </view>
       <view class="table-chart-card__actions">
@@ -74,8 +73,7 @@
       <view class="table-chart-card__modal" @click.stop>
         <view class="table-chart-card__modal-head">
           <view class="table-chart-card__modal-title-group">
-            <text v-if="tag" class="table-chart-card__tag">{{ tag }}</text>
-            <text class="table-chart-card__modal-title">{{ title }}</text>
+            <text class="table-chart-card__modal-title">{{ title }}<text v-if="titleMarker" class="table-chart-card__title-marker">{{ titleMarker }}</text></text>
             <text v-if="subtitle" class="table-chart-card__modal-subtitle">
               {{ subtitle }}
             </text>
@@ -167,6 +165,17 @@ const emit = defineEmits<{
 }>()
 
 const hasChartData = computed(() => hasRenderableChartData(props.chartData))
+const titleMarker = computed(() => {
+  const trimmedTag = props.tag.trim()
+
+  if (trimmedTag === '' || props.title.includes('（mock）')) {
+    return ''
+  }
+
+  const markerText = trimmedTag.toLowerCase().includes('mock') ? 'mock' : trimmedTag
+
+  return `（${markerText}）`
+})
 
 type ChartResizeHandle = {
   readonly resize: () => void | Promise<void>

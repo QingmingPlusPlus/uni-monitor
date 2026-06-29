@@ -13,6 +13,7 @@ import {
 } from '../../components/css-map/css3dMapSelection'
 import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
+import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import { getDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import {
   buildDepartmentUrl,
@@ -36,6 +37,9 @@ let lastMorningRefreshKey = ''
 
 const dashboardData = computed(() =>
   getDepartmentDashboardData(selectedDepartment.value, selectionConfig.value, refreshedAt.value),
+)
+const alarmItems = computed(() =>
+  getDepartmentAlarmItems(selectedDepartment.value, selectionConfig.value),
 )
 
 function syncRouteQuery(
@@ -152,6 +156,10 @@ function selectProcess(value: CssMapProcessValue): void {
   redirectToFactoryUrl(buildProcessUrl(value))
 }
 
+function clearProcess(): void {
+  redirectToFactoryUrl(buildDepartmentUrl(selectedDepartment.value))
+}
+
 function openDevice(payload: { readonly deviceId: string }): void {
   navigateToFactoryUrl(buildEquipmentUrl(payload.deviceId, 'department'))
 }
@@ -160,11 +168,13 @@ function openDevice(payload: { readonly deviceId: string }): void {
 <template>
   <FactoryDashboardView
     :data="dashboardData"
+    :alarms="alarmItems"
     :selection-config="selectionConfig"
     :selected-department="selectedDepartment"
     :selected-process="null"
     @select-department="selectDepartment"
     @select-process="selectProcess"
+    @clear-process="clearProcess"
     @open-device="openDevice"
     @refresh-dashboard="refreshDashboard"
   />

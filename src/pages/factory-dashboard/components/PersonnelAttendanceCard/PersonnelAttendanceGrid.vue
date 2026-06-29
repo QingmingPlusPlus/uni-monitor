@@ -1,10 +1,6 @@
 <template>
   <view :class="['personnel-attendance-grid', { 'personnel-attendance-grid--modal': isModal }]">
-    <scroll-view
-      class="personnel-attendance-grid__scroll"
-      scroll-x
-      :show-scrollbar="true"
-    >
+    <view class="personnel-attendance-grid__table-wrap">
       <view class="personnel-attendance-table">
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--process-head">工序</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--shift-head">班次</text>
@@ -45,7 +41,7 @@
           <text :class="getCellClass(item, 'metric')">{{ formatRate(item.row.attendanceRate) }}</text>
         </template>
       </view>
-    </scroll-view>
+    </view>
   </view>
 </template>
 

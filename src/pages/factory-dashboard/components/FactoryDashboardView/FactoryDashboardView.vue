@@ -5,12 +5,16 @@ import type {
   CssMapProcessValue,
   CssMapSelectionConfig,
 } from '../../../../components/css-map/css3dMapTypes'
-import type { FactoryDashboardData } from '../../data/factoryDashboardTypes'
+import type {
+  FactoryAlarmItem,
+  FactoryDashboardData,
+} from '../../data/factoryDashboardTypes'
+import FactoryAlertHeader from '../FactoryAlertHeader/FactoryAlertHeader.vue'
 import FactoryDashboardPanel from '../FactoryDashboardPanel/FactoryDashboardPanel.vue'
-import FactoryHeader from '../FactoryHeader/FactoryHeader.vue'
 
 defineProps<{
   readonly data: FactoryDashboardData
+  readonly alarms: readonly FactoryAlarmItem[]
   readonly selectionConfig: CssMapSelectionConfig
   readonly selectedDepartment: CssMapDepartmentValue
   readonly selectedProcess: CssMapProcessValue | null
@@ -19,6 +23,7 @@ defineProps<{
 const emit = defineEmits<{
   selectDepartment: [value: CssMapDepartmentValue]
   selectProcess: [value: CssMapProcessValue]
+  clearProcess: []
   openDevice: [payload: { readonly deviceId: string }]
   refreshDashboard: []
 }>()
@@ -26,12 +31,7 @@ const emit = defineEmits<{
 
 <template>
   <view class="factory-dashboard-view">
-    <FactoryHeader
-      :eyebrow="data.eyebrow"
-      :title="data.title"
-      :subtitle="data.subtitle"
-      :stats="data.kpis"
-    />
+    <FactoryAlertHeader :alarms="alarms" />
 
     <view class="factory-dashboard-view__body">
       <view class="factory-dashboard-view__map">
@@ -41,6 +41,7 @@ const emit = defineEmits<{
           :selected-process="selectedProcess"
           @select-department="emit('selectDepartment', $event)"
           @select-process="emit('selectProcess', $event)"
+          @clear-process="emit('clearProcess')"
           @open-device="emit('openDevice', $event)"
         />
       </view>

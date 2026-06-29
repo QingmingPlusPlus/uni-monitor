@@ -9,30 +9,6 @@
   box-sizing: border-box;
 }
 
-.equipment-detail__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.equipment-detail__back {
-  min-width: 90rpx;
-  height: 56rpx;
-  border: 1px solid var(--um-color-operation);
-  border-radius: 8rpx;
-  background: var(--um-color-surface);
-  color: var(--um-color-operation);
-  font-size: 24rpx;
-  font-weight: 800;
-}
-
-.equipment-detail__mode {
-  color: var(--um-color-text-secondary);
-  font-size: 22rpx;
-  font-weight: 700;
-}
-
 .equipment-detail__hero,
 .equipment-detail__card {
   border: 1px solid var(--um-color-border);
@@ -192,14 +168,6 @@
     padding: var(--space-4);
   }
 
-  .equipment-detail__back {
-    min-width: 76px;
-    height: 42px;
-    border-radius: 8px;
-    font-size: 16px;
-  }
-
-  .equipment-detail__mode,
   .equipment-detail__eyebrow {
     font-size: 15px;
   }

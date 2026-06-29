@@ -20,6 +20,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   selectDepartment: [value: CssMapDepartmentValue]
   selectProcess: [value: CssMapProcessValue]
+  clearProcess: []
 }>()
 
 const processOptions = computed(() => {
@@ -35,8 +36,17 @@ function selectDepartment(event: Event): void {
 function selectProcess(event: Event): void {
   if (!(event.target instanceof HTMLSelectElement)) return
   const value = event.target.value
+  if (value === '') {
+    emit('clearProcess')
+    return
+  }
+
   if (!isCssMapProcessValueInConfig(value, props.selectionConfig)) return
   emit('selectProcess', value)
+}
+
+function clearProcess(): void {
+  emit('clearProcess')
 }
 </script>
 
@@ -66,23 +76,40 @@ function selectProcess(event: Event): void {
       </select>
     </label>
 
-    <label class="css-map-toolbar__field">
+    <div
+      class="css-map-toolbar__field"
+      role="group"
+      aria-label="工序选择"
+    >
       <span>工序</span>
-      <select
-        class="css-map-toolbar__select"
-        :value="selectedProcess ?? ''"
-        @change="selectProcess"
-      >
-        <option value="">选择工序</option>
-        <option
-          v-for="option in processOptions"
-          :key="option.value"
-          :value="option.value"
+      <div class="css-map-toolbar__process-control">
+        <select
+          class="css-map-toolbar__select"
+          :value="selectedProcess ?? ''"
+          aria-label="工序"
+          @change="selectProcess"
         >
-          {{ option.labelKey }}
-        </option>
-      </select>
-    </label>
+          <option value="">选择工序</option>
+          <option
+            v-for="option in processOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.labelKey }}
+          </option>
+        </select>
+        <button
+          class="css-map-toolbar__clear-button"
+          type="button"
+          :disabled="selectedProcess === null"
+          aria-label="清空工序选择"
+          title="清空工序选择"
+          @click="clearProcess"
+        >
+          清空
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -138,6 +165,39 @@ function selectProcess(event: Event): void {
   border-color: var(--um-color-operation);
 }
 
+.css-map-toolbar__process-control {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.css-map-toolbar__clear-button {
+  flex: 0 0 auto;
+  border: 1px solid rgba(36, 113, 255, 0.28);
+  border-radius: 6px;
+  background: rgba(36, 113, 255, 0.08);
+  color: var(--um-color-operation);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  outline: none;
+  padding: 8px 10px;
+}
+
+.css-map-toolbar__clear-button:focus {
+  border-color: var(--um-color-operation);
+}
+
+.css-map-toolbar__clear-button:disabled {
+  border-color: rgba(122, 138, 160, 0.22);
+  background: rgba(122, 138, 160, 0.08);
+  color: var(--um-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
 @media (max-width: 900px) {
   .css-map-toolbar {
     left: 12px;
@@ -152,6 +212,10 @@ function selectProcess(event: Event): void {
   .css-map-toolbar__select {
     flex: 1 1 auto;
     width: auto;
+  }
+
+  .css-map-toolbar__process-control {
+    flex: 1 1 auto;
   }
 }
 </style>

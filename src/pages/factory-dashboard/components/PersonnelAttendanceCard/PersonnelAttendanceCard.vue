@@ -2,7 +2,6 @@
   <view class="personnel-attendance-card">
     <view class="personnel-attendance-card__head">
       <view class="personnel-attendance-card__title-group">
-        <text class="personnel-attendance-card__tag">Mock 数据</text>
         <text class="personnel-attendance-card__title">{{ data.title }}</text>
         <text class="personnel-attendance-card__subtitle">
           {{ data.subtitle }} · {{ data.refreshedAt }} 更新
@@ -45,7 +44,6 @@
       <view class="personnel-attendance-card__modal" @click.stop>
         <view class="personnel-attendance-card__modal-head">
           <view class="personnel-attendance-card__title-group">
-            <text class="personnel-attendance-card__tag">Mock 数据</text>
             <text class="personnel-attendance-card__modal-title">{{ data.title }}</text>
             <text class="personnel-attendance-card__subtitle">
               {{ data.subtitle }} · {{ data.refreshedAt }} 更新

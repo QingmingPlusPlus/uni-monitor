@@ -14,6 +14,7 @@ import {
 import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import { loadCssMapData } from '../../components/css-map/css3dMapLiveData'
 import EquipmentDetailView from '../factory-dashboard/components/EquipmentDetailView/EquipmentDetailView.vue'
+import { getEquipmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import { getEquipmentDetailData } from '../factory-dashboard/data/equipmentDetailMock'
 import {
   buildDepartmentUrl,
@@ -47,6 +48,9 @@ const activeDevice = computed<CssMapDevice | null>(() => {
 })
 
 const detailData = computed(() => getEquipmentDetailData(activeDevice.value))
+const alarmItems = computed(() =>
+  getEquipmentAlarmItems(activeDevice.value, selectionConfig.value),
+)
 
 function syncRouteQuery(query: Readonly<Record<string, string | undefined>> | undefined): void {
   requestedDeviceId.value = readQueryValue(query, 'deviceId') ?? ''
@@ -125,16 +129,19 @@ function handleBack(): void {
 </script>
 
 <template>
-  <EquipmentDetailView
-    :data="detailData"
-    @back="handleBack"
-  />
+  <view>
+    <EquipmentDetailView
+      :data="detailData"
+      :alarms="alarmItems"
+      @back="handleBack"
+    />
 
-  <view
-    v-if="loadError"
-    class="equipment-load-error"
-  >
-    {{ loadError }}
+    <view
+      v-if="loadError"
+      class="equipment-load-error"
+    >
+      {{ loadError }}
+    </view>
   </view>
 </template>
 

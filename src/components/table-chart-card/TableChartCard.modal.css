@@ -44,8 +44,8 @@
 
 .table-chart-card__modal-title {
   color: var(--um-color-text-primary);
-  font-size: 44rpx;
-  font-weight: 700;
+  font-size: 52rpx;
+  font-weight: 800;
   line-height: 1.22;
 }
 
@@ -111,7 +111,7 @@
   }
 
   .table-chart-card__modal-title {
-    font-size: 36px;
+    font-size: 42px;
   }
 
   .table-chart-card__modal-subtitle {

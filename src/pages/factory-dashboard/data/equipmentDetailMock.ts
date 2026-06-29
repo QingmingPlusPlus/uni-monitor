@@ -9,14 +9,14 @@ export function getEquipmentDetailData(device: CssMapDevice | null): EquipmentDe
 
   return {
     eyebrow: `${deviceId} · 设备维度`,
-    title: `${deviceName} 停止与计划分析`,
-    subtitle: '设备维度聚焦单台设备的计划、停线、损耗和周期信息，当前为 Mock 数据。',
+    title: `${deviceName} 停止与计划分析（mock）`,
+    subtitle: '设备维度聚焦单台设备的计划、停线、损耗和周期信息。',
     kpis: [
       { label: '状态', value: '未运行暂停', note: '当前设备状态', tone: 'warning' },
       { label: '平均负荷率', value: loadRate, note: '当月负荷', tone: 'operation' },
       { label: '在岗人员', value: String(device?.runtime.staff.length ?? 1), note: '当前班次', tone: 'neutral' },
       { label: '阻碍时间', value: '--', note: '待接口返回', tone: 'neutral' },
-      { label: '停止类型', value: '用餐', note: 'Mock 原因', tone: 'danger' },
+      { label: '停止类型（mock）', value: '用餐', note: '', tone: 'danger' },
     ],
     currentPlan: [
       { label: '日期', value: '2026-06-28' },

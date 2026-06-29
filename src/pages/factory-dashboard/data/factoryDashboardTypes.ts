@@ -15,6 +15,17 @@ export interface FactoryKpiItem {
   readonly tone: KpiTone
 }
 
+export type FactoryAlarmLevel = 'danger' | 'warning' | 'neutral'
+
+export interface FactoryAlarmItem {
+  readonly id: string
+  readonly level: FactoryAlarmLevel
+  readonly source: string
+  readonly message: string
+  readonly durationMinutes: number
+  readonly estimatedImpactMinutes: number
+}
+
 export interface FactoryDashboardCard {
   readonly id: string
   readonly title: string
@@ -75,6 +86,7 @@ export interface DepartmentDashboardData extends FactoryDashboardBaseData {
 
 export interface ProcessDashboardData extends FactoryDashboardBaseData {
   readonly kind: 'process'
+  readonly attendance: PersonnelAttendanceData
 }
 
 export type FactoryDashboardData = DepartmentDashboardData | ProcessDashboardData

@@ -195,9 +195,24 @@ export function createPersonnelAttendanceData(
   const departmentLabel = getCssMapDepartmentLabel(department, config)
 
   return {
-    title: '人员出勤情况',
-    subtitle: `${departmentLabel} · 数据按工序类别合并 · Mock 数据`,
+    title: '人员出勤情况（mock）',
+    subtitle: departmentLabel,
     refreshedAt: refreshedAtFormatter.format(refreshedAt),
     groups: createProcessGroups(department, config),
+  }
+}
+
+export function createProcessPersonnelAttendanceData(
+  process: CssMapProcessValue,
+  config: CssMapSelectionConfig,
+  refreshedAt: Date,
+): PersonnelAttendanceData {
+  const processLabel = getCssMapProcessLabel(process, config)
+
+  return {
+    title: '人员出勤情况（mock）',
+    subtitle: processLabel,
+    refreshedAt: refreshedAtFormatter.format(refreshedAt),
+    groups: [createProcessGroup(processLabel)],
   }
 }

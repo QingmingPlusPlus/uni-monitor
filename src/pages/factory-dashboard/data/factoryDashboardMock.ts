@@ -20,7 +20,10 @@ import type {
   FactoryDashboardData,
   FactoryKpiItem,
 } from './factoryDashboardTypes'
-import { createPersonnelAttendanceData } from './factoryAttendanceMock'
+import {
+  createPersonnelAttendanceData,
+  createProcessPersonnelAttendanceData,
+} from './factoryAttendanceMock'
 
 const percentFormatter = (value: string | number | null | undefined): string => {
   if (typeof value === 'number') {
@@ -191,7 +194,7 @@ function createKpis(scopeLabel: string, seed: number): readonly FactoryKpiItem[]
   return [
     { label: '计划数', value: numberFormatter.format(seed * 1024), note: scopeLabel, tone: 'operation' },
     { label: '实绩数', value: numberFormatter.format(Math.round(seed * 1005.2)), note: '截至 06-28', tone: 'success' },
-    { label: '达成率', value: '98.2%', note: 'Mock 数据', tone: 'success' },
+    { label: '达成率（mock）', value: '98.2%', note: '', tone: 'success' },
     { label: '平均负荷率', value: '43.8%', note: '设备日历', tone: 'warning' },
     { label: '稼动设备', value: '273/289', note: '在线/总数', tone: 'operation' },
     { label: '在岗人数', value: '187', note: '当班配置', tone: 'neutral' },
@@ -209,7 +212,7 @@ export function getDepartmentDashboardData(
     kind: 'department',
     eyebrow: `部门维度 · 2026-06 · ${label}`,
     title: `${label} 展示计划`,
-    subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷，当前为 Mock 数据。',
+    subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷。',
     kpis: createKpis(label, 2929),
     attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     cards: [
@@ -224,6 +227,7 @@ export function getDepartmentDashboardData(
 export function getProcessDashboardData(
   value: CssMapProcessValue,
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
+  refreshedAt: Date = new Date(),
 ): FactoryDashboardData {
   const label = getCssMapProcessLabel(value, selectionConfig)
 
@@ -233,6 +237,7 @@ export function getProcessDashboardData(
     title: `${label} 展示计划`,
     subtitle: '工序口径聚焦当前流程的人员、产出、计划与异常阻碍。',
     kpis: createKpis(label, 2969).slice(0, 6),
+    attendance: createProcessPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     cards: [
       createDashboardCard({ id: 'process-staff', title: '人员配置', subtitle: '工序内人员、班次和标准人时', base: 461, unit: 'count' }),
       createDashboardCard({ id: 'process-attendance', title: '人员出勤', subtitle: '工序内出勤和临时支援记录', base: 432, unit: 'count' }),
