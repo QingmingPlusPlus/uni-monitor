@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
@@ -14,6 +14,7 @@ import {
 import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSelectionLoader'
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
+import { loadDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardLoader'
 import { getDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import {
   buildDepartmentUrl,
@@ -37,7 +38,7 @@ let stopRouteQuerySync: (() => void) | null = null
 let morningRefreshTimer: ReturnType<typeof globalThis.setTimeout> | null = null
 let lastMorningRefreshKey = ''
 
-const dashboardData = computed(() =>
+const fallbackDashboardData = computed(() =>
   getDepartmentDashboardData(
     selectedDepartment.value,
     selectionConfig.value,
@@ -45,8 +46,36 @@ const dashboardData = computed(() =>
     monthSegmentVersion.value,
   ),
 )
+const dashboardData = ref(fallbackDashboardData.value)
 const alarmItems = computed(() =>
   getDepartmentAlarmItems(selectedDepartment.value, selectionConfig.value),
+)
+
+async function reloadDashboardData(): Promise<void> {
+  const fallback = fallbackDashboardData.value
+  try {
+    const data = await loadDepartmentDashboardData(
+      selectedDepartment.value,
+      selectionConfig.value,
+      refreshedAt.value,
+      monthSegmentVersion.value,
+      fallback,
+    )
+    dashboardData.value = data
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.warn(`[DepartmentDashboard] 数据加载失败: ${error.message}`)
+    }
+    dashboardData.value = fallback
+  }
+}
+
+watch(
+  [selectedDepartment, selectionConfig, refreshedAt, monthSegmentVersion],
+  () => {
+    void reloadDashboardData()
+  },
+  { immediate: true },
 )
 
 function syncRouteQuery(

@@ -157,7 +157,7 @@ export function createDepartmentInboundPlanTrendCardData(
   return {
     id: "department-inbound-plan-trend",
     title: "入库计划推移表",
-    subtitle: "按周汇总部门入库计划与实绩（mock）",
+    subtitle: "按周汇总部门入库计划与实绩",
     tableRows: departmentInboundPlanTrendRows,
     tableColumns: columns,
     tableData,

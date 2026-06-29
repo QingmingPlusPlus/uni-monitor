@@ -16,9 +16,10 @@ import {
   getCssMapProcessLabel,
 } from '../../../components/css-map/css3dMapSelection'
 import type {
+  DepartmentDashboardData,
   FactoryDashboardCard,
-  FactoryDashboardData,
   FactoryKpiItem,
+  ProcessDashboardData,
 } from './factoryDashboardTypes'
 import {
   createPersonnelAttendanceData,
@@ -210,7 +211,7 @@ export function getDepartmentDashboardData(
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
   refreshedAt: Date = new Date(),
   monthSegmentVersion = 0,
-): FactoryDashboardData {
+): DepartmentDashboardData {
   void monthSegmentVersion
   const label = getCssMapDepartmentLabel(value, selectionConfig)
   const processTypes = selectionConfig.departmentProcessMap[value]
@@ -233,7 +234,7 @@ export function getProcessDashboardData(
   value: CssMapProcessValue,
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
   refreshedAt: Date = new Date(),
-): FactoryDashboardData {
+): ProcessDashboardData {
   const label = getCssMapProcessLabel(value, selectionConfig)
 
   return {

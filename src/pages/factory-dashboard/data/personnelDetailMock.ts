@@ -167,7 +167,7 @@ const mockRows: readonly PersonnelDetailRow[] = [
 
 export function createPersonnelDetailData(refreshedAt: Date = new Date()): PersonnelDetailData {
   return {
-    title: '人员明细及状态（mock）',
+    title: '人员明细及状态',
     subtitle: '预处理工序',
     refreshedAt: refreshedAtFormatter.format(refreshedAt),
     rows: mockRows,

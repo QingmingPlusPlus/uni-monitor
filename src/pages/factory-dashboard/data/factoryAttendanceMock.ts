@@ -195,7 +195,7 @@ export function createPersonnelAttendanceData(
   const departmentLabel = getCssMapDepartmentLabel(department, config)
 
   return {
-    title: '人员出勤情况（mock）',
+    title: '人员出勤情况',
     subtitle: departmentLabel,
     refreshedAt: refreshedAtFormatter.format(refreshedAt),
     groups: createProcessGroups(department, config),
@@ -210,7 +210,7 @@ export function createProcessPersonnelAttendanceData(
   const processLabel = getCssMapProcessLabel(process, config)
 
   return {
-    title: '人员出勤情况（mock）',
+    title: '人员出勤情况',
     subtitle: processLabel,
     refreshedAt: refreshedAtFormatter.format(refreshedAt),
     groups: [createProcessGroup(processLabel)],

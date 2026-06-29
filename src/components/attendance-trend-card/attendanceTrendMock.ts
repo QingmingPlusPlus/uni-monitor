@@ -178,7 +178,7 @@ export function createAttendanceTrendCardData(
   return {
     id: "department-attendance-trend",
     title: "出勤率推移表",
-    subtitle: "按周汇总人员出勤情况（mock）",
+    subtitle: "按周汇总人员出勤情况",
     tableRows: attendanceTrendRows,
     tableColumns: columns,
     tableData,
