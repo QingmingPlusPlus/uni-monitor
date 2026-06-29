@@ -1,0 +1,157 @@
+.personnel-detail-card {
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--um-color-border);
+  border-radius: 18rpx;
+  background: var(--um-color-surface);
+  box-sizing: border-box;
+}
+
+.personnel-detail-card__head,
+.personnel-detail-card__modal-head {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.personnel-detail-card__title-group {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-right: 144rpx;
+}
+
+.personnel-detail-card__title,
+.personnel-detail-card__modal-title {
+  color: var(--um-color-text-primary);
+  font-size: 44rpx;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.personnel-detail-card__subtitle {
+  color: var(--um-color-text-secondary);
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.personnel-detail-card__actions {
+  display: flex;
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+  gap: var(--space-1);
+}
+
+.personnel-detail-card__action {
+  display: flex;
+  width: 64rpx;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--um-color-border);
+  border-radius: 10rpx;
+  background: var(--um-color-surface);
+  color: var(--um-color-text-secondary);
+  line-height: 1;
+}
+
+.personnel-detail-card__action::after {
+  display: none;
+}
+
+.personnel-detail-card__action:active {
+  opacity: 0.75;
+  transform: translateY(1px);
+}
+
+.personnel-detail-card__icon {
+  display: block;
+  width: 32rpx;
+  height: 32rpx;
+  fill: currentcolor;
+}
+
+.personnel-detail-card__modal-layer {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(16, 24, 32, 0.42);
+  box-sizing: border-box;
+}
+
+.personnel-detail-card__modal {
+  display: flex;
+  width: min(96vw, 1680px);
+  max-height: 88vh;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--um-color-border);
+  border-radius: 16rpx;
+  background: var(--um-color-surface);
+  box-shadow: var(--um-shadow-panel, 0 8px 20px rgba(21, 43, 70, 0.12));
+  box-sizing: border-box;
+}
+
+.personnel-detail-card__modal {
+  position: relative;
+}
+
+.personnel-detail-card__modal-body {
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  .personnel-detail-card {
+    border-radius: 16px;
+  }
+
+  .personnel-detail-card__title-group {
+    padding-right: 104px;
+  }
+
+  .personnel-detail-card__title,
+  .personnel-detail-card__modal-title {
+    font-size: 36px;
+  }
+
+  .personnel-detail-card__subtitle {
+    font-size: 18px;
+  }
+
+  .personnel-detail-card__actions {
+    gap: 8px;
+  }
+
+  .personnel-detail-card__action {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  .personnel-detail-card__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .personnel-detail-card__modal {
+    border-radius: 12px;
+  }
+}

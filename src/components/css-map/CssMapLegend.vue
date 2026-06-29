@@ -33,7 +33,7 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
       <thead>
         <tr>
           <th>颜色</th>
-          <th>负荷率</th>
+          <th>符合率</th>
           <th>颜色</th>
           <th>工况</th>
         </tr>
