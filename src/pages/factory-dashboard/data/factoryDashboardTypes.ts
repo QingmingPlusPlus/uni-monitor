@@ -36,6 +36,11 @@ export interface FactoryDashboardCard {
   readonly tableData: TableData
   readonly chartOptions: ChartOptionConfig
   readonly chartData: ChartDataConfig
+  readonly modalTableRows?: readonly TableRowConfig[]
+  readonly modalTableColumns?: readonly TableColumnConfig[]
+  readonly modalTableData?: TableData
+  readonly modalChartOptions?: ChartOptionConfig
+  readonly modalChartData?: ChartDataConfig
 }
 
 export type FactoryDashboardKind = 'department' | 'process'
@@ -75,12 +80,43 @@ export interface PersonnelAttendanceData {
   readonly groups: readonly PersonnelAttendanceProcessGroup[]
 }
 
+export interface FactorySummaryLine {
+  readonly id: string
+  readonly label: string
+  readonly value: string
+  readonly rate: string
+  readonly indent?: boolean
+}
+
+export interface FactorySummaryData {
+  readonly title: string
+  readonly left: readonly FactorySummaryLine[]
+  readonly right: readonly FactorySummaryLine[]
+}
+
+export interface ProductionActivityRow {
+  readonly id: string
+  readonly departmentLabel: string
+  readonly processLabel: string
+  readonly totalCount: number
+  readonly runningCount: number
+  readonly abnormalCount: number
+  readonly plannedStopCount: number
+}
+
+export interface ProductionActivityData {
+  readonly title: string
+  readonly rows: readonly ProductionActivityRow[]
+}
+
 interface FactoryDashboardBaseData {
   readonly eyebrow: string
   readonly title: string
   readonly subtitle: string
   readonly kpis: readonly FactoryKpiItem[]
   readonly cards: readonly FactoryDashboardCard[]
+  readonly summary: FactorySummaryData
+  readonly activity: ProductionActivityData
 }
 
 export interface DepartmentDashboardData extends FactoryDashboardBaseData {
@@ -94,6 +130,9 @@ export interface DepartmentDashboardData extends FactoryDashboardBaseData {
 export interface ProcessDashboardData extends FactoryDashboardBaseData {
   readonly kind: 'process'
   readonly attendance: PersonnelAttendanceData
+  readonly attendanceTrend: FactoryDashboardCard | null
+  readonly inboundPlanTrend: FactoryDashboardCard | null
+  readonly productionPlanTrend: FactoryDashboardCard | null
   readonly personnelDetail: PersonnelDetailData
 }
 

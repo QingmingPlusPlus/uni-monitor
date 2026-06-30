@@ -106,10 +106,10 @@
 
         <view class="table-chart-card__modal-body">
           <TableChartCardTable
-            :table-rows="tableRows"
-            :table-columns="tableColumns"
-            :table-data="tableData"
-            :table-grid-style="tableGridStyle"
+            :table-rows="expandedTableRows"
+            :table-columns="expandedTableColumns"
+            :table-data="expandedTableData"
+            :table-grid-style="modalTableGridStyle"
             :compact="compact"
             is-modal
           />
@@ -119,7 +119,7 @@
               v-if="hasChartData"
               ref="modalChartRef"
               class="table-chart-card__chart table-chart-card__chart--modal"
-              :option="resolvedChartOptions"
+              :option="resolvedModalChartOptions"
               :init-options="chartInitOptions"
               :update-options="chartUpdateOptions"
               @inited="handleChartInited"
@@ -164,6 +164,11 @@ const props = withDefaults(
     readonly tableData: TableData
     readonly chartOptions: ChartOptionConfig
     readonly chartData?: ChartDataConfig
+    readonly modalTableRows?: readonly TableRowConfig[]
+    readonly modalTableColumns?: readonly TableColumnConfig[]
+    readonly modalTableData?: TableData
+    readonly modalChartOptions?: ChartOptionConfig
+    readonly modalChartData?: ChartDataConfig
   }>(),
   {
     subtitle: "",
@@ -171,6 +176,11 @@ const props = withDefaults(
     compact: false,
     useMockExpand: false,
     chartData: undefined,
+    modalTableRows: undefined,
+    modalTableColumns: undefined,
+    modalTableData: undefined,
+    modalChartOptions: undefined,
+    modalChartData: undefined,
   },
 )
 
@@ -195,19 +205,32 @@ type ChartResizeHandle = {
   readonly resize: () => void | Promise<void>
 }
 
-const tableGridStyle = computed(() => {
+function createTableGridStyle(columns: readonly TableColumnConfig[]) {
   const defaultColumnWidth = props.compact ? "minmax(92px, 1fr)" : "minmax(132px, 1fr)"
   const firstColumnTrack = props.compact ? "minmax(120px, 140px)" : "minmax(156px, 188px)"
-  const columnTracks = props.tableColumns
+  const columnTracks = columns
     .map((column) => column.width ?? defaultColumnWidth)
     .join(" ")
 
   return {
     gridTemplateColumns: `${firstColumnTrack} ${columnTracks}`,
   }
-})
+}
+
+const expandedTableRows = computed(() => props.modalTableRows ?? props.tableRows)
+const expandedTableColumns = computed(() => props.modalTableColumns ?? props.tableColumns)
+const expandedTableData = computed(() => props.modalTableData ?? props.tableData)
+const expandedChartOptions = computed(() => props.modalChartOptions ?? props.chartOptions)
+const expandedChartData = computed(() => props.modalChartData ?? props.chartData)
+
+const tableGridStyle = computed(() => createTableGridStyle(props.tableColumns))
+const modalTableGridStyle = computed(() => createTableGridStyle(expandedTableColumns.value))
 
 const resolvedChartOptions = computed(() => resolveChartOptions(props.chartOptions, props.chartData))
+const resolvedModalChartOptions = computed(() => resolveChartOptions(
+  expandedChartOptions.value,
+  expandedChartData.value,
+))
 const inlineChartRef = ref<ChartResizeHandle | null>(null)
 const modalChartRef = ref<ChartResizeHandle | null>(null)
 const isExpanded = ref(false)
@@ -272,6 +295,7 @@ const handleChartInited = (): void => {
 
 onMounted(scheduleChartResize)
 watch(resolvedChartOptions, scheduleChartResize, { flush: "post" })
+watch(resolvedModalChartOptions, scheduleChartResize, { flush: "post" })
 watch(hasChartData, scheduleChartResize, { flush: "post" })
 watch(isExpanded, scheduleChartResize, { flush: "post" })
 </script>

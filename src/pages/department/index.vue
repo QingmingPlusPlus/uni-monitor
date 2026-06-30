@@ -16,14 +16,10 @@ import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboa
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import {
   invalidateDepartmentDashboardCache,
-  loadAttendanceCard,
-  loadAttendanceTrendCard,
   loadDepartmentDashboardData,
-  loadInboundPlanTrendCard,
-  loadPersonnelDetailCard,
 } from '../factory-dashboard/data/factoryDashboardLoader'
 import { getDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
-import type { DepartmentCardId, DepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardTypes'
+import type { DepartmentCardId } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
   buildDepartmentUrl,
   buildEquipmentUrl,
@@ -155,90 +151,11 @@ async function refreshCard(cardId: string): Promise<void> {
   if (!isDepartmentCardId(cardId)) {
     return
   }
-  const department = selectedDepartment.value
-  const config = selectionConfig.value
-  const processTypes = config.departmentProcessMap[department] ?? []
-  const refreshedAt = new Date()
-
-  invalidateDepartmentDashboardCache(department, monthSegmentVersion.value)
-
-  const base: DepartmentDashboardData = dashboardData.value
 
   try {
-    if (cardId === 'attendance') {
-      const attendance = await loadAttendanceCard(department, processTypes, config, refreshedAt)
-      const next: DepartmentDashboardData = {
-        kind: base.kind,
-        eyebrow: base.eyebrow,
-        title: base.title,
-        subtitle: base.subtitle,
-        kpis: base.kpis,
-        cards: base.cards,
-        attendance,
-        attendanceTrend: base.attendanceTrend,
-        inboundPlanTrend: base.inboundPlanTrend,
-        personnelDetail: base.personnelDetail,
-      }
-      dashboardData.value = next
-      return
-    }
-
-    if (cardId === 'attendanceTrend') {
-      const attendanceTrend = await loadAttendanceTrendCard(department, processTypes)
-      if (attendanceTrend !== null) {
-        const next: DepartmentDashboardData = {
-          kind: base.kind,
-          eyebrow: base.eyebrow,
-          title: base.title,
-          subtitle: base.subtitle,
-          kpis: base.kpis,
-          cards: base.cards,
-          attendance: base.attendance,
-          attendanceTrend,
-          inboundPlanTrend: base.inboundPlanTrend,
-          personnelDetail: base.personnelDetail,
-        }
-        dashboardData.value = next
-      }
-      return
-    }
-
-    if (cardId === 'inboundPlanTrend') {
-      const inboundPlanTrend = await loadInboundPlanTrendCard(processTypes)
-      if (inboundPlanTrend !== null) {
-        const next: DepartmentDashboardData = {
-          kind: base.kind,
-          eyebrow: base.eyebrow,
-          title: base.title,
-          subtitle: base.subtitle,
-          kpis: base.kpis,
-          cards: base.cards,
-          attendance: base.attendance,
-          attendanceTrend: base.attendanceTrend,
-          inboundPlanTrend,
-          personnelDetail: base.personnelDetail,
-        }
-        dashboardData.value = next
-      }
-      return
-    }
-
-    if (cardId === 'personnelDetail') {
-      const personnelDetail = await loadPersonnelDetailCard(department, processTypes, config, refreshedAt)
-      const next: DepartmentDashboardData = {
-        kind: base.kind,
-        eyebrow: base.eyebrow,
-        title: base.title,
-        subtitle: base.subtitle,
-        kpis: base.kpis,
-        cards: base.cards,
-        attendance: base.attendance,
-        attendanceTrend: base.attendanceTrend,
-        inboundPlanTrend: base.inboundPlanTrend,
-        personnelDetail,
-      }
-      dashboardData.value = next
-    }
+    refreshedAt.value = new Date()
+    invalidateDepartmentDashboardCache(selectedDepartment.value, monthSegmentVersion.value)
+    await reloadDashboardData()
   } catch (error: unknown) {
     handleCardRefreshError(cardId, error)
   }

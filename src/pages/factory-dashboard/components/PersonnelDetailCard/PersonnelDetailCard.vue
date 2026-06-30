@@ -34,19 +34,43 @@
 
     <PersonnelDetailGrid :data="data" />
 
-    <DashboardExpandMockModal
+    <view
       v-if="isExpanded"
-      :title="data.title"
-      :subtitle="`${data.subtitle} · ${data.refreshedAt} 更新`"
-      @close="handleCloseExpanded"
-    />
+      class="personnel-detail-card__modal-layer"
+      role="dialog"
+      aria-modal="true"
+      @click="handleCloseExpanded"
+    >
+      <view class="personnel-detail-card__modal" @click.stop>
+        <view class="personnel-detail-card__modal-head">
+          <view class="personnel-detail-card__title-group">
+            <text class="personnel-detail-card__modal-title">{{ data.title }}</text>
+            <text class="personnel-detail-card__subtitle">
+              {{ data.subtitle }} · {{ data.refreshedAt }} 更新
+            </text>
+          </view>
+          <button
+            class="personnel-detail-card__action"
+            type="button"
+            aria-label="收起人员明细"
+            @click="handleCloseExpanded"
+          >
+            <svg class="personnel-detail-card__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 16h3v3h2v-5H5v2Zm3-8H5v2h5V5H8v3Zm6 11h2v-3h3v-2h-5v5Zm2-11V5h-2v5h5V8h-3Z" />
+            </svg>
+          </button>
+        </view>
+        <view class="personnel-detail-card__modal-body">
+          <PersonnelDetailGrid :data="data" is-modal />
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PersonnelDetailData } from '../../data/personnelDetailMock'
-import DashboardExpandMockModal from '../DashboardExpandMockModal/DashboardExpandMockModal.vue'
 import PersonnelDetailGrid from './PersonnelDetailGrid.vue'
 
 defineProps<{

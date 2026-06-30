@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
@@ -17,6 +17,10 @@ import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboa
 import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import {
+  invalidateProcessDashboardCache,
+  loadProcessDashboardData,
+} from '../factory-dashboard/data/factoryDashboardLoader'
+import {
   buildDepartmentUrl,
   buildEquipmentUrl,
   buildProcessUrl,
@@ -26,20 +30,51 @@ import {
   redirectToFactoryUrl,
   subscribeFactoryRouteQueryChange,
 } from '../factory-dashboard/utils/factoryRoutes'
+import { loadMonthSegmentConfig } from '../../utils/monthSegment'
 
 const selectedProcess = ref<CssMapProcessValue>(defaultCssMapSelectionValues.process)
 const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 const refreshedAt = ref(new Date())
+const monthSegmentVersion = ref(0)
 let stopRouteQuerySync: (() => void) | null = null
 
 const selectedDepartment = computed<CssMapDepartmentValue>(() =>
   getCssMapDepartmentForProcess(selectedProcess.value, selectionConfig.value),
 )
-const dashboardData = computed(() =>
+const fallbackDashboardData = computed(() =>
   getProcessDashboardData(selectedProcess.value, selectionConfig.value, refreshedAt.value),
 )
+const dashboardData = shallowRef(fallbackDashboardData.value)
 const alarmItems = computed(() =>
   getProcessAlarmItems(selectedProcess.value, selectionConfig.value),
+)
+
+async function reloadDashboardData(): Promise<void> {
+  const fallback = fallbackDashboardData.value
+  try {
+    const data = await loadProcessDashboardData(
+      selectedProcess.value,
+      selectedDepartment.value,
+      selectionConfig.value,
+      refreshedAt.value,
+      monthSegmentVersion.value,
+      fallback,
+    )
+    dashboardData.value = data
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.warn(`[ProcessDashboard] 数据加载失败: ${error.message}`)
+    }
+    dashboardData.value = fallback
+  }
+}
+
+watch(
+  [selectedProcess, selectedDepartment, selectionConfig, refreshedAt, monthSegmentVersion],
+  () => {
+    void reloadDashboardData()
+  },
+  { immediate: true },
 )
 
 function syncRouteQuery(
@@ -51,6 +86,23 @@ function syncRouteQuery(
 }
 
 onLoad(syncRouteQuery)
+
+function handleMonthSegmentLoadError(error: unknown): void {
+  if (error instanceof Error) {
+    console.warn(`[ProcessDashboard] Month segment refresh failed: ${error.message}`)
+    return
+  }
+
+  throw error
+}
+
+function loadMonthSegments(): void {
+  loadMonthSegmentConfig()
+    .then(() => {
+      monthSegmentVersion.value += 1
+    })
+    .catch(handleMonthSegmentLoadError)
+}
 
 onMounted(() => {
   syncRouteQuery(readCurrentFactoryRouteQuery())
@@ -68,6 +120,8 @@ onMounted(() => {
         selectionConfig.value = defaultCssMapSelectionConfig
       }
     })
+
+  loadMonthSegments()
 })
 
 onBeforeUnmount(() => {
@@ -94,6 +148,8 @@ function openDevice(payload: { readonly deviceId: string }): void {
 
 function refreshDashboard(_cardId: string): void {
   refreshedAt.value = new Date()
+  invalidateProcessDashboardCache(selectedProcess.value, monthSegmentVersion.value)
+  void reloadDashboardData()
 }
 </script>
 

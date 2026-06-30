@@ -34,19 +34,43 @@
 
     <PersonnelAttendanceGrid :data="data" />
 
-    <DashboardExpandMockModal
+    <view
       v-if="isExpanded"
-      :title="data.title"
-      :subtitle="`${data.subtitle} · ${data.refreshedAt} 更新`"
-      @close="handleCloseExpanded"
-    />
+      class="personnel-attendance-card__modal-layer"
+      role="dialog"
+      aria-modal="true"
+      @click="handleCloseExpanded"
+    >
+      <view class="personnel-attendance-card__modal" @click.stop>
+        <view class="personnel-attendance-card__modal-head">
+          <view class="personnel-attendance-card__title-group">
+            <text class="personnel-attendance-card__modal-title">{{ data.title }}</text>
+            <text class="personnel-attendance-card__subtitle">
+              {{ data.subtitle }} · {{ data.refreshedAt }} 更新
+            </text>
+          </view>
+          <button
+            class="personnel-attendance-card__action"
+            type="button"
+            aria-label="收起人员出勤"
+            @click="handleCloseExpanded"
+          >
+            <svg class="personnel-attendance-card__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 16h3v3h2v-5H5v2Zm3-8H5v2h5V5H8v3Zm6 11h2v-3h3v-2h-5v5Zm2-11V5h-2v5h5V8h-3Z" />
+            </svg>
+          </button>
+        </view>
+        <view class="personnel-attendance-card__modal-body">
+          <PersonnelAttendanceGrid :data="data" is-modal />
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PersonnelAttendanceData } from '../../data/factoryDashboardTypes'
-import DashboardExpandMockModal from '../DashboardExpandMockModal/DashboardExpandMockModal.vue'
 import PersonnelAttendanceGrid from './PersonnelAttendanceGrid.vue'
 
 defineProps<{

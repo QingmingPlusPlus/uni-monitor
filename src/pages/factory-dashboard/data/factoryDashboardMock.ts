@@ -19,6 +19,8 @@ import type {
   DepartmentDashboardData,
   FactoryDashboardCard,
   FactoryKpiItem,
+  FactorySummaryData,
+  ProductionActivityData,
   ProcessDashboardData,
 } from './factoryDashboardTypes'
 import {
@@ -29,6 +31,13 @@ import { createAttendanceTrendCardData } from '../../../components/attendance-tr
 import { createDepartmentInboundPlanTrendCardData } from '../../../components/department-inbound-plan-trend-card/departmentInboundPlanTrendMock'
 import { createPersonnelDetailData } from './personnelDetailMock'
 import { getProcessSegments } from '../../../utils/monthSegment'
+import {
+  processProductionPlanTrendChartData,
+  processProductionPlanTrendChartOptions,
+  processProductionPlanTrendColumns,
+  processProductionPlanTrendRows,
+  processProductionPlanTrendTableData,
+} from '../../../components/process-production-plan-trend-card/processProductionPlanTrendMock'
 
 const percentFormatter = (value: string | number | null | undefined): string => {
   if (typeof value === 'number') {
@@ -206,6 +215,54 @@ function createKpis(scopeLabel: string, seed: number): readonly FactoryKpiItem[]
   ]
 }
 
+function createFallbackSummary(scopeLabel: string): FactorySummaryData {
+  return {
+    title: '信息汇总',
+    left: [
+      { id: 'activity', label: '生产线稼动（台）', value: '-', rate: '-' },
+      { id: 'directAttendance', label: '直接', value: '-', rate: '-', indent: true },
+      { id: 'indirectAttendance', label: '间接', value: '-', rate: '-', indent: true },
+    ],
+    right: [
+      { id: 'inbound', label: '入库实绩（个）', value: '-', rate: '-' },
+      { id: 'production', label: '生产实际（个）', value: '-', rate: '-' },
+      { id: 'availability', label: '可动率（%）', value: scopeLabel, rate: '-' },
+    ],
+  }
+}
+
+function createFallbackActivity(
+  departmentLabel: string,
+  processTypes: readonly CssMapProcessValue[],
+  selectionConfig: CssMapSelectionConfig,
+): ProductionActivityData {
+  return {
+    title: '生产线稼动情况',
+    rows: processTypes.map((processType) => ({
+      id: processType,
+      departmentLabel,
+      processLabel: getCssMapProcessLabel(processType, selectionConfig),
+      totalCount: 0,
+      runningCount: 0,
+      abnormalCount: 0,
+      plannedStopCount: 0,
+    })),
+  }
+}
+
+function createFallbackProductionTrend(): FactoryDashboardCard {
+  return {
+    id: 'process-production-plan-trend',
+    title: '生产计划实绩推移表',
+    subtitle: '工序维度生产计划与实绩推移（mock）',
+    tableRows: processProductionPlanTrendRows,
+    tableColumns: processProductionPlanTrendColumns,
+    tableData: processProductionPlanTrendTableData,
+    chartOptions: processProductionPlanTrendChartOptions,
+    chartData: processProductionPlanTrendChartData,
+  }
+}
+
 export function getDepartmentDashboardData(
   value: CssMapDepartmentValue,
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
@@ -222,6 +279,8 @@ export function getDepartmentDashboardData(
     title: `${label} 展示计划`,
     subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷。',
     kpis: createKpis(label, 2929),
+    summary: createFallbackSummary(label),
+    activity: createFallbackActivity(label, processTypes, selectionConfig),
     attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     attendanceTrend: createAttendanceTrendCardData(processTypes, getProcessSegments),
     inboundPlanTrend: createDepartmentInboundPlanTrendCardData(processTypes, getProcessSegments),
@@ -236,6 +295,11 @@ export function getProcessDashboardData(
   refreshedAt: Date = new Date(),
 ): ProcessDashboardData {
   const label = getCssMapProcessLabel(value, selectionConfig)
+  const departmentLabel = Object.entries(selectionConfig.departmentProcessMap)
+    .find(([, processTypes]) => processTypes.includes(value))?.[0] as CssMapDepartmentValue | undefined
+  const resolvedDepartmentLabel = departmentLabel === undefined
+    ? label
+    : getCssMapDepartmentLabel(departmentLabel, selectionConfig)
 
   return {
     kind: 'process',
@@ -243,7 +307,12 @@ export function getProcessDashboardData(
     title: `${label} 展示计划`,
     subtitle: '工序口径聚焦当前流程的人员、产出、计划与异常阻碍。',
     kpis: createKpis(label, 2969).slice(0, 6),
+    summary: createFallbackSummary(label),
+    activity: createFallbackActivity(resolvedDepartmentLabel, [value], selectionConfig),
     attendance: createProcessPersonnelAttendanceData(value, selectionConfig, refreshedAt),
+    attendanceTrend: createAttendanceTrendCardData([value], getProcessSegments),
+    inboundPlanTrend: createDepartmentInboundPlanTrendCardData([value], getProcessSegments),
+    productionPlanTrend: createFallbackProductionTrend(),
     personnelDetail: createPersonnelDetailData(refreshedAt),
     cards: [],
   }
