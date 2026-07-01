@@ -5,6 +5,7 @@
 | 路径/模块 | 先读 doc | 先读 spec | 触发 skill | 改后同步 | 状态 |
 | --- | --- | --- | --- | --- | --- |
 | `AGENTS.md`、`doc/agent-guide.md`、`doc/agent-memory-map.md`、`.agents/skills`、`.codex/skills`、`.opencode/skills`、`.qoder/skills` | `doc/agent-guide.md`、`doc/agent-memory-map.md` | `openspec/specs/governance/spec.md` | `cross-memory-routing` | 更新治理 spec、路由表或对应 skill | 生效 |
+| `src/api`、`vite.config.ts`、`.env`、接口 baseURL/代理 | `doc/api-routing.md` | - | - | 更新 API 路径和代理说明 | 生效 |
 | `pages/department/index`、`pages/process/index`、`pages/equipment/index`、工厂可视化三维度 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | - | - | 更新工厂维度 doc、接口映射 doc 或页面组件 | 生效 |
 | `src/components/css-map`、`public/factory-map`、`src/static/factory-map`、`css-map` 厂区地图 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md`、`DESIGN.md` | - | - | 更新工厂维度 doc、接口映射 doc、设计系统或地图组件 | 生效 |
 | `src/utils/monthSegment.ts`、`src/components/LoadingIcon.vue`、月分段/自然周/sessionStorage 缓存 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | - | - | 更新月分段模块说明：自然周计算、session 读写、工序级查找键、加载器去重 | 生效 |
