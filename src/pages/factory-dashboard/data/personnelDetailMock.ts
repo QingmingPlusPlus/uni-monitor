@@ -8,8 +8,6 @@ export type PersonnelDetailAttendanceStatus =
   | 'business-travel'
   | 'absent'
 
-export type PersonnelDetailAttendanceState = 'management' | 'operation' | 'standby' | 'none'
-
 export type PersonnelDetailCapability = 'A' | 'B' | 'C'
 
 export interface PersonnelDetailRow {
@@ -22,7 +20,6 @@ export interface PersonnelDetailRow {
   readonly jobType: string
   readonly attendanceStatus: PersonnelDetailAttendanceStatus
   readonly attendanceStatusLabel: string
-  readonly attendanceState: PersonnelDetailAttendanceState
   readonly attendanceStateLabel: string
   readonly capability: PersonnelDetailCapability
   readonly workingHours: string
@@ -53,7 +50,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '班长',
     attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
-    attendanceState: 'management',
     attendanceStateLabel: '管理',
     capability: 'A',
     workingHours: '定时 3h30min',
@@ -68,7 +64,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '组长',
     attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
-    attendanceState: 'operation',
     attendanceStateLabel: '作业',
     capability: 'A',
     workingHours: '定时 4h00min',
@@ -83,7 +78,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '操作工',
     attendanceStatus: 'annual-leave',
     attendanceStatusLabel: '年假',
-    attendanceState: 'none',
     attendanceStateLabel: '-',
     capability: 'B',
     workingHours: '0h00min',
@@ -98,7 +92,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '操作工',
     attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
-    attendanceState: 'operation',
     attendanceStateLabel: '作业',
     capability: 'B',
     workingHours: '定时 3h45min',
@@ -113,7 +106,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '装配工',
     attendanceStatus: 'sick-leave',
     attendanceStatusLabel: '病假',
-    attendanceState: 'none',
     attendanceStateLabel: '-',
     capability: 'C',
     workingHours: '0h00min',
@@ -128,7 +120,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '操作工',
     attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
-    attendanceState: 'standby',
     attendanceStateLabel: '顶岗',
     capability: 'A',
     workingHours: '定时 4h15min',
@@ -143,7 +134,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '装配工',
     attendanceStatus: 'personal-leave',
     attendanceStatusLabel: '事假',
-    attendanceState: 'none',
     attendanceStateLabel: '-',
     capability: 'C',
     workingHours: '0h00min',
@@ -158,7 +148,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     jobType: '操作工',
     attendanceStatus: 'business-travel',
     attendanceStatusLabel: '出差',
-    attendanceState: 'none',
     attendanceStateLabel: '-',
     capability: 'B',
     workingHours: '0h00min',

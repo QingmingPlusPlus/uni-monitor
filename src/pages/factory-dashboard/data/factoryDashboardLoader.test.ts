@@ -1,9 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { getAttendanceDetailSituation } from '../../../api/attendance'
 import {
   getScheduleRukuPlanByMonth,
   getScheduleRukuShijiByMonth,
 } from '../../../api/schedule'
-import { loadInboundPlanTrendCard } from './factoryDashboardLoader'
+import { defaultCssMapSelectionConfig } from '../../../components/css-map/css3dMapSelection'
+import {
+  loadInboundPlanTrendCard,
+  loadPersonnelDetailCard,
+} from './factoryDashboardLoader'
+
+vi.mock('../../../api/attendance', () => ({
+  getAttendanceDetailSituation: vi.fn(),
+  getAttendanceSituation: vi.fn(),
+  getMonthlyAttendanceSituation: vi.fn(),
+}))
 
 vi.mock('../../../api/schedule', () => ({
   getScheduleDeviceLoadByMonth: vi.fn(),
@@ -127,5 +138,48 @@ describe('loadInboundPlanTrendCard', () => {
     expect(card.tableData.planInbound.day5).toBeUndefined()
     expect(card.modalTableData?.planInbound.day4).toBe(40)
     expect(card.modalTableData?.planInbound.day5).toBe(50)
+  })
+})
+
+describe('loadPersonnelDetailCard', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('出勤状态原样显示 attendanceStatus 字段', async () => {
+    vi.mocked(getAttendanceDetailSituation).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          {
+            shiftName: '早班',
+            account: '0501',
+            realName: '测试人员',
+            positionName: '正式工',
+            workTypeName: '操作工',
+            attendanceSituation: '出勤',
+            attendanceStatus: '本岗-新人',
+            ability: 'A',
+            workHourList: [{ workHourType: '定时', workHour: '8h00min' }],
+          },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getAttendanceDetailSituation>>)
+
+    const card = await loadPersonnelDetailCard(
+      'department2',
+      ['vulcanization1'],
+      defaultCssMapSelectionConfig,
+      new Date(2026, 5, 29, 8, 0, 0),
+    )
+
+    expect(getAttendanceDetailSituation).toHaveBeenCalledWith({
+      date: '2026-06-29',
+      department: '2',
+      processType: 'sulfur_addition',
+    })
+    expect(card.rows[0]?.attendanceStateLabel).toBe('本岗-新人')
   })
 })

@@ -70,7 +70,6 @@ import type {
   PersonnelAttendanceShift,
 } from './factoryDashboardTypes'
 import type {
-  PersonnelDetailAttendanceState,
   PersonnelDetailAttendanceStatus,
   PersonnelDetailCapability,
   PersonnelDetailData,
@@ -79,6 +78,8 @@ import type {
 } from './personnelDetailMock'
 
 // 注：PersonnelDetail* 为 string union 类型，使用字面量值而非 enum 访问
+// 临时固定人员明细及状态查询日期，待后端当前日数据补齐后移除。
+// const TEMP_PERSONNEL_DETAIL_REQUEST_DATE = '2026-06-29'
 
 // ---------------------------------------------------------------------------
 // 值映射：CssMap 值 → API 参数
@@ -1489,23 +1490,6 @@ function attendanceStatusLabel(status: PersonnelDetailAttendanceStatus): string 
   return map[status]
 }
 
-function mapAttendanceState(state: string): PersonnelDetailAttendanceState {
-  if (state.includes('管理')) return 'management'
-  if (state.includes('作业') || state.includes('操作')) return 'operation'
-  if (state.includes('顶岗')) return 'standby'
-  return 'none'
-}
-
-function attendanceStateLabel(state: PersonnelDetailAttendanceState): string {
-  const map: Record<PersonnelDetailAttendanceState, string> = {
-    'management': '管理',
-    'operation': '作业',
-    'standby': '顶岗',
-    'none': '-',
-  }
-  return map[state]
-}
-
 function mapCapability(ability: string): PersonnelDetailCapability {
   if (ability === 'A' || ability === 'a') return 'A'
   if (ability === 'B' || ability === 'b') return 'B'
@@ -1527,7 +1511,6 @@ function mapDetailRow(vo: AttendanceDetailSituationVO, index: number): Personnel
       : 'regular'
 
   const status = mapAttendanceStatus(vo.attendanceSituation ?? '')
-  const state = mapAttendanceState(vo.attendanceStatus ?? '')
 
   return {
     id: `detail-${index + 1}`,
@@ -1539,8 +1522,7 @@ function mapDetailRow(vo: AttendanceDetailSituationVO, index: number): Personnel
     jobType: vo.workTypeName ?? '',
     attendanceStatus: status,
     attendanceStatusLabel: attendanceStatusLabel(status),
-    attendanceState: state,
-    attendanceStateLabel: attendanceStateLabel(state),
+    attendanceStateLabel: vo.attendanceStatus ?? '',
     capability: mapCapability(vo.ability ?? ''),
     workingHours: formatWorkHours(vo),
   }
@@ -1556,6 +1538,7 @@ export async function loadPersonnelDetailCard(
   refreshedAt: Date,
 ): Promise<PersonnelDetailData> {
   const departmentCode = toApiDepartmentCode(department)
+  // const date = TEMP_PERSONNEL_DETAIL_REQUEST_DATE
   const date = getCurrentDateParam()
 
   const allVos: AttendanceDetailSituationVO[] = []
