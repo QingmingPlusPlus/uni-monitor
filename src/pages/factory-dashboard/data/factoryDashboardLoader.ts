@@ -10,6 +10,7 @@ import {
   getScheduleOutputByMonth,
   getSchedulePlanByMonth,
   getScheduleRukuPlanByMonth,
+  getScheduleRukuShijiByMonth,
 } from '../../../api/schedule'
 import type { SegmentVO } from '../../../api/basic'
 import type { AttendanceDetailSituationVO } from '../../../api/attendance'
@@ -18,6 +19,7 @@ import type {
   ScheduleDeviceLoadRecord,
   ScheduleMonthlyRecord,
   ScheduleRukuPlanRecord,
+  ScheduleRukuShijiRecord,
 } from '../../../api/schedule'
 import type {
   CssMapDepartmentValue,
@@ -129,6 +131,12 @@ function getCurrentDayOfMonth(): number {
 function getLastDayOfCurrentMonth(): number {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+}
+
+function isWeekendDayOfCurrentMonth(day: number): boolean {
+  const now = new Date()
+  const dayOfWeek = new Date(now.getFullYear(), now.getMonth(), day).getDay()
+  return dayOfWeek === 0 || dayOfWeek === 6
 }
 
 // ---------------------------------------------------------------------------
@@ -587,7 +595,8 @@ function createTrendPeriods(processTypes: readonly CssMapProcessValue[]): TrendP
   const segmentGroups = resolveProcessSegments(processTypes)
   if (segmentGroups === null) return null
 
-  const currentDay = Math.min(getCurrentDayOfMonth(), getLastDayOfCurrentMonth())
+  const lastDayOfMonth = getLastDayOfCurrentMonth()
+  const currentDay = Math.min(getCurrentDayOfMonth(), lastDayOfMonth)
   const monthLabel = `${getCurrentMonthNumber()}月`
   const maxSegmentIndex = segmentGroups.reduce((max, segments) => (
     Math.max(max, ...segments.map((segment) => segment.segmentIndex))
@@ -607,15 +616,15 @@ function createTrendPeriods(processTypes: readonly CssMapProcessValue[]): TrendP
     currentDay >= segment.startDay && currentDay <= segment.endDay
   ))
   const currentWeekDayStart = currentSegment?.startDay ?? currentDay
-  const currentWeekDayEnd = Math.min(currentSegment?.endDay ?? currentDay, currentDay)
+  const currentWeekDayEnd = Math.min(currentSegment?.endDay ?? currentDay, lastDayOfMonth)
   const currentWeekDayPeriods: TrendPeriod[] = Array.from(
     { length: Math.max(0, currentWeekDayEnd - currentWeekDayStart + 1) },
     (_, index) => {
       const day = currentWeekDayStart + index
-      return { kind: 'day', key: `day${day}`, label: String(day), day }
+      return { kind: 'day' as const, key: `day${day}`, label: String(day), day }
     },
-  )
-  const allDayPeriods: TrendPeriod[] = Array.from({ length: getLastDayOfCurrentMonth() }, (_, index) => {
+  ).filter((period) => period.day !== undefined && !isWeekendDayOfCurrentMonth(period.day))
+  const allDayPeriods: TrendPeriod[] = Array.from({ length: lastDayOfMonth }, (_, index) => {
     const day = index + 1
     return { kind: 'day', key: `day${day}`, label: String(day), day }
   })
@@ -767,7 +776,7 @@ function createAttendanceTrendCard(
   return {
     id: 'attendance-trend',
     title: '出勤率推移表',
-    subtitle: '按月、周及当前周日别汇总人员出勤情况',
+    subtitle: '按月、周及当前周工作日别汇总人员出勤情况',
     tableRows,
     tableColumns: createTrendColumns(periods.inlinePeriods, false),
     tableData,
@@ -851,6 +860,7 @@ interface ScheduleScope {
 const schedulePlanCache = new Map<string, Promise<readonly ScheduleMonthlyRecord[]>>()
 const scheduleOutputCache = new Map<string, Promise<readonly ScheduleMonthlyRecord[]>>()
 const scheduleRukuPlanCache = new Map<string, Promise<readonly ScheduleRukuPlanRecord[]>>()
+const scheduleRukuShijiCache = new Map<string, Promise<readonly ScheduleRukuShijiRecord[]>>()
 const scheduleLoadCache = new Map<string, Promise<readonly ScheduleDeviceLoadRecord[]>>()
 
 async function readScheduleRecords<T>(
@@ -897,9 +907,45 @@ function loadScheduleRukuPlanRecords(month: string): Promise<readonly ScheduleRu
     readScheduleRecords(() => getScheduleRukuPlanByMonth(month), '入库计划'))
 }
 
+function loadScheduleRukuShijiRecords(month: string): Promise<readonly ScheduleRukuShijiRecord[]> {
+  return getCachedScheduleRecords(scheduleRukuShijiCache, month, () =>
+    readScheduleRecords(() => getScheduleRukuShijiByMonth(month), '入库实绩'))
+}
+
 function loadScheduleLoadRecords(month: string): Promise<readonly ScheduleDeviceLoadRecord[]> {
   return getCachedScheduleRecords(scheduleLoadCache, month, () =>
     readScheduleRecords(() => getScheduleDeviceLoadByMonth(month), '设备负荷'))
+}
+
+function normalizeDeptCode(value: number | string | null | undefined): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value !== 'string') return null
+
+  const parsed = Number(value.trim())
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function recordMatchesDepartment(
+  record: { readonly dept?: number | string },
+  department: CssMapDepartmentValue,
+): boolean {
+  return normalizeDeptCode(record.dept) === Number(toApiDepartmentCode(department))
+}
+
+function hasScopedDepartment(record: { readonly dept?: number | string }): boolean {
+  const dept = normalizeDeptCode(record.dept)
+  return typeof dept === 'number' && dept > 0
+}
+
+function filterRecordsForDepartment<T extends { readonly dept?: number | string }>(
+  records: readonly T[],
+  department: CssMapDepartmentValue,
+): readonly T[] {
+  if (!records.some(hasScopedDepartment)) {
+    return records
+  }
+
+  return records.filter((record) => recordMatchesDepartment(record, department))
 }
 
 function recordMatchesProcess(record: ScheduleMonthlyRecord, processType: CssMapProcessValue, scope: ScheduleScope): boolean {
@@ -953,6 +999,32 @@ function createDailyFlowRows(
   for (const record of actualRecords) {
     if (!processTypes.includes(record.processType)) continue
     const row = getRow(record.processType, extractDayFromDate(record.date))
+    row.actual = (row.actual ?? 0) + (record.number ?? 0)
+  }
+
+  return [...rowMap.values()]
+}
+
+function createInboundDailyFlowRows(
+  processType: CssMapProcessValue,
+  planRecords: readonly ScheduleRukuPlanRecord[],
+  actualRecords: readonly ScheduleRukuShijiRecord[],
+): readonly FlowDailyRow[] {
+  const rowMap = new Map<number, { processType: CssMapProcessValue; day: number; plan: number | null; actual: number | null }>()
+
+  function getRow(day: number) {
+    const row = rowMap.get(day) ?? { processType, day, plan: null, actual: null }
+    rowMap.set(day, row)
+    return row
+  }
+
+  for (const record of planRecords) {
+    const row = getRow(extractDayFromDate(record.date))
+    row.plan = (row.plan ?? 0) + (record.number ?? 0)
+  }
+
+  for (const record of actualRecords) {
+    const row = getRow(extractDayFromDate(record.date))
     row.actual = (row.actual ?? 0) + (record.number ?? 0)
   }
 
@@ -1106,21 +1178,22 @@ export async function loadInboundPlanTrendCard(
   if (processTypes.length === 0) return null
 
   const month = getCurrentMonthParam()
-  const records = await loadScheduleRukuPlanRecords(month)
+  const [planRecords, actualRecords] = await Promise.all([
+    loadScheduleRukuPlanRecords(month),
+    loadScheduleRukuShijiRecords(month),
+  ])
   const bucketProcessType = processTypes[0]
-  const dailyRows: FlowDailyRow[] = records.map((record) => ({
-    processType: bucketProcessType,
-    day: extractDayFromDate(record.date),
-    plan: record.number ?? 0,
-    actual: null,
-  }))
-
-  void department
+  const scopedPlanRecords = filterRecordsForDepartment(planRecords, department)
+  const scopedActualRecords = filterRecordsForDepartment(actualRecords, department)
+  const dailyRows = createInboundDailyFlowRows(bucketProcessType, scopedPlanRecords, scopedActualRecords)
+  const hasActual = dailyRows.some((row) => typeof row.actual === 'number')
 
   return createFlowTrendCard({
     id: 'department-inbound-plan-trend',
     title: '入库计划实绩推移表',
-    subtitle: '按月、周及当前周日别汇总入库计划；实绩字段后端未提供',
+    subtitle: hasActual
+      ? '按月、周及当前周工作日别汇总入库计划与实绩'
+      : '按月、周及当前周工作日别汇总入库计划；当前月实绩接口暂无记录',
     processTypes: [bucketProcessType],
     dailyRows,
     tableRows: departmentInboundPlanTrendRows,
@@ -1157,8 +1230,8 @@ export async function loadProductionPlanTrendCard(
     id: 'process-production-plan-trend',
     title: '生产计划实绩推移表',
     subtitle: hasActual
-      ? '按月、周及当前周日别汇总生产计划与实绩'
-      : '按月、周及当前周日别汇总生产计划；当前月实绩接口暂无记录',
+      ? '按月、周及当前周工作日别汇总生产计划与实绩'
+      : '按月、周及当前周工作日别汇总生产计划；当前月实绩接口暂无记录',
     processTypes,
     dailyRows,
     tableRows: [

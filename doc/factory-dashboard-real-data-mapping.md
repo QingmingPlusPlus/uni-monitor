@@ -29,8 +29,8 @@
 | 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：稼动台数/总台数，并计算稼动率。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`schedulePersonCount`、`actualAttendancePersonCount` | 汇总当前部门或工序的直接人员应出勤/实际出勤和出勤率。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`schedulePersonCount`、`actualAttendancePersonCount` | 汇总当前部门或工序的间接人员应出勤/实际出勤和出勤率。 |
-| 入库实绩 | `GET /schedule/getRukuPlan` | `number` | 目前只有计划字段，实绩字段缺失；显示为 `-/计划` 或空。 |
-| 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number`、`workDate`、设备/工序相关字段 | 计划来自 `getPlan`，实绩来自 `getOutput`；当前月 `getOutput` 为空时实绩显示为空。 |
+| 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number`、`date`、`dept` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；按当前部门过滤并计算实绩/计划与达成率。接口存在有效 `dept` 时，`dept` 缺失或为 `0` 的记录不参与部门聚合。 |
+| 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number`、`date`、设备/工序相关字段 | 计划来自 `getPlan`，实绩来自 `getOutput`；按当前工序设备范围过滤并聚合。 |
 | 可动率 | `GET /schedule/getDeviceload` | `fuhe` | 对当前设备范围的符合率取平均。 |
 
 > 参考图中的“※以上为实时数据”“※以上数据截止昨日”只作为刷新时机说明，本次组件不显示这两行。
@@ -80,19 +80,19 @@
 
 | 行 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 计划入库数 | `GET /schedule/getRukuPlan` | `number`、日期字段 | 按日读取并按月/周/日聚合。 |
-| 实绩入库数 | 无匹配字段 | 无 | 暂为空。 |
-| 实绩计划差 | 前端派生 | 计划、实绩 | 因实绩缺失暂为空。 |
-| 入库达成率 | 前端派生 | 计划、实绩 | 因实绩缺失暂为空。 |
+| 计划入库数 | `GET /schedule/getRukuPlan` | `date`、`number`、`dept`、`customer` | 按当前部门过滤后按日读取，并按月/周/日聚合；当前接口已有数据，但存在 `dept` 缺失或为 `0` 的未归属记录，前端不计入部门口径。 |
+| 实绩入库数 | `GET /schedule/getRukuShiji` | `date`、`shebei`、`number`、`dept`、`banci`、`custName` | 按当前部门过滤后按日读取，并按月/周/日聚合；当前接口已有数据。 |
+| 实绩计划差 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 - 计划`。 |
+| 入库达成率 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 / 计划`。 |
 
-显示规则：仅部门维度展示，且制造1课不展示。
+显示规则：部门维度和工序维度均展示；制造1课以及制造1课下的前处理1/前处理2不展示。工序维度因 `getRukuPlan` 暂无 `processType` 或设备字段，入库计划实绩口径为当前工序所属部门。
 
 ## 生产计划实绩推移表
 
 | 行 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 计划生产数 | `GET /schedule/getPlan` | `number`、`workDate`、设备/工序相关字段 | 按当前工序设备范围过滤并按月/周/日聚合。 |
-| 实绩生产数 | `GET /schedule/getOutput` | `number`、`workDate`、设备/工序相关字段 | 按当前工序设备范围过滤并按月/周/日聚合；当前月接口为空时显示为空。 |
+| 实绩生产数 | `GET /schedule/getOutput` | `number`、`date`、设备/工序相关字段 | 按当前工序设备范围过滤并按月/周/日聚合；无记录时显示为空。 |
 | 合格数、不良数、抽样数 | 无稳定匹配字段 | 无 | 本次不展示。 |
 | 实绩计划差 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 - 计划`。 |
 | 生产达成率 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 / 计划`。 |
@@ -103,7 +103,6 @@
 
 | 项目 | 状态 | 说明 |
 | --- | --- | --- |
-| 不良率金额、个数 | 未展示 | `GET /schedule/getRejects` 当前后端 SQL 报错，且本次页面结构已移除旧不良卡片。 |
+| 不良率金额、个数 | 未展示 | `GET /schedule/getRejects` 当前返回空数组，且本次页面结构已移除旧不良卡片。 |
 | MH 实绩 | 未展示 | 用户本次要求的右侧组件中不包含旧 MH 卡片。 |
-| 入库实绩 | 空置 | 未在 Swagger 中找到可匹配字段。 |
-| 生产实绩当前月 | 空置 | `GET /schedule/getOutput?month=2026-06` 返回空数组。 |
+| 入库计划工序过滤 | 部分受限 | `getRukuPlan` 目前只有 `dept`，没有 `shebei` 或 `processType`，工序维度入库计划实绩按所属部门口径聚合。 |

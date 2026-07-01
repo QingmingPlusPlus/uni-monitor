@@ -28,10 +28,23 @@ export interface ScheduleDeviceLoadRecord {
 
 export interface ScheduleRukuPlanRecord {
   date: string
-  banci: string
-  shebei: string
   number: number
-  zhifan: string
+  zhifan?: string
+  dept?: number | string
+  customer?: string
+  banci?: string
+  shebei?: string
+}
+
+export interface ScheduleRukuShijiRecord {
+  date: string
+  shebei?: string
+  number: number
+  zhifan?: string
+  banci?: string
+  cusCode?: string
+  dept?: number | string
+  custName?: string
 }
 
 export interface ScheduleRejectsRecord {
@@ -63,6 +76,7 @@ export type ScheduleWorkhoursRecord = ApiRecord
 export type ScheduleMonthlyResponse = ApiResponse<ScheduleMonthlyRecord[]>
 export type ScheduleDeviceLoadResponse = ApiResponse<ScheduleDeviceLoadRecord[]>
 export type ScheduleRukuPlanResponse = ApiResponse<ScheduleRukuPlanRecord[]>
+export type ScheduleRukuShijiResponse = ApiResponse<ScheduleRukuShijiRecord[]>
 export type ScheduleRejectsResponse = ApiResponse<ScheduleRejectsRecord[]>
 export type ScheduleChangePointResponse = ApiResponse<ScheduleChangePointRecord[]>
 export type ScheduleWorkhoursResponse = ApiResponse<ScheduleWorkhoursRecord[]>
@@ -91,6 +105,12 @@ export function getScheduleDeviceLoadByMonth(month: string) {
 
 export function getScheduleRukuPlanByMonth(month: string) {
   return http.get<ScheduleRukuPlanResponse>('/schedule/getRukuPlan', {
+    params: { month } satisfies ScheduleMonthParams,
+  })
+}
+
+export function getScheduleRukuShijiByMonth(month: string) {
+  return http.get<ScheduleRukuShijiResponse>('/schedule/getRukuShiji', {
     params: { month } satisfies ScheduleMonthParams,
   })
 }

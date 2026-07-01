@@ -99,6 +99,30 @@ const hideInboundPlan = computed<boolean>(() => {
       </template>
 
       <template v-else>
+        <template v-if="!hideInboundPlan">
+          <DepartmentInboundPlanTrendCard
+            v-if="data.inboundPlanTrend !== null"
+            :title="data.inboundPlanTrend.title"
+            :subtitle="data.inboundPlanTrend.subtitle"
+            :compact="true"
+            tag=""
+            :table-rows="data.inboundPlanTrend.tableRows"
+            :table-columns="data.inboundPlanTrend.tableColumns"
+            :table-data="data.inboundPlanTrend.tableData"
+            :chart-options="data.inboundPlanTrend.chartOptions"
+            :chart-data="data.inboundPlanTrend.chartData"
+            :modal-table-rows="data.inboundPlanTrend.modalTableRows"
+            :modal-table-columns="data.inboundPlanTrend.modalTableColumns"
+            :modal-table-data="data.inboundPlanTrend.modalTableData"
+            :modal-chart-options="data.inboundPlanTrend.modalChartOptions"
+            :modal-chart-data="data.inboundPlanTrend.modalChartData"
+            @refresh="emit('refresh', 'inboundPlanTrend')"
+          />
+          <view v-else class="factory-dashboard-panel__loading-card">
+            <LoadingIcon />
+          </view>
+        </template>
+
         <ProcessProductionPlanTrendCard
           v-if="data.productionPlanTrend !== null"
           :title="data.productionPlanTrend.title"
