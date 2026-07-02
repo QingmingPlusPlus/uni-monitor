@@ -31,6 +31,7 @@ import {
   getCssMapDepartmentLabel,
   getCssMapProcessLabel,
 } from '../../../components/css-map/css3dMapSelection'
+import { mapRealtimeStatus } from '../../../components/css-map/deviceRealtimeStatus'
 import type { AttendanceTrendDailyRow } from '../../../components/attendance-trend-card/attendanceTrendMock'
 import {
   attendanceTrendChartOptions,
@@ -528,7 +529,7 @@ export async function loadAttendanceCard(
       { shift: 'total', label: '合计' },
     ]
     const summaryRows = shifts.map(({ shift, label }) => {
-      const matching = allDetailRows.filter((r) => r.shift === shift)
+      const matching = shift === 'total' ? allDetailRows : allDetailRows.filter((r) => r.shift === shift)
       return createAttendanceSummaryRow(`${departmentLabel}-all`, shift, label, matching)
     })
     groups.push({
@@ -1348,28 +1349,14 @@ export async function loadProductionPlanTrendCard(
 // 信息汇总与生产线稼动情况
 // ---------------------------------------------------------------------------
 
-function mapRealtimeStatusName(item: DeviceRealtimeItem): 'running' | 'abnormal' | 'plannedStop' | 'neutral' {
-  const text = [
-    item.actualStatus,
-    item.actualStatusName,
-    item.deviceStatus,
-    item.deviceStatusName,
-    item.deviceParseTypeName,
-  ].join(' ').toLowerCase()
+type ActivityDeviceStatus = 'running' | 'abnormal' | 'plannedStop' | 'neutral'
 
-  if (text.includes('异常') || text.includes('故障') || text.includes('error') || text.includes('abnormal') || text.includes('fault')) {
-    return 'abnormal'
-  }
-
-  if (text.includes('暂停') || text.includes('停止') || text.includes('pause') || text.includes('stop') || text.includes('not_running')) {
-    return 'plannedStop'
-  }
-
-  if (text.includes('正常') || text.includes('运行') || text.includes('normal') || text.includes('running')) {
-    return 'running'
-  }
-
-  return 'neutral'
+function mapRealtimeToActivityStatus(item: DeviceRealtimeItem): ActivityDeviceStatus {
+  const status = mapRealtimeStatus(item)
+  if (status === 'plannedStop') return 'plannedStop'
+  if (status === 'abnormalStop') return 'abnormal'
+  if (status === null) return 'neutral'
+  return 'running'
 }
 
 async function loadRealtimeForProcess(
@@ -1408,7 +1395,7 @@ function createProductionActivityRow(
 ): ProductionActivityRow {
   const codeSet = deviceCodeMap[processType]
   const totalCount = Math.max(items.length, codeSet?.size ?? 0)
-  const statuses = items.map(mapRealtimeStatusName)
+  const statuses = items.map(mapRealtimeToActivityStatus)
   const plannedStopCount = statuses.filter((status) => status === 'plannedStop').length
   const abnormalCount = statuses.filter((status) => status === 'abnormal').length
 

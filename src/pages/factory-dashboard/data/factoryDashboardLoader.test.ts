@@ -120,6 +120,8 @@ describe('loadProductionActivityData', () => {
           { section: 'vulcanization1', deviceCode: 'D2' },
           { section: 'vulcanization1', deviceCode: 'D3' },
           { section: 'vulcanization1', deviceCode: 'D4' },
+          { section: 'vulcanization1', deviceCode: 'D5' },
+          { section: 'vulcanization1', deviceCode: 'D6' },
         ],
       }),
     }))
@@ -130,9 +132,11 @@ describe('loadProductionActivityData', () => {
         message: 'ok',
         data: [
           createRealtimeItem('D1', { actualStatus: 'running' }),
-          createRealtimeItem('D2', { actualStatusName: '设备异常' }),
-          createRealtimeItem('D3', { actualStatusName: '计划停止' }),
-          createRealtimeItem('D4'),
+          createRealtimeItem('D2', { actualStatus: 'normal' }),
+          createRealtimeItem('D3', { actualStatus: 'pause_running', deviceParseType: 'CUT' }),
+          createRealtimeItem('D4', { actualStatus: 'pause_not_running', deviceParseType: 'MATERIAL_WAIT' }),
+          createRealtimeItem('D5', { actualStatus: 'pause_running', deviceParseType: 'TOOL_CHANGE' }),
+          createRealtimeItem('D6', { actualStatus: 'pause_not_running', deviceParseType: 'CLEAN' }),
         ],
       },
     } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
@@ -143,7 +147,7 @@ describe('loadProductionActivityData', () => {
     vi.clearAllMocks()
   })
 
-  it('除计划停止外都计入稼动台数，异常仍单独计入异常列', async () => {
+  it('按 css-map 结构化判定：切替/清扫计入稼动，计划停止不计入，异常单独计入异常列', async () => {
     const card = await loadProductionActivityData(
       'department2',
       ['vulcanization1'],
@@ -155,10 +159,10 @@ describe('loadProductionActivityData', () => {
       processType: 'sulfur_addition',
     })
     expect(card.rows[0]).toMatchObject({
-      totalCount: 4,
-      runningCount: 3,
+      totalCount: 6,
+      runningCount: 4,
       abnormalCount: 1,
-      plannedStopCount: 1,
+      plannedStopCount: 2,
     })
   })
 })
@@ -265,6 +269,85 @@ describe('loadAttendanceCard', () => {
       directRosterTotal: 15,
       actualAttendance: 13,
       attendanceRate: 86.7,
+    })
+  })
+
+  it('多工序族时部门全体合计行汇总所有明细，不返回 0', async () => {
+    vi.mocked(getAttendanceSituation).mockImplementation((params) => {
+      const processType = (params as { processType: string }).processType
+      if (processType === 'sulfur_addition') {
+        return Promise.resolve({
+          data: {
+            success: true,
+            code: '200',
+            message: 'ok',
+            data: [
+              {
+                shiftType: 'day',
+                shiftTypeName: '早班',
+                positionId: 'regular',
+                positionName: '正式工',
+                schedulePersonCount: 10,
+                actualAttendancePersonCount: 8,
+                positionType: 'direct',
+              },
+              {
+                shiftType: 'middle',
+                shiftTypeName: '中班',
+                positionId: 'regular',
+                positionName: '正式工',
+                schedulePersonCount: 20,
+                actualAttendancePersonCount: 18,
+                positionType: 'direct',
+              },
+            ],
+          },
+        } as Awaited<ReturnType<typeof getAttendanceSituation>>)
+      }
+      return Promise.resolve({
+        data: {
+          success: true,
+          code: '200',
+          message: 'ok',
+          data: [
+            {
+              shiftType: 'day',
+              shiftTypeName: '早班',
+              positionId: 'regular',
+              positionName: '正式工',
+              schedulePersonCount: 5,
+              actualAttendancePersonCount: 4,
+              positionType: 'direct',
+            },
+            {
+              shiftType: 'night',
+              shiftTypeName: '晚班',
+              positionId: 'regular',
+              positionName: '正式工',
+              schedulePersonCount: 15,
+              actualAttendancePersonCount: 12,
+              positionType: 'direct',
+            },
+          ],
+        },
+      } as Awaited<ReturnType<typeof getAttendanceSituation>>)
+    })
+
+    const card = await loadAttendanceCard(
+      'department4',
+      ['vulcanization2', 'posttreatment2'],
+      defaultCssMapSelectionConfig,
+      new Date(2026, 6, 1, 8, 0, 0),
+    )
+
+    const allGroup = card.groups.find((g) => g.label === '制造4课全体')
+    expect(allGroup).toBeDefined()
+    const totalRow = allGroup?.rows.find((row) => row.shift === 'total')
+    expect(totalRow).toMatchObject({
+      directRosterTotal: 50,
+      actualAttendance: 42,
+      directRegular: 50,
+      attendanceRate: 84.0,
     })
   })
 })

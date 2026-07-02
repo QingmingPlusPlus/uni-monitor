@@ -33,7 +33,7 @@
 
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：除计划停止外的设备均计入稼动台数（含异常状态），并计算稼动率。 |
+| 生产线稼动 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType` | 从生产线稼动情况聚合：除计划停止外的设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`；`正常班` 属白班支持岗，在早班窗口内与早班行一并汇总，中班/晚班窗口不计入。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
@@ -48,9 +48,9 @@
 | 部门 | 页面状态、`selection.json` | `departmentId` | 部门维度显示当前部门名称；工序维度显示当前工序所属部门名称。 |
 | 工序 | `selection.json` | `processId`、label | 部门维度每个工序一行；工序维度只显示当前工序一行。 |
 | 总台数 | `GET /device/realtime/list` + 地图设备范围 | 设备记录数 | 按当前部门或工序设备编码过滤后计数。 |
-| 稼动台数 | 同上 | `actualStatus`、`deviceStatus` 等状态字段 | 除计划停止外均计入稼动台数；异常状态同时计入稼动台数和异常台数。 |
-| 异常台数 | 同上 | 状态字段 | 状态匹配异常/报警/故障时计入。 |
-| 计划停止台数 | 同上 | 状态字段 | 状态匹配计划停止/停止时计入。 |
+| 稼动台数 | 同上 | `actualStatus`、`deviceParseType` | 除计划停止外均计入稼动台数（含生产中、切替、清扫、异常、中立）；状态判定与 css-map 同源（`deviceRealtimeStatus.ts`），以 `actualStatus` 为主，暂停再按 `deviceParseType` 细分。 |
+| 异常台数 | 同上 | `actualStatus`、`deviceParseType` | 暂停且 `deviceParseType` 不属于切替(CUT)/清扫(CLEAN)/计划停止类时计入（即 css-map 的 `abnormalStop`）。 |
+| 计划停止台数 | 同上 | `actualStatus`、`deviceParseType` | `actualStatus === 'normal'`，或暂停且 `deviceParseType` 为 `TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 时计入（与 css-map 的 `plannedStop` 一致）。 |
 
 ## 人员出勤情况
 
