@@ -28,7 +28,7 @@
 | --- | --- | --- | --- |
 | 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：除计划停止外的设备均计入稼动台数（含异常状态），并计算稼动率。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
-| 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
+| 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`；`正常班` 属白班支持岗，在早班窗口内与早班行一并汇总，中班/晚班窗口不计入。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
 | 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number` | 计划来自 `getPlan`，实绩来自 `getOutput`；取当月接口全量合计，**不按部门/工序过滤**（与生产计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度。 |
 

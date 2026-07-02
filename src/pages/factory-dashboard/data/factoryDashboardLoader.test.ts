@@ -762,6 +762,68 @@ describe('createFactorySummaryData', () => {
     expect(indirect?.rate).toBe('66.7%')
   })
 
+  it('早班时段将正常班(regular)并入早班窗口汇总', async () => {
+    vi.setSystemTime(new Date(2026, 7, 1, 8, 0, 0))
+
+    const attendance: PersonnelAttendanceData = {
+      title: '人员出勤情况',
+      subtitle: '制造1课',
+      refreshedAt: '',
+      groups: [
+        {
+          id: 'posttreatment',
+          label: '后处理',
+          rows: [
+            buildAttendanceRow('day', 5, 5, 0, 0),
+            buildAttendanceRow('regular', 0, 0, 2, 2),
+            buildAttendanceRow('total', 5, 5, 2, 2),
+          ],
+        },
+      ],
+    }
+
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance,
+      processTypes: [],
+    })
+
+    const indirect = findLine(summary.left, 'indirectAttendance')
+    expect(indirect?.value).toBe('2/2')
+    expect(indirect?.rate).toBe('100.0%')
+  })
+
+  it('中班时段不并入正常班(regular)行', async () => {
+    vi.setSystemTime(new Date(2026, 7, 1, 15, 0, 0))
+
+    const attendance: PersonnelAttendanceData = {
+      title: '人员出勤情况',
+      subtitle: '制造1课',
+      refreshedAt: '',
+      groups: [
+        {
+          id: 'posttreatment',
+          label: '后处理',
+          rows: [
+            buildAttendanceRow('day', 5, 5, 0, 0),
+            buildAttendanceRow('regular', 0, 0, 2, 2),
+            buildAttendanceRow('middle', 4, 4, 1, 1),
+            buildAttendanceRow('total', 9, 9, 3, 3),
+          ],
+        },
+      ],
+    }
+
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance,
+      processTypes: [],
+    })
+
+    const indirect = findLine(summary.left, 'indirectAttendance')
+    expect(indirect?.value).toBe('1/1')
+  })
+
   it('接口当月无数据时仍显示占位符', async () => {
     vi.setSystemTime(new Date(2026, 8, 1, 8, 0, 0))
     vi.mocked(getScheduleRukuPlanByMonth).mockResolvedValue({
