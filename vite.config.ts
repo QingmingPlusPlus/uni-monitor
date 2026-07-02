@@ -9,6 +9,7 @@ export default defineConfig({
       '/api': {
         target: 'http://123.57.81.179:8080',
         changeOrigin: true,
+        // 开发环境请求保留 /api 前缀进入 Vite 代理，再转发给后端时去掉。
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
