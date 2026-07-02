@@ -16,7 +16,11 @@ import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboa
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import {
   invalidateDepartmentDashboardCache,
+  loadAttendanceCard,
+  loadAttendanceTrendCard,
   loadDepartmentDashboardData,
+  loadInboundPlanTrendCard,
+  loadPersonnelDetailCard,
 } from '../factory-dashboard/data/factoryDashboardLoader'
 import { getDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import type { DepartmentCardId } from '../factory-dashboard/data/factoryDashboardTypes'
@@ -152,10 +156,41 @@ async function refreshCard(cardId: string): Promise<void> {
     return
   }
 
+  const department = selectedDepartment.value
+  const config = selectionConfig.value
+  const processTypes = config.departmentProcessMap[department] ?? []
+  const refreshedAt = new Date()
+  const base = dashboardData.value
+
+  invalidateDepartmentDashboardCache(department, monthSegmentVersion.value)
+
   try {
-    refreshedAt.value = new Date()
-    invalidateDepartmentDashboardCache(selectedDepartment.value, monthSegmentVersion.value)
-    await reloadDashboardData()
+    if (cardId === 'attendance') {
+      const attendance = await loadAttendanceCard(department, processTypes, config, refreshedAt)
+      dashboardData.value = { ...base, attendance }
+      return
+    }
+
+    if (cardId === 'attendanceTrend') {
+      const attendanceTrend = await loadAttendanceTrendCard(department, processTypes)
+      if (attendanceTrend !== null) {
+        dashboardData.value = { ...base, attendanceTrend }
+      }
+      return
+    }
+
+    if (cardId === 'inboundPlanTrend') {
+      const inboundPlanTrend = await loadInboundPlanTrendCard(department, processTypes)
+      if (inboundPlanTrend !== null) {
+        dashboardData.value = { ...base, inboundPlanTrend }
+      }
+      return
+    }
+
+    if (cardId === 'personnelDetail') {
+      const personnelDetail = await loadPersonnelDetailCard(department, processTypes, config, refreshedAt)
+      dashboardData.value = { ...base, personnelDetail }
+    }
   } catch (error: unknown) {
     handleCardRefreshError(cardId, error)
   }

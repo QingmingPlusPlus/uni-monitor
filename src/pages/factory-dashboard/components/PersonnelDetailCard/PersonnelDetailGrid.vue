@@ -1,7 +1,7 @@
 <template>
   <view :class="['personnel-detail-grid', { 'personnel-detail-grid--modal': isModal }]">
     <view class="personnel-detail-grid__table-wrap">
-      <view class="personnel-detail-table">
+      <view :class="['personnel-detail-table', { 'personnel-detail-table--hide-hours': hideWorkingHours }]">
         <text class="personnel-detail-table__cell personnel-detail-table__cell--head">班次</text>
         <text class="personnel-detail-table__cell personnel-detail-table__cell--head">工号</text>
         <text class="personnel-detail-table__cell personnel-detail-table__cell--head">姓名</text>
@@ -10,7 +10,7 @@
         <text class="personnel-detail-table__cell personnel-detail-table__cell--head">出勤情况</text>
         <text class="personnel-detail-table__cell personnel-detail-table__cell--head">出勤状态</text>
         <text class="personnel-detail-table__cell personnel-detail-table__cell--head">能力</text>
-        <text class="personnel-detail-table__cell personnel-detail-table__cell--head">工时</text>
+        <text v-show="!hideWorkingHours" class="personnel-detail-table__cell personnel-detail-table__cell--head">工时</text>
 
         <template
           v-for="row in data.rows"
@@ -24,7 +24,7 @@
           <text :class="getStatusCellClass(row)">{{ row.attendanceStatusLabel }}</text>
           <text :class="getCellClass(row, 'text')">{{ row.attendanceStateLabel }}</text>
           <text :class="getCellClass(row, 'capability')">{{ row.capability }}</text>
-          <text :class="getCellClass(row, 'hours')">{{ row.workingHours }}</text>
+          <text v-show="!hideWorkingHours" :class="getCellClass(row, 'hours')">{{ row.workingHours }}</text>
         </template>
       </view>
     </view>
@@ -51,6 +51,8 @@ withDefaults(
     isModal: false,
   },
 )
+
+const hideWorkingHours = true
 
 const statusToneMap: Readonly<Record<PersonnelDetailAttendanceStatus, StatusTone>> = {
   present: 'present',

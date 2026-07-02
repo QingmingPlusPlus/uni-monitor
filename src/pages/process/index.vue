@@ -16,9 +16,15 @@ import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSele
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
+import type { ProcessCardId } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
   invalidateProcessDashboardCache,
+  loadAttendanceCard,
+  loadAttendanceTrendCard,
+  loadInboundPlanTrendCard,
+  loadPersonnelDetailCard,
   loadProcessDashboardData,
+  loadProductionPlanTrendCard,
 } from '../factory-dashboard/data/factoryDashboardLoader'
 import {
   buildDepartmentUrl,
@@ -146,10 +152,76 @@ function openDevice(payload: { readonly deviceId: string }): void {
   navigateToFactoryUrl(buildEquipmentUrl(payload.deviceId, 'process'))
 }
 
-function refreshDashboard(_cardId: string): void {
-  refreshedAt.value = new Date()
-  invalidateProcessDashboardCache(selectedProcess.value, monthSegmentVersion.value)
-  void reloadDashboardData()
+const PROCESS_CARD_IDS: readonly ProcessCardId[] = [
+  'attendance',
+  'attendanceTrend',
+  'inboundPlanTrend',
+  'personnelDetail',
+  'productionPlanTrend',
+]
+
+function isProcessCardId(value: unknown): value is ProcessCardId {
+  return typeof value === 'string' && (PROCESS_CARD_IDS as readonly string[]).includes(value)
+}
+
+function handleCardRefreshError(cardId: ProcessCardId, error: unknown): void {
+  if (error instanceof Error) {
+    console.warn(`[ProcessDashboard] 卡片刷新失败 (${cardId}): ${error.message}`)
+  }
+}
+
+async function refreshCard(cardId: string): Promise<void> {
+  if (!isProcessCardId(cardId)) {
+    return
+  }
+
+  const process = selectedProcess.value
+  const department = selectedDepartment.value
+  const config = selectionConfig.value
+  const processTypes = [process] as const
+  const refreshedAt = new Date()
+  const base = dashboardData.value
+
+  invalidateProcessDashboardCache(process, monthSegmentVersion.value)
+
+  try {
+    if (cardId === 'attendance') {
+      const attendance = await loadAttendanceCard(department, processTypes, config, refreshedAt)
+      dashboardData.value = { ...base, attendance }
+      return
+    }
+
+    if (cardId === 'attendanceTrend') {
+      const attendanceTrend = await loadAttendanceTrendCard(department, processTypes)
+      if (attendanceTrend !== null) {
+        dashboardData.value = { ...base, attendanceTrend }
+      }
+      return
+    }
+
+    if (cardId === 'inboundPlanTrend') {
+      const inboundPlanTrend = await loadInboundPlanTrendCard(department, processTypes)
+      if (inboundPlanTrend !== null) {
+        dashboardData.value = { ...base, inboundPlanTrend }
+      }
+      return
+    }
+
+    if (cardId === 'personnelDetail') {
+      const personnelDetail = await loadPersonnelDetailCard(department, processTypes, config, refreshedAt)
+      dashboardData.value = { ...base, personnelDetail }
+      return
+    }
+
+    if (cardId === 'productionPlanTrend') {
+      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes)
+      if (productionPlanTrend !== null) {
+        dashboardData.value = { ...base, productionPlanTrend }
+      }
+    }
+  } catch (error: unknown) {
+    handleCardRefreshError(cardId, error)
+  }
 }
 </script>
 
@@ -164,6 +236,6 @@ function refreshDashboard(_cardId: string): void {
     @select-process="selectProcess"
     @clear-process="clearProcess"
     @open-device="openDevice"
-    @refresh-dashboard="refreshDashboard"
+    @refresh-dashboard="refreshCard"
   />
 </template>

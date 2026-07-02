@@ -88,6 +88,14 @@
   font-weight: 650;
 }
 
+.personnel-detail-table--hide-hours {
+  grid-template-columns: 0.8fr 0.7fr 0.7fr 0.9fr 0.9fr 0.85fr 0.85fr 0.5fr;
+}
+
+.personnel-detail-table--hide-hours .personnel-detail-table__cell:nth-child(9n + 8) {
+  border-right: 0;
+}
+
 .personnel-detail-table__cell--status {
   font-weight: 800;
 }

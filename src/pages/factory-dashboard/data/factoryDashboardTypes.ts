@@ -48,6 +48,9 @@ export type FactoryDashboardKind = 'department' | 'process'
 /** 部门维度瀑布流卡片标识，用于按卡片粒度刷新。 */
 export type DepartmentCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail'
 
+/** 工序维度瀑布流卡片标识，用于按卡片粒度刷新。 */
+export type ProcessCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend'
+
 export type PersonnelAttendanceShift = 'day' | 'night' | 'regular' | 'total'
 
 export interface PersonnelAttendanceRow {
