@@ -318,14 +318,18 @@ function calculateAttendanceRate(rosterTotal: number, actualAttendance: number):
 type ApiPositionType = 'direct' | 'indirect'
 
 function mapShiftType(shiftType: string): PersonnelAttendanceShift {
-  if (shiftType.includes('夜') || shiftType.includes('night')) return 'night'
-  if (shiftType.includes('早') || shiftType.includes('白') || shiftType.includes('early') || shiftType.includes('day')) return 'day'
+  const text = shiftType.toLowerCase()
+  if (text.includes('夜') || text.includes('晚') || text.includes('night') || text.includes('late')) return 'night'
+  if (text.includes('中') || text.includes('middle') || text.includes('mid')) return 'middle'
+  if (text.includes('早') || text.includes('白') || text.includes('early') || text.includes('day')) return 'day'
   return 'regular'
 }
 
 function voShiftLabel(shiftType: string): string {
-  if (shiftType.includes('夜') || shiftType.includes('night')) return '夜班'
-  if (shiftType.includes('早') || shiftType.includes('白') || shiftType.includes('early') || shiftType.includes('day')) return '早班'
+  const text = shiftType.toLowerCase()
+  if (text.includes('夜') || text.includes('晚') || text.includes('night') || text.includes('late')) return '晚班'
+  if (text.includes('中') || text.includes('middle') || text.includes('mid')) return '中班'
+  if (text.includes('早') || text.includes('白') || text.includes('early') || text.includes('day')) return '早班'
   return shiftType || '正常班'
 }
 
@@ -494,7 +498,8 @@ export async function loadAttendanceCard(
     const allDetailRows = groups.flatMap((g) => g.rows.filter((r) => r.shift !== 'total'))
     const shifts: ReadonlyArray<{ shift: PersonnelAttendanceShift; label: string }> = [
       { shift: 'day', label: '早班' },
-      { shift: 'night', label: '夜班' },
+      { shift: 'middle', label: '中班' },
+      { shift: 'night', label: '晚班' },
       { shift: 'regular', label: '正常班' },
       { shift: 'total', label: '合计' },
     ]
@@ -1366,8 +1371,11 @@ function getAttendanceTotals(data: PersonnelAttendanceData): {
   readonly indirectRoster: number
   readonly indirectAttendance: number
 } {
-  const detailRows = data.groups.flatMap((group) =>
-    group.rows.filter((row) => row.shift !== 'total'),
+  const currentShift = getCurrentAttendanceShift()
+  const detailGroups = data.groups.filter((group) => !group.label.endsWith('全体'))
+  const sourceGroups = detailGroups.length > 0 ? detailGroups : data.groups
+  const detailRows = sourceGroups.flatMap((group) =>
+    group.rows.filter((row) => row.shift === currentShift),
   )
 
   return {
@@ -1442,6 +1450,17 @@ export async function createFactorySummaryData(params: {
       },
     ],
   }
+}
+
+function getCurrentAttendanceShift(now = new Date()): PersonnelAttendanceShift {
+  const minutes = now.getHours() * 60 + now.getMinutes()
+  const dayStart = 6 * 60 + 30
+  const middleStart = 14 * 60 + 30
+  const nightStart = 22 * 60 + 30
+
+  if (minutes >= dayStart && minutes < middleStart) return 'day'
+  if (minutes >= middleStart && minutes < nightStart) return 'middle'
+  return 'night'
 }
 
 // ---------------------------------------------------------------------------

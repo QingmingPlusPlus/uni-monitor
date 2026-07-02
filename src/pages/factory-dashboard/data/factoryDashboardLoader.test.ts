@@ -12,6 +12,10 @@ import {
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
 } from './factoryDashboardLoader'
+import type {
+  PersonnelAttendanceData,
+  PersonnelAttendanceRow,
+} from './factoryDashboardTypes'
 
 vi.mock('../../../api/attendance', () => ({
   getAttendanceDetailSituation: vi.fn(),
@@ -204,6 +208,58 @@ describe('createFactorySummaryData', () => {
     return { title: '', subtitle: '', refreshedAt: '', groups: [] }
   }
 
+  function buildAttendanceRow(
+    shift: PersonnelAttendanceRow['shift'],
+    directRosterTotal: number,
+    actualAttendance: number,
+    indirectDirectRoster: number,
+    indirectLeaderAttendance: number | null,
+  ): PersonnelAttendanceRow {
+    return {
+      id: `${shift}-row`,
+      shift,
+      shiftLabel: shift,
+      indirectDirectRoster,
+      indirectLeaderRoster: 0,
+      indirectLeaderAttendance,
+      directTeamLeader: 0,
+      directRegular: directRosterTotal,
+      directDispatched: 0,
+      directTemporary: 0,
+      directStandby: 0,
+      directRosterTotal,
+      actualAttendance,
+      attendanceRate: null,
+    }
+  }
+
+  function buildShiftAttendance(): PersonnelAttendanceData {
+    return {
+      title: '人员出勤情况',
+      subtitle: '制造1课',
+      refreshedAt: '',
+      groups: [
+        {
+          id: 'pretreatment',
+          label: '前处理',
+          rows: [
+            buildAttendanceRow('day', 10, 8, 2, 1),
+            buildAttendanceRow('middle', 20, 18, 3, 2),
+            buildAttendanceRow('night', 30, 24, 4, 3),
+            buildAttendanceRow('total', 60, 50, 9, 6),
+          ],
+        },
+        {
+          id: 'department-all',
+          label: '制造1课全体',
+          rows: [
+            buildAttendanceRow('middle', 999, 900, 999, 900),
+          ],
+        },
+      ],
+    }
+  }
+
   beforeEach(() => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 7, 1, 8, 0, 0))
@@ -277,6 +333,24 @@ describe('createFactorySummaryData', () => {
     expect(inbound?.rate).toBe('50.0%')
     expect(production?.value).toBe('800/1,000')
     expect(production?.rate).toBe('80.0%')
+  })
+
+  it('直接/间接只汇总当前时间对应班次，且不重复计入部门全体行', async () => {
+    vi.setSystemTime(new Date(2026, 7, 1, 15, 0, 0))
+
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance: buildShiftAttendance(),
+      processTypes: [],
+    })
+
+    const direct = findLine(summary.left, 'directAttendance')
+    const indirect = findLine(summary.left, 'indirectAttendance')
+
+    expect(direct?.value).toBe('18/20')
+    expect(direct?.rate).toBe('90.0%')
+    expect(indirect?.value).toBe('2/3')
+    expect(indirect?.rate).toBe('66.7%')
   })
 
   it('接口当月无数据时仍显示占位符', async () => {

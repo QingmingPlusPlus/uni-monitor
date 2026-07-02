@@ -20,6 +20,27 @@
           </svg>
         </button>
         <button
+          v-if="hasFoldedRows"
+          :class="[
+            'personnel-detail-card__action',
+            { 'personnel-detail-card__action--active': isInlineExpanded },
+          ]"
+          type="button"
+          :aria-label="isInlineExpanded ? '收起人员明细列表' : '展开人员明细列表'"
+          @click="handleToggleInlineExpanded"
+        >
+          <svg class="personnel-detail-card__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              v-if="isInlineExpanded"
+              d="M6 6h12v2H6V6Zm1 9.59 1.41 1.41L12 13.41 15.59 17 17 15.59l-5-5-5 5Z"
+            />
+            <path
+              v-else
+              d="M6 6h12v2H6V6Zm6 12-5-5 1.41-1.41L12 15.17l3.59-3.58L17 13l-5 5Z"
+            />
+          </svg>
+        </button>
+        <button
           class="personnel-detail-card__action"
           type="button"
           aria-label="展开人员明细"
@@ -32,22 +53,9 @@
       </view>
     </view>
 
-    <view :class="['personnel-detail-card__preview', { 'personnel-detail-card__preview--folded': hasFoldedRows }]">
+    <view :class="['personnel-detail-card__preview', { 'personnel-detail-card__preview--folded': isPreviewFolded }]">
       <PersonnelDetailGrid :data="data" />
     </view>
-
-    <button
-      v-if="hasFoldedRows"
-      class="personnel-detail-card__expand-button"
-      type="button"
-      aria-label="展开全部人员明细"
-      @click="handleExpand"
-    >
-      <svg class="personnel-detail-card__expand-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 5h6v2H8.41l3.3 3.29-1.42 1.42L7 8.41V11H5V5Zm8 0h6v6h-2V8.41l-3.29 3.3-1.42-1.42L15.59 7H13V5Zm4 10.59V13h2v6h-6v-2h2.59l-3.3-3.29 1.42-1.42L17 15.59ZM8.41 17H11v2H5v-6h2v2.59l3.29-3.3 1.42 1.42L8.41 17Z" />
-      </svg>
-      <text>展开</text>
-    </button>
 
     <view
       v-if="isExpanded"
@@ -97,10 +105,16 @@ const emit = defineEmits<{
 }>()
 
 const isExpanded = ref(false)
+const isInlineExpanded = ref(false)
 const hasFoldedRows = computed(() => props.data.rows.length > 4)
+const isPreviewFolded = computed(() => hasFoldedRows.value && !isInlineExpanded.value)
 
 function handleExpand(): void {
   isExpanded.value = true
+}
+
+function handleToggleInlineExpanded(): void {
+  isInlineExpanded.value = !isInlineExpanded.value
 }
 
 function handleCloseExpanded(): void {

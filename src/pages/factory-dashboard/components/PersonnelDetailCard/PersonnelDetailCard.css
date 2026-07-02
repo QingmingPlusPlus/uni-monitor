@@ -26,7 +26,14 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--space-1);
-  padding-right: 144rpx;
+}
+
+.personnel-detail-card__head .personnel-detail-card__title-group {
+  padding-right: 216rpx;
+}
+
+.personnel-detail-card__modal-head .personnel-detail-card__title-group {
+  padding-right: 80rpx;
 }
 
 .personnel-detail-card__title,
@@ -76,6 +83,12 @@
   transform: translateY(1px);
 }
 
+.personnel-detail-card__action--active {
+  border-color: var(--um-color-operation);
+  background: var(--um-color-operation-soft);
+  color: var(--um-color-operation);
+}
+
 .personnel-detail-card__icon {
   display: block;
   width: 32rpx;
@@ -101,39 +114,6 @@
   background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--um-color-surface));
   content: "";
   pointer-events: none;
-}
-
-.personnel-detail-card__expand-button {
-  display: inline-flex;
-  align-self: center;
-  height: 64rpx;
-  align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  padding: 0 28rpx;
-  border: 1px solid var(--um-color-operation);
-  border-radius: 10rpx;
-  background: var(--um-color-operation-soft);
-  color: var(--um-color-operation);
-  font-size: 26rpx;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.personnel-detail-card__expand-button::after {
-  display: none;
-}
-
-.personnel-detail-card__expand-button:active {
-  opacity: 0.75;
-  transform: translateY(1px);
-}
-
-.personnel-detail-card__expand-icon {
-  display: block;
-  width: 30rpx;
-  height: 30rpx;
-  fill: currentcolor;
 }
 
 .personnel-detail-card__modal-layer {
@@ -179,8 +159,12 @@
     border-radius: 16px;
   }
 
-  .personnel-detail-card__title-group {
-    padding-right: 104px;
+  .personnel-detail-card__head .personnel-detail-card__title-group {
+    padding-right: 156px;
+  }
+
+  .personnel-detail-card__modal-head .personnel-detail-card__title-group {
+    padding-right: 60px;
   }
 
   .personnel-detail-card__title,
@@ -213,19 +197,6 @@
 
   .personnel-detail-card__preview--folded::after {
     height: 44px;
-  }
-
-  .personnel-detail-card__expand-button {
-    height: 40px;
-    gap: 8px;
-    padding: 0 18px;
-    border-radius: 8px;
-    font-size: 16px;
-  }
-
-  .personnel-detail-card__expand-icon {
-    width: 20px;
-    height: 20px;
   }
 
   .personnel-detail-card__modal {
