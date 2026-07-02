@@ -26,7 +26,7 @@
 
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：稼动台数/总台数，并计算稼动率。 |
+| 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：有实时记录且未判定为计划停止的设备计入稼动台数，异常状态也计入稼动台数，并计算稼动率。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
@@ -41,7 +41,7 @@
 | 部门 | 页面状态、`selection.json` | `departmentId` | 部门维度显示当前部门名称；工序维度显示当前工序所属部门名称。 |
 | 工序 | `selection.json` | `processId`、label | 部门维度每个工序一行；工序维度只显示当前工序一行。 |
 | 总台数 | `GET /device/realtime/list` + 地图设备范围 | 设备记录数 | 按当前部门或工序设备编码过滤后计数。 |
-| 稼动台数 | 同上 | `actualStatus`、`deviceStatus` 等状态字段 | 状态匹配运行/稼动时计入。 |
+| 稼动台数 | 同上 | `actualStatus`、`deviceStatus` 等状态字段 | 有实时记录且未判定为计划停止时计入；异常状态同时计入稼动台数和异常台数。 |
 | 异常台数 | 同上 | 状态字段 | 状态匹配异常/报警/故障时计入。 |
 | 计划停止台数 | 同上 | 状态字段 | 状态匹配计划停止/停止时计入。 |
 
@@ -73,7 +73,7 @@
 | 直接在籍人数 | 同上 | `directSchedulePersonCount` | 同上。 |
 | 直接出勤人数 | 同上 | `directAttendancePersonCount` | 日列直接展示；月/周聚合取平均时剔除直接出勤人数为 0 的日，分母为直接出勤人数不为 0 的天数。 |
 | 直接实际出勤率 | 同上 | `directAttendanceRate` 或前端聚合计算 | 日列直接按当天值计算；月/周聚合时剔除直接出勤人数为 0 的日，再用 `直接出勤合计 / 直接在籍合计`。 |
-| 利计出勤率 | 前端固定值 | 无接口字段 | 固定 91.0%；表格只在月列显示一个值，chart 显示 91.0% 红色目标线。 |
+| 利计出勤率 | 前端固定值 | 无接口字段 | 固定 91.0%；表格只在月列显示一个值，chart 显示 91.0% 红色目标线，并在线末端标注 `91%`。 |
 
 显示规则：月、周人数聚合显示为整数；百分比统一显示一位小数。
 

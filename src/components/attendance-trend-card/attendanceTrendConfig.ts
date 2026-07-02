@@ -65,7 +65,7 @@ export const attendanceTrendChartOptions: ChartOptionConfig = {
   },
   grid: {
     left: 52,
-    right: 48,
+    right: 64,
     top: 28,
     bottom: 56,
   },
@@ -151,6 +151,19 @@ export const attendanceTrendChartOptions: ChartOptionConfig = {
       lineStyle: {
         type: "dashed",
         width: 2,
+      },
+      endLabel: {
+        show: true,
+        formatter: "91%",
+        color: attendanceTrendPalette.targetRate,
+        fontSize: 12,
+        fontWeight: 700,
+        backgroundColor: "rgba(255, 255, 255, 0.88)",
+        borderColor: attendanceTrendPalette.targetRate,
+        borderWidth: 1,
+        borderRadius: 4,
+        padding: [2, 4],
+        distance: 8,
       },
       markLine: undefined,
     },

@@ -1345,15 +1345,17 @@ function createProductionActivityRow(
   const codeSet = deviceCodeMap[processType]
   const totalCount = Math.max(items.length, codeSet?.size ?? 0)
   const statuses = items.map(mapRealtimeStatusName)
+  const plannedStopCount = statuses.filter((status) => status === 'plannedStop').length
+  const abnormalCount = statuses.filter((status) => status === 'abnormal').length
 
   return {
     id: processType,
     departmentLabel: getCssMapDepartmentLabel(department, config),
     processLabel: getCssMapProcessLabel(processType, config),
     totalCount,
-    runningCount: statuses.filter((status) => status === 'running').length,
-    abnormalCount: statuses.filter((status) => status === 'abnormal').length,
-    plannedStopCount: statuses.filter((status) => status === 'plannedStop').length,
+    runningCount: statuses.length - plannedStopCount,
+    abnormalCount,
+    plannedStopCount,
   }
 }
 

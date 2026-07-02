@@ -3,6 +3,8 @@ import {
   getAttendanceDetailSituation,
   getMonthlyAttendanceSituation,
 } from '../../../api/attendance'
+import { getDeviceRealtimeList } from '../../../api/deviceRealtime'
+import type { DeviceRealtimeItem } from '../../../api/deviceRealtime'
 import {
   getScheduleOutputByMonth,
   getSchedulePlanByMonth,
@@ -15,6 +17,7 @@ import {
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
+  loadProductionActivityData,
 } from './factoryDashboardLoader'
 import type {
   PersonnelAttendanceData,
@@ -32,6 +35,10 @@ vi.mock('../../../api/schedule', () => ({
   getSchedulePlanByMonth: vi.fn(),
   getScheduleRukuPlanByMonth: vi.fn(),
   getScheduleRukuShijiByMonth: vi.fn(),
+}))
+
+vi.mock('../../../api/deviceRealtime', () => ({
+  getDeviceRealtimeList: vi.fn(),
 }))
 
 class MemoryStorage implements Storage {
@@ -70,6 +77,88 @@ function installSessionStorage(record: unknown): void {
     configurable: true,
   })
 }
+
+function createRealtimeItem(
+  deviceCode: string,
+  overrides: Partial<DeviceRealtimeItem> = {},
+): DeviceRealtimeItem {
+  return {
+    deviceId: deviceCode,
+    deviceCode,
+    deviceName: deviceCode,
+    deviceType: null,
+    deviceTypeName: null,
+    factoryId: '1',
+    departmentId: '2',
+    departmentName: '制造2课',
+    processType: 'sulfur_addition',
+    processTypeName: '加硫',
+    procedureName: '',
+    scheduleMode: '',
+    deviceStatus: '',
+    deviceStatusName: '',
+    actualStatus: '',
+    actualStatusName: '',
+    deviceParseType: null,
+    deviceParseTypeName: null,
+    onlinePersonList: [],
+    productionTaskList: [],
+    ...overrides,
+  }
+}
+
+describe('loadProductionActivityData', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        devices: [
+          { section: 'vulcanization1', deviceCode: 'D1' },
+          { section: 'vulcanization1', deviceCode: 'D2' },
+          { section: 'vulcanization1', deviceCode: 'D3' },
+          { section: 'vulcanization1', deviceCode: 'D4' },
+        ],
+      }),
+    }))
+    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          createRealtimeItem('D1', { actualStatus: 'running' }),
+          createRealtimeItem('D2', { actualStatusName: '设备异常' }),
+          createRealtimeItem('D3', { actualStatusName: '计划停止' }),
+          createRealtimeItem('D4'),
+        ],
+      },
+    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.clearAllMocks()
+  })
+
+  it('除计划停止外都计入稼动台数，异常仍单独计入异常列', async () => {
+    const card = await loadProductionActivityData(
+      'department2',
+      ['vulcanization1'],
+      defaultCssMapSelectionConfig,
+    )
+
+    expect(getDeviceRealtimeList).toHaveBeenCalledWith({
+      departmentId: '2',
+      processType: 'sulfur_addition',
+    })
+    expect(card.rows[0]).toMatchObject({
+      totalCount: 4,
+      runningCount: 3,
+      abnormalCount: 1,
+      plannedStopCount: 1,
+    })
+  })
+})
 
 describe('loadInboundPlanTrendCard', () => {
   beforeEach(() => {
