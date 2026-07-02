@@ -29,8 +29,8 @@
 | 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：稼动台数/总台数，并计算稼动率。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`schedulePersonCount`、`actualAttendancePersonCount` | 汇总当前部门或工序的直接人员应出勤/实际出勤和出勤率。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`schedulePersonCount`、`actualAttendancePersonCount` | 汇总当前部门或工序的间接人员应出勤/实际出勤和出勤率。 |
-| 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number`、`date`、`dept` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；按当前部门过滤并计算实绩/计划与达成率。接口存在有效 `dept` 时，`dept` 缺失或为 `0` 的记录不参与部门聚合。 |
-| 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number`、`date`、设备/工序相关字段 | 计划来自 `getPlan`，实绩来自 `getOutput`；按当前工序设备范围过滤并聚合。 |
+| 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
+| 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number` | 计划来自 `getPlan`，实绩来自 `getOutput`；取当月接口全量合计，**不按部门/工序过滤**（与生产计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度。 |
 | 可动率 | `GET /schedule/getDeviceload` | `fuhe` | 对当前设备范围的符合率取平均。 |
 
 > 参考图中的“※以上为实时数据”“※以上数据截止昨日”只作为刷新时机说明，本次组件不显示这两行。

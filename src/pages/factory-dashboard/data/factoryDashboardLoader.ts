@@ -1375,20 +1375,9 @@ function getAttendanceTotals(data: PersonnelAttendanceData): {
   }
 }
 
-function getMonthlyFlowValues(
-  card: FactoryDashboardCard | null,
-  keys: { readonly plan: string; readonly actual: string },
-): { readonly plan: number | null; readonly actual: number | null; readonly rate: number | null } {
-  const plan = card?.tableData[keys.plan]?.month
-  const actual = card?.tableData[keys.actual]?.month
-  const numericPlan = typeof plan === 'number' ? plan : null
-  const numericActual = typeof actual === 'number' ? actual : null
-
-  return {
-    plan: numericPlan,
-    actual: numericActual,
-    rate: calculateRate(numericActual, numericPlan),
-  }
+function sumScheduleNumber(records: readonly { readonly number?: number }[]): number | null {
+  if (records.length === 0) return null
+  return sumBy(records, (record) => record.number ?? 0)
 }
 
 async function calculateAvailabilityRate(processTypes: readonly CssMapProcessValue[]): Promise<number | null> {
@@ -1412,21 +1401,22 @@ async function calculateAvailabilityRate(processTypes: readonly CssMapProcessVal
 export async function createFactorySummaryData(params: {
   readonly activity: ProductionActivityData
   readonly attendance: PersonnelAttendanceData
-  readonly inboundPlanTrend: FactoryDashboardCard | null
-  readonly productionPlanTrend: FactoryDashboardCard | null
   readonly processTypes: readonly CssMapProcessValue[]
 }): Promise<FactorySummaryData> {
   const running = sumBy(params.activity.rows, (row) => row.runningCount)
   const total = sumBy(params.activity.rows, (row) => row.totalCount)
   const attendance = getAttendanceTotals(params.attendance)
-  const inbound = getMonthlyFlowValues(params.inboundPlanTrend, {
-    plan: 'planInbound',
-    actual: 'actualInbound',
-  })
-  const production = getMonthlyFlowValues(params.productionPlanTrend, {
-    plan: 'plan',
-    actual: 'actual',
-  })
+  const month = getCurrentMonthParam()
+  const [rukuPlan, rukuShiji, schedulePlan, scheduleOutput] = await Promise.all([
+    loadScheduleRukuPlanRecords(month),
+    loadScheduleRukuShijiRecords(month),
+    loadSchedulePlanRecords(month),
+    loadScheduleOutputRecords(month),
+  ])
+  const inboundPlan = sumScheduleNumber(rukuPlan)
+  const inboundActual = sumScheduleNumber(rukuShiji)
+  const productionPlan = sumScheduleNumber(schedulePlan)
+  const productionActual = sumScheduleNumber(scheduleOutput)
   const availabilityRate = await calculateAvailabilityRate(params.processTypes)
 
   return {
@@ -1457,14 +1447,14 @@ export async function createFactorySummaryData(params: {
       {
         id: 'inbound',
         label: '入库实绩（个）',
-        value: formatRatioValue(inbound.actual, inbound.plan),
-        rate: formatOneDecimalPercent(inbound.rate),
+        value: formatRatioValue(inboundActual, inboundPlan),
+        rate: formatOneDecimalPercent(calculateRate(inboundActual, inboundPlan)),
       },
       {
         id: 'production',
         label: '生产实际（个）',
-        value: formatRatioValue(production.actual, production.plan),
-        rate: formatOneDecimalPercent(production.rate),
+        value: formatRatioValue(productionActual, productionPlan),
+        rate: formatOneDecimalPercent(calculateRate(productionActual, productionPlan)),
       },
       {
         id: 'availability',
@@ -1727,8 +1717,6 @@ async function doLoadDepartmentDashboardData(
     summary = await createFactorySummaryData({
       activity: resolvedActivity,
       attendance: resolvedAttendance,
-      inboundPlanTrend: resolvedInboundPlanTrend,
-      productionPlanTrend: resolvedProductionPlanTrend,
       processTypes,
     })
   } catch (error: unknown) {
@@ -1879,8 +1867,6 @@ async function doLoadProcessDashboardData(
     summary = await createFactorySummaryData({
       activity: resolvedActivity,
       attendance: resolvedAttendance,
-      inboundPlanTrend: resolvedInboundPlanTrend,
-      productionPlanTrend: resolvedProductionPlanTrend,
       processTypes,
     })
   } catch (error: unknown) {

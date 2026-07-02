@@ -23,7 +23,7 @@
 | 接口 | 最新字段/状态 | 前端处理 |
 | --- | --- | --- |
 | `GET /schedule/getRukuPlan` | 当前返回 `date`、`number`、`zhifan`、`dept`、`customer`，2026-07 有数据；其中部分记录 `dept` 缺失或为 `0`。 | 入库计划实绩推移表按有效 `dept` 过滤当前部门后聚合，未归属记录不计入部门口径。 |
-| `GET /schedule/getRukuShiji` | 新增入库实绩，返回 `date`、`shebei`、`number`、`zhifan`、`banci`、`dept`、`cusCode`、`custName`，2026-07 有数据。 | 入库计划实绩推移表按 `dept` 过滤当前部门，计算实绩、差值和达成率；信息汇总同步显示 `实绩/计划`。 |
+| `GET /schedule/getRukuShiji` | 新增入库实绩，返回 `date`、`shebei`、`number`、`zhifan`、`banci`、`dept`、`cusCode`、`custName`，2026-07 有数据。 | 入库计划实绩推移表按 `dept` 过滤当前部门，计算实绩、差值和达成率；信息汇总取当月全量合计，不按部门过滤。 |
 | `GET /schedule/getOutput` | 当前月接口已有记录，字段包含 `date`、`shebei`、`number`、`zhifan`、`process`、`banci`、`dept`。 | 生产计划实绩推移表继续按设备范围和部门/工序过滤。 |
 | `GET /schedule/getRejects` | 当前返回空数组，未再复现缺表 SQL 报错。 | 首页右侧已移除旧不良率卡片，暂不接入。 |
 
@@ -31,8 +31,8 @@
 
 | 缺口 | 影响组件 | 当前处理 |
 | --- | --- | --- |
-| `GET /schedule/getRukuPlan` 仍只有 `month` 查询条件，返回字段中没有 `shebei` 或 `processType` | 工序维度入库计划实绩、信息汇总的入库计划 | 前端可按 `dept` 过滤到当前工序所属部门，但无法把计划严格拆到单个工序。 |
-| `GET /schedule/getRukuShiji` 只有 `month` 查询条件，没有 `processType` | 工序维度入库计划实绩、信息汇总的入库实绩 | 前端按 `dept` 过滤到当前工序所属部门；如后续需要单工序口径，后端需补充工序字段或稳定设备范围。 |
+| `GET /schedule/getRukuPlan` 仍只有 `month` 查询条件，返回字段中没有 `shebei` 或 `processType` | 工序维度入库计划实绩推移表 | 前端可按 `dept` 过滤到当前工序所属部门，但无法把计划严格拆到单个工序。信息汇总不区分维度，取全量合计，不受此缺口影响。 |
+| `GET /schedule/getRukuShiji` 只有 `month` 查询条件，没有 `processType` | 工序维度入库计划实绩推移表 | 前端按 `dept` 过滤到当前工序所属部门；如后续需要单工序口径，后端需补充工序字段或稳定设备范围。信息汇总不区分维度，取全量合计，不受此缺口影响。 |
 | 人员出勤接口没有稳定的 `teamLeader`、正式工、派遣工、临时工、顶岗等结构化字段 | 人员出勤情况 | 前端按 `positionName` 中文关键词拆分；班长/组长合并到 `directTeamLeader`。 |
 | 人员出勤接口缺少人员子类明细时的严格枚举 | 人员出勤情况 | 未匹配到的直接人员计入 `directRegular`；间接人员合并到 `indirectDirectRoster`。 |
 | 人员明细接口中的 `attendanceSituation`、`ability`、`shiftName` 是自由文本 | 人员明细及状态 | 前端使用中文关键词映射；`attendanceStatus` 作为出勤状态原样显示。 |

@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getAttendanceDetailSituation } from '../../../api/attendance'
 import {
+  getScheduleDeviceLoadByMonth,
+  getScheduleOutputByMonth,
+  getSchedulePlanByMonth,
   getScheduleRukuPlanByMonth,
   getScheduleRukuShijiByMonth,
 } from '../../../api/schedule'
 import { defaultCssMapSelectionConfig } from '../../../components/css-map/css3dMapSelection'
 import {
+  createFactorySummaryData,
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
 } from './factoryDashboardLoader'
@@ -181,5 +185,115 @@ describe('loadPersonnelDetailCard', () => {
       processType: 'sulfur_addition',
     })
     expect(card.rows[0]?.attendanceStateLabel).toBe('本岗-新人')
+  })
+})
+
+describe('createFactorySummaryData', () => {
+  const EMPTY_SUMMARY_LINES = { value: '-', rate: '-' }
+
+  function buildStubActivity() {
+    return { title: '生产线稼动情况', rows: [] }
+  }
+
+  function buildStubAttendance() {
+    return { title: '', subtitle: '', refreshedAt: '', groups: [] }
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 7, 1, 8, 0, 0))
+
+    vi.mocked(getScheduleRukuPlanByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-08-01', number: 100, dept: 9, customer: 'A' },
+          { date: '2026-08-02', number: 200, dept: 0, customer: 'B' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleRukuPlanByMonth>>)
+    vi.mocked(getScheduleRukuShijiByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-08-01', shebei: 'A', number: 150, dept: 9, custName: 'A' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleRukuShijiByMonth>>)
+    vi.mocked(getSchedulePlanByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-08-01', shebei: 'X', number: 1000, process: '前处理', dept: 9, zhifan: '', banci: 'day' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getSchedulePlanByMonth>>)
+    vi.mocked(getScheduleOutputByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-08-01', shebei: 'X', number: 800, process: '前处理', dept: 9, zhifan: '', banci: 'day' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleOutputByMonth>>)
+    vi.mocked(getScheduleDeviceLoadByMonth).mockResolvedValue({
+      data: { success: true, code: '200', message: 'ok', data: [] },
+    } as unknown as Awaited<ReturnType<typeof getScheduleDeviceLoadByMonth>>)
+
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network in test')))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+    vi.clearAllMocks()
+  })
+
+  function findLine(lines: readonly { readonly id: string; readonly value: string; readonly rate: string }[], id: string) {
+    return lines.find((line) => line.id === id)
+  }
+
+  it('入库实绩/生产实际取当月接口全量合计，不按当前部门过滤', async () => {
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance: buildStubAttendance(),
+      processTypes: [],
+    })
+
+    const inbound = findLine(summary.right, 'inbound')
+    const production = findLine(summary.right, 'production')
+
+    expect(inbound?.value).toBe('150/300')
+    expect(inbound?.rate).toBe('50.0%')
+    expect(production?.value).toBe('800/1,000')
+    expect(production?.rate).toBe('80.0%')
+  })
+
+  it('接口当月无数据时仍显示占位符', async () => {
+    vi.setSystemTime(new Date(2026, 8, 1, 8, 0, 0))
+    vi.mocked(getScheduleRukuPlanByMonth).mockResolvedValue({
+      data: { success: true, code: '200', message: 'ok', data: [] },
+    } as unknown as Awaited<ReturnType<typeof getScheduleRukuPlanByMonth>>)
+    vi.mocked(getScheduleRukuShijiByMonth).mockResolvedValue({
+      data: { success: true, code: '200', message: 'ok', data: [] },
+    } as unknown as Awaited<ReturnType<typeof getScheduleRukuShijiByMonth>>)
+
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance: buildStubAttendance(),
+      processTypes: [],
+    })
+
+    const inbound = findLine(summary.right, 'inbound')
+    expect(inbound?.value).toBe(EMPTY_SUMMARY_LINES.value)
+    expect(inbound?.rate).toBe(EMPTY_SUMMARY_LINES.rate)
   })
 })
