@@ -26,7 +26,7 @@
 
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：有实时记录且未判定为计划停止的设备计入稼动台数，异常状态也计入稼动台数，并计算稼动率。 |
+| 生产线稼动 | `GET /device/realtime/list` | `deviceStatus`、`actualStatus` | 从生产线稼动情况聚合：除计划停止外的设备均计入稼动台数（含异常状态），并计算稼动率。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
@@ -41,7 +41,7 @@
 | 部门 | 页面状态、`selection.json` | `departmentId` | 部门维度显示当前部门名称；工序维度显示当前工序所属部门名称。 |
 | 工序 | `selection.json` | `processId`、label | 部门维度每个工序一行；工序维度只显示当前工序一行。 |
 | 总台数 | `GET /device/realtime/list` + 地图设备范围 | 设备记录数 | 按当前部门或工序设备编码过滤后计数。 |
-| 稼动台数 | 同上 | `actualStatus`、`deviceStatus` 等状态字段 | 有实时记录且未判定为计划停止时计入；异常状态同时计入稼动台数和异常台数。 |
+| 稼动台数 | 同上 | `actualStatus`、`deviceStatus` 等状态字段 | 除计划停止外均计入稼动台数；异常状态同时计入稼动台数和异常台数。 |
 | 异常台数 | 同上 | 状态字段 | 状态匹配异常/报警/故障时计入。 |
 | 计划停止台数 | 同上 | 状态字段 | 状态匹配计划停止/停止时计入。 |
 

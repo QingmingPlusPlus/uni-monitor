@@ -1397,7 +1397,7 @@ function createProductionActivityRow(
     departmentLabel: getCssMapDepartmentLabel(department, config),
     processLabel: getCssMapProcessLabel(processType, config),
     totalCount,
-    runningCount: statuses.length - plannedStopCount,
+    runningCount: totalCount - plannedStopCount,
     abnormalCount,
     plannedStopCount,
   }
