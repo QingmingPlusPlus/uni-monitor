@@ -348,6 +348,54 @@ describe('loadInboundPlanTrendCard', () => {
     expect(card.modalTableData?.planInbound.day4).toBe(40)
     expect(card.modalTableData?.planInbound.day5).toBe(50)
   })
+
+  it('强制刷新时绕过同月入库计划和实绩缓存重新请求接口', async () => {
+    const firstCard = await loadInboundPlanTrendCard('department2', ['pretreatment1'], {
+      forceRefresh: true,
+    })
+
+    if (firstCard === null) {
+      throw new Error('expected first inbound trend card')
+    }
+
+    expect(firstCard.tableData.planInbound.day1).toBe(10)
+    expect(firstCard.tableData.actualInbound.day1).toBe(4)
+
+    vi.mocked(getScheduleRukuPlanByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-07-01', number: 30, zhifan: '', dept: '2', customer: 'A' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleRukuPlanByMonth>>)
+    vi.mocked(getScheduleRukuShijiByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-07-01', banci: 'day', shebei: 'A', number: 27, zhifan: '', dept: '2', cusCode: '', custName: 'A' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleRukuShijiByMonth>>)
+
+    const refreshedCard = await loadInboundPlanTrendCard('department2', ['pretreatment1'], {
+      forceRefresh: true,
+    })
+
+    if (refreshedCard === null) {
+      throw new Error('expected refreshed inbound trend card')
+    }
+
+    expect(getScheduleRukuPlanByMonth).toHaveBeenCalledTimes(2)
+    expect(getScheduleRukuShijiByMonth).toHaveBeenCalledTimes(2)
+    expect(refreshedCard.tableData.planInbound.day1).toBe(30)
+    expect(refreshedCard.tableData.actualInbound.day1).toBe(27)
+    expect(refreshedCard.tableData.achievementRate.day1).toBe(90)
+  })
 })
 
 describe('loadProductionPlanTrendCard', () => {
@@ -551,6 +599,63 @@ describe('loadAttendanceTrendCard', () => {
     expect(card.tableData.directRate.week2).toBeNull()
     expect(card.tableData.directAttendance.day8).toBe(0)
     expect(card.tableData.directRate.day8).toBe(0)
+  })
+
+  it('月周间接/直接在籍平均剔除该指标为 0 的天', async () => {
+    vi.mocked(getMonthlyAttendanceSituation).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          {
+            statDate: '2026-07-01',
+            indirectSchedulePersonCount: 2,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 8,
+            directAttendanceRate: 80,
+          },
+          {
+            statDate: '2026-07-02',
+            indirectSchedulePersonCount: 0,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 8,
+            directAttendanceRate: 80,
+          },
+          {
+            statDate: '2026-07-03',
+            indirectSchedulePersonCount: 0,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 8,
+            directAttendanceRate: 80,
+          },
+          {
+            statDate: '2026-07-08',
+            indirectSchedulePersonCount: 0,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 8,
+            directAttendanceRate: 80,
+          },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getMonthlyAttendanceSituation>>)
+
+    const card = await loadAttendanceTrendCard('department2', ['pretreatment1'])
+
+    if (card === null) {
+      throw new Error('expected attendance trend card')
+    }
+
+    // 间接在籍仅第 1 天为 2，月/周平均应取该指标不为 0 的天
+    expect(card.tableData.indirectCount.month).toBe(2)
+    expect(card.tableData.indirectCount.week1).toBe(2)
+    expect(card.tableData.indirectCount.week2).toBeNull()
+    // 直接在籍每天均为 10，平均仍为 10
+    expect(card.tableData.directCount.month).toBe(10)
+    expect(card.tableData.directCount.week1).toBe(10)
+    // 日列保持当天原值（day8 在当前周内联列，day1 仅弹窗展示）
+    expect(card.tableData.indirectCount.day8).toBe(0)
+    expect(card.modalTableData?.indirectCount.day1).toBe(2)
   })
 })
 

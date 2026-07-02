@@ -12,6 +12,13 @@
 | 当前月 | 前端本地日期 `YYYY-MM` | 推移表接口按月查询。 |
 | 月周配置 | `GET /basic/month-segment/base-data` | 前端按接口周配置聚合日数据；配置缺失时回退自然周。sessionStorage 记录键为 `${departmentId}:${processType}` 复合键；推移表查找时将 CssMap 值经 `toApiDepartmentCode`/`toApiProcessType` 转为接口格式后拼键读取，未命中的 (部门,工序) 组合回退自然周。 |
 
+## 卡片刷新与缓存
+
+- 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，生产计划实绩推移使用 `schedulePlanCache`/`scheduleOutputCache`，键均为当前月 `YYYY-MM`。
+- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移与生产计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，loader 内部 `invalidateInboundScheduleRecords(month)`/`invalidateProductionScheduleRecords(month)` 清除当月缓存后才会重新请求接口；否则命中同月缓存，刷新表现为不生效。
+- `invalidateDepartmentDashboardCache`/`invalidateProcessDashboardCache` 只清除整页 sessionStorage 缓存，不清除上述月级 schedule 记录缓存，因此不能替代 `forceRefresh`。
+- 新增基于月级 schedule 缓存的推移卡片时，需同时补充对应的 `invalidate*ScheduleRecords(month)` 并在 `refreshCard` 中传 `forceRefresh: true`，否则刷新按钮不生效。
+
 ## 左侧 css-map
 
 | 地图信息 | 接口 | 字段 | 当前处理 |
@@ -70,8 +77,8 @@
 
 | 行 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 间接在籍人数 | `GET /attendance/monthlyAttendanceSituation` | `indirectSchedulePersonCount` | 后端按日返回，前端按月/周/日聚合，聚合值取有效日平均。 |
-| 直接在籍人数 | 同上 | `directSchedulePersonCount` | 同上。 |
+| 间接在籍人数 | `GET /attendance/monthlyAttendanceSituation` | `indirectSchedulePersonCount` | 后端按日返回，前端按月/周/日聚合，月/周聚合值取该指标不为 0 的有效日平均，无有效日返回空。 |
+| 直接在籍人数 | 同上 | `directSchedulePersonCount` | 同上：月/周聚合取该指标不为 0 的有效日平均。 |
 | 直接出勤人数 | 同上 | `directAttendancePersonCount` | 日列直接展示；月/周聚合取平均时剔除直接出勤人数为 0 的日，分母为直接出勤人数不为 0 的天数。 |
 | 直接实际出勤率 | 同上 | `directAttendanceRate` 或前端聚合计算 | 日列直接按当天值计算；月/周聚合时剔除直接出勤人数为 0 的日，再用 `直接出勤合计 / 直接在籍合计`。 |
 | 利计出勤率 | 前端固定值 | 无接口字段 | 固定 91.0%；表格只在月列显示一个值，chart 显示 91.0% 红色目标线，并在线末端标注 `91%`。 |
@@ -99,7 +106,7 @@
 | 实绩计划差 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 - 计划`。 |
 | 生产达成率 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 / 计划`。 |
 
-显示规则：仅工序维度展示。表格保留月列，折线图不展示月列。
+显示规则：仅工序维度展示。表格保留月列，折线图不展示月列。折线图数值轴（计划/实绩生产数）自适应数据范围，不固定上限，由 ECharts 依当前周/日数据自动计算刻度；生产达成率轴仍固定 0–120%。
 
 ## 未接入或空置字段
 

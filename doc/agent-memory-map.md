@@ -11,6 +11,7 @@
 | `src/api/http.ts`、`src/api/*`、`vite.config.ts`、`.env`、接口前缀/开发代理 | - | - | - | 更新接口统一前缀、开发代理 rewrite 或环境说明 | 生效 |
 | `src/pages/factory-dashboard/data/factoryDashboardLoader.ts`、部门/工序维度首页真实接口适配 | `doc/factory-dashboard-real-data-mapping.md`、`doc/department-api-gaps.md`、`doc/factory-dimensions.md` | - | - | 更新接口映射 doc、接口缺口 doc 或工厂维度 doc | 生效 |
 | `src/components/attendance-trend-card`、`出勤率推移表`、`loadAttendanceTrendCard` | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新出勤率推移表聚合口径、列展示规则或组件测试 | 生效 |
+| `src/components/department-inbound-plan-trend-card`、`src/components/process-production-plan-trend-card`、`loadInboundPlanTrendCard`、`loadProductionPlanTrendCard`、推移卡片月级缓存与 `forceRefresh` 刷新 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新卡片刷新与缓存说明或推移表口径 | 生效 |
 | `<module-path>` | `doc/<module-doc>.md` | `<spec-path>` | `<skill-name>` | 更新模块 doc/spec/skill | 生效 |
 
 ## 兜底策略

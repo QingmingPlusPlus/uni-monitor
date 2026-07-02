@@ -106,8 +106,6 @@ export const processProductionPlanTrendChartOptions: ChartOptionConfig = {
   yAxis: {
     type: "value",
     min: 0,
-    max: 8000,
-    interval: 2000,
     axisLabel: {
       color: palette.textSecondary,
       fontSize: 12,

@@ -717,14 +717,11 @@ interface AttendancePeriodValue {
 
 function aggregateAttendancePeriod(
   rows: readonly AttendanceTrendDailyRow[],
-  ignoreZeroDirectAttendanceDays = false,
+  excludeZeroDays = false,
 ): AttendancePeriodValue {
   const validRows = rows.filter((row) => (
     row.indirectCount > 0 || row.directCount > 0 || row.directAttendance > 0
   ))
-  const directAttendanceRows = ignoreZeroDirectAttendanceDays
-    ? validRows.filter((row) => row.directAttendance > 0)
-    : validRows
 
   if (validRows.length === 0) {
     return {
@@ -735,12 +732,27 @@ function aggregateAttendancePeriod(
     }
   }
 
+  // 月/周聚合：各人数指标取该指标不为 0 的有效日平均；日列直接取当天值
+  const indirectCountRows = excludeZeroDays
+    ? validRows.filter((row) => row.indirectCount > 0)
+    : validRows
+  const directCountRows = excludeZeroDays
+    ? validRows.filter((row) => row.directCount > 0)
+    : validRows
+  const directAttendanceRows = excludeZeroDays
+    ? validRows.filter((row) => row.directAttendance > 0)
+    : validRows
+
   const directCountSum = sumBy(directAttendanceRows, (row) => row.directCount)
   const directAttendanceSum = sumBy(directAttendanceRows, (row) => row.directAttendance)
 
   return {
-    indirectCount: Math.round(averageBy(validRows, (row) => row.indirectCount) ?? 0),
-    directCount: Math.round(averageBy(validRows, (row) => row.directCount) ?? 0),
+    indirectCount: indirectCountRows.length > 0
+      ? Math.round(averageBy(indirectCountRows, (row) => row.indirectCount) ?? 0)
+      : null,
+    directCount: directCountRows.length > 0
+      ? Math.round(averageBy(directCountRows, (row) => row.directCount) ?? 0)
+      : null,
     directAttendance: directAttendanceRows.length > 0
       ? Math.round(averageBy(directAttendanceRows, (row) => row.directAttendance) ?? 0)
       : null,
@@ -914,7 +926,7 @@ const scheduleOutputCache = new Map<string, Promise<readonly ScheduleMonthlyReco
 const scheduleRukuPlanCache = new Map<string, Promise<readonly ScheduleRukuPlanRecord[]>>()
 const scheduleRukuShijiCache = new Map<string, Promise<readonly ScheduleRukuShijiRecord[]>>()
 
-interface ProductionPlanTrendLoadOptions {
+interface ScheduleTrendLoadOptions {
   readonly forceRefresh?: boolean
 }
 
@@ -960,6 +972,11 @@ function loadScheduleOutputRecords(month: string): Promise<readonly ScheduleMont
 function invalidateProductionScheduleRecords(month: string): void {
   schedulePlanCache.delete(month)
   scheduleOutputCache.delete(month)
+}
+
+function invalidateInboundScheduleRecords(month: string): void {
+  scheduleRukuPlanCache.delete(month)
+  scheduleRukuShijiCache.delete(month)
 }
 
 function loadScheduleRukuPlanRecords(month: string): Promise<readonly ScheduleRukuPlanRecord[]> {
@@ -1240,10 +1257,15 @@ function createFlowTrendCard(params: {
 export async function loadInboundPlanTrendCard(
   department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
+  options: ScheduleTrendLoadOptions = {},
 ): Promise<FactoryDashboardCard | null> {
   if (processTypes.length === 0) return null
 
   const month = getCurrentMonthParam()
+  if (options.forceRefresh === true) {
+    invalidateInboundScheduleRecords(month)
+  }
+
   const [planRecords, actualRecords] = await Promise.all([
     loadScheduleRukuPlanRecords(month),
     loadScheduleRukuShijiRecords(month),
@@ -1277,7 +1299,7 @@ export async function loadInboundPlanTrendCard(
 export async function loadProductionPlanTrendCard(
   department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
-  options: ProductionPlanTrendLoadOptions = {},
+  options: ScheduleTrendLoadOptions = {},
 ): Promise<FactoryDashboardCard | null> {
   if (processTypes.length === 0) return null
 
