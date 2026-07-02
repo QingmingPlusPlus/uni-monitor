@@ -171,35 +171,89 @@ function indexByDeviceCode<T>(items: readonly T[], codeSelector: (item: T) => st
   return map
 }
 
+type DeviceActualStatus = 'normal' | 'running' | 'pause_running' | 'pause_not_running'
+
+const deviceActualStatusNames: Readonly<Record<string, DeviceActualStatus>> = {
+  正常: 'normal',
+  运行中: 'running',
+  运行暂停: 'pause_running',
+  未运行暂停: 'pause_not_running',
+}
+
+const deviceParseTypeNames: Readonly<Record<string, string>> = {
+  切替: 'CUT',
+  设备故障: 'DEVICE_CHANGE',
+  品质异常: 'QUALITY_CHECK',
+  待材料: 'MATERIAL_WAIT',
+  用餐: 'TOOL_CHANGE',
+  休息: 'REST',
+  新开机: 'STARTUP',
+  计划停止: 'SHUTDOWN',
+  清扫: 'CLEAN',
+  首摸不良: 'POOR_INITIAL_TOUCH',
+  清枪头: 'CLEAR_GUN_HEAD',
+}
+
+const plannedStopDeviceParseTypes = new Set([
+  'TOOL_CHANGE',
+  'DEVICE_TOOL_CHANGE',
+  'REST',
+  'DEVICE_REST',
+])
+
+function normalizeActualStatus(value: string | null | undefined): DeviceActualStatus | null {
+  const status = String(value ?? '').trim().toLowerCase()
+  if (
+    status === 'normal' ||
+    status === 'running' ||
+    status === 'pause_running' ||
+    status === 'pause_not_running'
+  ) {
+    return status
+  }
+
+  return null
+}
+
+function resolveActualStatus(item: DeviceRealtimeItem): DeviceActualStatus | null {
+  return (
+    normalizeActualStatus(item.actualStatus) ??
+    normalizeActualStatus(item.actualStatusName) ??
+    deviceActualStatusNames[String(item.actualStatusName ?? '').trim()] ??
+    null
+  )
+}
+
+function normalizeDeviceParseType(value: string | null | undefined): string {
+  return String(value ?? '').trim().toUpperCase()
+}
+
+function resolveDeviceParseType(item: DeviceRealtimeItem): string {
+  const parseType = normalizeDeviceParseType(item.deviceParseType)
+  if (parseType) return parseType
+
+  return deviceParseTypeNames[String(item.deviceParseTypeName ?? '').trim()] ?? ''
+}
+
+function mapPausedRealtimeStatus(item: DeviceRealtimeItem): CssMapDeviceStatus {
+  const parseType = resolveDeviceParseType(item)
+
+  if (parseType === 'CUT') return 'changeover'
+  if (parseType === 'CLEAN') return 'cleaning'
+  if (plannedStopDeviceParseTypes.has(parseType)) return 'plannedStop'
+
+  return 'abnormalStop'
+}
+
 function mapRealtimeStatus(item: DeviceRealtimeItem | undefined): CssMapDeviceStatus | null {
   if (item === undefined) return null
 
-  const rawStatus = [
-    item.actualStatus,
-    item.actualStatusName,
-    item.deviceStatus,
-    item.deviceStatusName,
-    item.deviceParseTypeName,
-  ].join(' ').toLowerCase()
+  const actualStatus = resolveActualStatus(item)
 
-  if (rawStatus.includes('异常') || rawStatus.includes('故障') || rawStatus.includes('error') || rawStatus.includes('abnormal') || rawStatus.includes('fault')) {
-    return 'abnormalStop'
-  }
-
-  if (rawStatus.includes('切替') || rawStatus.includes('change')) {
-    return 'changeover'
-  }
-
-  if (rawStatus.includes('清扫') || rawStatus.includes('clean')) {
-    return 'cleaning'
-  }
-
-  if (rawStatus.includes('暂停') || rawStatus.includes('停止') || rawStatus.includes('pause') || rawStatus.includes('stop') || rawStatus.includes('not_running')) {
-    return 'plannedStop'
-  }
-
-  if (rawStatus.includes('正常') || rawStatus.includes('运行') || rawStatus.includes('normal') || rawStatus.includes('running')) {
-    return 'production'
+  if (actualStatus === 'normal') return 'plannedStop'
+  if (actualStatus === 'running') return 'production'
+  if (actualStatus === 'pause_running' || actualStatus === 'pause_not_running') {
+    return mapPausedRealtimeStatus(item)
   }
 
   return 'neutral'
@@ -238,9 +292,9 @@ function createFiveMChange(record: ScheduleChangePointRecord, index: number): Cs
 function resolveAggregateStatus(statuses: readonly (CssMapDeviceStatus | null)[]): CssMapDeviceStatus | null {
   const ranking: readonly CssMapDeviceStatus[] = [
     'abnormalStop',
-    'plannedStop',
     'changeover',
     'cleaning',
+    'plannedStop',
     'production',
     'neutral',
   ]

@@ -16,7 +16,7 @@
 
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`actualStatusName`、`deviceStatus`、`deviceStatusName`、`deviceParseTypeName` | 优先使用实际状态字段，映射为运行、异常、计划停止、待机等状态。 |
+| 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 再按 `deviceParseType` 判断，`CUT` 显示切替，`CLEAN` 显示清扫，`TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |
 | 符合率 | `GET /schedule/getDeviceload` | `devCode`、`fuhe` | 按设备编码匹配；`fuhe` 视为 0-1 或百分比值，前端格式化为百分比。 |
 | 人员配置 | `GET /device/realtime/list` | `onlinePersonList` | 展示当前设备在线人员数量和人员信息。 |
 | 生产任务 | `GET /device/realtime/list` | `productionTaskList` | 作为地图设备实时信息补充。 |
