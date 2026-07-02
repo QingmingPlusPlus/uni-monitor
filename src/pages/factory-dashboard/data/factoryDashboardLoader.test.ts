@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getAttendanceDetailSituation } from '../../../api/attendance'
+import {
+  getAttendanceDetailSituation,
+  getMonthlyAttendanceSituation,
+} from '../../../api/attendance'
 import {
   getScheduleOutputByMonth,
   getSchedulePlanByMonth,
@@ -9,6 +12,7 @@ import {
 import { defaultCssMapSelectionConfig } from '../../../components/css-map/css3dMapSelection'
 import {
   createFactorySummaryData,
+  loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
 } from './factoryDashboardLoader'
@@ -145,6 +149,85 @@ describe('loadInboundPlanTrendCard', () => {
     expect(card.chartData?.xAxisData).toEqual(['1W', '2W', '1', '2', '3'])
     expect(card.modalTableData?.planInbound.day4).toBe(40)
     expect(card.modalTableData?.planInbound.day5).toBe(50)
+  })
+})
+
+describe('loadAttendanceTrendCard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 10, 8, 0, 0))
+    installSessionStorage({
+      '2:preprocessing': [
+        { segmentIndex: 1, startDay: 1, endDay: 7 },
+        { segmentIndex: 2, startDay: 8, endDay: 14 },
+      ],
+    })
+    vi.mocked(getMonthlyAttendanceSituation).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          {
+            statDate: '2026-07-01',
+            indirectSchedulePersonCount: 2,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 8,
+            directAttendanceRate: 80,
+          },
+          {
+            statDate: '2026-07-02',
+            indirectSchedulePersonCount: 2,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 0,
+            directAttendanceRate: 0,
+          },
+          {
+            statDate: '2026-07-03',
+            indirectSchedulePersonCount: 2,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 6,
+            directAttendanceRate: 60,
+          },
+          {
+            statDate: '2026-07-08',
+            indirectSchedulePersonCount: 2,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 0,
+            directAttendanceRate: 0,
+          },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getMonthlyAttendanceSituation>>)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.clearAllMocks()
+    Reflect.deleteProperty(globalThis, 'window')
+  })
+
+  it('月周直接出勤平均和出勤率剔除直接出勤为 0 的天', async () => {
+    const card = await loadAttendanceTrendCard('department2', ['pretreatment1'])
+
+    if (card === null) {
+      throw new Error('expected attendance trend card')
+    }
+
+    expect(getMonthlyAttendanceSituation).toHaveBeenCalledWith({
+      month: '2026-07',
+      department: '2',
+      processType: 'preprocessing',
+    })
+    expect(card.tableData.directCount.month).toBe(10)
+    expect(card.tableData.directAttendance.month).toBe(7)
+    expect(card.tableData.directRate.month).toBe(70)
+    expect(card.tableData.directAttendance.week1).toBe(7)
+    expect(card.tableData.directRate.week1).toBe(70)
+    expect(card.tableData.directAttendance.week2).toBeNull()
+    expect(card.tableData.directRate.week2).toBeNull()
+    expect(card.tableData.directAttendance.day8).toBe(0)
+    expect(card.tableData.directRate.day8).toBe(0)
   })
 })
 

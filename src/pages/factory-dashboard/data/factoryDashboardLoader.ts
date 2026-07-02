@@ -691,10 +691,16 @@ interface AttendancePeriodValue {
   readonly directRate: number | null
 }
 
-function aggregateAttendancePeriod(rows: readonly AttendanceTrendDailyRow[]): AttendancePeriodValue {
+function aggregateAttendancePeriod(
+  rows: readonly AttendanceTrendDailyRow[],
+  ignoreZeroDirectAttendanceDays = false,
+): AttendancePeriodValue {
   const validRows = rows.filter((row) => (
     row.indirectCount > 0 || row.directCount > 0 || row.directAttendance > 0
   ))
+  const directAttendanceRows = ignoreZeroDirectAttendanceDays
+    ? validRows.filter((row) => row.directAttendance > 0)
+    : validRows
 
   if (validRows.length === 0) {
     return {
@@ -705,14 +711,18 @@ function aggregateAttendancePeriod(rows: readonly AttendanceTrendDailyRow[]): At
     }
   }
 
-  const directCountSum = sumBy(validRows, (row) => row.directCount)
-  const directAttendanceSum = sumBy(validRows, (row) => row.directAttendance)
+  const directCountSum = sumBy(directAttendanceRows, (row) => row.directCount)
+  const directAttendanceSum = sumBy(directAttendanceRows, (row) => row.directAttendance)
 
   return {
     indirectCount: Math.round(averageBy(validRows, (row) => row.indirectCount) ?? 0),
     directCount: Math.round(averageBy(validRows, (row) => row.directCount) ?? 0),
-    directAttendance: Math.round(averageBy(validRows, (row) => row.directAttendance) ?? 0),
-    directRate: directCountSum > 0 ? Number(((directAttendanceSum / directCountSum) * 100).toFixed(1)) : null,
+    directAttendance: directAttendanceRows.length > 0
+      ? Math.round(averageBy(directAttendanceRows, (row) => row.directAttendance) ?? 0)
+      : null,
+    directRate: directAttendanceRows.length > 0 && directCountSum > 0
+      ? Number(((directAttendanceSum / directCountSum) * 100).toFixed(1))
+      : null,
   }
 }
 
@@ -783,6 +793,7 @@ function createAttendanceTrendCard(
   for (const period of allPeriods) {
     periodValues[period.key] = aggregateAttendancePeriod(
       getRowsForPeriod(dailyRows, processTypes, periods.segmentGroups, period),
+      period.kind !== 'day',
     )
   }
 

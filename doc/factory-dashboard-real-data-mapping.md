@@ -71,8 +71,8 @@
 | --- | --- | --- | --- |
 | 间接在籍人数 | `GET /attendance/monthlyAttendanceSituation` | `indirectSchedulePersonCount` | 后端按日返回，前端按月/周/日聚合，聚合值取有效日平均。 |
 | 直接在籍人数 | 同上 | `directSchedulePersonCount` | 同上。 |
-| 直接出勤人数 | 同上 | `directAttendancePersonCount` | 同上。 |
-| 直接实际出勤率 | 同上 | `directAttendanceRate` 或前端聚合计算 | 聚合时用 `直接出勤合计 / 直接在籍合计`。 |
+| 直接出勤人数 | 同上 | `directAttendancePersonCount` | 日列直接展示；月/周聚合取平均时剔除直接出勤人数为 0 的日，分母为直接出勤人数不为 0 的天数。 |
+| 直接实际出勤率 | 同上 | `directAttendanceRate` 或前端聚合计算 | 日列直接按当天值计算；月/周聚合时剔除直接出勤人数为 0 的日，再用 `直接出勤合计 / 直接在籍合计`。 |
 | 利计出勤率 | 前端固定值 | 无接口字段 | 固定 91.0%；表格只在月列显示一个值，chart 显示 91.0% 红色目标线。 |
 
 显示规则：月、周人数聚合显示为整数；百分比统一显示一位小数。
