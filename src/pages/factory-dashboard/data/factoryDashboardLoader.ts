@@ -337,7 +337,19 @@ function getAttendanceShiftText(vo: CurrentAttendanceStatisticsVO): string {
   return vo.shiftTypeName || vo.shiftType || ''
 }
 
-function sumDirectPosition(
+function isPositionType(position: CurrentAttendanceStatisticsVO, type: ApiPositionType): boolean {
+  return (position.positionType as ApiPositionType) === type
+}
+
+function isClassLeaderPosition(position: CurrentAttendanceStatisticsVO): boolean {
+  return (position.positionName ?? '').includes('班长')
+}
+
+function isDirectGroupLeader(positionName: string): boolean {
+  return positionName.includes('组长')
+}
+
+function sumPositionRoster(
   positions: readonly CurrentAttendanceStatisticsVO[],
   matcher: (positionName: string) => boolean,
 ): number {
@@ -351,11 +363,10 @@ function sumDirectPosition(
  * 将按职务的扁平行聚合为出勤卡所需结构。
  *
  * 接口返回 (shiftType, positionType, positionName, schedulePersonCount, actualAttendancePersonCount)。
- * 卡片需要按工序族分组的 (indirectDirectRoster, directTeamLeader, directRegular, ...) 明细。
+ * 卡片需要按工序族分组的 (indirectDirectRoster, indirectLeaderRoster, directTeamLeader, ...) 明细。
  *
- * 接口不提供 teamLeader/regular/dispatched/temporary/standby 的拆分，
- * 因此把同工序族同班次的 direct 明细合并到 directRegular，其余明细置 0。
- * indirect 行合并到 indirectDirectRoster。
+ * 接口不提供稳定的人员子类枚举，因此按 positionName 中文关键词拆分。
+ * 班长按间接口径展示；组长、派遣、临时、顶岗从直接在籍中拆分。
  */
 function aggregateAttendanceRows(
   vos: readonly CurrentAttendanceStatisticsVO[],
@@ -377,17 +388,21 @@ function aggregateAttendanceRows(
   for (const [shiftType, positions] of shiftGroups) {
     const shift = mapShiftType(shiftType)
     const shiftLabel = voShiftLabel(shiftType)
-    const directPositions = positions.filter((p) => (p.positionType as ApiPositionType) === 'direct')
-    const indirectPositions = positions.filter((p) => (p.positionType as ApiPositionType) === 'indirect')
+    const directPositions = positions.filter((p) => isPositionType(p, 'direct') && !isClassLeaderPosition(p))
+    const indirectPositions = positions.filter((p) => isPositionType(p, 'indirect') || isClassLeaderPosition(p))
+    const classLeaderPositions = positions.filter(isClassLeaderPosition)
 
-    const indirectDirectRoster = sumBy(indirectPositions, (p) => p.schedulePersonCount)
-    const indirectLeaderAttendance = sumBy(indirectPositions, (p) => p.actualAttendancePersonCount)
+    const indirectRosterTotal = sumBy(indirectPositions, (p) => p.schedulePersonCount)
+    const indirectAttendanceTotal = sumBy(indirectPositions, (p) => p.actualAttendancePersonCount)
+    const indirectLeaderRoster = sumBy(classLeaderPositions, (p) => p.schedulePersonCount)
+    const indirectLeaderAttendance = sumBy(classLeaderPositions, (p) => p.actualAttendancePersonCount)
     const directRosterTotal = sumBy(directPositions, (p) => p.schedulePersonCount)
     const actualAttendance = sumBy(directPositions, (p) => p.actualAttendancePersonCount)
-    const directTeamLeader = sumDirectPosition(directPositions, (name) => name.includes('班长') || name.includes('组长'))
-    const directDispatched = sumDirectPosition(directPositions, (name) => name.includes('派遣'))
-    const directTemporary = sumDirectPosition(directPositions, (name) => name.includes('临时'))
-    const directStandby = sumDirectPosition(directPositions, (name) => name.includes('顶岗'))
+    const indirectDirectRoster = indirectRosterTotal + directRosterTotal
+    const directTeamLeader = sumPositionRoster(directPositions, isDirectGroupLeader)
+    const directDispatched = sumPositionRoster(directPositions, (name) => name.includes('派遣'))
+    const directTemporary = sumPositionRoster(directPositions, (name) => name.includes('临时'))
+    const directStandby = sumPositionRoster(directPositions, (name) => name.includes('顶岗'))
     const knownDirectRoster = directTeamLeader + directDispatched + directTemporary + directStandby
 
     rows.push({
@@ -395,7 +410,9 @@ function aggregateAttendanceRows(
       shift,
       shiftLabel,
       indirectDirectRoster,
-      indirectLeaderRoster: 0,
+      indirectRosterTotal,
+      indirectAttendanceTotal,
+      indirectLeaderRoster,
       indirectLeaderAttendance,
       directTeamLeader,
       directRegular: Math.max(0, directRosterTotal - knownDirectRoster),
@@ -425,6 +442,8 @@ function createAttendanceSummaryRow(
     shift,
     shiftLabel,
     indirectDirectRoster: rows.reduce((total, row) => total + row.indirectDirectRoster, 0),
+    indirectRosterTotal: rows.reduce((total, row) => total + row.indirectRosterTotal, 0),
+    indirectAttendanceTotal: rows.reduce((total, row) => total + (row.indirectAttendanceTotal ?? 0), 0),
     indirectLeaderRoster: rows.reduce((total, row) => total + row.indirectLeaderRoster, 0),
     indirectLeaderAttendance: rows.reduce((total, row) => total + (row.indirectLeaderAttendance ?? 0), 0),
     directTeamLeader: rows.reduce((total, row) => total + row.directTeamLeader, 0),
@@ -1394,8 +1413,8 @@ function getAttendanceTotals(data: PersonnelAttendanceData): {
   return {
     directRoster: sumBy(detailRows, (row) => row.directRosterTotal),
     directAttendance: sumBy(detailRows, (row) => row.actualAttendance),
-    indirectRoster: sumBy(detailRows, (row) => row.indirectDirectRoster),
-    indirectAttendance: sumBy(detailRows, (row) => row.indirectLeaderAttendance ?? 0),
+    indirectRoster: sumBy(detailRows, (row) => row.indirectRosterTotal),
+    indirectAttendance: sumBy(detailRows, (row) => row.indirectAttendanceTotal ?? 0),
   }
 }
 

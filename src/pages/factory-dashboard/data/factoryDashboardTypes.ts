@@ -58,6 +58,8 @@ export interface PersonnelAttendanceRow {
   readonly shift: PersonnelAttendanceShift
   readonly shiftLabel: string
   readonly indirectDirectRoster: number
+  readonly indirectRosterTotal: number
+  readonly indirectAttendanceTotal: number | null
   readonly indirectLeaderRoster: number
   readonly indirectLeaderAttendance: number | null
   readonly directTeamLeader: number

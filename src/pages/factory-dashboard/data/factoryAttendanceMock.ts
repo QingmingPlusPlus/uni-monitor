@@ -48,10 +48,14 @@ function createTemplate(
   directRosterTotal: number,
   actualAttendance: number,
 ): AttendanceTemplate {
+  const indirectRosterTotal = Math.max(0, indirectDirectRoster - directRosterTotal)
+
   return {
     shift,
     shiftLabel,
     indirectDirectRoster,
+    indirectRosterTotal,
+    indirectAttendanceTotal: indirectLeaderAttendance,
     indirectLeaderRoster,
     indirectLeaderAttendance,
     directTeamLeader,
@@ -116,6 +120,8 @@ function createSummaryRow(
     shift,
     shiftLabel,
     indirectDirectRoster: rows.reduce((total, row) => total + row.indirectDirectRoster, 0),
+    indirectRosterTotal: rows.reduce((total, row) => total + row.indirectRosterTotal, 0),
+    indirectAttendanceTotal: sumNullable(rows.map((row) => row.indirectAttendanceTotal)),
     indirectLeaderRoster: rows.reduce((total, row) => total + row.indirectLeaderRoster, 0),
     indirectLeaderAttendance: sumNullable(rows.map((row) => row.indirectLeaderAttendance)),
     directTeamLeader: rows.reduce((total, row) => total + row.directTeamLeader, 0),

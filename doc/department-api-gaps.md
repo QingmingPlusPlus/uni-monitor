@@ -33,8 +33,8 @@
 | --- | --- | --- |
 | `GET /schedule/getRukuPlan` 仍只有 `month` 查询条件，返回字段中没有 `shebei` 或 `processType` | 工序维度入库计划实绩推移表 | 前端可按 `dept` 过滤到当前工序所属部门，但无法把计划严格拆到单个工序。信息汇总不区分维度，取全量合计，不受此缺口影响。 |
 | `GET /schedule/getRukuShiji` 只有 `month` 查询条件，没有 `processType` | 工序维度入库计划实绩推移表 | 前端按 `dept` 过滤到当前工序所属部门；如后续需要单工序口径，后端需补充工序字段或稳定设备范围。信息汇总不区分维度，取全量合计，不受此缺口影响。 |
-| 人员出勤接口没有稳定的 `teamLeader`、正式工、派遣工、临时工、顶岗等结构化字段 | 人员出勤情况 | 前端按 `positionName` 中文关键词拆分；班长/组长合并到 `directTeamLeader`。 |
-| 人员出勤接口缺少人员子类明细时的严格枚举 | 人员出勤情况 | 未匹配到的直接人员计入 `directRegular`；间接人员合并到 `indirectDirectRoster`。 |
+| 人员出勤接口没有稳定的 `teamLeader`、正式工、派遣工、临时工、顶岗等结构化字段 | 人员出勤情况 | 前端按 `positionName` 中文关键词拆分；班长归入间接班长列，组长归入直接组长列。 |
+| 人员出勤接口缺少人员子类明细时的严格枚举 | 人员出勤情况 | 未匹配到的直接人员计入 `directRegular`；`间接+直接在籍` 由本行间接总在籍与直接在籍合计相加得出。 |
 | 人员明细接口中的 `attendanceSituation`、`ability`、`shiftName` 是自由文本 | 人员明细及状态 | 前端使用中文关键词映射；`attendanceStatus` 作为出勤状态原样显示。 |
 | `GET /schedule/getChangePoint` 当前返回空数组 | 地图变化点 | 地图不显示变化点标记；接口有数据后按 `device` 和 `type` 自动展示。 |
 | 月周配置接口部分 (部门,工序) 组合在 2026-06 返回空配置 | 所有推移表 | 前端按 `departmentId:processType` 复合键查找；未命中的组合回退到自然周分段，仍保持月/周/日汇总逻辑。 |

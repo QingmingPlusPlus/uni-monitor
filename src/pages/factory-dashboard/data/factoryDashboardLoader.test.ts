@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   getAttendanceDetailSituation,
+  getAttendanceSituation,
   getMonthlyAttendanceSituation,
 } from '../../../api/attendance'
 import { getDeviceRealtimeList } from '../../../api/deviceRealtime'
@@ -14,6 +15,7 @@ import {
 import { defaultCssMapSelectionConfig } from '../../../components/css-map/css3dMapSelection'
 import {
   createFactorySummaryData,
+  loadAttendanceCard,
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
@@ -156,6 +158,112 @@ describe('loadProductionActivityData', () => {
       runningCount: 3,
       abnormalCount: 1,
       plannedStopCount: 1,
+    })
+  })
+})
+
+describe('loadAttendanceCard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 1, 8, 0, 0))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.clearAllMocks()
+  })
+
+  it('班长归入间接，组长归入直接，首列显示间接和直接在籍加和', async () => {
+    vi.mocked(getAttendanceSituation).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          {
+            shiftType: 'day',
+            shiftTypeName: '早班',
+            positionId: 'leader-direct',
+            positionName: '班长',
+            schedulePersonCount: 2,
+            actualAttendancePersonCount: 2,
+            positionType: 'direct',
+          },
+          {
+            shiftType: 'day',
+            shiftTypeName: '早班',
+            positionId: 'leader-indirect',
+            positionName: '间接班长',
+            schedulePersonCount: 1,
+            actualAttendancePersonCount: 1,
+            positionType: 'indirect',
+          },
+          {
+            shiftType: 'day',
+            shiftTypeName: '早班',
+            positionId: 'indirect-other',
+            positionName: '间接人员',
+            schedulePersonCount: 4,
+            actualAttendancePersonCount: 3,
+            positionType: 'indirect',
+          },
+          {
+            shiftType: 'day',
+            shiftTypeName: '早班',
+            positionId: 'group-leader',
+            positionName: '组长',
+            schedulePersonCount: 3,
+            actualAttendancePersonCount: 3,
+            positionType: 'direct',
+          },
+          {
+            shiftType: 'day',
+            shiftTypeName: '早班',
+            positionId: 'regular',
+            positionName: '正式工',
+            schedulePersonCount: 10,
+            actualAttendancePersonCount: 9,
+            positionType: 'direct',
+          },
+          {
+            shiftType: 'day',
+            shiftTypeName: '早班',
+            positionId: 'dispatched',
+            positionName: '派遣工',
+            schedulePersonCount: 2,
+            actualAttendancePersonCount: 1,
+            positionType: 'direct',
+          },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getAttendanceSituation>>)
+
+    const card = await loadAttendanceCard(
+      'department2',
+      ['vulcanization1'],
+      defaultCssMapSelectionConfig,
+      new Date(2026, 6, 1, 8, 0, 0),
+    )
+
+    expect(getAttendanceSituation).toHaveBeenCalledWith({
+      date: '2026-07-01',
+      department: '2',
+      processType: 'sulfur_addition',
+    })
+
+    const row = card.groups[0]?.rows.find((row) => row.shift === 'day')
+    expect(row).toMatchObject({
+      indirectDirectRoster: 22,
+      indirectRosterTotal: 7,
+      indirectAttendanceTotal: 6,
+      indirectLeaderRoster: 3,
+      indirectLeaderAttendance: 3,
+      directTeamLeader: 3,
+      directRegular: 10,
+      directDispatched: 2,
+      directRosterTotal: 15,
+      actualAttendance: 13,
+      attendanceRate: 86.7,
     })
   })
 })
@@ -384,16 +492,18 @@ describe('createFactorySummaryData', () => {
     shift: PersonnelAttendanceRow['shift'],
     directRosterTotal: number,
     actualAttendance: number,
-    indirectDirectRoster: number,
-    indirectLeaderAttendance: number | null,
+    indirectRosterTotal: number,
+    indirectAttendanceTotal: number | null,
   ): PersonnelAttendanceRow {
     return {
       id: `${shift}-row`,
       shift,
       shiftLabel: shift,
-      indirectDirectRoster,
+      indirectDirectRoster: indirectRosterTotal + directRosterTotal,
+      indirectRosterTotal,
+      indirectAttendanceTotal,
       indirectLeaderRoster: 0,
-      indirectLeaderAttendance,
+      indirectLeaderAttendance: indirectAttendanceTotal,
       directTeamLeader: 0,
       directRegular: directRosterTotal,
       directDispatched: 0,

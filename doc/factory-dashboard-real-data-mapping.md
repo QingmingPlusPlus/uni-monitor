@@ -50,9 +50,10 @@
 | 字段 | 接口 | 后端字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 班次 | `GET /attendance/attendanceSituation` | `shiftTypeName`、`shiftType` | 映射为早班、夜班、正常班和合计。 |
-| 间接+直接在籍、间接在籍、间接出勤 | 同上 | `positionType=indirect`、`schedulePersonCount`、`actualAttendancePersonCount` | 间接人员汇总到对应列。 |
-| 直接在籍细分 | 同上 | `positionType=direct`、`positionName`、`schedulePersonCount` | 按 `positionName` 关键词拆分班长/组长、派遣、临时、顶岗；剩余计入正式工。 |
-| 实际出勤人数 | 同上 | `actualAttendancePersonCount` | 汇总直接人员实际出勤。 |
+| 间接+直接在籍 | 同上 | `schedulePersonCount` | 前端派生为本行间接总在籍 + 直接在籍合计。 |
+| 间接班长在籍、间接班长出勤 | 同上 | `positionType=indirect` 或 `positionName` 包含 `班长`、`schedulePersonCount`、`actualAttendancePersonCount` | 班长按间接口径展示；若接口把班长标为 direct，前端仍归入间接。 |
+| 直接在籍细分 | 同上 | `positionType=direct`、`positionName`、`schedulePersonCount` | 直接人员排除班长；按 `positionName` 关键词拆分组长、派遣、临时、顶岗；剩余计入正式工。 |
+| 实际出勤人数 | 同上 | `actualAttendancePersonCount` | 汇总直接人员实际出勤，班长不计入直接出勤。 |
 | 出勤率 | 同上 | 由前端计算 | `直接实际出勤 / 直接在籍合计`。 |
 
 ## 人员明细及状态
