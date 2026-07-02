@@ -96,30 +96,6 @@
   border-right: 0;
 }
 
-.personnel-detail-table__cell--status {
-  font-weight: 800;
-}
-
-.personnel-detail-table__cell--status-present {
-  color: var(--um-color-success);
-  background: var(--um-color-success-soft);
-}
-
-.personnel-detail-table__cell--status-leave {
-  color: var(--um-color-warning);
-  background: var(--um-color-warning-soft);
-}
-
-.personnel-detail-table__cell--status-travel {
-  color: var(--um-color-operation);
-  background: var(--um-color-operation-soft);
-}
-
-.personnel-detail-table__cell--status-absent {
-  color: var(--um-color-danger);
-  background: var(--um-color-danger-soft);
-}
-
 @media (min-width: 768px) {
   .personnel-detail-grid__table-wrap {
     border-radius: 8px;

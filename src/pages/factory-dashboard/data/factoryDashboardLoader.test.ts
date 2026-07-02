@@ -439,7 +439,7 @@ describe('loadPersonnelDetailCard', () => {
     vi.clearAllMocks()
   })
 
-  it('出勤状态原样显示 attendanceStatus 字段', async () => {
+  it('出勤情况和出勤状态原样显示接口字段', async () => {
     vi.mocked(getAttendanceDetailSituation).mockResolvedValue({
       data: {
         success: true,
@@ -452,7 +452,7 @@ describe('loadPersonnelDetailCard', () => {
             realName: '测试人员',
             positionName: '正式工',
             workTypeName: '操作工',
-            attendanceSituation: '出勤',
+            attendanceSituation: '公出（客户支援）',
             attendanceStatus: '本岗-新人',
             ability: 'A',
             workHourList: [{ workHourType: '定时', workHour: '8h00min' }],
@@ -473,6 +473,7 @@ describe('loadPersonnelDetailCard', () => {
       department: '2',
       processType: 'sulfur_addition',
     })
+    expect(card.rows[0]?.attendanceStatusLabel).toBe('公出（客户支援）')
     expect(card.rows[0]?.attendanceStateLabel).toBe('本岗-新人')
   })
 })

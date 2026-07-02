@@ -21,7 +21,7 @@
           <text :class="getCellClass(row, 'name')">{{ row.name }}</text>
           <text :class="getCellClass(row, 'text')">{{ row.position }}</text>
           <text :class="getCellClass(row, 'text')">{{ row.jobType }}</text>
-          <text :class="getStatusCellClass(row)">{{ row.attendanceStatusLabel }}</text>
+          <text :class="getCellClass(row, 'text')">{{ row.attendanceStatusLabel }}</text>
           <text :class="getCellClass(row, 'text')">{{ row.attendanceStateLabel }}</text>
           <text :class="getCellClass(row, 'capability')">{{ row.capability }}</text>
           <text v-show="!hideWorkingHours" :class="getCellClass(row, 'hours')">{{ row.workingHours }}</text>
@@ -33,14 +33,11 @@
 
 <script setup lang="ts">
 import type {
-  PersonnelDetailAttendanceStatus,
   PersonnelDetailData,
   PersonnelDetailRow,
 } from '../../data/personnelDetailMock'
 
 type DetailCellRole = 'shift' | 'code' | 'name' | 'text' | 'capability' | 'hours'
-
-type StatusTone = 'present' | 'leave' | 'travel' | 'absent'
 
 withDefaults(
   defineProps<{
@@ -54,29 +51,10 @@ withDefaults(
 
 const hideWorkingHours = true
 
-const statusToneMap: Readonly<Record<PersonnelDetailAttendanceStatus, StatusTone>> = {
-  present: 'present',
-  'annual-leave': 'leave',
-  'sick-leave': 'leave',
-  'personal-leave': 'leave',
-  'business-travel': 'travel',
-  absent: 'absent',
-}
-
 function getCellClass(row: PersonnelDetailRow, role: DetailCellRole): readonly (string | Readonly<Record<string, boolean>>)[] {
   return [
     'personnel-detail-table__cell',
     `personnel-detail-table__cell--${role}`,
-  ]
-}
-
-function getStatusCellClass(row: PersonnelDetailRow): readonly (string | Readonly<Record<string, boolean>>)[] {
-  const tone = statusToneMap[row.attendanceStatus]
-
-  return [
-    'personnel-detail-table__cell',
-    'personnel-detail-table__cell--status',
-    `personnel-detail-table__cell--status-${tone}`,
   ]
 }
 </script>

@@ -68,14 +68,12 @@ import type {
   PersonnelAttendanceShift,
 } from './factoryDashboardTypes'
 import type {
-  PersonnelDetailAttendanceStatus,
   PersonnelDetailCapability,
   PersonnelDetailData,
   PersonnelDetailRow,
   PersonnelDetailShift,
 } from './personnelDetailMock'
 
-// 注：PersonnelDetail* 为 string union 类型，使用字面量值而非 enum 访问
 // 临时固定人员明细及状态查询日期，待后端当前日数据补齐后移除。
 // const TEMP_PERSONNEL_DETAIL_REQUEST_DATE = '2026-06-29'
 
@@ -1499,27 +1497,6 @@ function getCurrentAttendanceShift(now = new Date()): PersonnelAttendanceShift {
 // #4 人员明细适配：AttendanceDetailSituationVO[] → PersonnelDetailRow[]
 // ---------------------------------------------------------------------------
 
-function mapAttendanceStatus(situation: string): PersonnelDetailAttendanceStatus {
-  if (situation.includes('年假')) return 'annual-leave'
-  if (situation.includes('病假')) return 'sick-leave'
-  if (situation.includes('事假')) return 'personal-leave'
-  if (situation.includes('出差') || situation.includes('公出')) return 'business-travel'
-  if (situation.includes('缺勤') || situation.includes('旷工')) return 'absent'
-  return 'present'
-}
-
-function attendanceStatusLabel(status: PersonnelDetailAttendanceStatus): string {
-  const map: Record<PersonnelDetailAttendanceStatus, string> = {
-    'present': '出勤',
-    'annual-leave': '年假',
-    'sick-leave': '病假',
-    'personal-leave': '事假',
-    'business-travel': '出差',
-    'absent': '缺勤',
-  }
-  return map[status]
-}
-
 function mapCapability(ability: string): PersonnelDetailCapability {
   if (ability === 'A' || ability === 'a') return 'A'
   if (ability === 'B' || ability === 'b') return 'B'
@@ -1540,8 +1517,6 @@ function mapDetailRow(vo: AttendanceDetailSituationVO, index: number): Personnel
       ? 'day'
       : 'regular'
 
-  const status = mapAttendanceStatus(vo.attendanceSituation ?? '')
-
   return {
     id: `detail-${index + 1}`,
     shift,
@@ -1550,8 +1525,7 @@ function mapDetailRow(vo: AttendanceDetailSituationVO, index: number): Personnel
     name: vo.realName ?? '',
     position: vo.positionName ?? '',
     jobType: vo.workTypeName ?? '',
-    attendanceStatus: status,
-    attendanceStatusLabel: attendanceStatusLabel(status),
+    attendanceStatusLabel: vo.attendanceSituation ?? '',
     attendanceStateLabel: vo.attendanceStatus ?? '',
     capability: mapCapability(vo.ability ?? ''),
     workingHours: formatWorkHours(vo),

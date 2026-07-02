@@ -61,7 +61,7 @@
 | 列 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 班次、工号、姓名、职务、工种 | `GET /attendance/attendanceDetailSituation` | `shiftName`、`workNo`、`name`、`positionName`、`workTypeName` | 直接展示或按空值兜底。 |
-| 出勤情况 | 同上 | `attendanceSituation` | 直接展示。 |
+| 出勤情况 | 同上 | `attendanceSituation` | 原样显示接口返回文本，不做关键词映射。 |
 | 出勤状态 | 同上 | `attendanceStatus` | 原样显示接口返回文本，不再做关键词映射。 |
 | 能力 | 同上 | `ability` | 映射为 A/B/C，缺失时默认 B。 |
 | 工时 | 同上 | `workHourList[].workHourType`、`workHourList[].workHour` | 拼接为单列文本。 |

@@ -1,13 +1,5 @@
 export type PersonnelDetailShift = 'day' | 'night' | 'regular'
 
-export type PersonnelDetailAttendanceStatus =
-  | 'present'
-  | 'annual-leave'
-  | 'sick-leave'
-  | 'personal-leave'
-  | 'business-travel'
-  | 'absent'
-
 export type PersonnelDetailCapability = 'A' | 'B' | 'C'
 
 export interface PersonnelDetailRow {
@@ -18,7 +10,6 @@ export interface PersonnelDetailRow {
   readonly name: string
   readonly position: string
   readonly jobType: string
-  readonly attendanceStatus: PersonnelDetailAttendanceStatus
   readonly attendanceStatusLabel: string
   readonly attendanceStateLabel: string
   readonly capability: PersonnelDetailCapability
@@ -48,7 +39,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '张三',
     position: '班长',
     jobType: '班长',
-    attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
     attendanceStateLabel: '管理',
     capability: 'A',
@@ -62,7 +52,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '李四',
     position: '组长',
     jobType: '组长',
-    attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
     attendanceStateLabel: '作业',
     capability: 'A',
@@ -76,7 +65,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '王五',
     position: '正式工',
     jobType: '操作工',
-    attendanceStatus: 'annual-leave',
     attendanceStatusLabel: '年假',
     attendanceStateLabel: '-',
     capability: 'B',
@@ -90,7 +78,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '赵六',
     position: '正式工',
     jobType: '操作工',
-    attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
     attendanceStateLabel: '作业',
     capability: 'B',
@@ -104,7 +91,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '孙七',
     position: '派遣工',
     jobType: '装配工',
-    attendanceStatus: 'sick-leave',
     attendanceStatusLabel: '病假',
     attendanceStateLabel: '-',
     capability: 'C',
@@ -118,7 +104,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '周八',
     position: '正式工',
     jobType: '操作工',
-    attendanceStatus: 'present',
     attendanceStatusLabel: '出勤',
     attendanceStateLabel: '顶岗',
     capability: 'A',
@@ -132,7 +117,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '吴九',
     position: '临时工',
     jobType: '装配工',
-    attendanceStatus: 'personal-leave',
     attendanceStatusLabel: '事假',
     attendanceStateLabel: '-',
     capability: 'C',
@@ -146,7 +130,6 @@ const mockRows: readonly PersonnelDetailRow[] = [
     name: '郑十',
     position: '正式工',
     jobType: '操作工',
-    attendanceStatus: 'business-travel',
     attendanceStatusLabel: '出差',
     attendanceStateLabel: '-',
     capability: 'B',
