@@ -117,12 +117,12 @@ function clearProcess(): void {
 .css-map-toolbar {
   position: absolute;
   top: 18px;
-  right: 18px;
+  left: 18px;
   z-index: 4;
   display: flex;
   max-width: calc(100% - 36px);
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 12px;
 }
 
@@ -201,7 +201,8 @@ function clearProcess(): void {
 @media (max-width: 900px) {
   .css-map-toolbar {
     left: 12px;
-    right: 12px;
+    right: auto;
+    max-width: calc(100% - 64px);
     flex-wrap: wrap;
   }
 

@@ -66,7 +66,7 @@ describe('loadInboundPlanTrendCard', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 6, 1, 8, 0, 0))
     installSessionStorage({
-      pretreatment1: [
+      '2:preprocessing': [
         { segmentIndex: 1, startDay: 1, endDay: 5 },
         { segmentIndex: 2, startDay: 6, endDay: 12 },
       ],

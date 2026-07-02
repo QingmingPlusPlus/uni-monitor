@@ -37,7 +37,7 @@
 | 人员出勤接口缺少人员子类明细时的严格枚举 | 人员出勤情况 | 未匹配到的直接人员计入 `directRegular`；间接人员合并到 `indirectDirectRoster`。 |
 | 人员明细接口中的 `attendanceSituation`、`ability`、`shiftName` 是自由文本 | 人员明细及状态 | 前端使用中文关键词映射；`attendanceStatus` 作为出勤状态原样显示。 |
 | `GET /schedule/getChangePoint` 当前返回空数组 | 地图变化点 | 地图不显示变化点标记；接口有数据后按 `device` 和 `type` 自动展示。 |
-| 月周配置接口部分工序在 2026-06 返回空配置 | 所有推移表 | 前端回退到自然周分段，仍保持月/周/日汇总逻辑。 |
+| 月周配置接口部分 (部门,工序) 组合在 2026-06 返回空配置 | 所有推移表 | 前端按 `departmentId:processType` 复合键查找；未命中的组合回退到自然周分段，仍保持月/周/日汇总逻辑。 |
 
 ## 建议后端扩展
 

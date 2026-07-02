@@ -582,18 +582,25 @@ function createWeekKey(segmentIndex: number): string {
   return `week${segmentIndex}`
 }
 
-function resolveProcessSegments(processTypes: readonly CssMapProcessValue[]): readonly (readonly SegmentVO[])[] | null {
+function resolveProcessSegments(
+  department: CssMapDepartmentValue,
+  processTypes: readonly CssMapProcessValue[],
+): readonly (readonly SegmentVO[])[] | null {
+  const departmentCode = toApiDepartmentCode(department)
   const segmentGroups: (readonly SegmentVO[])[] = []
   for (const processType of processTypes) {
-    const segments = getProcessSegments(processType)
+    const segments = getProcessSegments(departmentCode, toApiProcessType(processType))
     if (segments === null) return null
     segmentGroups.push(segments)
   }
   return segmentGroups
 }
 
-function createTrendPeriods(processTypes: readonly CssMapProcessValue[]): TrendPeriods | null {
-  const segmentGroups = resolveProcessSegments(processTypes)
+function createTrendPeriods(
+  department: CssMapDepartmentValue,
+  processTypes: readonly CssMapProcessValue[],
+): TrendPeriods | null {
+  const segmentGroups = resolveProcessSegments(department, processTypes)
   if (segmentGroups === null) return null
 
   const lastDayOfMonth = getLastDayOfCurrentMonth()
@@ -756,10 +763,11 @@ function createAttendanceTrendRows(): readonly TableRowConfig[] {
 }
 
 function createAttendanceTrendCard(
+  department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
   dailyRows: readonly AttendanceTrendDailyRow[],
 ): FactoryDashboardCard | null {
-  const periods = createTrendPeriods(processTypes)
+  const periods = createTrendPeriods(department, processTypes)
   if (periods === null) return null
 
   const allPeriods = [...periods.inlinePeriods, ...periods.modalPeriods]
@@ -833,7 +841,7 @@ export async function loadAttendanceTrendCard(
     }),
   )
 
-  return createAttendanceTrendCard(processTypes, dailyRows)
+  return createAttendanceTrendCard(department, processTypes, dailyRows)
 }
 
 // ---------------------------------------------------------------------------
@@ -1134,13 +1142,14 @@ function createFlowTrendCard(params: {
   readonly id: string
   readonly title: string
   readonly subtitle: string
+  readonly department: CssMapDepartmentValue
   readonly processTypes: readonly CssMapProcessValue[]
   readonly dailyRows: readonly FlowDailyRow[]
   readonly tableRows: readonly TableRowConfig[]
   readonly chartOptions: ChartOptionConfig
   readonly keys: { readonly plan: string; readonly actual: string; readonly gap: string; readonly rate: string }
 }): FactoryDashboardCard | null {
-  const periods = createTrendPeriods(params.processTypes)
+  const periods = createTrendPeriods(params.department, params.processTypes)
   if (periods === null) return null
 
   const allPeriods = [...periods.inlinePeriods, ...periods.modalPeriods]
@@ -1195,6 +1204,7 @@ export async function loadInboundPlanTrendCard(
     subtitle: hasActual
       ? '按月、周及当前周工作日别汇总入库计划与实绩'
       : '按月、周及当前周工作日别汇总入库计划；当前月实绩接口暂无记录',
+    department,
     processTypes: [bucketProcessType],
     dailyRows,
     tableRows: departmentInboundPlanTrendRows,
@@ -1233,6 +1243,7 @@ export async function loadProductionPlanTrendCard(
     subtitle: hasActual
       ? '按月、周及当前周工作日别汇总生产计划与实绩'
       : '按月、周及当前周工作日别汇总生产计划；当前月实绩接口暂无记录',
+    department,
     processTypes,
     dailyRows,
     tableRows: [

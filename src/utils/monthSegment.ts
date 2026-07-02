@@ -7,8 +7,13 @@ const SUNDAY = 0
 /** sessionStorage 键前缀，按月拼后缀：uni-monitor:month-segment:<yyyy-MM> */
 const STORAGE_KEY_PREFIX = 'uni-monitor:month-segment:' as const
 
-/** session 中存储的已解析分段记录：processType → 分段数组（配置分段或预存自然周） */
+/** session 中存储的已解析分段记录：复合键 `${departmentId}:${processType}` → 分段数组（配置分段或预存自然周） */
 type SegmentRecord = Readonly<Record<string, readonly SegmentVO[]>>
+
+/** 拼接 sessionStorage 记录的复合键：`${departmentId}:${processType}` */
+export function buildSegmentKey(departmentId: string, processType: string): string {
+  return `${departmentId}:${processType}`
+}
 
 // ---------------------------------------------------------------------------
 // 自然周计算
@@ -131,6 +136,7 @@ function writeSessionRecord(monthKey: string, record: SegmentRecord): void {
 /**
  * 将 API 响应解析为已解析的分段记录。
  * segments 非空 → 存储配置分段；segments 为 null/空 → 存储自然周。
+ * 记录键为 `${departmentId}:${processType}` 复合键，支持同工序在不同部门下的差异化分段配置。
  */
 function resolveMonthSegmentResponse(
   response: readonly MonthSegmentBaseVO[],
@@ -139,10 +145,11 @@ function resolveMonthSegmentResponse(
 ): SegmentRecord {
   const record: Record<string, SegmentVO[]> = {}
   for (const vo of response) {
+    const key = buildSegmentKey(vo.departmentId, vo.processType)
     if (vo.segments !== null && vo.segments.length > 0) {
-      record[vo.processType] = [...vo.segments]
+      record[key] = [...vo.segments]
     } else {
-      record[vo.processType] = [...computeNaturalWeeks(year, month)]
+      record[key] = [...computeNaturalWeeks(year, month)]
     }
   }
   return record
@@ -200,13 +207,19 @@ async function doLoadMonthSegmentConfig(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 /**
- * 获取指定工序的分段配置。
+ * 获取指定部门+工序组合的分段配置。
  *
  * - session 键缺失 → 返回 null（API 未返回，消费方应显示加载图标）
- * - session 有键，工序在 record 中 → 返回存储的分段（配置或预存自然周）
- * - session 有键，工序不在 record 中 → 现算自然周返回（视为未配置）
+ * - session 有键，复合键在 record 中 → 返回存储的分段（配置或预存自然周）
+ * - session 有键，复合键不在 record 中 → 现算自然周返回（视为未配置）
+ *
+ * @param departmentId 接口科室编号（如 '2'）
+ * @param processType  接口工序类别（如 'preprocessing'）
  */
-export function getProcessSegments(processType: string): readonly SegmentVO[] | null {
+export function getProcessSegments(
+  departmentId: string,
+  processType: string,
+): readonly SegmentVO[] | null {
   const { year, month } = getCurrentYearMonth()
   const monthKey = buildMonthKey(year, month)
   const record = readSessionRecord(monthKey)
@@ -215,8 +228,9 @@ export function getProcessSegments(processType: string): readonly SegmentVO[] | 
     return null
   }
 
-  if (Object.hasOwn(record, processType)) {
-    return record[processType]
+  const segmentKey = buildSegmentKey(departmentId, processType)
+  if (Object.hasOwn(record, segmentKey)) {
+    return record[segmentKey]
   }
 
   return computeNaturalWeeks(year, month)

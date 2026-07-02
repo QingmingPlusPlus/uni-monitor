@@ -31,6 +31,8 @@ import { createAttendanceTrendCardData } from '../../../components/attendance-tr
 import { createDepartmentInboundPlanTrendCardData } from '../../../components/department-inbound-plan-trend-card/departmentInboundPlanTrendMock'
 import { createPersonnelDetailData } from './personnelDetailMock'
 import { getProcessSegments } from '../../../utils/monthSegment'
+import { toApiDepartmentCode, toApiProcessType } from './factoryDashboardLoader'
+import type { SegmentLookup } from '../../../utils/departmentTrendAggregation'
 import {
   processProductionPlanTrendChartData,
   processProductionPlanTrendChartOptions,
@@ -48,6 +50,17 @@ const percentFormatter = (value: string | number | null | undefined): string => 
 }
 
 const numberFormatter = new Intl.NumberFormat('en-US')
+
+/**
+ * 构造部门绑定的周分段查找函数，供推移表 mock 构建器使用。
+ * 将 CssMapProcessValue 经 toApiProcessType 转为接口工序类别，
+ * 与部门编号拼成复合键后从 sessionStorage 读取接口周分段配置。
+ */
+function createDepartmentSegmentLookup(department: CssMapDepartmentValue): SegmentLookup {
+  const departmentCode = toApiDepartmentCode(department)
+  return (processType: string) =>
+    getProcessSegments(departmentCode, toApiProcessType(processType as CssMapProcessValue))
+}
 
 const dashboardRows = [
   { key: 'plan', label: '计划' },
@@ -272,6 +285,7 @@ export function getDepartmentDashboardData(
   void monthSegmentVersion
   const label = getCssMapDepartmentLabel(value, selectionConfig)
   const processTypes = selectionConfig.departmentProcessMap[value]
+  const segmentLookup = createDepartmentSegmentLookup(value)
 
   return {
     kind: 'department',
@@ -282,8 +296,8 @@ export function getDepartmentDashboardData(
     summary: createFallbackSummary(label),
     activity: createFallbackActivity(label, processTypes, selectionConfig),
     attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
-    attendanceTrend: createAttendanceTrendCardData(processTypes, getProcessSegments),
-    inboundPlanTrend: createDepartmentInboundPlanTrendCardData(processTypes, getProcessSegments),
+    attendanceTrend: createAttendanceTrendCardData(processTypes, segmentLookup),
+    inboundPlanTrend: createDepartmentInboundPlanTrendCardData(processTypes, segmentLookup),
     personnelDetail: createPersonnelDetailData(refreshedAt),
     cards: [],
   }
@@ -295,11 +309,14 @@ export function getProcessDashboardData(
   refreshedAt: Date = new Date(),
 ): ProcessDashboardData {
   const label = getCssMapProcessLabel(value, selectionConfig)
-  const departmentLabel = Object.entries(selectionConfig.departmentProcessMap)
+  const departmentValue = Object.entries(selectionConfig.departmentProcessMap)
     .find(([, processTypes]) => processTypes.includes(value))?.[0] as CssMapDepartmentValue | undefined
-  const resolvedDepartmentLabel = departmentLabel === undefined
+  const resolvedDepartmentLabel = departmentValue === undefined
     ? label
-    : getCssMapDepartmentLabel(departmentLabel, selectionConfig)
+    : getCssMapDepartmentLabel(departmentValue, selectionConfig)
+  const segmentLookup: SegmentLookup = departmentValue === undefined
+    ? () => null
+    : createDepartmentSegmentLookup(departmentValue)
 
   return {
     kind: 'process',
@@ -310,8 +327,8 @@ export function getProcessDashboardData(
     summary: createFallbackSummary(label),
     activity: createFallbackActivity(resolvedDepartmentLabel, [value], selectionConfig),
     attendance: createProcessPersonnelAttendanceData(value, selectionConfig, refreshedAt),
-    attendanceTrend: createAttendanceTrendCardData([value], getProcessSegments),
-    inboundPlanTrend: createDepartmentInboundPlanTrendCardData([value], getProcessSegments),
+    attendanceTrend: createAttendanceTrendCardData([value], segmentLookup),
+    inboundPlanTrend: createDepartmentInboundPlanTrendCardData([value], segmentLookup),
     productionPlanTrend: createFallbackProductionTrend(),
     personnelDetail: createPersonnelDetailData(refreshedAt),
     cards: [],
