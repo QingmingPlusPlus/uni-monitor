@@ -1182,8 +1182,6 @@ function createProductionPlanTrendChartOptions(): ChartOptionConfig {
       {
         type: 'value',
         min: 0,
-        max: 120,
-        interval: 20,
         axisLabel: {
           color: '#566579',
           fontSize: 12,
