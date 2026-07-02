@@ -42,7 +42,6 @@ import {
 } from '../../../components/department-inbound-plan-trend-card/departmentInboundPlanTrendConfig'
 import {
   processProductionPlanTrendChartOptions,
-  processProductionPlanTrendRows,
 } from '../../../components/process-production-plan-trend-card/processProductionPlanTrendMock'
 import type {
   ChartDataConfig,
@@ -272,6 +271,14 @@ const refreshedAtFormatter = new Intl.DateTimeFormat('zh-CN', {
 function extractDayFromDate(dateStr: string): number {
   const parts = dateStr.split('-')
   return parts.length >= 3 ? Number(parts[2]) : 1
+}
+
+function extractDayFromScheduleRecord(record: ScheduleMonthlyRecord, fallbackDateKey: 'date' | 'workDate'): number | null {
+  const dateStr = record[fallbackDateKey] ?? record.date ?? record.workDate
+  if (typeof dateStr !== 'string' || dateStr.trim() === '') return null
+
+  const day = extractDayFromDate(dateStr)
+  return Number.isFinite(day) ? day : null
 }
 
 function sumBy<T>(items: readonly T[], selector: (item: T) => number): number {
@@ -907,6 +914,10 @@ const scheduleOutputCache = new Map<string, Promise<readonly ScheduleMonthlyReco
 const scheduleRukuPlanCache = new Map<string, Promise<readonly ScheduleRukuPlanRecord[]>>()
 const scheduleRukuShijiCache = new Map<string, Promise<readonly ScheduleRukuShijiRecord[]>>()
 
+interface ProductionPlanTrendLoadOptions {
+  readonly forceRefresh?: boolean
+}
+
 async function readScheduleRecords<T>(
   loader: () => Promise<{ readonly data?: { readonly data?: T[] | null } }>,
   label: string,
@@ -944,6 +955,11 @@ function loadSchedulePlanRecords(month: string): Promise<readonly ScheduleMonthl
 function loadScheduleOutputRecords(month: string): Promise<readonly ScheduleMonthlyRecord[]> {
   return getCachedScheduleRecords(scheduleOutputCache, month, () =>
     readScheduleRecords(() => getScheduleOutputByMonth(month), '生产实绩'))
+}
+
+function invalidateProductionScheduleRecords(month: string): void {
+  schedulePlanCache.delete(month)
+  scheduleOutputCache.delete(month)
 }
 
 function loadScheduleRukuPlanRecords(month: string): Promise<readonly ScheduleRukuPlanRecord[]> {
@@ -991,11 +1007,11 @@ function recordMatchesProcess(record: ScheduleMonthlyRecord, processType: CssMap
   const codeSet = scope.deviceCodeMap[processType]
   const normalizedCode = normalizeDeviceCode(record.shebei)
 
-  if (codeSet !== undefined && codeSet.size > 0) {
+  if (codeSet !== undefined && codeSet.size > 0 && normalizedCode) {
     return codeSet.has(normalizedCode)
   }
 
-  return record.dept === Number(toApiDepartmentCode(scope.department)) && record.process === toApiProcessLabel(processType)
+  return normalizeDeptCode(record.dept) === Number(toApiDepartmentCode(scope.department)) && record.process === toApiProcessLabel(processType)
 }
 
 function filterScheduleRecordsForScope(
@@ -1005,7 +1021,7 @@ function filterScheduleRecordsForScope(
   const matched: (ScheduleMonthlyRecord & { readonly processType: CssMapProcessValue })[] = []
 
   for (const record of records) {
-    if (record.dept !== Number(toApiDepartmentCode(scope.department))) continue
+    if (normalizeDeptCode(record.dept) !== Number(toApiDepartmentCode(scope.department))) continue
 
     const processType = scope.processTypes.find((item) => recordMatchesProcess(record, item, scope))
     if (processType === undefined) continue
@@ -1031,13 +1047,17 @@ function createDailyFlowRows(
 
   for (const record of planRecords) {
     if (!processTypes.includes(record.processType)) continue
-    const row = getRow(record.processType, extractDayFromDate(record.date))
+    const day = extractDayFromScheduleRecord(record, 'workDate')
+    if (day === null) continue
+    const row = getRow(record.processType, day)
     row.plan = (row.plan ?? 0) + (record.number ?? 0)
   }
 
   for (const record of actualRecords) {
     if (!processTypes.includes(record.processType)) continue
-    const row = getRow(record.processType, extractDayFromDate(record.date))
+    const day = extractDayFromScheduleRecord(record, 'date')
+    if (day === null) continue
+    const row = getRow(record.processType, day)
     row.actual = (row.actual ?? 0) + (record.number ?? 0)
   }
 
@@ -1257,13 +1277,19 @@ export async function loadInboundPlanTrendCard(
 export async function loadProductionPlanTrendCard(
   department: CssMapDepartmentValue,
   processTypes: readonly CssMapProcessValue[],
+  options: ProductionPlanTrendLoadOptions = {},
 ): Promise<FactoryDashboardCard | null> {
   if (processTypes.length === 0) return null
 
+  const month = getCurrentMonthParam()
+  if (options.forceRefresh === true) {
+    invalidateProductionScheduleRecords(month)
+  }
+
   const [deviceCodeMap, planRecords, actualRecords] = await Promise.all([
     loadProcessDeviceCodeMap(),
-    loadSchedulePlanRecords(getCurrentMonthParam()),
-    loadScheduleOutputRecords(getCurrentMonthParam()),
+    loadSchedulePlanRecords(month),
+    loadScheduleOutputRecords(month),
   ])
   const scope: ScheduleScope = { department, processTypes, deviceCodeMap }
   const dailyRows = createDailyFlowRows(
@@ -1283,7 +1309,8 @@ export async function loadProductionPlanTrendCard(
     processTypes,
     dailyRows,
     tableRows: [
-      ...processProductionPlanTrendRows,
+      { key: 'plan', label: '计划生产数' },
+      { key: 'actual', label: '实绩生产数', tone: 'success' },
       { key: 'gap', label: '实绩-计划', tone: 'muted' },
       { key: 'achievementRate', label: '生产达成率', formatter: percentFormatter },
     ],

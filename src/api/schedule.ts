@@ -11,13 +11,14 @@ export interface ScheduleWorkhoursParams {
 }
 
 export interface ScheduleMonthlyRecord {
-  date: string
-  shebei: string
+  date?: string
+  workDate?: string
+  shebei?: string
   number: number
-  process: string
+  process?: string
   zhifan: string
   banci: string
-  dept: number
+  dept?: number | string
 }
 
 export interface ScheduleDeviceLoadRecord {

@@ -20,6 +20,7 @@ import {
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
   loadProductionActivityData,
+  loadProductionPlanTrendCard,
 } from './factoryDashboardLoader'
 import type {
   PersonnelAttendanceData,
@@ -346,6 +347,131 @@ describe('loadInboundPlanTrendCard', () => {
     expect(card.chartData?.xAxisData).toEqual(['1W', '2W', '1', '2', '3'])
     expect(card.modalTableData?.planInbound.day4).toBe(40)
     expect(card.modalTableData?.planInbound.day5).toBe(50)
+  })
+})
+
+describe('loadProductionPlanTrendCard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 6, 1, 8, 0, 0))
+    installSessionStorage({
+      '2:sulfur_addition': [
+        { segmentIndex: 1, startDay: 1, endDay: 5 },
+        { segmentIndex: 2, startDay: 6, endDay: 12 },
+      ],
+    })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no device map in test')))
+
+    vi.mocked(getSchedulePlanByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { workDate: '2026-07-01', shebei: 'D1', number: 100, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+          { workDate: '2026-07-02', shebei: 'D2', number: 200, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+          { workDate: '2026-07-01', shebei: 'OTHER', number: 999, process: '后处理', zhifan: '', banci: 'day', dept: '2' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getSchedulePlanByMonth>>)
+    vi.mocked(getScheduleOutputByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-07-01', shebei: 'D1', number: 80, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+          { date: '2026-07-02', shebei: 'D2', number: 220, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+          { date: '2026-07-01', shebei: 'OTHER', number: 999, process: '后处理', zhifan: '', banci: 'day', dept: '2' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleOutputByMonth>>)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+    vi.clearAllMocks()
+    Reflect.deleteProperty(globalThis, 'window')
+  })
+
+  it('使用 getPlan 和 getOutput 生成计划生产数、实绩生产数和达成率', async () => {
+    const card = await loadProductionPlanTrendCard('department2', ['vulcanization1'], {
+      forceRefresh: true,
+    })
+
+    if (card === null) {
+      throw new Error('expected production plan trend card')
+    }
+
+    expect(getSchedulePlanByMonth).toHaveBeenCalledWith('2026-07')
+    expect(getScheduleOutputByMonth).toHaveBeenCalledWith('2026-07')
+    expect(card.tableRows.map((row) => row.label)).toEqual([
+      '计划生产数',
+      '实绩生产数',
+      '实绩-计划',
+      '生产达成率',
+    ])
+    expect(card.tableData.plan.day1).toBe(100)
+    expect(card.tableData.actual.day1).toBe(80)
+    expect(card.tableData.gap.day1).toBe(-20)
+    expect(card.tableData.achievementRate.day1).toBe(80)
+    expect(card.tableData.plan.week1).toBe(300)
+    expect(card.tableData.actual.week1).toBe(300)
+    expect(card.tableData.achievementRate.week1).toBe(100)
+    expect(card.chartData?.series?.map((series) => series.id)).toEqual([
+      'plan',
+      'actual',
+      'achievementRate',
+    ])
+  })
+
+  it('强制刷新时绕过同月生产计划和实绩缓存重新请求接口', async () => {
+    const firstCard = await loadProductionPlanTrendCard('department2', ['vulcanization1'], {
+      forceRefresh: true,
+    })
+
+    if (firstCard === null) {
+      throw new Error('expected first production plan trend card')
+    }
+
+    expect(firstCard.tableData.plan.day1).toBe(100)
+    expect(firstCard.tableData.actual.day1).toBe(80)
+
+    vi.mocked(getSchedulePlanByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { workDate: '2026-07-01', shebei: 'D1', number: 300, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getSchedulePlanByMonth>>)
+    vi.mocked(getScheduleOutputByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-07-01', shebei: 'D1', number: 270, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleOutputByMonth>>)
+
+    const refreshedCard = await loadProductionPlanTrendCard('department2', ['vulcanization1'], {
+      forceRefresh: true,
+    })
+
+    if (refreshedCard === null) {
+      throw new Error('expected refreshed production plan trend card')
+    }
+
+    expect(getSchedulePlanByMonth).toHaveBeenCalledTimes(2)
+    expect(getScheduleOutputByMonth).toHaveBeenCalledTimes(2)
+    expect(refreshedCard.tableData.plan.day1).toBe(300)
+    expect(refreshedCard.tableData.actual.day1).toBe(270)
+    expect(refreshedCard.tableData.achievementRate.day1).toBe(90)
   })
 })
 

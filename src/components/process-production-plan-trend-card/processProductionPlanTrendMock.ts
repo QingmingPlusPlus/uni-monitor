@@ -7,8 +7,8 @@ import type {
 } from "../table-chart-card/TableChartCard.types"
 
 export const processProductionPlanTrendRows = [
-  { key: "plan", label: "计划" },
-  { key: "actual", label: "实绩", tone: "success" },
+  { key: "plan", label: "计划生产数" },
+  { key: "actual", label: "实绩生产数", tone: "success" },
 ] as const satisfies readonly TableRowConfig[]
 
 export const processProductionPlanTrendColumns = [

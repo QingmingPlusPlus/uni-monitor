@@ -214,7 +214,9 @@ async function refreshCard(cardId: string): Promise<void> {
     }
 
     if (cardId === 'productionPlanTrend') {
-      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes)
+      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes, {
+        forceRefresh: true,
+      })
       if (productionPlanTrend !== null) {
         dashboardData.value = { ...base, productionPlanTrend }
       }
