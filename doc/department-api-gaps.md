@@ -7,7 +7,7 @@
 | 组件/能力 | 接口函数 | 端点 | 适配文件 |
 | --- | --- | --- | --- |
 | 地图设备实时状态、人员、任务 | `getDeviceRealtimeList` | `GET /device/realtime/list` | `src/components/css-map/css3dMapLiveData.ts`、`src/pages/factory-dashboard/data/factoryDashboardLoader.ts` |
-| 地图/汇总符合率 | `getScheduleDeviceLoadByMonth` | `GET /schedule/getDeviceload` | 同上 |
+| 地图负荷率 | `getScheduleDeviceLoadByMonth` | `GET /schedule/getDeviceload` | 同上 |
 | 地图 5M 变化点 | `getScheduleChangePoint` | `GET /schedule/getChangePoint` | `src/components/css-map/css3dMapLiveData.ts` |
 | 人员出勤情况 | `getAttendanceSituation` | `GET /attendance/attendanceSituation` | `src/pages/factory-dashboard/data/factoryDashboardLoader.ts` |
 | 出勤率推移表 | `getMonthlyAttendanceSituation` | `GET /attendance/monthlyAttendanceSituation` | 同上 |

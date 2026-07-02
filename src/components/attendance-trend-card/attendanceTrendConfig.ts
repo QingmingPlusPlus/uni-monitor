@@ -12,12 +12,17 @@ const percentFormatter = (value: string | number | null | undefined): string => 
   return typeof value === "string" ? value : "-"
 }
 
+const percentAxisLabelFormatter = (value: unknown): string => {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)}%` : ""
+}
+
 export const attendanceTrendRows = [
   { key: "indirectCount", label: "间接在籍人数" },
   { key: "directCount", label: "直接在籍人数" },
   { key: "directAttendance", label: "直接出勤人数" },
   { key: "directRate", label: "直接实际出勤率", formatter: percentFormatter },
-  { key: "targetRate", label: "利记出勤率", formatter: percentFormatter },
+  { key: "targetRate", label: "利计出勤率", formatter: percentFormatter },
 ] as const satisfies readonly TableRowConfig[]
 
 export const attendanceTrendPalette = {
@@ -102,7 +107,7 @@ export const attendanceTrendChartOptions: ChartOptionConfig = {
       axisLabel: {
         color: attendanceTrendPalette.textSecondary,
         fontSize: 12,
-        formatter: "{value}%",
+        formatter: percentAxisLabelFormatter,
       },
       splitLine: {
         show: false,
@@ -139,7 +144,7 @@ export const attendanceTrendChartOptions: ChartOptionConfig = {
     },
     {
       id: "targetRate",
-      name: "利记出勤率",
+      name: "利计出勤率",
       type: "line",
       yAxisIndex: 1,
       symbol: "none",

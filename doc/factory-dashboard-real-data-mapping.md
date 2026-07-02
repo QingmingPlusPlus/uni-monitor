@@ -17,7 +17,7 @@
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 再按 `deviceParseType` 判断，`CUT` 显示切替，`CLEAN` 显示清扫，`TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |
-| 符合率 | `GET /schedule/getDeviceload` | `devCode`、`fuhe` | 按设备编码匹配；`fuhe` 视为 0-1 或百分比值，前端格式化为百分比。 |
+| 负荷率 | `GET /schedule/getDeviceload` | `devCode`、`fuhe` | 按设备编码匹配；`fuhe` 视为 0-1 或百分比值，前端格式化为一位小数百分比。 |
 | 人员配置 | `GET /device/realtime/list` | `onlinePersonList` | 展示当前设备在线人员数量和人员信息。 |
 | 生产任务 | `GET /device/realtime/list` | `productionTaskList` | 作为地图设备实时信息补充。 |
 | 5M 变化点 | `GET /schedule/getChangePoint` | `device`、`type`、`change`、`varify`、`notes` | 按设备编码匹配；`type` 映射为人、机、料、法、环。当前接口返回空数组时不展示变化点。 |
@@ -31,7 +31,6 @@
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`schedulePersonCount`、`actualAttendancePersonCount` | 汇总当前部门或工序的间接人员应出勤/实际出勤和出勤率。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
 | 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number` | 计划来自 `getPlan`，实绩来自 `getOutput`；取当月接口全量合计，**不按部门/工序过滤**（与生产计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度。 |
-| 可动率 | `GET /schedule/getDeviceload` | `fuhe` | 对当前设备范围的符合率取平均。 |
 
 > 参考图中的“※以上为实时数据”“※以上数据截止昨日”只作为刷新时机说明，本次组件不显示这两行。
 
@@ -74,7 +73,9 @@
 | 直接在籍人数 | 同上 | `directSchedulePersonCount` | 同上。 |
 | 直接出勤人数 | 同上 | `directAttendancePersonCount` | 同上。 |
 | 直接实际出勤率 | 同上 | `directAttendanceRate` 或前端聚合计算 | 聚合时用 `直接出勤合计 / 直接在籍合计`。 |
-| 利记出勤率 | 前端固定值 | 无接口字段 | 固定 91%；表格只在月列显示一个值，chart 显示 91% 红色目标线。 |
+| 利计出勤率 | 前端固定值 | 无接口字段 | 固定 91.0%；表格只在月列显示一个值，chart 显示 91.0% 红色目标线。 |
+
+显示规则：月、周人数聚合显示为整数；百分比统一显示一位小数。
 
 ## 入库计划实绩推移表
 
@@ -85,7 +86,7 @@
 | 实绩计划差 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 - 计划`。 |
 | 入库达成率 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 / 计划`。 |
 
-显示规则：部门维度和工序维度均展示；制造1课以及制造1课下的前处理1/前处理2不展示。工序维度因 `getRukuPlan` 暂无 `processType` 或设备字段，入库计划实绩口径为当前工序所属部门。
+显示规则：部门维度和工序维度均展示；制造1课以及制造1课下的前处理1/前处理2不展示。工序维度因 `getRukuPlan` 暂无 `processType` 或设备字段，入库计划实绩口径为当前工序所属部门。表格保留月列，折线图不展示月列。
 
 ## 生产计划实绩推移表
 
@@ -97,7 +98,7 @@
 | 实绩计划差 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 - 计划`。 |
 | 生产达成率 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 / 计划`。 |
 
-显示规则：仅工序维度展示。
+显示规则：仅工序维度展示。表格保留月列，折线图不展示月列。
 
 ## 未接入或空置字段
 

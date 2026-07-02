@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getAttendanceDetailSituation } from '../../../api/attendance'
 import {
-  getScheduleDeviceLoadByMonth,
   getScheduleOutputByMonth,
   getSchedulePlanByMonth,
   getScheduleRukuPlanByMonth,
@@ -21,7 +20,6 @@ vi.mock('../../../api/attendance', () => ({
 }))
 
 vi.mock('../../../api/schedule', () => ({
-  getScheduleDeviceLoadByMonth: vi.fn(),
   getScheduleOutputByMonth: vi.fn(),
   getSchedulePlanByMonth: vi.fn(),
   getScheduleRukuPlanByMonth: vi.fn(),
@@ -140,13 +138,20 @@ describe('loadInboundPlanTrendCard', () => {
     expect(card.tableData.achievementRate.day1).toBe(40)
     expect(card.tableData.planInbound.day4).toBeUndefined()
     expect(card.tableData.planInbound.day5).toBeUndefined()
+    expect(card.chartData?.xAxisData).toEqual(['1W', '2W', '1', '2', '3'])
     expect(card.modalTableData?.planInbound.day4).toBe(40)
     expect(card.modalTableData?.planInbound.day5).toBe(50)
   })
 })
 
 describe('loadPersonnelDetailCard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 5, 29, 8, 0, 0))
+  })
+
   afterEach(() => {
+    vi.useRealTimers()
     vi.clearAllMocks()
   })
 
@@ -244,10 +249,6 @@ describe('createFactorySummaryData', () => {
         ],
       },
     } as Awaited<ReturnType<typeof getScheduleOutputByMonth>>)
-    vi.mocked(getScheduleDeviceLoadByMonth).mockResolvedValue({
-      data: { success: true, code: '200', message: 'ok', data: [] },
-    } as unknown as Awaited<ReturnType<typeof getScheduleDeviceLoadByMonth>>)
-
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network in test')))
   })
 
@@ -271,6 +272,7 @@ describe('createFactorySummaryData', () => {
     const inbound = findLine(summary.right, 'inbound')
     const production = findLine(summary.right, 'production')
 
+    expect(summary.right.map((line) => line.id)).toEqual(['inbound', 'production'])
     expect(inbound?.value).toBe('150/300')
     expect(inbound?.rate).toBe('50.0%')
     expect(production?.value).toBe('800/1,000')

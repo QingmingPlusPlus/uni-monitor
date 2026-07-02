@@ -83,6 +83,59 @@
   fill: currentcolor;
 }
 
+.personnel-detail-card__preview {
+  position: relative;
+  overflow: hidden;
+}
+
+.personnel-detail-card__preview--folded {
+  max-height: 320rpx;
+}
+
+.personnel-detail-card__preview--folded::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 72rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--um-color-surface));
+  content: "";
+  pointer-events: none;
+}
+
+.personnel-detail-card__expand-button {
+  display: inline-flex;
+  align-self: center;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 0 28rpx;
+  border: 1px solid var(--um-color-operation);
+  border-radius: 10rpx;
+  background: var(--um-color-operation-soft);
+  color: var(--um-color-operation);
+  font-size: 26rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.personnel-detail-card__expand-button::after {
+  display: none;
+}
+
+.personnel-detail-card__expand-button:active {
+  opacity: 0.75;
+  transform: translateY(1px);
+}
+
+.personnel-detail-card__expand-icon {
+  display: block;
+  width: 30rpx;
+  height: 30rpx;
+  fill: currentcolor;
+}
+
 .personnel-detail-card__modal-layer {
   display: flex;
   position: fixed;
@@ -152,6 +205,27 @@
   .personnel-detail-card__icon {
     width: 24px;
     height: 24px;
+  }
+
+  .personnel-detail-card__preview--folded {
+    max-height: 164px;
+  }
+
+  .personnel-detail-card__preview--folded::after {
+    height: 44px;
+  }
+
+  .personnel-detail-card__expand-button {
+    height: 40px;
+    gap: 8px;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .personnel-detail-card__expand-icon {
+    width: 20px;
+    height: 20px;
   }
 
   .personnel-detail-card__modal {

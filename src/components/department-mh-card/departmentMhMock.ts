@@ -14,6 +14,11 @@ const percentFormatter: TableCellFormatter = (value) => {
   return typeof value === "string" ? value : "-"
 }
 
+const percentAxisLabelFormatter = (value: unknown): string => {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)}%` : ""
+}
+
 /** MH 实绩 行：计划定时/平日/休日/祝日/计划合计 + 实绩定时/平日/休日/祝日/实绩合计 + 直接出勤率 */
 export const departmentMhRows = [
   { key: "planRegular", label: "计划定时" },
@@ -112,7 +117,7 @@ export const departmentMhChartOptions: ChartOptionConfig = {
       min: 90,
       max: 100,
       interval: 2,
-      axisLabel: { color: palette.textSecondary, fontSize: 12, formatter: "{value}%" },
+      axisLabel: { color: palette.textSecondary, fontSize: 12, formatter: percentAxisLabelFormatter },
       splitLine: { show: false },
     },
   ],

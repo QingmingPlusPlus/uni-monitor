@@ -91,7 +91,7 @@ function createAttendanceTableData(
     directCount[weekKey] = week.directCount
     directAttendance[weekKey] = week.directAttendance
     directRate[weekKey] = week.directCount > 0
-      ? (week.directAttendance / week.directCount) * 100
+      ? Number(((week.directAttendance / week.directCount) * 100).toFixed(1))
       : 0
     targetRate[weekKey] = week.targetRateDays > 0
       ? week.targetRateSum / week.targetRateDays

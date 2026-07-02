@@ -12,6 +12,11 @@ const percentFormatter = (value: string | number | null | undefined): string => 
   return typeof value === "string" ? value : "-"
 }
 
+const percentAxisLabelFormatter = (value: unknown): string => {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)}%` : ""
+}
+
 export const departmentInboundPlanTrendRows = [
   { key: "planInbound", label: "计划入库数" },
   { key: "actualInbound", label: "实绩入库数", tone: "success" },
@@ -89,7 +94,7 @@ export const departmentInboundPlanTrendChartOptions: ChartOptionConfig = {
       axisLabel: {
         color: palette.textSecondary,
         fontSize: 12,
-        formatter: "{value}%",
+        formatter: percentAxisLabelFormatter,
       },
       splitLine: {
         show: false,

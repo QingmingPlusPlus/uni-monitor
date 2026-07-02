@@ -32,7 +32,22 @@
       </view>
     </view>
 
-    <PersonnelDetailGrid :data="data" />
+    <view :class="['personnel-detail-card__preview', { 'personnel-detail-card__preview--folded': hasFoldedRows }]">
+      <PersonnelDetailGrid :data="data" />
+    </view>
+
+    <button
+      v-if="hasFoldedRows"
+      class="personnel-detail-card__expand-button"
+      type="button"
+      aria-label="展开全部人员明细"
+      @click="handleExpand"
+    >
+      <svg class="personnel-detail-card__expand-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 5h6v2H8.41l3.3 3.29-1.42 1.42L7 8.41V11H5V5Zm8 0h6v6h-2V8.41l-3.29 3.3-1.42-1.42L15.59 7H13V5Zm4 10.59V13h2v6h-6v-2h2.59l-3.3-3.29 1.42-1.42L17 15.59ZM8.41 17H11v2H5v-6h2v2.59l3.29-3.3 1.42 1.42L8.41 17Z" />
+      </svg>
+      <text>展开</text>
+    </button>
 
     <view
       v-if="isExpanded"
@@ -69,11 +84,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { PersonnelDetailData } from '../../data/personnelDetailMock'
 import PersonnelDetailGrid from './PersonnelDetailGrid.vue'
 
-defineProps<{
+const props = defineProps<{
   readonly data: PersonnelDetailData
 }>()
 
@@ -82,6 +97,7 @@ const emit = defineEmits<{
 }>()
 
 const isExpanded = ref(false)
+const hasFoldedRows = computed(() => props.data.rows.length > 4)
 
 function handleExpand(): void {
   isExpanded.value = true

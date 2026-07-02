@@ -78,7 +78,7 @@ function createInboundTableData(
     actualInbound[weekKey] = week.actualInbound
     gap[weekKey] = week.actualInbound - week.planInbound
     achievementRate[weekKey] = week.planInbound > 0
-      ? (week.actualInbound / week.planInbound) * 100
+      ? Number(((week.actualInbound / week.planInbound) * 100).toFixed(1))
       : 0
   }
 

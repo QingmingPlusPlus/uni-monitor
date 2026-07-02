@@ -39,7 +39,7 @@ const statusLabel = computed(() => (
 ))
 
 const loadRateLabel = computed(() => (
-  props.device.runtime.loadRate === null ? '--' : `${Math.round(props.device.runtime.loadRate)}%`
+  props.device.runtime.loadRate === null ? '--' : `${props.device.runtime.loadRate.toFixed(1)}%`
 ))
 
 const statusStyle = computed(() => getCssMapTitleStyle(
@@ -66,7 +66,7 @@ const detailTitle = computed(() => {
     ? `5M变化点 ${props.device.runtime.fiveMChanges.length}项`
     : '无5M变化点'
 
-  return `${props.device.name} / ${statusLabel.value} / 符合率 ${loadRateLabel.value} / ${staffing} / ${fiveM}`
+  return `${props.device.name} / ${statusLabel.value} / 负荷率 ${loadRateLabel.value} / ${staffing} / ${fiveM}`
 })
 
 const surfaceStyle = computed(() => {

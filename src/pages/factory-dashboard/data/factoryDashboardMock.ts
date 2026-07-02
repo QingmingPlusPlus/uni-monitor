@@ -228,7 +228,7 @@ function createKpis(scopeLabel: string, seed: number): readonly FactoryKpiItem[]
   ]
 }
 
-function createFallbackSummary(scopeLabel: string): FactorySummaryData {
+function createFallbackSummary(): FactorySummaryData {
   return {
     title: '信息汇总',
     left: [
@@ -239,7 +239,6 @@ function createFallbackSummary(scopeLabel: string): FactorySummaryData {
     right: [
       { id: 'inbound', label: '入库实绩（个）', value: '-', rate: '-' },
       { id: 'production', label: '生产实际（个）', value: '-', rate: '-' },
-      { id: 'availability', label: '可动率（%）', value: scopeLabel, rate: '-' },
     ],
   }
 }
@@ -293,7 +292,7 @@ export function getDepartmentDashboardData(
     title: `${label} 展示计划`,
     subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷。',
     kpis: createKpis(label, 2929),
-    summary: createFallbackSummary(label),
+    summary: createFallbackSummary(),
     activity: createFallbackActivity(label, processTypes, selectionConfig),
     attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     attendanceTrend: createAttendanceTrendCardData(processTypes, segmentLookup),
@@ -324,7 +323,7 @@ export function getProcessDashboardData(
     title: `${label} 展示计划`,
     subtitle: '工序口径聚焦当前流程的人员、产出、计划与异常阻碍。',
     kpis: createKpis(label, 2969).slice(0, 6),
-    summary: createFallbackSummary(label),
+    summary: createFallbackSummary(),
     activity: createFallbackActivity(resolvedDepartmentLabel, [value], selectionConfig),
     attendance: createProcessPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     attendanceTrend: createAttendanceTrendCardData([value], segmentLookup),

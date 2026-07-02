@@ -50,12 +50,16 @@ function getMockStatus(device: CssMapDevice | null, seed: number): keyof typeof 
   return pickMockValue(mockStatusKeys, seed)
 }
 
+function formatPercent(value: number): string {
+  return `${value.toFixed(1)}%`
+}
+
 export function getEquipmentDetailData(
   device: CssMapDevice | null,
   fallbackDeviceId = '',
 ): EquipmentDetailData {
   const fallbackId = fallbackDeviceId.trim()
-  const deviceId = device?.id ?? (fallbackId.length > 0 ? fallbackId : 'mock-device-01')
+  const deviceId = device?.id ?? (fallbackId.length > 0 ? fallbackId : 'device-01')
   const deviceName = device?.name ?? `设备 ${deviceId}`
   const deviceCode = device?.deviceCode ?? device?.deviceCodes[0] ?? deviceId
   const seed = getMockSeed(deviceId)
@@ -74,15 +78,15 @@ export function getEquipmentDetailData(
 
   return {
     eyebrow: `${deviceId} · 设备维度`,
-    title: `${deviceName} 停止与计划分析（mock）`,
-    subtitle: `设备编码 ${deviceCode}，当前使用设备维度 mock 数据展示计划、停线、损耗和周期信息。`,
+    title: `${deviceName} 停止与计划分析`,
+    subtitle: `设备编码 ${deviceCode}，当前展示计划、停线、损耗和周期信息。`,
     kpis: [
-      { label: '状态（mock）', value: status.label, note: '当前设备状态', tone: status.tone },
-      { label: '平均负荷率（mock）', value: `${loadRate}%`, note: '当月负荷', tone: 'operation' },
-      { label: '在岗人员（mock）', value: `${staffCount} 人`, note: shiftName, tone: 'neutral' },
-      { label: '阻碍时间（mock）', value: `${stopMinutes} 分钟`, note: '今日累计', tone: 'warning' },
-      { label: '停止类型（mock）', value: stopType, note: '当前主因', tone: 'danger' },
-      { label: '计划达成（mock）', value: `${88 + seed % 10}%`, note: planName, tone: 'success' },
+      { label: '状态', value: status.label, note: '当前设备状态', tone: status.tone },
+      { label: '平均负荷率', value: formatPercent(loadRate), note: '当月负荷', tone: 'operation' },
+      { label: '在岗人员', value: `${staffCount} 人`, note: shiftName, tone: 'neutral' },
+      { label: '阻碍时间', value: `${stopMinutes} 分钟`, note: '今日累计', tone: 'warning' },
+      { label: '停止类型', value: stopType, note: '当前主因', tone: 'danger' },
+      { label: '计划达成', value: formatPercent(88 + seed % 10), note: planName, tone: 'success' },
     ],
     currentPlan: [
       { label: '日期', value: '2026-06-30' },

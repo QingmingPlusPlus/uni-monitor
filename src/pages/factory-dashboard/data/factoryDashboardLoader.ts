@@ -6,7 +6,6 @@ import {
 import { getDeviceRealtimeList } from '../../../api/deviceRealtime'
 import type { DeviceRealtimeItem } from '../../../api/deviceRealtime'
 import {
-  getScheduleDeviceLoadByMonth,
   getScheduleOutputByMonth,
   getSchedulePlanByMonth,
   getScheduleRukuPlanByMonth,
@@ -16,7 +15,6 @@ import type { SegmentVO } from '../../../api/basic'
 import type { AttendanceDetailSituationVO } from '../../../api/attendance'
 import type { CurrentAttendanceStatisticsVO } from '../../../api/attendance'
 import type {
-  ScheduleDeviceLoadRecord,
   ScheduleMonthlyRecord,
   ScheduleRukuPlanRecord,
   ScheduleRukuShijiRecord,
@@ -550,6 +548,11 @@ const percentFormatter = (value: TableCellValue): string => {
   return '-'
 }
 
+const percentAxisLabelFormatter = (value: unknown): string => {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)}%` : ''
+}
+
 function createTrendColumn(period: TrendPeriod, isModal: boolean): TableColumnConfig {
   if (period.kind === 'month') {
     return {
@@ -701,10 +704,10 @@ function aggregateAttendancePeriod(rows: readonly AttendanceTrendDailyRow[]): At
   const directAttendanceSum = sumBy(validRows, (row) => row.directAttendance)
 
   return {
-    indirectCount: averageBy(validRows, (row) => row.indirectCount),
-    directCount: averageBy(validRows, (row) => row.directCount),
-    directAttendance: averageBy(validRows, (row) => row.directAttendance),
-    directRate: directCountSum > 0 ? (directAttendanceSum / directCountSum) * 100 : null,
+    indirectCount: Math.round(averageBy(validRows, (row) => row.indirectCount) ?? 0),
+    directCount: Math.round(averageBy(validRows, (row) => row.directCount) ?? 0),
+    directAttendance: Math.round(averageBy(validRows, (row) => row.directAttendance) ?? 0),
+    directRate: directCountSum > 0 ? Number(((directAttendanceSum / directCountSum) * 100).toFixed(1)) : null,
   }
 }
 
@@ -870,7 +873,6 @@ const schedulePlanCache = new Map<string, Promise<readonly ScheduleMonthlyRecord
 const scheduleOutputCache = new Map<string, Promise<readonly ScheduleMonthlyRecord[]>>()
 const scheduleRukuPlanCache = new Map<string, Promise<readonly ScheduleRukuPlanRecord[]>>()
 const scheduleRukuShijiCache = new Map<string, Promise<readonly ScheduleRukuShijiRecord[]>>()
-const scheduleLoadCache = new Map<string, Promise<readonly ScheduleDeviceLoadRecord[]>>()
 
 async function readScheduleRecords<T>(
   loader: () => Promise<{ readonly data?: { readonly data?: T[] | null } }>,
@@ -919,11 +921,6 @@ function loadScheduleRukuPlanRecords(month: string): Promise<readonly ScheduleRu
 function loadScheduleRukuShijiRecords(month: string): Promise<readonly ScheduleRukuShijiRecord[]> {
   return getCachedScheduleRecords(scheduleRukuShijiCache, month, () =>
     readScheduleRecords(() => getScheduleRukuShijiByMonth(month), '入库实绩'))
-}
-
-function loadScheduleLoadRecords(month: string): Promise<readonly ScheduleDeviceLoadRecord[]> {
-  return getCachedScheduleRecords(scheduleLoadCache, month, () =>
-    readScheduleRecords(() => getScheduleDeviceLoadByMonth(month), '设备负荷'))
 }
 
 function normalizeDeptCode(value: number | string | null | undefined): number | null {
@@ -1094,6 +1091,10 @@ function createFlowChartData(
   }
 }
 
+function getFlowChartPeriods(periods: readonly TrendPeriod[]): readonly TrendPeriod[] {
+  return periods.filter((period) => period.kind !== 'month')
+}
+
 function cloneRowsWithPercent(
   rows: readonly TableRowConfig[],
   rateKey: string,
@@ -1116,7 +1117,7 @@ function createProductionPlanTrendChartOptions(): ChartOptionConfig {
         axisLabel: {
           color: '#566579',
           fontSize: 12,
-          formatter: '{value}%',
+          formatter: percentAxisLabelFormatter,
         },
         splitLine: {
           show: false,
@@ -1163,6 +1164,8 @@ function createFlowTrendCard(params: {
   const tableRows = cloneRowsWithPercent(params.tableRows, params.keys.rate)
   const tableData = createFlowTableData(periods.inlinePeriods, periodValues, params.keys)
   const modalTableData = createFlowTableData(periods.modalPeriods, periodValues, params.keys)
+  const chartPeriods = getFlowChartPeriods(periods.inlinePeriods)
+  const modalChartPeriods = getFlowChartPeriods(periods.modalPeriods)
 
   return {
     id: params.id,
@@ -1172,12 +1175,12 @@ function createFlowTrendCard(params: {
     tableColumns: createTrendColumns(periods.inlinePeriods, false),
     tableData,
     chartOptions: params.chartOptions,
-    chartData: createFlowChartData(periods.inlinePeriods, tableData, params.keys),
+    chartData: createFlowChartData(chartPeriods, tableData, params.keys),
     modalTableRows: tableRows,
     modalTableColumns: createTrendColumns(periods.modalPeriods, true),
     modalTableData,
     modalChartOptions: params.chartOptions,
-    modalChartData: createFlowChartData(periods.modalPeriods, modalTableData, params.keys),
+    modalChartData: createFlowChartData(modalChartPeriods, modalTableData, params.keys),
   }
 }
 
@@ -1380,24 +1383,6 @@ function sumScheduleNumber(records: readonly { readonly number?: number }[]): nu
   return sumBy(records, (record) => record.number ?? 0)
 }
 
-async function calculateAvailabilityRate(processTypes: readonly CssMapProcessValue[]): Promise<number | null> {
-  const [deviceCodeMap, loadRecords] = await Promise.all([
-    loadProcessDeviceCodeMap(),
-    loadScheduleLoadRecords(getCurrentMonthParam()),
-  ])
-  const scopeCodes = new Set<string>()
-  processTypes.forEach((processType) => {
-    deviceCodeMap[processType]?.forEach((code) => scopeCodes.add(code))
-  })
-
-  const values = loadRecords
-    .filter((record) => scopeCodes.size === 0 || scopeCodes.has(normalizeDeviceCode(record.devCode)))
-    .map((record) => (record.fuhe <= 2 ? record.fuhe * 100 : record.fuhe))
-    .filter((value) => Number.isFinite(value))
-
-  return averageBy(values, (value) => value)
-}
-
 export async function createFactorySummaryData(params: {
   readonly activity: ProductionActivityData
   readonly attendance: PersonnelAttendanceData
@@ -1417,7 +1402,6 @@ export async function createFactorySummaryData(params: {
   const inboundActual = sumScheduleNumber(rukuShiji)
   const productionPlan = sumScheduleNumber(schedulePlan)
   const productionActual = sumScheduleNumber(scheduleOutput)
-  const availabilityRate = await calculateAvailabilityRate(params.processTypes)
 
   return {
     title: '信息汇总',
@@ -1455,12 +1439,6 @@ export async function createFactorySummaryData(params: {
         label: '生产实际（个）',
         value: formatRatioValue(productionActual, productionPlan),
         rate: formatOneDecimalPercent(calculateRate(productionActual, productionPlan)),
-      },
-      {
-        id: 'availability',
-        label: '可动率（%）',
-        value: '',
-        rate: formatOneDecimalPercent(availabilityRate),
       },
     ],
   }

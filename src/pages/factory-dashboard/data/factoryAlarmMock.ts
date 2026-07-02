@@ -105,7 +105,7 @@ export function getEquipmentAlarmItems(
   fallbackDeviceId = '',
 ): readonly FactoryAlarmItem[] {
   const fallbackId = fallbackDeviceId.trim()
-  const deviceId = device?.id ?? (fallbackId.length > 0 ? fallbackId : 'mock-device-01')
+  const deviceId = device?.id ?? (fallbackId.length > 0 ? fallbackId : 'device-01')
   const deviceName = device?.name ?? `设备 ${deviceId}`
 
   const processLabel = device?.section

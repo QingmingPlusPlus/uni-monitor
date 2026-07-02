@@ -17,7 +17,6 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
   { status: 'plannedStop', label: '计划停止' },
   { status: 'changeover', label: '切替' },
   { status: 'cleaning', label: '清扫' },
-  { status: 'neutral', label: '待确认' },
 ]
 </script>
 
@@ -33,7 +32,7 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
       <thead>
         <tr>
           <th>颜色</th>
-          <th>符合率</th>
+          <th>负荷率</th>
           <th>颜色</th>
           <th>工况</th>
         </tr>
