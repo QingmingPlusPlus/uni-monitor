@@ -58,6 +58,9 @@ const hasStaffing = computed(() => props.device.runtime.staff.length > 0)
 
 const hasFiveMChanges = computed(() => props.device.runtime.fiveMChanges.length > 0)
 
+const compactNameHeaderWidth = 160
+const useCompactNameHeader = computed(() => props.screen.width < compactNameHeaderWidth)
+
 const detailTitle = computed(() => {
   const staffing = hasStaffing.value
     ? `人员配置 ${props.device.runtime.staff.length}人`
@@ -94,7 +97,10 @@ const surfaceStyle = computed(() => {
 <template>
   <article
     class="css-map-equipment-node"
-    :class="{ 'css-map-equipment-node--selecting': selectMode }"
+    :class="{
+      'css-map-equipment-node--selecting': selectMode,
+      'css-map-equipment-node--compact-name': useCompactNameHeader,
+    }"
     :style="surfaceStyle"
     :data-device-id="device.id"
     :title="detailTitle"

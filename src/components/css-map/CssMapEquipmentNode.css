@@ -6,7 +6,7 @@
   overflow: hidden;
   min-width: 1px;
   min-height: 1px;
-  grid-template-rows: minmax(24px, 30%) minmax(0, 1fr);
+  grid-template-rows: minmax(24px, max-content) minmax(0, 1fr);
   border: 4px solid var(--css-map-node-status-border);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.94);
@@ -39,16 +39,38 @@
 }
 
 .css-map-equipment-node__header strong {
+  display: -webkit-box;
+  flex: 1 1 auto;
   overflow: hidden;
   min-width: 0;
   color: var(--css-map-node-status-color);
   font-size: max(12px, calc(var(--css-map-node-font-size) * 1.22));
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.06;
+  overflow-wrap: break-word;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.css-map-equipment-node--compact-name .css-map-equipment-node__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-content: stretch;
+  padding: 2px;
+  row-gap: 2px;
+}
+
+.css-map-equipment-node--compact-name .css-map-equipment-node__header strong {
+  width: 100%;
+  font-size: max(10px, calc(var(--css-map-node-font-size) * 1.1));
 }
 
 .css-map-equipment-node__status {
   display: inline-grid;
+  flex: 0 0 auto;
   overflow: hidden;
   max-width: 46%;
   min-width: 0;
@@ -63,6 +85,13 @@
   padding: 3px 7px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.css-map-equipment-node--compact-name .css-map-equipment-node__status {
+  max-width: 100%;
+  justify-self: start;
+  font-size: max(9px, calc(var(--css-map-node-font-size) * 0.88));
+  padding: 2px 5px;
 }
 
 .css-map-equipment-node__body {
