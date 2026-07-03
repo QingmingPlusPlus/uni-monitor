@@ -234,10 +234,10 @@ function closeMapExpanded(): void {
     grid-template-columns: minmax(520px, 0.9fr) minmax(520px, 1.1fr);
   }
 
-  /*部门和工序维度统一为左侧地图占三分之一，右侧瀑布流占三分之二 */
+  /*部门和工序维度统一为左侧地图占二分之一，右侧瀑布流占二分之一 */
   .factory-dashboard-view--department .factory-dashboard-view__body,
   .factory-dashboard-view--process .factory-dashboard-view__body {
-    grid-template-columns: minmax(360px, 1fr) minmax(0, 2fr);
+    grid-template-columns: minmax(360px, 1fr) minmax(0, 1fr);
   }
 
   .factory-dashboard-view__map-expand,
@@ -263,10 +263,10 @@ function closeMapExpanded(): void {
     gap: var(--space-4);
   }
 
-  /*部门和工序维度统一为左侧地图占三分之一，右侧瀑布流占三分之二 */
+  /*部门和工序维度统一为左侧地图占二分之一，右侧瀑布流占二分之一 */
   .factory-dashboard-view--department .factory-dashboard-view__body,
   .factory-dashboard-view--process .factory-dashboard-view__body {
-    grid-template-columns: minmax(620px, 1fr) minmax(0, 2fr);
+    grid-template-columns: minmax(620px, 1fr) minmax(0, 1fr);
   }
 }
 

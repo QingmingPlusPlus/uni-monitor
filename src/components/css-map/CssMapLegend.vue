@@ -63,8 +63,11 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
 <style scoped>
 .css-map-legend {
   position: absolute;
-  left: 16px;
-  bottom: 16px;
+  /* 右上角展示，纵向避让地图展开按钮与弹窗关闭按钮（二者均位于右上角）。
+     base 使用 64rpx 按钮高度（<1024px）；>=1024px 在下方媒体查询中切换为 44px。
+     top = 按钮顶边距(--space-4，取两者较大者) + 按钮高度 + 间隙(--space-2) */
+  top: calc(var(--space-4) + 64rpx + var(--space-2));
+  right: var(--space-3);
   z-index: 4;
   overflow: hidden;
   border: 1px solid rgba(21, 43, 70, 0.18);
@@ -116,10 +119,16 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
   box-sizing: border-box;
 }
 
+@media (min-width: 1024px) {
+  .css-map-legend {
+    /* 展开按钮与弹窗关闭按钮在 >=1024px 高度收窄为 44px */
+    top: calc(var(--space-4) + 44px + var(--space-2));
+  }
+}
+
 @media (max-width: 900px) {
   .css-map-legend {
-    left: 12px;
-    bottom: 12px;
+    right: 12px;
     max-width: calc(100% - 24px);
     overflow-x: auto;
   }
