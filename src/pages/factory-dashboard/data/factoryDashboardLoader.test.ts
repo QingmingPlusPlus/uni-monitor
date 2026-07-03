@@ -950,7 +950,7 @@ describe('createFactorySummaryData', () => {
     expect(indirect?.rate).toBe('66.7%')
   })
 
-  it('早班时段将正常班(regular)并入早班窗口汇总', async () => {
+  it('早班时段不并入正常班(regular)行', async () => {
     vi.setSystemTime(new Date(2026, 7, 1, 8, 0, 0))
 
     const attendance: PersonnelAttendanceData = {
@@ -977,8 +977,8 @@ describe('createFactorySummaryData', () => {
     })
 
     const indirect = findLine(summary.left, 'indirectAttendance')
-    expect(indirect?.value).toBe('2/2')
-    expect(indirect?.rate).toBe('100.0%')
+    expect(indirect?.value).toBe('0/0')
+    expect(indirect?.rate).toBe('-')
   })
 
   it('中班时段不并入正常班(regular)行', async () => {

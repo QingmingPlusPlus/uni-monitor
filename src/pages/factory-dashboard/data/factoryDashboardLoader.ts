@@ -1436,8 +1436,7 @@ function getAttendanceTotals(data: PersonnelAttendanceData): {
   readonly indirectAttendance: number
 } {
   const currentShift = getCurrentAttendanceShift()
-  const shiftsToSum: readonly PersonnelAttendanceShift[] =
-    currentShift === 'day' ? ['day', 'regular'] : [currentShift]
+  const shiftsToSum: readonly PersonnelAttendanceShift[] = [currentShift]
   const detailGroups = data.groups.filter((group) => !group.label.endsWith('全体'))
   const sourceGroups = detailGroups.length > 0 ? detailGroups : data.groups
   const detailRows = sourceGroups.flatMap((group) =>
