@@ -61,10 +61,39 @@
   transform: translate(-50%, -50%);
 }
 
+.css-map-panel__loading {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 5;
+  border: 1px solid rgba(36, 113, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--um-color-text-primary);
+  box-shadow: 0 8px 20px rgba(21, 43, 70, 0.12);
+  font-size: 15px;
+  font-weight: 800;
+  padding: 12px 16px;
+  transform: translate(-50%, -50%);
+}
+
 .css3d-map-renderer {
   position: absolute;
   inset: 0;
   overflow: visible;
+}
+
+.sprite-css-map-renderer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.sprite-css-map-renderer:active {
+  cursor: grabbing;
 }
 
 .css3d-map-process-boundaries,

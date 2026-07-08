@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CssMapPanel from '../../../../components/css-map/index.vue'
+import SpriteCssMapPanel from '../../../../components/css-map/SpriteCssMapPanel.vue'
 import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
@@ -30,6 +31,9 @@ const emit = defineEmits<{
 }>()
 
 const isMapExpanded = ref(false)
+type FactoryDashboardMapRenderer = 'sprite' | 'css3d'
+const defaultFactoryDashboardMapRenderer: FactoryDashboardMapRenderer = 'sprite'
+const mapRenderer = ref<FactoryDashboardMapRenderer>(defaultFactoryDashboardMapRenderer)
 
 function openMapExpanded(): void {
   isMapExpanded.value = true
@@ -37,6 +41,12 @@ function openMapExpanded(): void {
 
 function closeMapExpanded(): void {
   isMapExpanded.value = false
+}
+
+function handleSpriteMapFallback(reason: string): void {
+  if (mapRenderer.value === 'css3d') return
+  console.warn(`[FactoryDashboardView] Sprite 地图回退到 CSS3D: ${reason}`)
+  mapRenderer.value = 'css3d'
 }
 </script>
 
@@ -56,7 +66,19 @@ function closeMapExpanded(): void {
             <path d="M5 5h6v2H8.41l3.3 3.29-1.42 1.42L7 8.41V11H5V5Zm8 0h6v6h-2V8.41l-3.29 3.3-1.42-1.42L15.59 7H13V5Zm4 10.59V13h2v6h-6v-2h2.59l-3.3-3.29 1.42-1.42L17 15.59ZM8.41 17H11v2H5v-6h2v2.59l3.29-3.3 1.42 1.42L8.41 17Z" />
           </svg>
         </button>
+        <SpriteCssMapPanel
+          v-if="mapRenderer === 'sprite'"
+          :selection-config="selectionConfig"
+          :selected-department="selectedDepartment"
+          :selected-process="selectedProcess"
+          @select-department="emit('selectDepartment', $event)"
+          @select-process="emit('selectProcess', $event)"
+          @clear-process="emit('clearProcess')"
+          @open-device="emit('openDevice', $event)"
+          @fallback="handleSpriteMapFallback"
+        />
         <CssMapPanel
+          v-else
           :selection-config="selectionConfig"
           :selected-department="selectedDepartment"
           :selected-process="selectedProcess"
@@ -99,7 +121,19 @@ function closeMapExpanded(): void {
             <path d="M5 16h3v3h2v-5H5v2Zm3-8H5v2h5V5H8v3Zm6 11h2v-3h3v-2h-5v5Zm2-11V5h-2v5h5V8h-3Z" />
           </svg>
         </button>
+        <SpriteCssMapPanel
+          v-if="mapRenderer === 'sprite'"
+          :selection-config="selectionConfig"
+          :selected-department="selectedDepartment"
+          :selected-process="selectedProcess"
+          @select-department="() => undefined"
+          @select-process="() => undefined"
+          @clear-process="() => undefined"
+          @open-device="() => undefined"
+          @fallback="handleSpriteMapFallback"
+        />
         <CssMapPanel
+          v-else
           :selection-config="selectionConfig"
           :selected-department="selectedDepartment"
           :selected-process="selectedProcess"

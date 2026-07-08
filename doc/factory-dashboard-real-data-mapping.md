@@ -21,6 +21,8 @@
 
 ## 左侧 css-map
 
+左侧地图默认使用 `SpriteCssMapPanel.vue`（Three.js WebGL Sprite 渲染），旧 CSS3D DOM 地图保留为 WebGL 不可用时的回退。两种渲染器共用 `css3dMapLiveData.ts` 的数据聚合和状态判定，不改变接口契约。
+
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 再按 `deviceParseType` 判断，`CUT` 显示切替，`CLEAN` 显示清扫，`TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |
@@ -28,6 +30,8 @@
 | 人员配置 | `GET /device/realtime/list` | `onlinePersonList` | 展示当前设备在线人员数量和人员信息。 |
 | 生产任务 | `GET /device/realtime/list` | `productionTaskList` | 作为地图设备实时信息补充。 |
 | 5M 变化点 | `GET /schedule/getChangePoint` | `device`、`type`、`change`、`varify`、`notes` | 按设备编码匹配；`type` 映射为人、机、料、法、环。当前接口返回空数组时不展示变化点。 |
+
+Sprite 渲染补充规则：仅绘制父设备节点，子设备数据聚合到父设备；人员配置在卡片上显示班次扇形标记，不直接展示姓名；5M 在卡片上显示“人/机/料/法/环”标记；小设备名称可省略，放大后恢复完整显示。
 
 ## 信息汇总组件
 

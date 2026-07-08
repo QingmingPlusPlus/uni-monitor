@@ -35,10 +35,15 @@
 
 - 地图数据源：`public/factory-map/devices.json`；H5 构建同时保留 `src/static/factory-map/devices.json` 作为 Uni-app 静态资源副本。
 - 选择器配置源：`public/factory-map/selection.json`；H5 构建同时保留 `src/static/factory-map/selection.json`。
+- 地图默认渲染器：`src/components/css-map/SpriteCssMapPanel.vue`，使用 Three.js `WebGLRenderer` + `Sprite` 绘制设备卡片；旧 `src/components/css-map/index.vue`（CSS3D DOM 版本）保留为代码级回退。
+- Sprite 地图仅承诺 H5 大屏使用；WebGL 初始化失败时，`FactoryDashboardView` 自动回退到 CSS3D DOM 地图。
+- Sprite 地图只绘制 `devices.json` 中的父设备节点（当前 80 个）；`children` 子设备不单独成图，运行状态、负荷率、人员和 5M 变化点继续聚合到父设备。
 - 地图默认嵌入在部门/工序维度左侧，支持部门、工序选择和设备双击进入详情。
 - 左侧地图提供展开按钮，点击后打开 80vw × 80vh 弹窗，弹窗内展示放大的 `css-map`。
 - 地图弹窗内的部门选择、工序选择、清空工序和设备打开事件均不驱动页面路由切换，只用于弹窗内临时查看。
 - 地图实时数据由 `src/components/css-map/css3dMapLiveData.ts` 聚合：设备工作状态、负荷率、人员配置和 5M 变化点均优先使用真实接口。
+- Sprite 设备卡片不超出设备原始占位；小尺寸设备允许名称省略，放大或聚焦后在同一占位内显示完整名称。人员配置使用班次扇形标记，5M 使用“人/机/料/法/环”方块标记，均由独立 Canvas 渲染模块封装。
+- Sprite 地图不做持续动画；平移、缩放、尺寸变化或数据变化时才渲染，并通过纹理缓存避免 80 个设备在连续交互中反复重建纹理。
 
 ## 推移表展示规则
 
