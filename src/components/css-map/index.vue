@@ -7,6 +7,7 @@ import CssMapToolbar from './CssMapToolbar.vue'
 import { createCss3dMapScene, type Css3dMapScene } from './css3dMapScene'
 import { getCssMapProcessBoundaryFocusRect, getCssMapProcessBoundaryGroupFocusRect } from './css3dMapProcessBoundaries'
 import { loadCssMapData } from './css3dMapLiveData'
+import { subscribeCssMapMockChange } from './css3dMapMockRuntime'
 import { runCssMapScreenAction } from './css3dMapScreenActions'
 import {
   createCssMapDeviceNavigation,
@@ -48,6 +49,7 @@ const cssMapDevices = ref<readonly CssMapDevice[]>([])
 const cssMapSections = ref<readonly CssMapProcessBoundary[]>([])
 const cssMapSize = ref<CssMapSize | null>(null)
 const loadError = ref('')
+const isLoading = ref(true)
 const selectMode = ref(false)
 const deviceScreenRects = reactive<Record<string, CssMapDeviceScreenRect>>({})
 const displayOptions: CssMapDisplayOptions = {
@@ -58,6 +60,13 @@ const displayOptions: CssMapDisplayOptions = {
 }
 
 let scene: Css3dMapScene | null = null
+let initializeGeneration = 0
+let unsubscribeMapMockChange: (() => void) | null = null
+
+function disposeScene(): void {
+  scene?.dispose()
+  scene = null
+}
 
 function setDeviceScreenRects(rects: Record<string, CssMapDeviceScreenRect>): void {
   Object.keys(deviceScreenRects).forEach((deviceId) => {
@@ -128,16 +137,41 @@ function handleScreenControl(action: CssMapScreenControlAction): void {
   })
 }
 
+function resetMapData(): void {
+  cssMapDevices.value = []
+  cssMapSections.value = []
+  cssMapSize.value = null
+  deviceElements.value = []
+  setDeviceScreenRects({})
+}
+
+function handleLoadError(error: unknown): void {
+  isLoading.value = false
+  loadError.value = error instanceof Error ? error.message : '地图加载失败'
+}
+
 async function initializeScene(): Promise<void> {
+  const generation = initializeGeneration + 1
+  initializeGeneration = generation
+  disposeScene()
+  resetMapData()
+  loadError.value = ''
+  isLoading.value = true
+
   const mapData = await loadCssMapData(props.selectionConfig)
+  if (generation !== initializeGeneration) return
 
   cssMapDevices.value = mapData.devices
   cssMapSections.value = mapData.sections
   cssMapSize.value = mapData.size
 
   await nextTick()
+  if (generation !== initializeGeneration) return
 
-  if (!mapContainer.value || !cssMapSize.value || deviceElements.value.length === 0) return
+  if (!mapContainer.value || !cssMapSize.value || deviceElements.value.length === 0) {
+    isLoading.value = false
+    return
+  }
 
   scene = createCss3dMapScene({
     container: mapContainer.value,
@@ -153,18 +187,24 @@ async function initializeScene(): Promise<void> {
   })
 
   focusActiveSelection()
+  isLoading.value = false
+}
+
+function reloadScene(): void {
+  initializeScene().catch(handleLoadError)
 }
 
 onMounted(() => {
-  initializeScene().catch((error: unknown) => {
-    loadError.value = error instanceof Error ? error.message : '地图加载失败'
-  })
+  unsubscribeMapMockChange = subscribeCssMapMockChange(() => reloadScene())
+  reloadScene()
 })
 
 onBeforeUnmount(() => {
+  initializeGeneration += 1
+  unsubscribeMapMockChange?.()
+  unsubscribeMapMockChange = null
   deviceNavigation.reset()
-  scene?.dispose()
-  scene = null
+  disposeScene()
 })
 
 watch(
@@ -220,6 +260,15 @@ watch(
           @open-child="openDeviceChild"
         />
       </div>
+    </div>
+
+    <div
+      v-if="isLoading && !loadError"
+      class="css-map-panel__loading"
+      role="status"
+      aria-label="地图加载中"
+    >
+      <span class="css-map-panel__loading-spinner" aria-hidden="true" />
     </div>
 
     <div

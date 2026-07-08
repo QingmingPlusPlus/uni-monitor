@@ -31,6 +31,13 @@ import {
   getCssMapProcessLabel,
   isCssMapProcessValue,
 } from './css3dMapSelection'
+import {
+  createCssMapMockChangePointRecords,
+  createCssMapMockDeviceLoadRecords,
+  createCssMapMockRealtimeItems,
+  installCssMapMockSwitch,
+  isCssMapMockEnabled,
+} from './css3dMapMockRuntime'
 import { mapRealtimeStatus } from './deviceRealtimeStatus'
 
 const factoryMapConfigUrls = [
@@ -284,6 +291,18 @@ interface RuntimeLookup {
   readonly changesByCode: ReadonlyMap<string, readonly ScheduleChangePointRecord[]>
 }
 
+function createRuntimeLookup(
+  realtimeItems: readonly DeviceRealtimeItem[],
+  loadRecords: readonly ScheduleDeviceLoadRecord[],
+  changeRecords: readonly ScheduleChangePointRecord[],
+): RuntimeLookup {
+  return {
+    realtimeByCode: indexByDeviceCode(realtimeItems, (item) => item.deviceCode),
+    loadByCode: indexByDeviceCode(loadRecords, (item) => item.devCode),
+    changesByCode: createChangeLookup(changeRecords),
+  }
+}
+
 function createChangeLookup(records: readonly ScheduleChangePointRecord[]): Map<string, ScheduleChangePointRecord[]> {
   const map = new Map<string, ScheduleChangePointRecord[]>()
 
@@ -299,17 +318,21 @@ function createChangeLookup(records: readonly ScheduleChangePointRecord[]): Map<
 }
 
 async function loadRuntimeLookup(deviceCodes: readonly string[]): Promise<RuntimeLookup> {
+  if (isCssMapMockEnabled()) {
+    return createRuntimeLookup(
+      createCssMapMockRealtimeItems(deviceCodes),
+      createCssMapMockDeviceLoadRecords(deviceCodes),
+      createCssMapMockChangePointRecords(deviceCodes),
+    )
+  }
+
   const [realtimeItems, loadRecords, changeRecords] = await Promise.all([
     loadRealtimeItems(deviceCodes),
     loadDeviceLoadRecords(),
     loadChangePointRecords(),
   ])
 
-  return {
-    realtimeByCode: indexByDeviceCode(realtimeItems, (item) => item.deviceCode),
-    loadByCode: indexByDeviceCode(loadRecords, (item) => item.devCode),
-    changesByCode: createChangeLookup(changeRecords),
-  }
+  return createRuntimeLookup(realtimeItems, loadRecords, changeRecords)
 }
 
 function createRuntimeForCode(code: string, lookup: RuntimeLookup): CssMapDeviceRuntime {
@@ -404,6 +427,7 @@ async function fetchFactoryMapConfig(url: string): Promise<unknown> {
 export async function loadCssMapData(
   selectionConfig: CssMapSelectionConfig = defaultCssMapSelectionConfig,
 ): Promise<CssMapData> {
+  installCssMapMockSwitch()
   const errors: string[] = []
 
   for (const url of factoryMapConfigUrls) {

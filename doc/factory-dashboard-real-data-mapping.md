@@ -23,6 +23,8 @@
 
 左侧地图默认使用 `SpriteCssMapPanel.vue`（Three.js WebGL Sprite 渲染），旧 CSS3D DOM 地图保留为 WebGL 不可用时的回退。两种渲染器共用 `css3dMapLiveData.ts` 的数据聚合和状态判定，不改变接口契约。
 
+H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前端 mock 运行态数据，调用 `window.mapMock(false)` 恢复真实接口。mock 只替换设备工作状态、负荷率、人员配置和 5M 变化点，不替换 `devices.json` 静态布局；切换后已挂载地图会重新加载。
+
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 再按 `deviceParseType` 判断，`CUT` 显示切替，`CLEAN` 显示清扫，`TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |

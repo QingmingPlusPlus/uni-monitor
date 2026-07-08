@@ -5,6 +5,7 @@ import CssMapScreenControls from './CssMapScreenControls.vue'
 import CssMapToolbar from './CssMapToolbar.vue'
 import { getCssMapProcessBoundaryFocusRect, getCssMapProcessBoundaryGroupFocusRect } from './css3dMapProcessBoundaries'
 import { loadCssMapData } from './css3dMapLiveData'
+import { subscribeCssMapMockChange } from './css3dMapMockRuntime'
 import { runCssMapScreenAction } from './css3dMapScreenActions'
 import { createSpriteCssMapScene, type SpriteCssMapScene } from './spriteCssMapScene'
 import type {
@@ -51,6 +52,24 @@ const displayOptions: CssMapDisplayOptions = {
 }
 
 let scene: SpriteCssMapScene | null = null
+let initializeGeneration = 0
+let unsubscribeMapMockChange: (() => void) | null = null
+
+function disposeScene(): void {
+  scene?.dispose()
+  scene = null
+}
+
+function resetMapData(): void {
+  cssMapDevices.value = []
+  cssMapSections.value = []
+  cssMapSize.value = null
+}
+
+function handleLoadError(error: unknown): void {
+  isLoading.value = false
+  loadError.value = error instanceof Error ? error.message : '地图加载失败'
+}
 
 function focusProcessBoundary(value: CssMapProcessValue): void {
   const rect = getCssMapProcessBoundaryFocusRect([...cssMapSections.value], value)
@@ -92,16 +111,27 @@ function handleScreenControl(action: CssMapScreenControlAction): void {
 }
 
 async function initializeScene(): Promise<void> {
+  const generation = initializeGeneration + 1
+  initializeGeneration = generation
+  disposeScene()
+  resetMapData()
+  loadError.value = ''
   isLoading.value = true
+
   const mapData = await loadCssMapData(props.selectionConfig)
+  if (generation !== initializeGeneration) return
 
   cssMapDevices.value = mapData.devices
   cssMapSections.value = mapData.sections
   cssMapSize.value = mapData.size
 
   await nextTick()
+  if (generation !== initializeGeneration) return
 
-  if (!mapContainer.value || !cssMapSize.value) return
+  if (!mapContainer.value || !cssMapSize.value) {
+    isLoading.value = false
+    return
+  }
 
   try {
     scene = createSpriteCssMapScene({
@@ -124,16 +154,20 @@ async function initializeScene(): Promise<void> {
   isLoading.value = false
 }
 
+function reloadScene(): void {
+  initializeScene().catch(handleLoadError)
+}
+
 onMounted(() => {
-  initializeScene().catch((error: unknown) => {
-    isLoading.value = false
-    loadError.value = error instanceof Error ? error.message : '地图加载失败'
-  })
+  unsubscribeMapMockChange = subscribeCssMapMockChange(() => reloadScene())
+  reloadScene()
 })
 
 onBeforeUnmount(() => {
-  scene?.dispose()
-  scene = null
+  initializeGeneration += 1
+  unsubscribeMapMockChange?.()
+  unsubscribeMapMockChange = null
+  disposeScene()
 })
 
 watch(
@@ -177,8 +211,10 @@ watch(selectMode, (value) => {
     <div
       v-if="isLoading && !loadError"
       class="css-map-panel__loading"
+      role="status"
+      aria-label="地图加载中"
     >
-      地图加载中...
+      <span class="css-map-panel__loading-spinner" aria-hidden="true" />
     </div>
 
     <div

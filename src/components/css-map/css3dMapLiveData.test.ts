@@ -6,6 +6,7 @@ import {
   getScheduleDeviceLoadByMonth,
 } from '../../api/schedule'
 import { loadCssMapData } from './css3dMapLiveData'
+import { installCssMapMockSwitch } from './css3dMapMockRuntime'
 import type { CssMapJsonDevice } from './css3dMapTypes'
 
 vi.mock('../../api/deviceRealtime', () => ({
@@ -85,6 +86,21 @@ function stubEmptyRuntimeSideData(): void {
   } as unknown as Awaited<ReturnType<typeof getScheduleChangePoint>>)
 }
 
+function stubBrowserWindow(): Window {
+  const win = {
+    sessionStorage: {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+    },
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  } as unknown as Window
+
+  vi.stubGlobal('window', win)
+  return win
+}
+
 describe('loadCssMapData realtime status mapping', () => {
   afterEach(() => {
     vi.clearAllMocks()
@@ -159,5 +175,26 @@ describe('loadCssMapData realtime status mapping', () => {
     const data = await loadCssMapData()
 
     expect(data.devices[0]?.runtime.status).toBe('changeover')
+  })
+
+  it('通过 window.mapMock(true) 切换到地图 mock 运行态数据', async () => {
+    const win = stubBrowserWindow()
+    installCssMapMockSwitch()
+    stubFactoryMapConfig([
+      createMapDevice('mock-1', 'MOCK-01'),
+      createMapDevice('mock-2', 'MOCK-02'),
+    ])
+
+    expect(typeof win.mapMock).toBe('function')
+    win.mapMock?.(true)
+
+    const data = await loadCssMapData()
+
+    expect(getDeviceRealtimeList).not.toHaveBeenCalled()
+    expect(getScheduleDeviceLoadByMonth).not.toHaveBeenCalled()
+    expect(getScheduleChangePoint).not.toHaveBeenCalled()
+    expect(data.devices).toHaveLength(2)
+    expect(data.devices[0]?.runtime.status).not.toBeNull()
+    expect(data.devices[0]?.runtime.loadRate).not.toBeNull()
   })
 })
