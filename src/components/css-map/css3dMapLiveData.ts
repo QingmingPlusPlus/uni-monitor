@@ -385,10 +385,33 @@ async function createCssMapData(
       points: section.points,
       stroke: section.stroke,
     })),
-    devices: mapConfig.devices.map((device) => {
+    devices: mapConfig.devices.flatMap((device) => {
       const runtimeCodes = collectDeviceRuntimeCodes(device)
 
-      return {
+      if (device.children?.length) {
+        const splitHorizontally = device.width >= device.height
+        const childCount = device.children.length
+
+        return device.children.map((child, index) => ({
+          id: child.id,
+          name: child.name,
+          section: device.section,
+          x: splitHorizontally
+            ? device.x + (device.width * index) / childCount
+            : device.x,
+          y: splitHorizontally
+            ? device.y
+            : device.y + (device.height * index) / childCount,
+          w: splitHorizontally ? device.width / childCount : device.width,
+          h: splitHorizontally ? device.height : device.height / childCount,
+          deviceCode: child.deviceCode,
+          deviceCodes: [normalizeDeviceCode(child.deviceCode)],
+          children: [],
+          runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
+        }))
+      }
+
+      return [{
         id: device.id,
         name: device.name,
         section: device.section,
@@ -398,18 +421,9 @@ async function createCssMapData(
         h: device.height,
         deviceCode: device.deviceCode,
         deviceCodes: runtimeCodes,
-        children: (device.children ?? []).map((child) => ({
-          id: child.id,
-          name: child.name,
-          deviceCode: child.deviceCode,
-          x: child.x,
-          y: child.y,
-          w: child.width,
-          h: child.height,
-          runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
-        })),
+        children: [],
         runtime: mergeRuntimeForCodes(runtimeCodes, runtimeLookup),
-      }
+      }]
     }),
   }
 }

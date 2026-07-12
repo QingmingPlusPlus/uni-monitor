@@ -177,6 +177,90 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(data.devices[0]?.runtime.status).toBe('changeover')
   })
 
+  it('隐藏横向设备组，并在原占位中水平均分显示所有子设备', async () => {
+    stubFactoryMapConfig([
+      {
+        id: 'horizontal-group',
+        name: 'horizontal-group',
+        section: 'vulcanization1',
+        x: 10,
+        y: 20,
+        width: 120,
+        height: 40,
+        children: [
+          { id: 'child-1', name: 'child-1', deviceCode: 'D-01', x: 0, y: 0, width: 1, height: 1 },
+          { id: 'child-2', name: 'child-2', deviceCode: 'D-02', x: 0, y: 0, width: 1, height: 1 },
+          { id: 'child-3', name: 'child-3', deviceCode: 'D-03', x: 0, y: 0, width: 1, height: 1 },
+        ],
+      },
+    ])
+    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          createRealtimeItem('D-01', 'running'),
+          createRealtimeItem('D-02', 'normal'),
+          createRealtimeItem('D-03', 'pause_running', 'CUT'),
+        ],
+      },
+    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.devices.map((device) => device.id)).toEqual(['child-1', 'child-2', 'child-3'])
+    expect(data.devices.map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
+      { x: 10, y: 20, w: 40, h: 40 },
+      { x: 50, y: 20, w: 40, h: 40 },
+      { x: 90, y: 20, w: 40, h: 40 },
+    ])
+    expect(data.devices.map((device) => device.runtime.status)).toEqual([
+      'production',
+      'plannedStop',
+      'changeover',
+    ])
+  })
+
+  it('隐藏纵向设备组，并在原占位中垂直均分显示所有子设备', async () => {
+    stubFactoryMapConfig([
+      {
+        id: 'vertical-group',
+        name: 'vertical-group',
+        section: null,
+        x: 30,
+        y: 40,
+        width: 50,
+        height: 120,
+        children: [
+          { id: 'child-1', name: 'child-1', deviceCode: 'D-01', x: 0, y: 0, width: 1, height: 1 },
+          { id: 'child-2', name: 'child-2', deviceCode: 'D-02', x: 0, y: 0, width: 1, height: 1 },
+        ],
+      },
+    ])
+    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          createRealtimeItem('D-01', 'running'),
+          createRealtimeItem('D-02', 'normal'),
+        ],
+      },
+    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.devices.map((device) => device.id)).toEqual(['child-1', 'child-2'])
+    expect(data.devices.map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
+      { x: 30, y: 40, w: 50, h: 60 },
+      { x: 30, y: 100, w: 50, h: 60 },
+    ])
+  })
+
   it('通过 window.mapMock(true) 切换到地图 mock 运行态数据', async () => {
     const win = stubBrowserWindow()
     installCssMapMockSwitch()
