@@ -45,6 +45,8 @@ const factoryMapConfigUrls = [
   '/factory-map/devices.json',
 ] as const
 
+const childLayoutSize = 100
+
 export class CssMapDataLoadError extends Error {
   constructor(message: string) {
     super(message)
@@ -389,21 +391,14 @@ async function createCssMapData(
       const runtimeCodes = collectDeviceRuntimeCodes(device)
 
       if (device.children?.length) {
-        const splitHorizontally = device.width >= device.height
-        const childCount = device.children.length
-
-        return device.children.map((child, index) => ({
+        return device.children.map((child) => ({
           id: child.id,
           name: child.name,
           section: device.section,
-          x: splitHorizontally
-            ? device.x + (device.width * index) / childCount
-            : device.x,
-          y: splitHorizontally
-            ? device.y
-            : device.y + (device.height * index) / childCount,
-          w: splitHorizontally ? device.width / childCount : device.width,
-          h: splitHorizontally ? device.height : device.height / childCount,
+          x: device.x + (device.width * child.x) / childLayoutSize,
+          y: device.y + (device.height * child.y) / childLayoutSize,
+          w: (device.width * child.width) / childLayoutSize,
+          h: (device.height * child.height) / childLayoutSize,
           deviceCode: child.deviceCode,
           deviceCodes: [normalizeDeviceCode(child.deviceCode)],
           children: [],

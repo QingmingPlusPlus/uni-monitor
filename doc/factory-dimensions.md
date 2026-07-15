@@ -37,7 +37,7 @@
 - 选择器配置源：`public/factory-map/selection.json`；H5 构建同时保留 `src/static/factory-map/selection.json`。
 - 地图默认渲染器：`src/components/css-map/SpriteCssMapPanel.vue`，使用 Three.js `WebGLRenderer` + `Sprite` 绘制设备卡片；旧 `src/components/css-map/index.vue`（CSS3D DOM 版本）保留为代码级回退。
 - Sprite 地图仅承诺 H5 大屏使用；WebGL 初始化失败时，`FactoryDashboardView` 自动回退到 CSS3D DOM 地图。
-- 地图不绘制 `devices.json` 中带 `children` 的外层设备组，而是将每个 `children` 子设备直接绘制为独立设备；外层占位宽度不小于高度时水平均分，反之垂直均分。无 `children` 的单设备保持原布局。子设备使用自身运行状态、负荷率、人员和 5M 变化点，并可独立进入设备详情；后续可再按单设备调整具体位置。
+- 地图不绘制 `devices.json` 中带 `children` 的外层设备组，而是将每个 `children` 子设备直接绘制为独立设备。子设备的 `x`、`y`、`width`、`height` 使用外层设备内部 100×100 局部坐标，并按外层设备在地图上的宽高换算，因此每台子设备按自身实际位置和尺寸显示。无 `children` 的单设备保持原布局。子设备使用自身运行状态、负荷率、人员和 5M 变化点，并可独立进入设备详情。
 - 地图默认嵌入在部门/工序维度左侧，支持部门、工序选择和设备双击进入详情。
 - 左侧地图提供展开按钮，点击后打开 80vw × 80vh 弹窗，弹窗内展示放大的 `css-map`。
 - 地图弹窗内的部门选择、工序选择、清空工序和设备打开事件均不驱动页面路由切换，只用于弹窗内临时查看。
