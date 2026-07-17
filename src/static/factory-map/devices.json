@@ -369,12 +369,22 @@
       "deviceCode": "1113"
     },
     {
+      "id": "1123",
+      "name": "滚喷粘接-2",
+      "x": 348,
+      "y": 473,
+      "width": 78,
+      "height": 44,
+      "section": "pretreatment1",
+      "deviceCode": "1123"
+    },
+    {
       "id": "1114",
       "name": "CG粘接-1",
       "x": 432,
-      "y": 422,
-      "width": 80,
-      "height": 41,
+      "y": 419,
+      "width": 78,
+      "height": 44,
       "section": "pretreatment1",
       "deviceCode": "1114"
     },
@@ -382,19 +392,19 @@
       "id": "1111",
       "name": "自动喷涂粘接-2",
       "x": 518,
-      "y": 421,
+      "y": 419,
       "width": 85,
-      "height": 42,
+      "height": 44,
       "section": "pretreatment1",
       "deviceCode": "1111"
     },
     {
       "id": "1112",
       "name": "自动喷涂粘接-3",
-      "x": 520,
-      "y": 475,
-      "width": 83,
-      "height": 49,
+      "x": 518,
+      "y": 473,
+      "width": 85,
+      "height": 44,
       "section": "pretreatment1",
       "deviceCode": "1112"
     },
@@ -403,8 +413,8 @@
       "name": "CG粘接-2",
       "x": 433,
       "y": 473,
-      "width": 77,
-      "height": 50,
+      "width": 78,
+      "height": 44,
       "section": "pretreatment1",
       "deviceCode": "1115"
     },
@@ -429,37 +439,14 @@
       "deviceCode": "1117"
     },
     {
-      "id": "pretreatment-inner-pipe-adhesion-1-2",
-      "name": "内管辊涂粘接机",
+      "id": "3110",
+      "name": "内管辊涂粘接机-2",
       "x": 506,
       "y": 541,
       "width": 96,
       "height": 54,
       "section": "pretreatment1",
-      "deviceCodes": [
-        "3109",
-        "3110"
-      ],
-      "children": [
-        {
-          "id": "device-3109",
-          "name": "内管辊涂粘接机-1",
-          "deviceCode": "3109",
-          "x": 2,
-          "y": 2,
-          "width": 47,
-          "height": 96
-        },
-        {
-          "id": "device-3110",
-          "name": "内管辊涂粘接机-2",
-          "deviceCode": "3110",
-          "x": 51,
-          "y": 2,
-          "width": 47,
-          "height": 96
-        }
-      ]
+      "deviceCode": "3110"
     },
     {
       "id": "1122",
@@ -511,36 +498,36 @@
           "name": "手动粘接-1",
           "deviceCode": "1104",
           "x": 2,
-          "y": 2,
-          "width": 47,
-          "height": 47
+          "y": 0,
+          "width": 80,
+          "height": 25
         },
         {
           "id": "device-1105",
           "name": "手动粘接-2",
           "deviceCode": "1105",
-          "x": 51,
-          "y": 2,
-          "width": 47,
-          "height": 47
+          "x": 2,
+          "y": 30,
+          "width": 80,
+          "height": 25
         },
         {
           "id": "device-1106",
           "name": "手动粘接-3",
           "deviceCode": "1106",
           "x": 2,
-          "y": 51,
-          "width": 47,
-          "height": 47
+          "y": 60,
+          "width": 80,
+          "height": 25
         },
         {
           "id": "device-1107",
           "name": "手动粘接-4",
           "deviceCode": "1107",
-          "x": 51,
-          "y": 51,
-          "width": 47,
-          "height": 47
+          "x": 2,
+          "y": 90,
+          "width": 80,
+          "height": 25
         }
       ]
     },
@@ -563,17 +550,17 @@
           "deviceCode": "1D05",
           "x": 2,
           "y": 2,
-          "width": 47,
-          "height": 96
+          "width": 96,
+          "height": 47
         },
         {
           "id": "device-1d06",
           "name": "大盘-1D06",
           "deviceCode": "1D06",
-          "x": 51,
-          "y": 2,
-          "width": 47,
-          "height": 96
+          "x": 2,
+          "y": 51,
+          "width": 96,
+          "height": 47
         }
       ]
     },
@@ -582,140 +569,164 @@
       "name": "STI",
       "x": 846,
       "y": 183,
-      "width": 96,
-      "height": 187,
-      "section": "vulcanization1"
+      "width": 90,
+      "height": 230,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "STI450-1D07",
+        "STI450-1D08",
+        "STI450-1D09",
+        "STI450-1D10",
+        "STI450-1D11",
+        "STI450-1D12"
+      ],
+      "children": [
+        {
+          "id": "device-1d07",
+          "name": "STI450-1D07",
+          "deviceCode": "STI450-1D07",
+          "x": 2,
+          "y": 0,
+          "width": 90,
+          "height": 14
+        },
+        {
+          "id": "device-1d08",
+          "name": "STI450-1D08",
+          "deviceCode": "STI450-1D08",
+          "x": 2,
+          "y": 16,
+          "width": 90,
+          "height": 14
+        },
+        {
+          "id": "device-1d09",
+          "name": "STI450-1D09",
+          "deviceCode": "STI450-1D09",
+          "x": 2,
+          "y": 32,
+          "width": 90,
+          "height": 14
+        },
+        {
+          "id": "device-1d10",
+          "name": "STI450-1D10",
+          "deviceCode": "STI450-1D10",
+          "x": 2,
+          "y": 48,
+          "width": 90,
+          "height": 14
+        },
+        {
+          "id": "device-1d11",
+          "name": "STI450-1D11",
+          "deviceCode": "STI450-1D11",
+          "x": 2,
+          "y": 54,
+          "width": 90,
+          "height": 14
+        },
+        {
+          "id": "device-1d12",
+          "name": "STI450-1D12",
+          "deviceCode": "STI450-1D12",
+          "x": 2,
+          "y": 70,
+          "width": 90,
+          "height": 14
+        }
+      ]
     },
     {
       "id": "vulcanization1-sti450-1a10-1a21",
       "name": "STI-450",
       "x": 957,
-      "y": 105,
+      "y": 110,
       "width": 95,
-      "height": 267,
+      "height": 280,
       "section": "vulcanization1",
       "deviceCodes": [
-        "1A10",
-        "1A11",
-        "1A12",
-        "1A13",
-        "1A14",
-        "1A15",
-        "1A16",
-        "1A17",
-        "1A18",
-        "1A19",
-        "1A20",
-        "1A21"
+        "1D16",
+        "1D17",
+        "1D18",
+        "1D19",
+        "1D20",
+        "1D21",
+        "1D22",
+        "1D23"
       ],
       "children": [
         {
-          "id": "device-1a10",
-          "name": "STI450-1A10",
-          "deviceCode": "1A10",
+          "id": "device-1d16",
+          "name": "STI450-1D16",
+          "deviceCode": "1D16",
           "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 22
+          "y": 0,
+          "width": 90,
+          "height": 10
         },
         {
-          "id": "device-1a11",
-          "name": "STI450-1A11",
-          "deviceCode": "1A11",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1a12",
-          "name": "STI450-1A12",
-          "deviceCode": "1A12",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1a13",
-          "name": "STI450-1A13",
-          "deviceCode": "1A13",
+          "id": "device-1d17",
+          "name": "STI450-1D17",
+          "deviceCode": "1D17",
           "x": 2,
-          "y": 26,
-          "width": 30,
-          "height": 22
+          "y": 12,
+          "width": 90,
+          "height": 10
         },
         {
-          "id": "device-1a14",
-          "name": "STI450-1A14",
-          "deviceCode": "1A14",
-          "x": 34,
-          "y": 26,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1a15",
-          "name": "STI450-1A15",
-          "deviceCode": "1A15",
-          "x": 66,
-          "y": 26,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1a16",
-          "name": "STI450-1A16",
-          "deviceCode": "1A16",
+          "id": "device-1d18",
+          "name": "STI450-1D18",
+          "deviceCode": "1D18",
           "x": 2,
-          "y": 50,
-          "width": 30,
-          "height": 22
+          "y": 24,
+          "width": 90,
+          "height": 10
         },
         {
-          "id": "device-1a17",
-          "name": "STI450-1A17",
-          "deviceCode": "1A17",
-          "x": 34,
-          "y": 50,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1a18",
-          "name": "STI450-1A18",
-          "deviceCode": "1A18",
-          "x": 66,
-          "y": 50,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1a19",
-          "name": "STI450-1A19",
-          "deviceCode": "1A19",
+          "id": "device-1d19",
+          "name": "STI450-1D19",
+          "deviceCode": "1D19",
           "x": 2,
-          "y": 74,
-          "width": 30,
-          "height": 22
+          "y": 36,
+          "width": 90,
+          "height": 10
         },
         {
-          "id": "device-1a20",
-          "name": "STI450-1A20",
-          "deviceCode": "1A20",
-          "x": 34,
-          "y": 74,
-          "width": 30,
-          "height": 22
+          "id": "device-1d20",
+          "name": "STI450-1D20",
+          "deviceCode": "1D20",
+          "x": 2,
+          "y": 48,
+          "width": 90,
+          "height": 10
         },
         {
-          "id": "device-1a21",
-          "name": "STI450-1A21",
-          "deviceCode": "1A21",
-          "x": 66,
-          "y": 74,
-          "width": 30,
-          "height": 22
+          "id": "device-1d21",
+          "name": "STI450-1D21",
+          "deviceCode": "1D21",
+          "x": 2,
+          "y": 60,
+          "width": 90,
+          "height": 10
+        },
+        {
+          "id": "device-1d22",
+          "name": "STI450-1D22",
+          "deviceCode": "1D22",
+          "x": 2,
+          "y": 72,
+          "width": 90,
+          "height": 10
+        },
+        {
+          "id": "device-1d23",
+          "name": "STI450-1D23",
+          "deviceCode": "1D23",
+          "x": 2,
+          "y": 84,
+          "width": 90,
+          "height": 10
         }
       ]
     },
@@ -723,132 +734,92 @@
       "id": "vulcanization1-sti450-1b01-1b12",
       "name": "STI-450",
       "x": 1060,
-      "y": 196,
-      "width": 83,
-      "height": 175,
+      "y": 150,
+      "width": 100,
+      "height": 130,
       "section": "vulcanization1",
       "deviceCodes": [
-        "1B01",
-        "1B02",
-        "1B03",
-        "1B04",
-        "1B05",
-        "1B06",
-        "1B07",
-        "1B08",
-        "1B09",
-        "1B10",
-        "1B11",
-        "1B12"
+        "1H01",
+        "1H02",
+        "1H03",
+        "1D27",
+        "1D28",
+        "1D29",
+        "1D30",
+        "1D31"
       ],
       "children": [
         {
-          "id": "device-1b01",
-          "name": "STI450-1B01",
-          "deviceCode": "1B01",
+          "id": "device-1h01",
+          "name": "STI450-1H01",
+          "deviceCode": "1H01",
           "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 22
+          "y": 0,
+          "width": 80,
+          "height": 20
         },
         {
-          "id": "device-1b02",
-          "name": "STI450-1B02",
-          "deviceCode": "1B02",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1b03",
-          "name": "STI450-1B03",
-          "deviceCode": "1B03",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1b04",
-          "name": "STI450-1B04",
-          "deviceCode": "1B04",
+          "id": "device-1h02",
+          "name": "STI450-1H02",
+          "deviceCode": "1H02",
           "x": 2,
-          "y": 26,
-          "width": 30,
-          "height": 22
+          "y": 22,
+          "width": 80,
+          "height": 20
         },
         {
-          "id": "device-1b05",
-          "name": "STI450-1B05",
-          "deviceCode": "1B05",
-          "x": 34,
-          "y": 26,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1b06",
-          "name": "STI450-1B06",
-          "deviceCode": "1B06",
-          "x": 66,
-          "y": 26,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1b07",
-          "name": "STI450-1B07",
-          "deviceCode": "1B07",
+          "id": "device-1h03",
+          "name": "STI450-1H03",
+          "deviceCode": "1H03",
           "x": 2,
-          "y": 50,
-          "width": 30,
-          "height": 22
+          "y": 44,
+          "width": 80,
+          "height": 20
         },
         {
-          "id": "device-1b08",
-          "name": "STI450-1B08",
-          "deviceCode": "1B08",
-          "x": 34,
-          "y": 50,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1b09",
-          "name": "STI450-1B09",
-          "deviceCode": "1B09",
-          "x": 66,
-          "y": 50,
-          "width": 30,
-          "height": 22
-        },
-        {
-          "id": "device-1b10",
-          "name": "STI450-1B10",
-          "deviceCode": "1B10",
+          "id": "device-1d27",
+          "name": "STI450-1D27",
+          "deviceCode": "1D27",
           "x": 2,
-          "y": 74,
-          "width": 30,
-          "height": 22
+          "y": 66,
+          "width": 80,
+          "height": 20
         },
         {
-          "id": "device-1b11",
-          "name": "STI450-1B11",
-          "deviceCode": "1B11",
-          "x": 34,
-          "y": 74,
-          "width": 30,
-          "height": 22
+          "id": "device-1d28",
+          "name": "STI450-1D28",
+          "deviceCode": "1D28",
+          "x": 2,
+          "y": 88,
+          "width": 80,
+          "height": 20
         },
         {
-          "id": "device-1b12",
-          "name": "STI450-1B12",
-          "deviceCode": "1B12",
-          "x": 66,
-          "y": 74,
-          "width": 30,
-          "height": 22
+          "id": "device-1d29",
+          "name": "STI450-1D29",
+          "deviceCode": "1D29",
+          "x": 2,
+          "y": 110,
+          "width": 80,
+          "height": 20
+        },
+        {
+          "id": "device-1d30",
+          "name": "STI450-1D30",
+          "deviceCode": "1D30",
+          "x": 2,
+          "y": 132,
+          "width": 80,
+          "height": 20
+        },
+        {
+          "id": "device-1d31",
+          "name": "STI450-1D31",
+          "deviceCode": "1D31",
+          "x": 2,
+          "y": 154,
+          "width": 80,
+          "height": 20
         }
       ]
     },
@@ -890,10 +861,331 @@
       "name": "STI-450",
       "x": 677,
       "y": 420,
-      "width": 266,
-      "height": 97,
+      "width": 270,
+      "height": 210,
       "section": "vulcanization1",
       "deviceCodes": [
+        "1C01",
+        "1C02",
+        "1C03",
+        "1C04",
+        "1C05",
+        "1C06",
+        "1C07",
+        "1C08",
+        "1C09"
+      ],
+      "children": [
+        {
+          "id": "device-1c01",
+          "name": "STI450-1C01",
+          "deviceCode": "1C01",
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c02",
+          "name": "STI450-1C02",
+          "deviceCode": "1C02",
+          "x": 10,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c03",
+          "name": "STI450-1C03",
+          "deviceCode": "1C03",
+          "x": 20,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c04",
+          "name": "STI450-1C04",
+          "deviceCode": "1C04",
+          "x": 30,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c05",
+          "name": "STI450-1C05",
+          "deviceCode": "1C05",
+          "x": 40,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c06",
+          "name": "STI450-1C06",
+          "deviceCode": "1C06",
+          "x": 50,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c07",
+          "name": "STI450VX-1C07",
+          "deviceCode": "1C07",
+          "x": 60,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c08",
+          "name": "STI450VX-1C08",
+          "deviceCode": "1C08",
+          "x": 70,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        },
+        {
+          "id": "device-1c09",
+          "name": "STI450VX-1C09",
+          "deviceCode": "1C09",
+          "x": 80,
+          "y": 0,
+          "width": 8,
+          "height": 47
+        }
+      ]
+    },
+    {
+      "id": "vulcanization1-sti450-1c01-1c06",
+      "name": "STI-450",
+      "x": 940,
+      "y": 420,
+      "width": 230,
+      "height": 98,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "1C10",
+        "1C11",
+        "1C12",
+        "1C13",
+        "1C14",
+        "1C15",
+        "1C16",
+        "1C17",
+        "1C18"
+      ],
+      "children": [
+        {
+          "id": "device-1c10",
+          "name": "STI450-1C10",
+          "deviceCode": "1C10",
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c11",
+          "name": "STI450-1C11",
+          "deviceCode": "1C11",
+          "x": 10,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c12",
+          "name": "STI450-1C12",
+          "deviceCode": "1C12",
+          "x": 20,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c13",
+          "name": "STI450-1C13",
+          "deviceCode": "1C13",
+          "x": 30,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c14",
+          "name": "STI450-1C14",
+          "deviceCode": "1C14",
+          "x": 40,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c15",
+          "name": "STI450-1C15",
+          "deviceCode": "1C15",
+          "x": 50,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c16",
+          "name": "STI450-1C16",
+          "deviceCode": "1C16",
+          "x": 60,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c17",
+          "name": "HTI-1C17",
+          "deviceCode": "1C17",
+          "x": 70,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        },
+        {
+          "id": "device-1c18",
+          "name": "HTI-1C18",
+          "deviceCode": "1C18",
+          "x": 80,
+          "y": 0,
+          "width": 8,
+          "height": 95
+        }
+      ]
+    },
+    {
+      "id": "1C21",
+      "name": "MTI-1C21",
+      "x": 1144,
+      "y": 420,
+      "width": 72,
+      "height": 97,
+      "section": "vulcanization1"
+    },
+    {
+      "id": "vulcanization1-sti450-1c07-1c16",
+      "name": "STI-450",
+      "x": 677,
+      "y": 541,
+      "width": 266,
+      "height": 55,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "1B01",
+        "1B02",
+        "1B03",
+        "1B04",
+        "1B05",
+        "1B06",
+        "1B07",
+        "1B08",
+        "1B09"
+      ],
+      "children": [
+        {
+          "id": "device-1b01",
+          "name": "STI450-1B01",
+          "deviceCode": "1B01",
+          "x": 0,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b02",
+          "name": "STI450-1B02",
+          "deviceCode": "1B02",
+          "x": 11,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b03",
+          "name": "STI450-1B03",
+          "deviceCode": "1B03",
+          "x": 22,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b04",
+          "name": "STI450-1B04",
+          "deviceCode": "1B04",
+          "x": 33,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b05",
+          "name": "STI450-1B05",
+          "deviceCode": "1B05",
+          "x": 44,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b06",
+          "name": "STI450-1B06",
+          "deviceCode": "1B06",
+          "x": 55,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b07",
+          "name": "STI450-1B07",
+          "deviceCode": "1B07",
+          "x": 66,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b08",
+          "name": "STI450-1B08",
+          "deviceCode": "1B08",
+          "x": 77,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        {
+          "id": "device-1b09",
+          "name": "STI450-1B09",
+          "deviceCode": "1B09",
+          "x": 88,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "id": "vulcanization1-sti450-1d07-1d12",
+      "name": "STI-450",
+      "x": 950,
+      "y": 541,
+      "width": 250,
+      "height": 56,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "1B10",
+        "1B11",
+        "1B12",
         "1B13",
         "1B14",
         "1B15",
@@ -905,368 +1197,103 @@
       ],
       "children": [
         {
+          "id": "device-1b10",
+          "name": "STI450-1B10",
+          "deviceCode": "1B10",
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        {
+          "id": "device-1b11",
+          "name": "STI450-1B11",
+          "deviceCode": "1B11",
+          "x": 10,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        {
+          "id": "device-1b12",
+          "name": "STI450-1B12",
+          "deviceCode": "1B12",
+          "x": 20,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        {
           "id": "device-1b13",
           "name": "STI450-1B13",
           "deviceCode": "1B13",
-          "x": 2,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "x": 30,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b14",
           "name": "STI450-1B14",
           "deviceCode": "1B14",
-          "x": 26,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "x": 40,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b15",
           "name": "STI450-1B15",
           "deviceCode": "1B15",
           "x": 50,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b16",
           "name": "STI450-1B16",
           "deviceCode": "1B16",
-          "x": 74,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "x": 60,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b17",
           "name": "STI450-1B17",
           "deviceCode": "1B17",
-          "x": 2,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "x": 70,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b18",
           "name": "STI450-1B18",
           "deviceCode": "1B18",
-          "x": 26,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "x": 80,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b19",
           "name": "STI450-1B19",
           "deviceCode": "1B19",
-          "x": 50,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "x": 90,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1b20",
           "name": "STI450-1B20",
           "deviceCode": "1B20",
-          "x": 74,
-          "y": 51,
-          "width": 22,
-          "height": 47
-        }
-      ]
-    },
-    {
-      "id": "vulcanization1-sti450-1c01-1c06",
-      "name": "STI-450",
-      "x": 956,
-      "y": 420,
-      "width": 182,
-      "height": 98,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1C01",
-        "1C02",
-        "1C03",
-        "1C04",
-        "1C05",
-        "1C06"
-      ],
-      "children": [
-        {
-          "id": "device-1c01",
-          "name": "STI450-1C01",
-          "deviceCode": "1C01",
-          "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1c02",
-          "name": "STI450-1C02",
-          "deviceCode": "1C02",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1c03",
-          "name": "STI450-1C03",
-          "deviceCode": "1C03",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1c04",
-          "name": "STI450-1C04",
-          "deviceCode": "1C04",
-          "x": 2,
-          "y": 51,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1c05",
-          "name": "STI450-1C05",
-          "deviceCode": "1C05",
-          "x": 34,
-          "y": 51,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1c06",
-          "name": "STI450-1C06",
-          "deviceCode": "1C06",
-          "x": 66,
-          "y": 51,
-          "width": 30,
-          "height": 47
-        }
-      ]
-    },
-    {
-      "id": "vulcanization1-mti-1c20-1c21",
-      "name": "MTI",
-      "x": 1144,
-      "y": 420,
-      "width": 72,
-      "height": 97,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1C20",
-        "1C21"
-      ],
-      "children": [
-        {
-          "id": "device-1c20",
-          "name": "MTI-1C20",
-          "deviceCode": "1C20",
-          "x": 2,
-          "y": 2,
-          "width": 96,
-          "height": 47
-        },
-        {
-          "id": "device-1c21",
-          "name": "MTI-1C21",
-          "deviceCode": "1C21",
-          "x": 2,
-          "y": 51,
-          "width": 96,
-          "height": 47
-        }
-      ]
-    },
-    {
-      "id": "vulcanization1-sti450-1c07-1c16",
-      "name": "STI-450",
-      "x": 677,
-      "y": 541,
-      "width": 266,
-      "height": 55,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1C07",
-        "1C08",
-        "1C09",
-        "1C10",
-        "1C11",
-        "1C12",
-        "1C13",
-        "1C14",
-        "1C15",
-        "1C16"
-      ],
-      "children": [
-        {
-          "id": "device-1c07",
-          "name": "STI450VX-1C07",
-          "deviceCode": "1C07",
-          "x": 2,
-          "y": 2,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c08",
-          "name": "STI450VX-1C08",
-          "deviceCode": "1C08",
-          "x": 21,
-          "y": 2,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c09",
-          "name": "STI450VX-1C09",
-          "deviceCode": "1C09",
-          "x": 40,
-          "y": 2,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c10",
-          "name": "STI450-1C10",
-          "deviceCode": "1C10",
-          "x": 59,
-          "y": 2,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c11",
-          "name": "STI450-1C11",
-          "deviceCode": "1C11",
-          "x": 78,
-          "y": 2,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c12",
-          "name": "STI450-1C12",
-          "deviceCode": "1C12",
-          "x": 2,
-          "y": 51,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c13",
-          "name": "STI450-1C13",
-          "deviceCode": "1C13",
-          "x": 21,
-          "y": 51,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c14",
-          "name": "STI450-1C14",
-          "deviceCode": "1C14",
-          "x": 40,
-          "y": 51,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c15",
-          "name": "STI450-1C15",
-          "deviceCode": "1C15",
-          "x": 59,
-          "y": 51,
-          "width": 17,
-          "height": 47
-        },
-        {
-          "id": "device-1c16",
-          "name": "STI450-1C16",
-          "deviceCode": "1C16",
-          "x": 78,
-          "y": 51,
-          "width": 17,
-          "height": 47
-        }
-      ]
-    },
-    {
-      "id": "vulcanization1-sti450-1d07-1d12",
-      "name": "STI-450",
-      "x": 955,
-      "y": 541,
-      "width": 261,
-      "height": 56,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1D07",
-        "1D08",
-        "1D09",
-        "1D10",
-        "1D11",
-        "1D12"
-      ],
-      "children": [
-        {
-          "id": "device-1d07",
-          "name": "STI450-1D07",
-          "deviceCode": "1D07",
-          "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1d08",
-          "name": "STI450-1D08",
-          "deviceCode": "1D08",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1d09",
-          "name": "STI450-1D09",
-          "deviceCode": "1D09",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1d10",
-          "name": "STI450-1D10",
-          "deviceCode": "1D10",
-          "x": 2,
-          "y": 51,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1d11",
-          "name": "STI450-1D11",
-          "deviceCode": "1D11",
-          "x": 34,
-          "y": 51,
-          "width": 30,
-          "height": 47
-        },
-        {
-          "id": "device-1d12",
-          "name": "STI450-1D12",
-          "deviceCode": "1D12",
-          "x": 66,
-          "y": 51,
-          "width": 30,
-          "height": 47
+          "x": 100,
+          "y": 0,
+          "width": 8,
+          "height": 100
         }
       ]
     },
@@ -1294,175 +1321,205 @@
           "id": "device-1a01",
           "name": "STI375-1A01",
           "deviceCode": "1A01",
-          "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 30
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a02",
           "name": "STI375-1A02",
           "deviceCode": "1A02",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 30
+          "x": 10,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a03",
           "name": "STI375-1A03",
           "deviceCode": "1A03",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 30
+          "x": 20,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a04",
           "name": "STI375-1A04",
           "deviceCode": "1A04",
-          "x": 2,
-          "y": 34,
-          "width": 30,
-          "height": 30
+          "x": 30,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a05",
           "name": "STI375-1A05",
           "deviceCode": "1A05",
-          "x": 34,
-          "y": 34,
-          "width": 30,
-          "height": 30
+          "x": 40,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a06",
           "name": "STI375-1A06",
           "deviceCode": "1A06",
-          "x": 66,
-          "y": 34,
-          "width": 30,
-          "height": 30
+          "x": 50,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a07",
           "name": "STI375-1A07",
           "deviceCode": "1A07",
-          "x": 2,
-          "y": 66,
-          "width": 30,
-          "height": 30
+          "x": 60,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a08",
           "name": "STI375-1A08",
           "deviceCode": "1A08",
-          "x": 34,
-          "y": 66,
-          "width": 30,
-          "height": 30
+          "x": 70,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
           "id": "device-1a09",
           "name": "STI375-1A09",
           "deviceCode": "1A09",
-          "x": 66,
-          "y": 66,
-          "width": 30,
-          "height": 30
+          "x": 80,
+          "y": 0,
+          "width": 8,
+          "height": 100
         }
       ]
     },
     {
       "id": "vulcanization1-sti450-1d27-1h03",
       "name": "STI-450",
-      "x": 956,
+      "x": 945,
       "y": 601,
-      "width": 260,
+      "width": 255,
       "height": 60,
       "section": "vulcanization1",
       "deviceCodes": [
-        "1D27",
-        "1D28",
-        "1D29",
-        "1D30",
-        "1D31",
-        "1H01",
-        "1H02",
-        "1H03"
+        "1A10",
+        "1A11",
+        "1A12",
+        "1A13",
+        "1A14",
+        "1A15",
+        "1A16",
+        "1A17",
+        "1A18",
+        "1A19",
+        "1A20"
       ],
       "children": [
         {
-          "id": "device-1d27",
-          "name": "STI450VX-1D27",
-          "deviceCode": "1D27",
-          "x": 2,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "id": "device-1a10",
+          "name": "STI450-1A10",
+          "deviceCode": "1A10",
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1d28",
-          "name": "STI450VX-1D28",
-          "deviceCode": "1D28",
-          "x": 26,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "id": "device-1a11",
+          "name": "STI450-1A11",
+          "deviceCode": "1A11",
+          "x": 10,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1d29",
-          "name": "STI450VX-1D29",
-          "deviceCode": "1D29",
+          "id": "device-1a12",
+          "name": "STI450-1A12",
+          "deviceCode": "1A12",
+          "x": 20,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        {
+          "id": "device-1a13",
+          "name": "STI450-1A13",
+          "deviceCode": "1A13",
+          "x": 30,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        {
+          "id": "device-1a14",
+          "name": "STI450-1A14",
+          "deviceCode": "1A14",
+          "x": 40,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        {
+          "id": "device-1a15",
+          "name": "STI450-1A15",
+          "deviceCode": "1A15",
           "x": 50,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1d30",
-          "name": "STI450VX-1D30",
-          "deviceCode": "1D30",
-          "x": 74,
-          "y": 2,
-          "width": 22,
-          "height": 47
+          "id": "device-1a16",
+          "name": "STI450-1A16",
+          "deviceCode": "1A16",
+          "x": 60,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1d31",
-          "name": "STI450VX-1D31",
-          "deviceCode": "1D31",
-          "x": 2,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "id": "device-1a17",
+          "name": "STI450-1A17",
+          "deviceCode": "1A17",
+          "x": 70,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1h01",
-          "name": "STI450VX-1H01",
-          "deviceCode": "1H01",
-          "x": 26,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "id": "device-1a18",
+          "name": "STI450-1A18",
+          "deviceCode": "1A18",
+          "x": 80,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1h02",
-          "name": "STI450VX-1H02",
-          "deviceCode": "1H02",
-          "x": 50,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "id": "device-1a19",
+          "name": "STI450-1A19",
+          "deviceCode": "1A19",
+          "x": 90,
+          "y": 0,
+          "width": 8,
+          "height": 100
         },
         {
-          "id": "device-1h03",
-          "name": "STI450-1H03",
-          "deviceCode": "1H03",
-          "x": 74,
-          "y": 51,
-          "width": 22,
-          "height": 47
+          "id": "device-1a20",
+          "name": "STI450-1A20",
+          "deviceCode": "1A20",
+          "x": 100,
+          "y": 0,
+          "width": 8,
+          "height": 100
         }
       ]
     },
@@ -1485,37 +1542,37 @@
           "id": "device-2324",
           "name": "CG涂装-2",
           "deviceCode": "2324",
-          "x": 2,
-          "y": 2,
-          "width": 47,
-          "height": 47
-        },
-        {
-          "id": "device-2325",
-          "name": "CG涂装-3",
-          "deviceCode": "2325",
-          "x": 51,
-          "y": 2,
-          "width": 47,
-          "height": 47
+          "x": 50,
+          "y": 0,
+          "width": 40,
+          "height": 20
         },
         {
           "id": "device-2326",
           "name": "CG涂装-4",
+          "deviceCode": "2325",
+          "x": 50,
+          "y": 25,
+          "width": 40,
+          "height": 20
+        },
+        {
+          "id": "device-2325",
+          "name": "CG涂装-3",
           "deviceCode": "2326",
-          "x": 2,
-          "y": 51,
-          "width": 47,
-          "height": 47
+          "x": 0,
+          "y": 50,
+          "width": 30,
+          "height": 40
         },
         {
           "id": "device-2327",
           "name": "CG涂装-5",
           "deviceCode": "2327",
-          "x": 51,
-          "y": 51,
-          "width": 47,
-          "height": 47
+          "x": 40,
+          "y": 50,
+          "width": 30,
+          "height": 40
         }
       ]
     },
@@ -1536,39 +1593,39 @@
       "children": [
         {
           "id": "device-2311",
-          "name": "自动液压-5",
+          "name": "自动液压-6",
           "deviceCode": "2311",
-          "x": 2,
-          "y": 2,
-          "width": 96,
-          "height": 22
+          "x": 0,
+          "y": 0,
+          "width": 45,
+          "height": 45
         },
         {
           "id": "device-2312",
-          "name": "自动液压-6",
+          "name": "自动液压-5",
           "deviceCode": "2312",
-          "x": 2,
-          "y": 26,
-          "width": 96,
-          "height": 22
+          "x": 50,
+          "y": 0,
+          "width": 45,
+          "height": 45
         },
         {
           "id": "device-2313",
-          "name": "自动液压-7",
+          "name": "自动液压-8",
           "deviceCode": "2313",
-          "x": 2,
+          "x": 0,
           "y": 50,
-          "width": 96,
-          "height": 22
+          "width": 45,
+          "height": 45
         },
         {
           "id": "device-2314",
-          "name": "自动液压-8",
+          "name": "自动液压-7",
           "deviceCode": "2314",
-          "x": 2,
-          "y": 74,
-          "width": 96,
-          "height": 22
+          "x": 50,
+          "y": 50,
+          "width": 45,
+          "height": 45
         }
       ]
     },
@@ -1598,40 +1655,40 @@
       ],
       "children": [
         {
+          "id": "device-2310",
+          "name": "自动液压-4",
+          "deviceCode": "2310",
+          "x": 0,
+          "y": 0,
+          "width": 45,
+          "height": 45
+        },
+        {
           "id": "device-2307",
           "name": "自动液压-1",
           "deviceCode": "2307",
-          "x": 2,
-          "y": 2,
-          "width": 22,
-          "height": 96
-        },
-        {
-          "id": "device-2308",
-          "name": "自动液压-2",
-          "deviceCode": "2308",
-          "x": 26,
-          "y": 2,
-          "width": 22,
-          "height": 96
+          "x": 50,
+          "y": 0,
+          "width": 45,
+          "height": 45
         },
         {
           "id": "device-2309",
           "name": "自动液压-3",
           "deviceCode": "2309",
-          "x": 50,
-          "y": 2,
-          "width": 22,
-          "height": 96
+          "x": 0,
+          "y": 50,
+          "width": 45,
+          "height": 45
         },
         {
-          "id": "device-2310",
-          "name": "自动液压-4",
-          "deviceCode": "2310",
-          "x": 74,
-          "y": 2,
-          "width": 22,
-          "height": 96
+          "id": "device-2308",
+          "name": "自动液压-2",
+          "deviceCode": "2308",
+          "x": 50,
+          "y": 50,
+          "width": 45,
+          "height": 45
         }
       ]
     },
@@ -1913,6 +1970,7 @@
       "height": 94,
       "section": null,
       "deviceCodes": [
+        "2A01",
         "2A02",
         "2A03",
         "2A04",
@@ -1928,112 +1986,121 @@
       ],
       "children": [
         {
-          "id": "device-2a02",
-          "name": "STI450VY-2A02",
+          "id": "2A01",
+          "name": "HTI-2A01",
+          "deviceCode": "2A01",
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
+          "id": "2A02",
+          "name": "STI450-2A02",
           "deviceCode": "2A02",
-          "x": 2,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 8,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a03",
-          "name": "STI450VY-2A03",
+          "id": "2A03",
+          "name": "STI450-2A03",
           "deviceCode": "2A03",
-          "x": 18,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 16,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a04",
-          "name": "STI450VY-2A04",
+          "id": "2A04",
+          "name": "STI450-2A04",
           "deviceCode": "2A04",
-          "x": 34,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 24,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a05",
-          "name": "STI450VY-2A05",
+          "id": "2A05",
+          "name": "STI450-2A05",
           "deviceCode": "2A05",
-          "x": 50,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 32,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a06",
-          "name": "STI450VY2A06",
+          "id": "2A06",
+          "name": "STI450-2A06",
           "deviceCode": "2A06",
-          "x": 66,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 40,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a07",
-          "name": "STI450VY2A07",
+          "id": "2A07",
+          "name": "STI450-2A07",
           "deviceCode": "2A07",
-          "x": 82,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 48,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a08",
+          "id": "2A08",
           "name": "STI450-2A08",
           "deviceCode": "2A08",
-          "x": 2,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 56,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a09",
+          "id": "2A09",
           "name": "STI450-2A09",
           "deviceCode": "2A09",
-          "x": 18,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 64,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a10",
+          "id": "2A10",
           "name": "STI450-2A10",
           "deviceCode": "2A10",
-          "x": 34,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 72,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a11",
-          "name": "STI450VX-2A11",
+          "id": "2A11",
+          "name": "STI450-2A11",
           "deviceCode": "2A11",
-          "x": 50,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 80,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a12",
-          "name": "STI450VX-2A12",
+          "id": "2A12",
+          "name": "STI450-2A12",
           "deviceCode": "2A12",
-          "x": 66,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 80,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
-          "id": "device-2a13",
-          "name": "STI450VX-2A13",
+          "id": "2A13",
+          "name": "STI450-2A13",
           "deviceCode": "2A13",
-          "x": 82,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 88,
+          "y": 0,
+          "width": 7,
+          "height": 96
         }
       ]
     },
@@ -2265,7 +2332,7 @@
       "name": "STI450",
       "x": 517,
       "y": 1064,
-      "width": 116,
+      "width": 290,
       "height": 158,
       "section": null,
       "deviceCodes": [
@@ -2274,74 +2341,7 @@
         "2B03",
         "2B04",
         "2B05",
-        "2B06"
-      ],
-      "children": [
-        {
-          "id": "device-2b01",
-          "name": "STI450-2B01",
-          "deviceCode": "2B01",
-          "x": 2,
-          "y": 2,
-          "width": 47,
-          "height": 30
-        },
-        {
-          "id": "device-2b02",
-          "name": "STI450-2B02",
-          "deviceCode": "2B02",
-          "x": 51,
-          "y": 2,
-          "width": 47,
-          "height": 30
-        },
-        {
-          "id": "device-2b03",
-          "name": "STI450-2B03",
-          "deviceCode": "2B03",
-          "x": 2,
-          "y": 34,
-          "width": 47,
-          "height": 30
-        },
-        {
-          "id": "device-2b04",
-          "name": "STI450-2B04",
-          "deviceCode": "2B04",
-          "x": 51,
-          "y": 34,
-          "width": 47,
-          "height": 30
-        },
-        {
-          "id": "device-2b05",
-          "name": "STI450-2B05",
-          "deviceCode": "2B05",
-          "x": 2,
-          "y": 66,
-          "width": 47,
-          "height": 30
-        },
-        {
-          "id": "device-2b06",
-          "name": "STI450-2B06",
-          "deviceCode": "2B06",
-          "x": 51,
-          "y": 66,
-          "width": 47,
-          "height": 30
-        }
-      ]
-    },
-    {
-      "id": "vulcanization2-sti450-2b07-2b12",
-      "name": "STI450",
-      "x": 641,
-      "y": 1064,
-      "width": 179,
-      "height": 156,
-      "section": null,
-      "deviceCodes": [
+        "2B06",
         "2B07",
         "2B08",
         "2B09",
@@ -2351,58 +2351,112 @@
       ],
       "children": [
         {
+          "id": "device-2b01",
+          "name": "STI450-2B01",
+          "deviceCode": "2B01",
+          "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
+          "id": "device-2b02",
+          "name": "STI450-2B02",
+          "deviceCode": "2B02",
+           "x": 8,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
+          "id": "device-2b03",
+          "name": "STI450-2B03",
+          "deviceCode": "2B03",
+          "x": 16,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
+          "id": "device-2b04",
+          "name": "STI450-2B04",
+          "deviceCode": "2B04",
+           "x": 24,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
+          "id": "device-2b05",
+          "name": "STI450-2B05",
+          "deviceCode": "2B05",
+           "x": 32,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
+          "id": "device-2b06",
+          "name": "STI450-2B06",
+          "deviceCode": "2B06",
+          "x": 40,
+          "y": 0,
+          "width": 7,
+          "height": 96
+        },
+        {
           "id": "device-2b07",
           "name": "STI450-2B07",
           "deviceCode": "2B07",
-          "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 47
+           "x": 48,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b08",
           "name": "STI450-2B08",
           "deviceCode": "2B08",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 47
+          "x": 56,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b09",
           "name": "STI450-2B09",
           "deviceCode": "2B09",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 47
+           "x": 64,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b10",
           "name": "STI450-2B10",
           "deviceCode": "2B10",
-          "x": 2,
-          "y": 51,
-          "width": 30,
-          "height": 47
+            "x": 72,
+            "y": 0,
+            "width": 7,
+            "height": 96
         },
         {
           "id": "device-2b11",
           "name": "STI450-2B11",
           "deviceCode": "2B11",
-          "x": 34,
-          "y": 51,
-          "width": 30,
-          "height": 47
+            "x": 80,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b12",
           "name": "STI450-2B12",
           "deviceCode": "2B12",
-          "x": 66,
-          "y": 51,
-          "width": 30,
-          "height": 47
+            "x": 88,
+          "y": 0,
+          "width": 7,
+          "height": 96
         }
       ]
     },
@@ -2433,109 +2487,109 @@
           "id": "device-2b13",
           "name": "STI450-2B13",
           "deviceCode": "2B13",
-          "x": 2,
-          "y": 2,
-          "width": 14,
-          "height": 47
+         "x": 0,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b14",
           "name": "STI450-2B14",
           "deviceCode": "2B14",
-          "x": 18,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 8,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b15",
           "name": "STI450-2B15",
           "deviceCode": "2B15",
-          "x": 34,
-          "y": 2,
-          "width": 14,
-          "height": 47
+         "x": 16,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b16",
           "name": "STI450-2B16",
           "deviceCode": "2B16",
-          "x": 50,
-          "y": 2,
-          "width": 14,
-          "height": 47
+          "x": 24,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b17",
           "name": "STI450-2B17",
           "deviceCode": "2B17",
-          "x": 66,
-          "y": 2,
-          "width": 14,
-          "height": 47
+         "x": 32,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b18",
           "name": "STI450-2B18",
           "deviceCode": "2B18",
-          "x": 82,
-          "y": 2,
-          "width": 14,
-          "height": 47
+        "x": 40,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b19",
           "name": "STI450-2B19",
           "deviceCode": "2B19",
-          "x": 2,
-          "y": 51,
-          "width": 14,
-          "height": 47
+         "x": 48,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b20",
           "name": "STI450-2B20",
           "deviceCode": "2B20",
-          "x": 18,
-          "y": 51,
-          "width": 14,
-          "height": 47
+       "x": 56,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b21",
           "name": "STI450-2B21",
           "deviceCode": "2B21",
-          "x": 34,
-          "y": 51,
-          "width": 14,
-          "height": 47
+        "x": 64,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b22",
           "name": "STI450MVX-2B22",
           "deviceCode": "2B22",
-          "x": 50,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 77,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b23",
           "name": "STI450MVX-2B23",
           "deviceCode": "2B23",
-          "x": 66,
-          "y": 51,
-          "width": 14,
-          "height": 47
+         "x": 85,
+          "y": 0,
+          "width": 7,
+          "height": 96
         },
         {
           "id": "device-2b24",
           "name": "STI450MVX-2B24",
           "deviceCode": "2B24",
-          "x": 82,
-          "y": 51,
-          "width": 14,
-          "height": 47
+          "x": 93,
+          "y": 0,
+          "width": 7,
+          "height": 96
         }
       ]
     },
