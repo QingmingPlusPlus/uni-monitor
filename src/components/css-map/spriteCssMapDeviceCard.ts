@@ -202,6 +202,75 @@ function drawTextLines(
   })
 }
 
+interface FittedTextBlock {
+  readonly fontSize: number
+  readonly lines: readonly string[]
+  readonly lineHeight: number
+}
+
+function wrapTextToLines(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+): string[] {
+  const lines: string[] = []
+  let current = ''
+
+  Array.from(text).forEach((char) => {
+    const candidate = `${current}${char}`
+    if (current.length === 0 || context.measureText(candidate).width <= maxWidth) {
+      current = candidate
+      return
+    }
+
+    lines.push(current)
+    current = char
+  })
+
+  if (current) lines.push(current)
+  return lines.length === 0 ? [''] : lines
+}
+
+function fitTextBlock(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxHeight: number,
+  maxLines: number,
+  preferredFontSize: number,
+  minimumFontSize: number,
+): FittedTextBlock {
+  for (let fontSize = preferredFontSize; fontSize >= minimumFontSize; fontSize -= 0.5) {
+    context.font = createFont(900, fontSize)
+    const lines = wrapTextToLines(context, text, maxWidth)
+    const lineHeight = fontSize * 1.04
+    if (lines.length <= maxLines && lines.length * lineHeight <= maxHeight) {
+      return { fontSize, lines, lineHeight }
+    }
+  }
+
+  context.font = createFont(900, minimumFontSize)
+  return {
+    fontSize: minimumFontSize,
+    lines: splitTextToLines(context, text, maxWidth, maxLines),
+    lineHeight: minimumFontSize * 1.04,
+  }
+}
+
+function fitSingleLineFontSize(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  preferredFontSize: number,
+  minimumFontSize: number,
+): number {
+  for (let fontSize = preferredFontSize; fontSize >= minimumFontSize; fontSize -= 0.5) {
+    context.font = createFont(900, fontSize)
+    if (context.measureText(text).width <= maxWidth) return fontSize
+  }
+  return minimumFontSize
+}
+
 function drawStatusPill(
   context: CanvasRenderingContext2D,
   text: string,
@@ -215,10 +284,12 @@ function drawStatusPill(
   context.fillStyle = colorPlan.statusBorder
   context.fill()
   context.fillStyle = '#ffffff'
-  context.font = createFont(900, fontSize)
+  const innerWidth = Math.max(1, rect.w - 8)
+  const fittedFontSize = fitSingleLineFontSize(context, text, innerWidth, fontSize, 8)
+  context.font = createFont(900, fittedFontSize)
   context.textAlign = 'center'
   context.textBaseline = 'middle'
-  context.fillText(ellipsizeText(context, text, rect.w - 8), rect.x + rect.w / 2, rect.y + rect.h / 2)
+  context.fillText(ellipsizeText(context, text, innerWidth), rect.x + rect.w / 2, rect.y + rect.h / 2)
 }
 
 function drawHeader(
@@ -227,30 +298,59 @@ function drawHeader(
   rect: DrawRect,
   colorPlan: SpriteCssMapDeviceColorPlan,
 ): void {
-  const { device, layout, theme } = options
-  const nameFontSize = clamp(rect.h * 0.34, 9, 22)
-  const statusFontSize = clamp(rect.h * 0.26, 8, 15)
+  const { device, layout } = options
   const statusLabel = getSpriteCssMapStatusLabel(device.runtime.status)
   const gap = clamp(rect.w * 0.03, 3, 8)
   const statusWidth = layout.mode === 'stack'
-    ? Math.min(rect.w - 8, Math.max(36, rect.w * 0.62))
-    : Math.min(rect.w * 0.44, Math.max(44, statusLabel.length * statusFontSize + 14))
-  const statusHeight = clamp(rect.h * 0.38, 14, 24)
+    ? Math.max(1, rect.w - 8)
+    : Math.min(rect.w * 0.44, Math.max(44, statusLabel.length * clamp(rect.h * 0.26, 8, 15) + 14))
+  const statusHeight = layout.mode === 'stack'
+    ? clamp(rect.h * 0.28, 16, 24)
+    : clamp(rect.h * 0.38, 14, 24)
+  const statusFontSize = layout.mode === 'stack'
+    ? clamp(statusHeight * 0.58, 8, 13)
+    : clamp(rect.h * 0.26, 8, 15)
 
   context.save()
   context.fillStyle = colorPlan.statusBackground
   context.fillRect(rect.x, rect.y, rect.w, rect.h)
   context.fillStyle = colorPlan.statusColor
-  context.font = createFont(900, nameFontSize)
   context.textAlign = 'left'
   context.textBaseline = 'top'
 
   if (layout.mode === 'stack') {
     const nameMaxWidth = rect.w - 8
-    const lines = layout.nameMode === 'full'
-      ? splitTextToLines(context, device.name, nameMaxWidth, rect.h >= 40 ? 2 : 1)
-      : [ellipsizeText(context, device.name, nameMaxWidth)]
-    drawTextLines(context, lines, rect.x + 4, rect.y + 3, nameFontSize * 1.04)
+    const nameAreaHeight = Math.max(1, rect.h - statusHeight - 10)
+    const preferredNameFontSize = clamp(
+      Math.min(rect.w * 0.23, nameAreaHeight * 0.48),
+      10,
+      18,
+    )
+    context.font = createFont(900, preferredNameFontSize)
+    const nameBlock = layout.nameMode === 'full'
+      ? fitTextBlock(
+          context,
+          device.name,
+          nameMaxWidth,
+          nameAreaHeight,
+          3,
+          preferredNameFontSize,
+          9,
+        )
+      : {
+          fontSize: preferredNameFontSize,
+          lines: [ellipsizeText(context, device.name, nameMaxWidth)],
+          lineHeight: preferredNameFontSize * 1.04,
+        }
+    const nameBlockHeight = nameBlock.lines.length * nameBlock.lineHeight
+    context.font = createFont(900, nameBlock.fontSize)
+    drawTextLines(
+      context,
+      nameBlock.lines,
+      rect.x + 4,
+      rect.y + Math.max(3, (nameAreaHeight - nameBlockHeight) / 2 + 2),
+      nameBlock.lineHeight,
+    )
     drawStatusPill(
       context,
       statusLabel,
@@ -266,6 +366,9 @@ function drawHeader(
     context.restore()
     return
   }
+
+  const nameFontSize = clamp(rect.h * 0.34, 9, 22)
+  context.font = createFont(900, nameFontSize)
 
   const pillRect: DrawRect = {
     x: rect.x + rect.w - statusWidth - gap,
@@ -334,14 +437,21 @@ function drawMarkerRow(
   rect: DrawRect,
   type: 'staff' | 'fiveM',
 ): void {
-  const { device, display, theme } = options
+  const { device, display, layout } = options
   const staffItems = display.showStaffing ? device.runtime.staff : []
   const fiveMItems = display.showFiveMChanges ? device.runtime.fiveMChanges : []
   const itemCount = type === 'staff' ? staffItems.length : fiveMItems.length
   const label = type === 'staff' ? '配置' : '5M'
-  const labelWidth = clamp(rect.w * 0.22, 18, 34)
-  const gap = clamp(rect.h * 0.1, 2, 5)
-  const markerSize = Math.floor(clamp(rect.h - 5, 7, type === 'staff' ? 18 : 19))
+  const compact = layout.mode === 'stack'
+  const labelWidth = compact
+    ? clamp(rect.w * 0.18, 16, 26)
+    : clamp(rect.w * 0.22, 18, 34)
+  const gap = compact
+    ? clamp(rect.h * 0.08, 2, 4)
+    : clamp(rect.h * 0.1, 2, 5)
+  const markerSize = Math.floor(compact
+    ? clamp(rect.h - 7, 7, type === 'staff' ? 14 : 15)
+    : clamp(rect.h - 5, 7, type === 'staff' ? 18 : 19))
   const markerAreaWidth = Math.max(0, rect.w - labelWidth - gap)
   const markerStep = markerSize + gap
   const visibleCount = markerStep > 0
@@ -351,14 +461,18 @@ function drawMarkerRow(
 
   context.save()
   context.fillStyle = 'rgba(20, 33, 61, 0.72)'
-  context.font = createFont(800, clamp(rect.h * 0.34, 7, 12))
+  context.font = createFont(800, compact
+    ? clamp(rect.h * 0.3, 7, 10)
+    : clamp(rect.h * 0.34, 7, 12))
   context.textAlign = 'left'
   context.textBaseline = 'middle'
   context.fillText(label, rect.x, rect.y + rect.h / 2, labelWidth)
 
   if (itemCount === 0 || drawCount === 0) {
     context.fillStyle = 'rgba(20, 33, 61, 0.38)'
-    context.font = createFont(900, clamp(rect.h * 0.36, 7, 12))
+    context.font = createFont(900, compact
+      ? clamp(rect.h * 0.32, 7, 10)
+      : clamp(rect.h * 0.36, 7, 12))
     context.fillText('--', rect.x + labelWidth + gap, rect.y + rect.h / 2, markerAreaWidth)
     context.restore()
     return
@@ -488,7 +602,7 @@ export function drawSpriteCssMapDeviceCard(
 
   const inset = borderWidth
   const headerHeight = layout.mode === 'stack'
-    ? clamp(height * 0.34, 30, 68)
+    ? clamp(Math.min(height * 0.25, width * 1.16), 56, 104)
     : clamp(height * 0.36, 22, 52)
   const contentRect: DrawRect = {
     x: inset,

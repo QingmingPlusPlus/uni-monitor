@@ -45,4 +45,19 @@ describe('planSpriteCssMapDeviceCard', () => {
     expect(layout.pixelRatio).toBe(2)
     expect(layout.logicalHeight).toBeLessThanOrEqual(640)
   })
+
+  it('截图中的细长子设备保留足够纹理宽度并在放大后显示完整名称', () => {
+    const layout = planSpriteCssMapDeviceCard({
+      worldWidth: 21.6,
+      worldHeight: 98.7,
+      screenWidth: 96,
+      screenHeight: 438,
+      pixelRatio: 1,
+    })
+
+    expect(layout.mode).toBe('stack')
+    expect(layout.nameMode).toBe('full')
+    expect(layout.logicalWidth).toBeGreaterThanOrEqual(76)
+    expect(layout.logicalHeight / layout.logicalWidth).toBeCloseTo(98.7 / 21.6, 1)
+  })
 })
