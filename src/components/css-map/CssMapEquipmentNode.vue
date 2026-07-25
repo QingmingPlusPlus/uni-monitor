@@ -6,6 +6,10 @@ import {
   getCssMapLoadRateBackground,
   getCssMapTitleStyle,
 } from './css3dMapPalette'
+import {
+  planCssMapDeviceContent,
+  planCssMapMarkerSlots,
+} from './cssMapDeviceContentLayout'
 import type {
   CssMapDevice,
   CssMapDeviceChild,
@@ -48,18 +52,64 @@ const statusStyle = computed(() => getCssMapTitleStyle(
 ))
 
 const loadRateStyle = computed(() => ({
-  background: getCssMapLoadRateBackground(
+  '--css-map-node-load-background': getCssMapLoadRateBackground(
     props.device.runtime.loadRate,
     props.display.showLoadRateColor,
   ),
 }))
 
-const hasStaffing = computed(() => props.device.runtime.staff.length > 0)
+const staffingItems = computed(() => (
+  props.display.showStaffing ? props.device.runtime.staff : []
+))
 
-const hasFiveMChanges = computed(() => props.device.runtime.fiveMChanges.length > 0)
+const fiveMItems = computed(() => (
+  props.display.showFiveMChanges ? props.device.runtime.fiveMChanges : []
+))
+
+const hasStaffing = computed(() => staffingItems.value.length > 0)
+
+const hasFiveMChanges = computed(() => fiveMItems.value.length > 0)
+
+const equipmentBorderWidth = 4
+
+const contentPlan = computed(() => planCssMapDeviceContent({
+  worldWidth: props.device.w,
+  worldHeight: props.device.h,
+  surfaceWidth: Math.max(1, props.screen.width - equipmentBorderWidth * 2),
+  surfaceHeight: Math.max(1, props.screen.height - equipmentBorderWidth * 2),
+  name: props.device.name,
+  statusLabel: statusLabel.value,
+  loadRateLabel: loadRateLabel.value,
+  staffCount: staffingItems.value.length,
+  fiveMCount: fiveMItems.value.length,
+  showStaffing: props.display.showStaffing,
+  showFiveMChanges: props.display.showFiveMChanges,
+}))
+
+const staffSlotPlan = computed(() => planCssMapMarkerSlots(
+  staffingItems.value.length,
+  contentPlan.value.orientation,
+))
+
+const fiveMSlotPlan = computed(() => planCssMapMarkerSlots(
+  fiveMItems.value.length,
+  contentPlan.value.orientation,
+))
+
+const visibleStaffingItems = computed(() => staffingItems.value.slice(
+  0,
+  staffSlotPlan.value.visibleMarkerCount,
+))
+
+const visibleFiveMItems = computed(() => fiveMItems.value.slice(
+  0,
+  fiveMSlotPlan.value.visibleMarkerCount,
+))
 
 const compactNameHeaderWidth = 160
-const useCompactNameHeader = computed(() => props.screen.width < compactNameHeaderWidth)
+const useCompactNameHeader = computed(() => (
+  contentPlan.value.contentWidth < compactNameHeaderWidth
+))
 
 const detailTitle = computed(() => {
   const staffing = hasStaffing.value
@@ -88,8 +138,10 @@ const surfaceStyle = computed(() => {
     '--css-map-node-status-background': status.background,
     '--css-map-node-status-border': status.border,
     '--css-map-node-status-color': status.color,
+    '--css-map-node-border-width': `${equipmentBorderWidth}px`,
     '--css-map-staff-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
     '--css-map-five-m-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
+    '--css-map-node-content-width': `${contentPlan.value.contentWidthRatio * 100}%`,
   }
 })
 </script>
@@ -100,60 +152,78 @@ const surfaceStyle = computed(() => {
     :class="{
       'css-map-equipment-node--selecting': selectMode,
       'css-map-equipment-node--compact-name': useCompactNameHeader,
+      'css-map-equipment-node--vertical': contentPlan.orientation === 'vertical',
+      'css-map-equipment-node--horizontal': contentPlan.orientation === 'horizontal',
+      'css-map-equipment-node--wide': contentPlan.isWide,
     }"
     :style="surfaceStyle"
     :data-device-id="device.id"
     :title="detailTitle"
   >
-    <header class="css-map-equipment-node__header">
-      <strong>{{ device.name }}</strong>
-      <span class="css-map-equipment-node__status">{{ statusLabel }}</span>
-    </header>
+    <div class="css-map-equipment-node__content">
+      <header class="css-map-equipment-node__header">
+        <strong>{{ device.name }}</strong>
+        <span class="css-map-equipment-node__status">{{ statusLabel }}</span>
+      </header>
 
-    <section class="css-map-equipment-node__body">
-      <div
-        class="css-map-equipment-node__rate"
-        :style="loadRateStyle"
-      >
-        <strong>{{ loadRateLabel }}</strong>
-      </div>
-
-      <div class="css-map-equipment-node__details">
-        <div class="css-map-equipment-node__detail-row">
-          <span class="css-map-equipment-node__detail-label">配置</span>
-          <div class="css-map-equipment-node__markers">
-            <CssMapStaffMarker
-              v-for="staff in device.runtime.staff"
-              :key="staff.id"
-              :staff="staff"
-            />
-            <span
-              v-if="!hasStaffing"
-              class="css-map-equipment-node__empty"
-            >
-              --
-            </span>
-          </div>
+      <section class="css-map-equipment-node__body">
+        <div
+          class="css-map-equipment-node__rate"
+          :style="loadRateStyle"
+        >
+          <span class="css-map-equipment-node__rate-label">负荷率</span>
+          <strong>{{ loadRateLabel }}</strong>
         </div>
 
-        <div class="css-map-equipment-node__detail-row">
-          <span class="css-map-equipment-node__detail-label">5M</span>
-          <div class="css-map-equipment-node__markers">
-            <CssMapFiveMMarker
-              v-for="change in device.runtime.fiveMChanges"
-              :key="change.id"
-              :change="change"
-            />
-            <span
-              v-if="!hasFiveMChanges"
-              class="css-map-equipment-node__empty"
-            >
-              --
-            </span>
+        <div class="css-map-equipment-node__details">
+          <div class="css-map-equipment-node__detail-row">
+            <span class="css-map-equipment-node__detail-label">人员</span>
+            <div class="css-map-equipment-node__markers">
+              <CssMapStaffMarker
+                v-for="staff in visibleStaffingItems"
+                :key="staff.id"
+                :staff="staff"
+              />
+              <span
+                v-if="staffSlotPlan.overflowCount > 0"
+                class="css-map-equipment-node__overflow"
+              >
+                +{{ staffSlotPlan.overflowCount }}
+              </span>
+              <span
+                v-if="!hasStaffing"
+                class="css-map-equipment-node__empty"
+              >
+                --
+              </span>
+            </div>
+          </div>
+
+          <div class="css-map-equipment-node__detail-row">
+            <span class="css-map-equipment-node__detail-label">5M</span>
+            <div class="css-map-equipment-node__markers">
+              <CssMapFiveMMarker
+                v-for="change in visibleFiveMItems"
+                :key="change.id"
+                :change="change"
+              />
+              <span
+                v-if="fiveMSlotPlan.overflowCount > 0"
+                class="css-map-equipment-node__overflow"
+              >
+                +{{ fiveMSlotPlan.overflowCount }}
+              </span>
+              <span
+                v-if="!hasFiveMChanges"
+                class="css-map-equipment-node__empty"
+              >
+                --
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </article>
 </template>
 

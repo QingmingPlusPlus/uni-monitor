@@ -8,6 +8,11 @@ import type {
   CssMapDeviceStatus,
   CssMapDisplayOptions,
 } from './css3dMapTypes'
+import {
+  planCssMapDeviceContent,
+  planCssMapMarkerSlots,
+  type CssMapDeviceContentPlan,
+} from './cssMapDeviceContentLayout'
 import { drawSpriteCssMapFiveMMarker } from './spriteCssMapFiveMMarker'
 import { drawSpriteCssMapStaffMarker } from './spriteCssMapStaffMarker'
 import {
@@ -70,9 +75,17 @@ export function createSpriteCssMapDeviceTextureKey(
   layout: SpriteCssMapDeviceCardLayout,
   selectMode: boolean,
 ): string {
+  const contentPlan = getSpriteCssMapDeviceContentPlan(
+    device,
+    display,
+    layout.logicalWidth,
+    layout.logicalHeight,
+  )
+
   return [
     device.id,
     layout.cacheBucket,
+    contentPlan.cacheKey,
     selectMode ? 'select' : 'normal',
     display.showStatusColor ? 'status-on' : 'status-off',
     display.showLoadRateColor ? 'load-on' : 'load-off',
@@ -88,6 +101,27 @@ export function formatSpriteCssMapLoadRate(value: number | null): string {
 
 export function getSpriteCssMapStatusLabel(status: CssMapDeviceStatus | null): string {
   return status === null ? '待确认' : spriteCssMapStatusLabels[status]
+}
+
+export function getSpriteCssMapDeviceContentPlan(
+  device: CssMapDevice,
+  display: CssMapDisplayOptions,
+  surfaceWidth: number,
+  surfaceHeight: number,
+): CssMapDeviceContentPlan {
+  return planCssMapDeviceContent({
+    worldWidth: device.w,
+    worldHeight: device.h,
+    surfaceWidth,
+    surfaceHeight,
+    name: device.name,
+    statusLabel: getSpriteCssMapStatusLabel(device.runtime.status),
+    loadRateLabel: formatSpriteCssMapLoadRate(device.runtime.loadRate),
+    staffCount: display.showStaffing ? device.runtime.staff.length : 0,
+    fiveMCount: display.showFiveMChanges ? device.runtime.fiveMChanges.length : 0,
+    showStaffing: display.showStaffing,
+    showFiveMChanges: display.showFiveMChanges,
+  })
 }
 
 export function getSpriteCssMapDeviceColorPlan(
@@ -292,7 +326,7 @@ function drawStatusPill(
   context.fillText(ellipsizeText(context, text, innerWidth), rect.x + rect.w / 2, rect.y + rect.h / 2)
 }
 
-function drawHeader(
+function drawHorizontalHeader(
   context: CanvasRenderingContext2D,
   options: SpriteCssMapDeviceCardDrawOptions,
   rect: DrawRect,
@@ -301,15 +335,12 @@ function drawHeader(
   const { device, layout } = options
   const statusLabel = getSpriteCssMapStatusLabel(device.runtime.status)
   const gap = clamp(rect.w * 0.03, 3, 8)
-  const statusWidth = layout.mode === 'stack'
-    ? Math.max(1, rect.w - 8)
-    : Math.min(rect.w * 0.44, Math.max(44, statusLabel.length * clamp(rect.h * 0.26, 8, 15) + 14))
-  const statusHeight = layout.mode === 'stack'
-    ? clamp(rect.h * 0.28, 16, 24)
-    : clamp(rect.h * 0.38, 14, 24)
-  const statusFontSize = layout.mode === 'stack'
-    ? clamp(statusHeight * 0.58, 8, 13)
-    : clamp(rect.h * 0.26, 8, 15)
+  const statusWidth = Math.min(
+    rect.w * 0.44,
+    Math.max(44, statusLabel.length * clamp(rect.h * 0.26, 8, 15) + 14),
+  )
+  const statusHeight = clamp(rect.h * 0.38, 14, 24)
+  const statusFontSize = clamp(rect.h * 0.26, 8, 15)
 
   context.save()
   context.fillStyle = colorPlan.statusBackground
@@ -317,55 +348,6 @@ function drawHeader(
   context.fillStyle = colorPlan.statusColor
   context.textAlign = 'left'
   context.textBaseline = 'top'
-
-  if (layout.mode === 'stack') {
-    const nameMaxWidth = rect.w - 8
-    const nameAreaHeight = Math.max(1, rect.h - statusHeight - 10)
-    const preferredNameFontSize = clamp(
-      Math.min(rect.w * 0.23, nameAreaHeight * 0.48),
-      10,
-      18,
-    )
-    context.font = createFont(900, preferredNameFontSize)
-    const nameBlock = layout.nameMode === 'full'
-      ? fitTextBlock(
-          context,
-          device.name,
-          nameMaxWidth,
-          nameAreaHeight,
-          3,
-          preferredNameFontSize,
-          9,
-        )
-      : {
-          fontSize: preferredNameFontSize,
-          lines: [ellipsizeText(context, device.name, nameMaxWidth)],
-          lineHeight: preferredNameFontSize * 1.04,
-        }
-    const nameBlockHeight = nameBlock.lines.length * nameBlock.lineHeight
-    context.font = createFont(900, nameBlock.fontSize)
-    drawTextLines(
-      context,
-      nameBlock.lines,
-      rect.x + 4,
-      rect.y + Math.max(3, (nameAreaHeight - nameBlockHeight) / 2 + 2),
-      nameBlock.lineHeight,
-    )
-    drawStatusPill(
-      context,
-      statusLabel,
-      {
-        x: rect.x + 4,
-        y: rect.y + rect.h - statusHeight - 3,
-        w: statusWidth,
-        h: statusHeight,
-      },
-      colorPlan,
-      statusFontSize,
-    )
-    context.restore()
-    return
-  }
 
   const nameFontSize = clamp(rect.h * 0.34, 9, 22)
   context.font = createFont(900, nameFontSize)
@@ -378,7 +360,7 @@ function drawHeader(
   }
   const nameMaxWidth = Math.max(1, pillRect.x - rect.x - gap - 6)
   const nameLines = layout.nameMode === 'full'
-    ? splitTextToLines(context, device.name, nameMaxWidth, rect.h >= 34 ? 2 : 1)
+    ? splitTextToLines(context, device.name, nameMaxWidth, 2)
     : [ellipsizeText(context, device.name, nameMaxWidth)]
   const textBlockHeight = nameLines.length * nameFontSize * 1.02
 
@@ -390,6 +372,76 @@ function drawHeader(
     nameFontSize * 1.02,
   )
   drawStatusPill(context, statusLabel, pillRect, colorPlan, statusFontSize)
+  context.restore()
+}
+
+function drawVerticalHeader(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  nameRect: DrawRect,
+  statusRect: DrawRect,
+  colorPlan: SpriteCssMapDeviceColorPlan,
+): void {
+  const { device, layout } = options
+  const statusLabel = getSpriteCssMapStatusLabel(device.runtime.status)
+  const nameMaxWidth = Math.max(1, nameRect.w - 8)
+  const preferredNameFontSize = clamp(
+    Math.min(nameRect.w * 0.22, nameRect.h * 0.34),
+    9,
+    20,
+  )
+
+  context.save()
+  context.fillStyle = 'rgba(255, 255, 255, 0.94)'
+  context.fillRect(nameRect.x, nameRect.y, nameRect.w, nameRect.h)
+  context.fillStyle = '#14213d'
+  context.textAlign = 'center'
+  context.textBaseline = 'top'
+  context.font = createFont(900, preferredNameFontSize)
+
+  const nameBlock = layout.nameMode === 'full'
+    ? fitTextBlock(
+        context,
+        device.name,
+        nameMaxWidth,
+        Math.max(1, nameRect.h - 6),
+        3,
+        preferredNameFontSize,
+        8,
+      )
+    : {
+        fontSize: preferredNameFontSize,
+        lines: [ellipsizeText(context, device.name, nameMaxWidth)],
+        lineHeight: preferredNameFontSize * 1.04,
+      }
+  const nameBlockHeight = nameBlock.lines.length * nameBlock.lineHeight
+  context.font = createFont(900, nameBlock.fontSize)
+  drawTextLines(
+    context,
+    nameBlock.lines,
+    nameRect.x + nameRect.w / 2,
+    nameRect.y + Math.max(3, (nameRect.h - nameBlockHeight) / 2),
+    nameBlock.lineHeight,
+  )
+
+  context.fillStyle = colorPlan.statusBackground
+  context.fillRect(statusRect.x, statusRect.y, statusRect.w, statusRect.h)
+  context.fillStyle = colorPlan.statusColor
+  const statusFontSize = fitSingleLineFontSize(
+    context,
+    statusLabel,
+    Math.max(1, statusRect.w - 8),
+    clamp(statusRect.h * 0.52, 9, 18),
+    8,
+  )
+  context.font = createFont(900, statusFontSize)
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.fillText(
+    ellipsizeText(context, statusLabel, Math.max(1, statusRect.w - 8)),
+    statusRect.x + statusRect.w / 2,
+    statusRect.y + statusRect.h / 2,
+  )
   context.restore()
 }
 
@@ -415,6 +467,42 @@ function drawLoadRate(
   context.restore()
 }
 
+function drawVerticalLoadRate(
+  context: CanvasRenderingContext2D,
+  device: CssMapDevice,
+  rect: DrawRect,
+  colorPlan: SpriteCssMapDeviceColorPlan,
+): void {
+  const labelWidth = clamp(rect.w * 0.38, 22, 52)
+  const valueRect: DrawRect = {
+    x: rect.x + labelWidth,
+    y: rect.y,
+    w: Math.max(1, rect.w - labelWidth),
+    h: rect.h,
+  }
+
+  context.save()
+  context.fillStyle = 'rgba(255, 255, 255, 0.94)'
+  context.fillRect(rect.x, rect.y, labelWidth, rect.h)
+  context.fillStyle = 'rgba(20, 33, 61, 0.72)'
+  context.font = createFont(800, clamp(rect.h * 0.3, 7, 12))
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.fillText('负荷率', rect.x + labelWidth / 2, rect.y + rect.h / 2, labelWidth - 4)
+
+  context.fillStyle = colorPlan.loadRateBackground
+  context.fillRect(valueRect.x, valueRect.y, valueRect.w, valueRect.h)
+  context.fillStyle = '#14213d'
+  context.font = createFont(900, clamp(Math.min(valueRect.w, valueRect.h) * 0.38, 8, 19))
+  context.fillText(
+    formatSpriteCssMapLoadRate(device.runtime.loadRate),
+    valueRect.x + valueRect.w / 2,
+    valueRect.y + valueRect.h / 2,
+    valueRect.w - 4,
+  )
+  context.restore()
+}
+
 function drawMarkerOverflowText(
   context: CanvasRenderingContext2D,
   text: string,
@@ -431,66 +519,263 @@ function drawMarkerOverflowText(
   context.restore()
 }
 
-function drawMarkerRow(
+interface RenderableMarkerSlots {
+  readonly visibleMarkerCount: number
+  readonly overflowCount: number
+  readonly occupiedSlots: number
+}
+
+function getRenderableMarkerSlots(
+  itemCount: number,
+  capacity: number,
+): RenderableMarkerSlots {
+  const normalizedCapacity = Math.max(0, Math.floor(capacity))
+  if (itemCount <= normalizedCapacity) {
+    return {
+      visibleMarkerCount: itemCount,
+      overflowCount: 0,
+      occupiedSlots: itemCount,
+    }
+  }
+
+  const visibleMarkerCount = Math.max(0, normalizedCapacity - 1)
+  return {
+    visibleMarkerCount,
+    overflowCount: itemCount - visibleMarkerCount,
+    occupiedSlots: normalizedCapacity,
+  }
+}
+
+function drawMarkerItem(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  type: 'staff' | 'fiveM',
+  index: number,
+  x: number,
+  y: number,
+  size: number,
+): void {
+  if (type === 'staff') {
+    drawSpriteCssMapStaffMarker(
+      context,
+      options.device.runtime.staff[index],
+      x,
+      y,
+      size,
+    )
+    return
+  }
+
+  drawSpriteCssMapFiveMMarker(
+    context,
+    options.device.runtime.fiveMChanges[index],
+    x,
+    y,
+    size,
+  )
+}
+
+function drawMarkerLabel(
+  context: CanvasRenderingContext2D,
+  label: string,
+  rect: DrawRect,
+  fontSize: number,
+): void {
+  context.fillStyle = 'rgba(20, 33, 61, 0.72)'
+  context.font = createFont(800, fontSize)
+  context.textAlign = 'left'
+  context.textBaseline = 'middle'
+  context.fillText(label, rect.x, rect.y + rect.h / 2, rect.w)
+}
+
+function drawEmptyMarkerValue(
+  context: CanvasRenderingContext2D,
+  rect: DrawRect,
+  fontSize: number,
+): void {
+  context.fillStyle = 'rgba(20, 33, 61, 0.38)'
+  context.font = createFont(900, fontSize)
+  context.textAlign = 'left'
+  context.textBaseline = 'middle'
+  context.fillText('--', rect.x, rect.y + rect.h / 2, rect.w)
+}
+
+function getMarkerItemCount(
+  options: SpriteCssMapDeviceCardDrawOptions,
+  type: 'staff' | 'fiveM',
+): number {
+  if (type === 'staff') {
+    return options.display.showStaffing ? options.device.runtime.staff.length : 0
+  }
+  return options.display.showFiveMChanges ? options.device.runtime.fiveMChanges.length : 0
+}
+
+function drawHorizontalMarkerRow(
   context: CanvasRenderingContext2D,
   options: SpriteCssMapDeviceCardDrawOptions,
   rect: DrawRect,
   type: 'staff' | 'fiveM',
 ): void {
-  const { device, display, layout } = options
-  const staffItems = display.showStaffing ? device.runtime.staff : []
-  const fiveMItems = display.showFiveMChanges ? device.runtime.fiveMChanges : []
-  const itemCount = type === 'staff' ? staffItems.length : fiveMItems.length
-  const label = type === 'staff' ? '配置' : '5M'
-  const compact = layout.mode === 'stack'
-  const labelWidth = compact
-    ? clamp(rect.w * 0.18, 16, 26)
-    : clamp(rect.w * 0.22, 18, 34)
-  const gap = compact
-    ? clamp(rect.h * 0.08, 2, 4)
-    : clamp(rect.h * 0.1, 2, 5)
-  const markerSize = Math.floor(compact
-    ? clamp(rect.h - 7, 7, type === 'staff' ? 14 : 15)
-    : clamp(rect.h - 5, 7, type === 'staff' ? 18 : 19))
+  const itemCount = getMarkerItemCount(options, type)
+  const label = type === 'staff' ? '人员' : '5M'
+  const labelWidth = clamp(rect.w * 0.22, 18, 34)
+  const gap = clamp(rect.h * 0.1, 2, 5)
   const markerAreaWidth = Math.max(0, rect.w - labelWidth - gap)
-  const markerStep = markerSize + gap
-  const visibleCount = markerStep > 0
-    ? Math.max(0, Math.floor((markerAreaWidth + gap) / markerStep))
-    : 0
-  const drawCount = Math.min(itemCount, visibleCount)
+  const maximumMarkerSize = type === 'staff' ? 18 : 19
+  const minimumMarkerSize = 7
+  const fixedPlan = planCssMapMarkerSlots(itemCount, 'horizontal')
+  const geometricCapacity = Math.max(
+    0,
+    Math.floor((markerAreaWidth + gap) / (minimumMarkerSize + gap)),
+  )
+  const slots = getRenderableMarkerSlots(
+    itemCount,
+    Math.min(fixedPlan.capacity, geometricCapacity),
+  )
+  const markerSize = slots.occupiedSlots > 0
+    ? Math.floor(clamp(
+        (markerAreaWidth - Math.max(0, slots.occupiedSlots - 1) * gap) / slots.occupiedSlots,
+        5,
+        Math.min(maximumMarkerSize, Math.max(5, rect.h - 5)),
+      ))
+    : minimumMarkerSize
 
   context.save()
-  context.fillStyle = 'rgba(20, 33, 61, 0.72)'
-  context.font = createFont(800, compact
-    ? clamp(rect.h * 0.3, 7, 10)
-    : clamp(rect.h * 0.34, 7, 12))
-  context.textAlign = 'left'
-  context.textBaseline = 'middle'
-  context.fillText(label, rect.x, rect.y + rect.h / 2, labelWidth)
+  drawMarkerLabel(
+    context,
+    label,
+    { x: rect.x, y: rect.y, w: labelWidth, h: rect.h },
+    clamp(rect.h * 0.34, 7, 12),
+  )
 
-  if (itemCount === 0 || drawCount === 0) {
-    context.fillStyle = 'rgba(20, 33, 61, 0.38)'
-    context.font = createFont(900, compact
-      ? clamp(rect.h * 0.32, 7, 10)
-      : clamp(rect.h * 0.36, 7, 12))
-    context.fillText('--', rect.x + labelWidth + gap, rect.y + rect.h / 2, markerAreaWidth)
+  const markerAreaRect: DrawRect = {
+    x: rect.x + labelWidth + gap,
+    y: rect.y,
+    w: markerAreaWidth,
+    h: rect.h,
+  }
+  if (itemCount === 0) {
+    drawEmptyMarkerValue(context, markerAreaRect, clamp(rect.h * 0.36, 7, 12))
     context.restore()
     return
   }
 
-  let markerX = rect.x + labelWidth + gap
-  const markerY = rect.y + (rect.h - markerSize) / 2
-  for (let index = 0; index < drawCount; index += 1) {
-    if (type === 'staff') {
-      drawSpriteCssMapStaffMarker(context, staffItems[index], markerX, markerY, markerSize)
-    } else {
-      drawSpriteCssMapFiveMMarker(context, fiveMItems[index], markerX, markerY, markerSize)
-    }
-    markerX += markerStep
+  if (slots.occupiedSlots === 0) {
+    drawMarkerOverflowText(
+      context,
+      `+${itemCount}`,
+      markerAreaRect.x,
+      markerAreaRect.y + (markerAreaRect.h - minimumMarkerSize) / 2,
+      minimumMarkerSize,
+    )
+    context.restore()
+    return
   }
 
-  if (drawCount < itemCount && markerX + markerSize * 0.9 <= rect.x + rect.w) {
-    drawMarkerOverflowText(context, `+${itemCount - drawCount}`, markerX, markerY, markerSize)
+  let markerX = markerAreaRect.x
+  const markerY = markerAreaRect.y + (markerAreaRect.h - markerSize) / 2
+  for (let index = 0; index < slots.visibleMarkerCount; index += 1) {
+    drawMarkerItem(context, options, type, index, markerX, markerY, markerSize)
+    markerX += markerSize + gap
+  }
+
+  if (slots.overflowCount > 0) {
+    drawMarkerOverflowText(context, `+${slots.overflowCount}`, markerX, markerY, markerSize)
+  }
+  context.restore()
+}
+
+function drawVerticalMarkerGrid(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  rect: DrawRect,
+  type: 'staff' | 'fiveM',
+): void {
+  const itemCount = getMarkerItemCount(options, type)
+  const label = type === 'staff' ? '人员' : '5M'
+  const labelWidth = clamp(rect.w * 0.28, 16, 30)
+  const gap = clamp(Math.min(rect.w, rect.h) * 0.045, 2, 4)
+  const markerAreaWidth = Math.max(0, rect.w - labelWidth - gap)
+  const markerAreaHeight = Math.max(0, rect.h - 4)
+  const minimumMarkerSize = 7
+  const fixedPlan = planCssMapMarkerSlots(itemCount, 'vertical')
+  const geometricColumns = Math.min(
+    3,
+    Math.max(0, Math.floor((markerAreaWidth + gap) / (minimumMarkerSize + gap))),
+  )
+  const geometricRows = Math.min(
+    2,
+    Math.max(0, Math.floor((markerAreaHeight + gap) / (minimumMarkerSize + gap))),
+  )
+  const slots = getRenderableMarkerSlots(
+    itemCount,
+    Math.min(fixedPlan.capacity, geometricColumns * geometricRows),
+  )
+  const columns = Math.min(3, Math.max(1, slots.occupiedSlots))
+  const rows = slots.occupiedSlots === 0
+    ? 0
+    : Math.ceil(slots.occupiedSlots / columns)
+  const maximumMarkerSize = type === 'staff' ? 15 : 16
+  const markerSize = slots.occupiedSlots > 0
+    ? Math.floor(clamp(
+        Math.min(
+          (markerAreaWidth - Math.max(0, columns - 1) * gap) / columns,
+          (markerAreaHeight - Math.max(0, rows - 1) * gap) / Math.max(rows, 1),
+        ),
+        5,
+        maximumMarkerSize,
+      ))
+    : minimumMarkerSize
+
+  context.save()
+  drawMarkerLabel(
+    context,
+    label,
+    { x: rect.x, y: rect.y, w: labelWidth, h: rect.h },
+    clamp(rect.h * 0.15, 7, 11),
+  )
+  const markerAreaRect: DrawRect = {
+    x: rect.x + labelWidth + gap,
+    y: rect.y + 2,
+    w: markerAreaWidth,
+    h: markerAreaHeight,
+  }
+  if (itemCount === 0) {
+    drawEmptyMarkerValue(context, markerAreaRect, clamp(rect.h * 0.18, 7, 11))
+    context.restore()
+    return
+  }
+
+  if (slots.occupiedSlots === 0) {
+    drawMarkerOverflowText(
+      context,
+      `+${itemCount}`,
+      markerAreaRect.x,
+      markerAreaRect.y + (markerAreaRect.h - minimumMarkerSize) / 2,
+      minimumMarkerSize,
+    )
+    context.restore()
+    return
+  }
+
+  const slotCount = slots.visibleMarkerCount + (slots.overflowCount > 0 ? 1 : 0)
+  for (let slotIndex = 0; slotIndex < slotCount; slotIndex += 1) {
+    const column = slotIndex % columns
+    const row = Math.floor(slotIndex / columns)
+    const markerX = markerAreaRect.x + column * (markerSize + gap)
+    const markerY = markerAreaRect.y + row * (markerSize + gap)
+
+    if (slotIndex < slots.visibleMarkerCount) {
+      drawMarkerItem(context, options, type, slotIndex, markerX, markerY, markerSize)
+    } else {
+      drawMarkerOverflowText(
+        context,
+        `+${slots.overflowCount}`,
+        markerX,
+        markerY,
+        markerSize,
+      )
+    }
   }
   context.restore()
 }
@@ -521,13 +806,13 @@ function drawWideBody(
   context.stroke()
   context.restore()
 
-  drawMarkerRow(context, options, {
+  drawHorizontalMarkerRow(context, options, {
     x: detailX + 5,
     y: rect.y + 2,
     w: Math.max(1, rect.w - rateWidth - 9),
     h: Math.max(1, rowHeight - 3),
   }, 'staff')
-  drawMarkerRow(context, options, {
+  drawHorizontalMarkerRow(context, options, {
     x: detailX + 5,
     y: rect.y + rowHeight,
     w: Math.max(1, rect.w - rateWidth - 9),
@@ -535,33 +820,88 @@ function drawWideBody(
   }, 'fiveM')
 }
 
-function drawStackBody(
+function drawHorizontalCard(
   context: CanvasRenderingContext2D,
   options: SpriteCssMapDeviceCardDrawOptions,
   rect: DrawRect,
   colorPlan: SpriteCssMapDeviceColorPlan,
 ): void {
-  const rateHeight = clamp(rect.h * 0.32, 18, 34)
-  const rowHeight = Math.max(12, (rect.h - rateHeight) / 2)
-
-  drawLoadRate(context, options.device, {
+  const headerHeight = Math.min(clamp(rect.h * 0.36, 22, 52), rect.h * 0.62)
+  const headerRect: DrawRect = {
     x: rect.x,
     y: rect.y,
     w: rect.w,
-    h: rateHeight,
-  }, colorPlan)
-  drawMarkerRow(context, options, {
+    h: headerHeight,
+  }
+  const bodyRect: DrawRect = {
+    x: rect.x,
+    y: headerRect.y + headerRect.h,
+    w: rect.w,
+    h: Math.max(1, rect.h - headerRect.h),
+  }
+
+  drawHorizontalHeader(context, options, headerRect, colorPlan)
+  drawWideBody(context, options, bodyRect, colorPlan)
+}
+
+function drawVerticalCard(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  rect: DrawRect,
+  colorPlan: SpriteCssMapDeviceColorPlan,
+): void {
+  const nameHeight = rect.h * 0.24
+  const statusHeight = rect.h * 0.15
+  const staffHeight = rect.h * 0.25
+  const fiveMHeight = rect.h * 0.19
+  const loadHeight = Math.max(1, rect.h - nameHeight - statusHeight - staffHeight - fiveMHeight)
+  const nameRect: DrawRect = {
+    x: rect.x,
+    y: rect.y,
+    w: rect.w,
+    h: nameHeight,
+  }
+  const statusRect: DrawRect = {
+    x: rect.x,
+    y: nameRect.y + nameRect.h,
+    w: rect.w,
+    h: statusHeight,
+  }
+  const staffRect: DrawRect = {
     x: rect.x + 4,
-    y: rect.y + rateHeight + 1,
-    w: rect.w - 8,
-    h: rowHeight - 1,
-  }, 'staff')
-  drawMarkerRow(context, options, {
+    y: statusRect.y + statusRect.h,
+    w: Math.max(1, rect.w - 8),
+    h: staffHeight,
+  }
+  const fiveMRect: DrawRect = {
     x: rect.x + 4,
-    y: rect.y + rateHeight + rowHeight,
-    w: rect.w - 8,
-    h: rowHeight - 1,
-  }, 'fiveM')
+    y: staffRect.y + staffRect.h,
+    w: Math.max(1, rect.w - 8),
+    h: fiveMHeight,
+  }
+  const loadRect: DrawRect = {
+    x: rect.x,
+    y: fiveMRect.y + fiveMRect.h,
+    w: rect.w,
+    h: loadHeight,
+  }
+
+  drawVerticalHeader(context, options, nameRect, statusRect, colorPlan)
+  drawVerticalMarkerGrid(context, options, staffRect, 'staff')
+  drawVerticalMarkerGrid(context, options, fiveMRect, 'fiveM')
+  drawVerticalLoadRate(context, options.device, loadRect, colorPlan)
+
+  context.save()
+  context.strokeStyle = 'rgba(21, 43, 70, 0.12)'
+  context.lineWidth = 1
+  const separatorYs = [staffRect.y, fiveMRect.y, loadRect.y]
+  separatorYs.forEach((y) => {
+    context.beginPath()
+    context.moveTo(rect.x, y)
+    context.lineTo(rect.x + rect.w, y)
+    context.stroke()
+  })
+  context.restore()
 }
 
 export function drawSpriteCssMapDeviceCard(
@@ -601,33 +941,28 @@ export function drawSpriteCssMapDeviceCard(
   context.restore()
 
   const inset = borderWidth
-  const headerHeight = layout.mode === 'stack'
-    ? clamp(Math.min(height * 0.25, width * 1.16), 56, 104)
-    : clamp(height * 0.36, 22, 52)
   const contentRect: DrawRect = {
     x: inset,
     y: inset,
     w: Math.max(1, width - inset * 2),
     h: Math.max(1, height - inset * 2),
   }
-  const headerRect: DrawRect = {
+  const contentPlan = getSpriteCssMapDeviceContentPlan(
+    options.device,
+    options.display,
+    contentRect.w,
+    contentRect.h,
+  )
+  const informationRect: DrawRect = {
     x: contentRect.x,
     y: contentRect.y,
-    w: contentRect.w,
-    h: Math.min(headerHeight, contentRect.h * 0.62),
-  }
-  const bodyRect: DrawRect = {
-    x: contentRect.x,
-    y: headerRect.y + headerRect.h,
-    w: contentRect.w,
-    h: Math.max(1, contentRect.h - headerRect.h),
+    w: contentPlan.contentWidth,
+    h: contentRect.h,
   }
 
-  drawHeader(context, options, headerRect, colorPlan)
-
-  if (layout.mode === 'stack' || layout.mode === 'micro') {
-    drawStackBody(context, options, bodyRect, colorPlan)
+  if (contentPlan.orientation === 'vertical') {
+    drawVerticalCard(context, options, informationRect, colorPlan)
   } else {
-    drawWideBody(context, options, bodyRect, colorPlan)
+    drawHorizontalCard(context, options, informationRect, colorPlan)
   }
 }
