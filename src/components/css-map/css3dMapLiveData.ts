@@ -46,6 +46,7 @@ const factoryMapConfigUrls = [
 ] as const
 
 const childLayoutSize = 100
+const abbreviatedDeviceNamePattern = /^(?:STI375|STI450(?:VX|MVX)?)-([0-9][A-Z][0-9]{2})$/
 
 export class CssMapDataLoadError extends Error {
   constructor(message: string) {
@@ -147,6 +148,10 @@ function collectDeviceRuntimeCodes(device: CssMapJsonDevice): string[] {
   device.deviceCodes?.forEach((code) => appendUniqueDeviceCode(codes, code))
   device.children?.forEach((child) => appendUniqueDeviceCode(codes, child.deviceCode))
   return codes
+}
+
+function formatDeviceDisplayName(name: string): string {
+  return abbreviatedDeviceNamePattern.exec(name)?.[1] ?? name
 }
 
 function createEmptyRuntime(): CssMapDeviceRuntime {
@@ -393,7 +398,7 @@ async function createCssMapData(
       if (device.children?.length) {
         return device.children.map((child) => ({
           id: child.id,
-          name: child.name,
+          name: formatDeviceDisplayName(child.name),
           section: device.section,
           x: device.x + (device.width * child.x) / childLayoutSize,
           y: device.y + (device.height * child.y) / childLayoutSize,
@@ -408,7 +413,7 @@ async function createCssMapData(
 
       return [{
         id: device.id,
-        name: device.name,
+        name: formatDeviceDisplayName(device.name),
         section: device.section,
         x: device.x,
         y: device.y,
@@ -424,7 +429,7 @@ async function createCssMapData(
 }
 
 async function fetchFactoryMapConfig(url: string): Promise<unknown> {
-  const response = await fetch(url)
+  const response = await fetch(url, { cache: 'no-store' })
 
   if (!response.ok) {
     throw new CssMapDataLoadError(`Failed to load factory map config ${url}: ${response.status}`)

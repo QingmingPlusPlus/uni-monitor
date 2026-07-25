@@ -223,6 +223,58 @@ describe('loadCssMapData realtime status mapping', () => {
     ])
   })
 
+  it('STI375 与 STI450 系列设备名只显示编号，其他机型保持原名', async () => {
+    stubFactoryMapConfig([
+      {
+        id: 'vulcanization-group',
+        name: 'STI450',
+        section: 'vulcanization1',
+        x: 10,
+        y: 20,
+        width: 120,
+        height: 80,
+        children: [
+          { id: 'sti450', name: 'STI450-1A10', deviceCode: '1A10', x: 0, y: 0, width: 20, height: 100 },
+          { id: 'sti450vx', name: 'STI450VX-1C07', deviceCode: '1C07', x: 20, y: 0, width: 20, height: 100 },
+          { id: 'sti450mvx', name: 'STI450MVX-2B22', deviceCode: '2B22', x: 40, y: 0, width: 20, height: 100 },
+          { id: 'sti375', name: 'STI375-1A01', deviceCode: '1A01', x: 60, y: 0, width: 20, height: 100 },
+          { id: 'hti', name: 'HTI-2A01', deviceCode: '2A01', x: 80, y: 0, width: 20, height: 100 },
+        ],
+      },
+    ])
+    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [],
+      },
+    } as unknown as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.devices.map((device) => device.name)).toEqual([
+      '1A10',
+      '1C07',
+      '2B22',
+      '1A01',
+      'HTI-2A01',
+    ])
+  })
+
+  it('加载地图配置时绕过浏览器静态缓存', async () => {
+    stubFactoryMapConfig([])
+    stubEmptyRuntimeSideData()
+
+    await loadCssMapData()
+
+    expect(fetch).toHaveBeenCalledWith(
+      '/static/factory-map/devices.json',
+      { cache: 'no-store' },
+    )
+  })
+
   it('通过 window.mapMock(true) 切换到地图 mock 运行态数据', async () => {
     const win = stubBrowserWindow()
     installCssMapMockSwitch()

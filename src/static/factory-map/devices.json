@@ -583,7 +583,7 @@
       "children": [
         {
           "id": "device-1d07",
-          "name": "STI450-1D07",
+          "name": "1D07",
           "deviceCode": "STI450-1D07",
           "x": 2,
           "y": 0,
@@ -592,7 +592,7 @@
         },
         {
           "id": "device-1d08",
-          "name": "STI450-1D08",
+          "name": "1D08",
           "deviceCode": "STI450-1D08",
           "x": 2,
           "y": 16,
@@ -601,7 +601,7 @@
         },
         {
           "id": "device-1d09",
-          "name": "STI450-1D09",
+          "name": "1D09",
           "deviceCode": "STI450-1D09",
           "x": 2,
           "y": 32,
@@ -610,7 +610,7 @@
         },
         {
           "id": "device-1d10",
-          "name": "STI450-1D10",
+          "name": "1D10",
           "deviceCode": "STI450-1D10",
           "x": 2,
           "y": 48,
@@ -619,7 +619,7 @@
         },
         {
           "id": "device-1d11",
-          "name": "STI450-1D11",
+          "name": "1D11",
           "deviceCode": "STI450-1D11",
           "x": 2,
           "y": 54,
@@ -628,7 +628,7 @@
         },
         {
           "id": "device-1d12",
-          "name": "STI450-1D12",
+          "name": "1D12",
           "deviceCode": "STI450-1D12",
           "x": 2,
           "y": 70,
@@ -658,7 +658,7 @@
       "children": [
         {
           "id": "device-1d16",
-          "name": "STI450-1D16",
+          "name": "1D16",
           "deviceCode": "1D16",
           "x": 2,
           "y": 0,
@@ -667,7 +667,7 @@
         },
         {
           "id": "device-1d17",
-          "name": "STI450-1D17",
+          "name": "1D17",
           "deviceCode": "1D17",
           "x": 2,
           "y": 12,
@@ -676,7 +676,7 @@
         },
         {
           "id": "device-1d18",
-          "name": "STI450-1D18",
+          "name": "1D18",
           "deviceCode": "1D18",
           "x": 2,
           "y": 24,
@@ -685,7 +685,7 @@
         },
         {
           "id": "device-1d19",
-          "name": "STI450-1D19",
+          "name": "1D19",
           "deviceCode": "1D19",
           "x": 2,
           "y": 36,
@@ -694,7 +694,7 @@
         },
         {
           "id": "device-1d20",
-          "name": "STI450-1D20",
+          "name": "1D20",
           "deviceCode": "1D20",
           "x": 2,
           "y": 48,
@@ -703,7 +703,7 @@
         },
         {
           "id": "device-1d21",
-          "name": "STI450-1D21",
+          "name": "1D21",
           "deviceCode": "1D21",
           "x": 2,
           "y": 60,
@@ -712,7 +712,7 @@
         },
         {
           "id": "device-1d22",
-          "name": "STI450-1D22",
+          "name": "1D22",
           "deviceCode": "1D22",
           "x": 2,
           "y": 72,
@@ -721,7 +721,7 @@
         },
         {
           "id": "device-1d23",
-          "name": "STI450-1D23",
+          "name": "1D23",
           "deviceCode": "1D23",
           "x": 2,
           "y": 84,
@@ -751,7 +751,7 @@
       "children": [
         {
           "id": "device-1h01",
-          "name": "STI450-1H01",
+          "name": "1H01",
           "deviceCode": "1H01",
           "x": 2,
           "y": 0,
@@ -760,7 +760,7 @@
         },
         {
           "id": "device-1h02",
-          "name": "STI450-1H02",
+          "name": "1H02",
           "deviceCode": "1H02",
           "x": 2,
           "y": 22,
@@ -769,7 +769,7 @@
         },
         {
           "id": "device-1h03",
-          "name": "STI450-1H03",
+          "name": "1H03",
           "deviceCode": "1H03",
           "x": 2,
           "y": 44,
@@ -778,7 +778,7 @@
         },
         {
           "id": "device-1d27",
-          "name": "STI450-1D27",
+          "name": "1D27",
           "deviceCode": "1D27",
           "x": 2,
           "y": 66,
@@ -787,7 +787,7 @@
         },
         {
           "id": "device-1d28",
-          "name": "STI450-1D28",
+          "name": "1D28",
           "deviceCode": "1D28",
           "x": 2,
           "y": 88,
@@ -796,7 +796,7 @@
         },
         {
           "id": "device-1d29",
-          "name": "STI450-1D29",
+          "name": "1D29",
           "deviceCode": "1D29",
           "x": 2,
           "y": 110,
@@ -805,7 +805,7 @@
         },
         {
           "id": "device-1d30",
-          "name": "STI450-1D30",
+          "name": "1D30",
           "deviceCode": "1D30",
           "x": 2,
           "y": 132,
@@ -814,7 +814,7 @@
         },
         {
           "id": "device-1d31",
-          "name": "STI450-1D31",
+          "name": "1D31",
           "deviceCode": "1D31",
           "x": 2,
           "y": 154,
@@ -878,7 +878,7 @@
       "children": [
         {
           "id": "device-1c01",
-          "name": "STI450-1C01",
+          "name": "1C01",
           "deviceCode": "1C01",
           "x": 0,
           "y": 0,
@@ -887,7 +887,7 @@
         },
         {
           "id": "device-1c02",
-          "name": "STI450-1C02",
+          "name": "1C02",
           "deviceCode": "1C02",
           "x": 10,
           "y": 0,
@@ -896,7 +896,7 @@
         },
         {
           "id": "device-1c03",
-          "name": "STI450-1C03",
+          "name": "1C03",
           "deviceCode": "1C03",
           "x": 20,
           "y": 0,
@@ -905,7 +905,7 @@
         },
         {
           "id": "device-1c04",
-          "name": "STI450-1C04",
+          "name": "1C04",
           "deviceCode": "1C04",
           "x": 30,
           "y": 0,
@@ -914,7 +914,7 @@
         },
         {
           "id": "device-1c05",
-          "name": "STI450-1C05",
+          "name": "1C05",
           "deviceCode": "1C05",
           "x": 40,
           "y": 0,
@@ -923,7 +923,7 @@
         },
         {
           "id": "device-1c06",
-          "name": "STI450-1C06",
+          "name": "1C06",
           "deviceCode": "1C06",
           "x": 50,
           "y": 0,
@@ -932,7 +932,7 @@
         },
         {
           "id": "device-1c07",
-          "name": "STI450VX-1C07",
+          "name": "1C07",
           "deviceCode": "1C07",
           "x": 60,
           "y": 0,
@@ -941,7 +941,7 @@
         },
         {
           "id": "device-1c08",
-          "name": "STI450VX-1C08",
+          "name": "1C08",
           "deviceCode": "1C08",
           "x": 70,
           "y": 0,
@@ -950,7 +950,7 @@
         },
         {
           "id": "device-1c09",
-          "name": "STI450VX-1C09",
+          "name": "1C09",
           "deviceCode": "1C09",
           "x": 80,
           "y": 0,
@@ -981,7 +981,7 @@
       "children": [
         {
           "id": "device-1c10",
-          "name": "STI450-1C10",
+          "name": "1C10",
           "deviceCode": "1C10",
           "x": 0,
           "y": 0,
@@ -990,7 +990,7 @@
         },
         {
           "id": "device-1c11",
-          "name": "STI450-1C11",
+          "name": "1C11",
           "deviceCode": "1C11",
           "x": 10,
           "y": 0,
@@ -999,7 +999,7 @@
         },
         {
           "id": "device-1c12",
-          "name": "STI450-1C12",
+          "name": "1C12",
           "deviceCode": "1C12",
           "x": 20,
           "y": 0,
@@ -1008,7 +1008,7 @@
         },
         {
           "id": "device-1c13",
-          "name": "STI450-1C13",
+          "name": "1C13",
           "deviceCode": "1C13",
           "x": 30,
           "y": 0,
@@ -1017,7 +1017,7 @@
         },
         {
           "id": "device-1c14",
-          "name": "STI450-1C14",
+          "name": "1C14",
           "deviceCode": "1C14",
           "x": 40,
           "y": 0,
@@ -1026,7 +1026,7 @@
         },
         {
           "id": "device-1c15",
-          "name": "STI450-1C15",
+          "name": "1C15",
           "deviceCode": "1C15",
           "x": 50,
           "y": 0,
@@ -1035,7 +1035,7 @@
         },
         {
           "id": "device-1c16",
-          "name": "STI450-1C16",
+          "name": "1C16",
           "deviceCode": "1C16",
           "x": 60,
           "y": 0,
@@ -1093,7 +1093,7 @@
       "children": [
         {
           "id": "device-1b01",
-          "name": "STI450-1B01",
+          "name": "1B01",
           "deviceCode": "1B01",
           "x": 0,
           "y": 0,
@@ -1102,7 +1102,7 @@
         },
         {
           "id": "device-1b02",
-          "name": "STI450-1B02",
+          "name": "1B02",
           "deviceCode": "1B02",
           "x": 11,
           "y": 0,
@@ -1111,7 +1111,7 @@
         },
         {
           "id": "device-1b03",
-          "name": "STI450-1B03",
+          "name": "1B03",
           "deviceCode": "1B03",
           "x": 22,
           "y": 0,
@@ -1120,7 +1120,7 @@
         },
         {
           "id": "device-1b04",
-          "name": "STI450-1B04",
+          "name": "1B04",
           "deviceCode": "1B04",
           "x": 33,
           "y": 0,
@@ -1129,7 +1129,7 @@
         },
         {
           "id": "device-1b05",
-          "name": "STI450-1B05",
+          "name": "1B05",
           "deviceCode": "1B05",
           "x": 44,
           "y": 0,
@@ -1138,7 +1138,7 @@
         },
         {
           "id": "device-1b06",
-          "name": "STI450-1B06",
+          "name": "1B06",
           "deviceCode": "1B06",
           "x": 55,
           "y": 0,
@@ -1147,7 +1147,7 @@
         },
         {
           "id": "device-1b07",
-          "name": "STI450-1B07",
+          "name": "1B07",
           "deviceCode": "1B07",
           "x": 66,
           "y": 0,
@@ -1156,7 +1156,7 @@
         },
         {
           "id": "device-1b08",
-          "name": "STI450-1B08",
+          "name": "1B08",
           "deviceCode": "1B08",
           "x": 77,
           "y": 0,
@@ -1165,7 +1165,7 @@
         },
         {
           "id": "device-1b09",
-          "name": "STI450-1B09",
+          "name": "1B09",
           "deviceCode": "1B09",
           "x": 88,
           "y": 0,
@@ -1198,7 +1198,7 @@
       "children": [
         {
           "id": "device-1b10",
-          "name": "STI450-1B10",
+          "name": "1B10",
           "deviceCode": "1B10",
           "x": 0,
           "y": 0,
@@ -1207,7 +1207,7 @@
         },
         {
           "id": "device-1b11",
-          "name": "STI450-1B11",
+          "name": "1B11",
           "deviceCode": "1B11",
           "x": 10,
           "y": 0,
@@ -1216,7 +1216,7 @@
         },
         {
           "id": "device-1b12",
-          "name": "STI450-1B12",
+          "name": "1B12",
           "deviceCode": "1B12",
           "x": 20,
           "y": 0,
@@ -1225,7 +1225,7 @@
         },
         {
           "id": "device-1b13",
-          "name": "STI450-1B13",
+          "name": "1B13",
           "deviceCode": "1B13",
           "x": 30,
           "y": 0,
@@ -1234,7 +1234,7 @@
         },
         {
           "id": "device-1b14",
-          "name": "STI450-1B14",
+          "name": "1B14",
           "deviceCode": "1B14",
           "x": 40,
           "y": 0,
@@ -1243,7 +1243,7 @@
         },
         {
           "id": "device-1b15",
-          "name": "STI450-1B15",
+          "name": "1B15",
           "deviceCode": "1B15",
           "x": 50,
           "y": 0,
@@ -1252,7 +1252,7 @@
         },
         {
           "id": "device-1b16",
-          "name": "STI450-1B16",
+          "name": "1B16",
           "deviceCode": "1B16",
           "x": 60,
           "y": 0,
@@ -1261,7 +1261,7 @@
         },
         {
           "id": "device-1b17",
-          "name": "STI450-1B17",
+          "name": "1B17",
           "deviceCode": "1B17",
           "x": 70,
           "y": 0,
@@ -1270,7 +1270,7 @@
         },
         {
           "id": "device-1b18",
-          "name": "STI450-1B18",
+          "name": "1B18",
           "deviceCode": "1B18",
           "x": 80,
           "y": 0,
@@ -1279,7 +1279,7 @@
         },
         {
           "id": "device-1b19",
-          "name": "STI450-1B19",
+          "name": "1B19",
           "deviceCode": "1B19",
           "x": 90,
           "y": 0,
@@ -1288,7 +1288,7 @@
         },
         {
           "id": "device-1b20",
-          "name": "STI450-1B20",
+          "name": "1B20",
           "deviceCode": "1B20",
           "x": 100,
           "y": 0,
@@ -1319,7 +1319,7 @@
       "children": [
         {
           "id": "device-1a01",
-          "name": "STI375-1A01",
+          "name": "1A01",
           "deviceCode": "1A01",
           "x": 0,
           "y": 0,
@@ -1328,7 +1328,7 @@
         },
         {
           "id": "device-1a02",
-          "name": "STI375-1A02",
+          "name": "1A02",
           "deviceCode": "1A02",
           "x": 10,
           "y": 0,
@@ -1337,7 +1337,7 @@
         },
         {
           "id": "device-1a03",
-          "name": "STI375-1A03",
+          "name": "1A03",
           "deviceCode": "1A03",
           "x": 20,
           "y": 0,
@@ -1346,7 +1346,7 @@
         },
         {
           "id": "device-1a04",
-          "name": "STI375-1A04",
+          "name": "1A04",
           "deviceCode": "1A04",
           "x": 30,
           "y": 0,
@@ -1355,7 +1355,7 @@
         },
         {
           "id": "device-1a05",
-          "name": "STI375-1A05",
+          "name": "1A05",
           "deviceCode": "1A05",
           "x": 40,
           "y": 0,
@@ -1364,7 +1364,7 @@
         },
         {
           "id": "device-1a06",
-          "name": "STI375-1A06",
+          "name": "1A06",
           "deviceCode": "1A06",
           "x": 50,
           "y": 0,
@@ -1373,7 +1373,7 @@
         },
         {
           "id": "device-1a07",
-          "name": "STI375-1A07",
+          "name": "1A07",
           "deviceCode": "1A07",
           "x": 60,
           "y": 0,
@@ -1382,7 +1382,7 @@
         },
         {
           "id": "device-1a08",
-          "name": "STI375-1A08",
+          "name": "1A08",
           "deviceCode": "1A08",
           "x": 70,
           "y": 0,
@@ -1391,7 +1391,7 @@
         },
         {
           "id": "device-1a09",
-          "name": "STI375-1A09",
+          "name": "1A09",
           "deviceCode": "1A09",
           "x": 80,
           "y": 0,
@@ -1424,7 +1424,7 @@
       "children": [
         {
           "id": "device-1a10",
-          "name": "STI450-1A10",
+          "name": "1A10",
           "deviceCode": "1A10",
           "x": 0,
           "y": 0,
@@ -1433,7 +1433,7 @@
         },
         {
           "id": "device-1a11",
-          "name": "STI450-1A11",
+          "name": "1A11",
           "deviceCode": "1A11",
           "x": 10,
           "y": 0,
@@ -1442,7 +1442,7 @@
         },
         {
           "id": "device-1a12",
-          "name": "STI450-1A12",
+          "name": "1A12",
           "deviceCode": "1A12",
           "x": 20,
           "y": 0,
@@ -1451,7 +1451,7 @@
         },
         {
           "id": "device-1a13",
-          "name": "STI450-1A13",
+          "name": "1A13",
           "deviceCode": "1A13",
           "x": 30,
           "y": 0,
@@ -1460,7 +1460,7 @@
         },
         {
           "id": "device-1a14",
-          "name": "STI450-1A14",
+          "name": "1A14",
           "deviceCode": "1A14",
           "x": 40,
           "y": 0,
@@ -1469,7 +1469,7 @@
         },
         {
           "id": "device-1a15",
-          "name": "STI450-1A15",
+          "name": "1A15",
           "deviceCode": "1A15",
           "x": 50,
           "y": 0,
@@ -1478,7 +1478,7 @@
         },
         {
           "id": "device-1a16",
-          "name": "STI450-1A16",
+          "name": "1A16",
           "deviceCode": "1A16",
           "x": 60,
           "y": 0,
@@ -1487,7 +1487,7 @@
         },
         {
           "id": "device-1a17",
-          "name": "STI450-1A17",
+          "name": "1A17",
           "deviceCode": "1A17",
           "x": 70,
           "y": 0,
@@ -1496,7 +1496,7 @@
         },
         {
           "id": "device-1a18",
-          "name": "STI450-1A18",
+          "name": "1A18",
           "deviceCode": "1A18",
           "x": 80,
           "y": 0,
@@ -1505,7 +1505,7 @@
         },
         {
           "id": "device-1a19",
-          "name": "STI450-1A19",
+          "name": "1A19",
           "deviceCode": "1A19",
           "x": 90,
           "y": 0,
@@ -1514,7 +1514,7 @@
         },
         {
           "id": "device-1a20",
-          "name": "STI450-1A20",
+          "name": "1A20",
           "deviceCode": "1A20",
           "x": 100,
           "y": 0,
@@ -1996,7 +1996,7 @@
         },
         {
           "id": "2A02",
-          "name": "STI450-2A02",
+          "name": "2A02",
           "deviceCode": "2A02",
           "x": 8,
           "y": 0,
@@ -2005,7 +2005,7 @@
         },
         {
           "id": "2A03",
-          "name": "STI450-2A03",
+          "name": "2A03",
           "deviceCode": "2A03",
           "x": 16,
           "y": 0,
@@ -2014,7 +2014,7 @@
         },
         {
           "id": "2A04",
-          "name": "STI450-2A04",
+          "name": "2A04",
           "deviceCode": "2A04",
           "x": 24,
           "y": 0,
@@ -2023,7 +2023,7 @@
         },
         {
           "id": "2A05",
-          "name": "STI450-2A05",
+          "name": "2A05",
           "deviceCode": "2A05",
           "x": 32,
           "y": 0,
@@ -2032,7 +2032,7 @@
         },
         {
           "id": "2A06",
-          "name": "STI450-2A06",
+          "name": "2A06",
           "deviceCode": "2A06",
           "x": 40,
           "y": 0,
@@ -2041,7 +2041,7 @@
         },
         {
           "id": "2A07",
-          "name": "STI450-2A07",
+          "name": "2A07",
           "deviceCode": "2A07",
           "x": 48,
           "y": 0,
@@ -2050,7 +2050,7 @@
         },
         {
           "id": "2A08",
-          "name": "STI450-2A08",
+          "name": "2A08",
           "deviceCode": "2A08",
           "x": 56,
           "y": 0,
@@ -2059,7 +2059,7 @@
         },
         {
           "id": "2A09",
-          "name": "STI450-2A09",
+          "name": "2A09",
           "deviceCode": "2A09",
           "x": 64,
           "y": 0,
@@ -2068,7 +2068,7 @@
         },
         {
           "id": "2A10",
-          "name": "STI450-2A10",
+          "name": "2A10",
           "deviceCode": "2A10",
           "x": 72,
           "y": 0,
@@ -2077,7 +2077,7 @@
         },
         {
           "id": "2A11",
-          "name": "STI450-2A11",
+          "name": "2A11",
           "deviceCode": "2A11",
           "x": 80,
           "y": 0,
@@ -2086,7 +2086,7 @@
         },
         {
           "id": "2A12",
-          "name": "STI450-2A12",
+          "name": "2A12",
           "deviceCode": "2A12",
           "x": 80,
           "y": 0,
@@ -2095,7 +2095,7 @@
         },
         {
           "id": "2A13",
-          "name": "STI450-2A13",
+          "name": "2A13",
           "deviceCode": "2A13",
           "x": 88,
           "y": 0,
@@ -2122,7 +2122,7 @@
       "children": [
         {
           "id": "device-2a14",
-          "name": "STI450-2A14",
+          "name": "2A14",
           "deviceCode": "2A14",
           "x": 2,
           "y": 2,
@@ -2131,7 +2131,7 @@
         },
         {
           "id": "device-2a15",
-          "name": "STI450-2A15",
+          "name": "2A15",
           "deviceCode": "2A15",
           "x": 21,
           "y": 2,
@@ -2140,7 +2140,7 @@
         },
         {
           "id": "device-2a16",
-          "name": "STI450-2A16",
+          "name": "2A16",
           "deviceCode": "2A16",
           "x": 40,
           "y": 2,
@@ -2149,7 +2149,7 @@
         },
         {
           "id": "device-2a17",
-          "name": "STI450-2A17",
+          "name": "2A17",
           "deviceCode": "2A17",
           "x": 59,
           "y": 2,
@@ -2158,7 +2158,7 @@
         },
         {
           "id": "device-2a18",
-          "name": "STI450-2A18",
+          "name": "2A18",
           "deviceCode": "2A18",
           "x": 78,
           "y": 2,
@@ -2352,7 +2352,7 @@
       "children": [
         {
           "id": "device-2b01",
-          "name": "STI450-2B01",
+          "name": "2B01",
           "deviceCode": "2B01",
           "x": 0,
           "y": 0,
@@ -2361,7 +2361,7 @@
         },
         {
           "id": "device-2b02",
-          "name": "STI450-2B02",
+          "name": "2B02",
           "deviceCode": "2B02",
            "x": 8,
           "y": 0,
@@ -2370,7 +2370,7 @@
         },
         {
           "id": "device-2b03",
-          "name": "STI450-2B03",
+          "name": "2B03",
           "deviceCode": "2B03",
           "x": 16,
           "y": 0,
@@ -2379,7 +2379,7 @@
         },
         {
           "id": "device-2b04",
-          "name": "STI450-2B04",
+          "name": "2B04",
           "deviceCode": "2B04",
            "x": 24,
           "y": 0,
@@ -2388,7 +2388,7 @@
         },
         {
           "id": "device-2b05",
-          "name": "STI450-2B05",
+          "name": "2B05",
           "deviceCode": "2B05",
            "x": 32,
           "y": 0,
@@ -2397,7 +2397,7 @@
         },
         {
           "id": "device-2b06",
-          "name": "STI450-2B06",
+          "name": "2B06",
           "deviceCode": "2B06",
           "x": 40,
           "y": 0,
@@ -2406,7 +2406,7 @@
         },
         {
           "id": "device-2b07",
-          "name": "STI450-2B07",
+          "name": "2B07",
           "deviceCode": "2B07",
            "x": 48,
           "y": 0,
@@ -2415,7 +2415,7 @@
         },
         {
           "id": "device-2b08",
-          "name": "STI450-2B08",
+          "name": "2B08",
           "deviceCode": "2B08",
           "x": 56,
           "y": 0,
@@ -2424,7 +2424,7 @@
         },
         {
           "id": "device-2b09",
-          "name": "STI450-2B09",
+          "name": "2B09",
           "deviceCode": "2B09",
            "x": 64,
           "y": 0,
@@ -2433,7 +2433,7 @@
         },
         {
           "id": "device-2b10",
-          "name": "STI450-2B10",
+          "name": "2B10",
           "deviceCode": "2B10",
             "x": 72,
             "y": 0,
@@ -2442,7 +2442,7 @@
         },
         {
           "id": "device-2b11",
-          "name": "STI450-2B11",
+          "name": "2B11",
           "deviceCode": "2B11",
             "x": 80,
           "y": 0,
@@ -2451,7 +2451,7 @@
         },
         {
           "id": "device-2b12",
-          "name": "STI450-2B12",
+          "name": "2B12",
           "deviceCode": "2B12",
             "x": 88,
           "y": 0,
@@ -2485,7 +2485,7 @@
       "children": [
         {
           "id": "device-2b13",
-          "name": "STI450-2B13",
+          "name": "2B13",
           "deviceCode": "2B13",
          "x": 0,
           "y": 0,
@@ -2494,7 +2494,7 @@
         },
         {
           "id": "device-2b14",
-          "name": "STI450-2B14",
+          "name": "2B14",
           "deviceCode": "2B14",
           "x": 8,
           "y": 0,
@@ -2503,7 +2503,7 @@
         },
         {
           "id": "device-2b15",
-          "name": "STI450-2B15",
+          "name": "2B15",
           "deviceCode": "2B15",
          "x": 16,
           "y": 0,
@@ -2512,7 +2512,7 @@
         },
         {
           "id": "device-2b16",
-          "name": "STI450-2B16",
+          "name": "2B16",
           "deviceCode": "2B16",
           "x": 24,
           "y": 0,
@@ -2521,7 +2521,7 @@
         },
         {
           "id": "device-2b17",
-          "name": "STI450-2B17",
+          "name": "2B17",
           "deviceCode": "2B17",
          "x": 32,
           "y": 0,
@@ -2530,7 +2530,7 @@
         },
         {
           "id": "device-2b18",
-          "name": "STI450-2B18",
+          "name": "2B18",
           "deviceCode": "2B18",
         "x": 40,
           "y": 0,
@@ -2539,7 +2539,7 @@
         },
         {
           "id": "device-2b19",
-          "name": "STI450-2B19",
+          "name": "2B19",
           "deviceCode": "2B19",
          "x": 48,
           "y": 0,
@@ -2548,7 +2548,7 @@
         },
         {
           "id": "device-2b20",
-          "name": "STI450-2B20",
+          "name": "2B20",
           "deviceCode": "2B20",
        "x": 56,
           "y": 0,
@@ -2557,7 +2557,7 @@
         },
         {
           "id": "device-2b21",
-          "name": "STI450-2B21",
+          "name": "2B21",
           "deviceCode": "2B21",
         "x": 64,
           "y": 0,
@@ -2566,7 +2566,7 @@
         },
         {
           "id": "device-2b22",
-          "name": "STI450MVX-2B22",
+          "name": "2B22",
           "deviceCode": "2B22",
           "x": 77,
           "y": 0,
@@ -2575,7 +2575,7 @@
         },
         {
           "id": "device-2b23",
-          "name": "STI450MVX-2B23",
+          "name": "2B23",
           "deviceCode": "2B23",
          "x": 85,
           "y": 0,
@@ -2584,7 +2584,7 @@
         },
         {
           "id": "device-2b24",
-          "name": "STI450MVX-2B24",
+          "name": "2B24",
           "deviceCode": "2B24",
           "x": 93,
           "y": 0,
