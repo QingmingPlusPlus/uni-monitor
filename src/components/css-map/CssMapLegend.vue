@@ -33,27 +33,44 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
         <tr>
           <th>颜色</th>
           <th>负荷率</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="item in loadRateItems"
+          :key="item.label"
+        >
+          <td><span :style="{ background: item.color }" /></td>
+          <td>{{ item.label }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="css-map-legend__table">
+      <thead>
+        <tr>
           <th>颜色</th>
           <th>工况</th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="(item, index) in loadRateItems"
-          :key="item.label"
+          v-for="item in statusItems"
+          :key="item.status"
         >
-          <td><span :style="{ background: item.color }" /></td>
-          <td>{{ item.label }}</td>
           <td>
             <span
-              v-if="statusItems[index]"
               :style="{
-                background: cssMapStatusPalette[statusItems[index].status].background,
-                borderColor: cssMapStatusPalette[statusItems[index].status].border,
+                background: item.status === 'abnormalStop'
+                  ? 'var(--um-color-danger-soft)'
+                  : item.status === 'plannedStop'
+                    ? 'var(--um-color-surface-subtle)'
+                    : cssMapStatusPalette[item.status].background,
+                borderColor: cssMapStatusPalette[item.status].border,
               }"
             />
           </td>
-          <td>{{ statusItems[index]?.label ?? '' }}</td>
+          <td>{{ item.label }}</td>
         </tr>
       </tbody>
     </table>
@@ -69,6 +86,9 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
   top: calc(var(--space-4) + 64rpx + var(--space-2));
   right: var(--space-3);
   z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   overflow: hidden;
   border: 1px solid rgba(21, 43, 70, 0.18);
   border-radius: 8px;
@@ -79,7 +99,7 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
 
 .css-map-legend__table {
   border-collapse: collapse;
-  min-width: 344px;
+  min-width: 172px;
   table-layout: fixed;
   font-size: 13px;
   font-weight: 800;
@@ -103,9 +123,7 @@ const statusItems: readonly { readonly status: CssMapDeviceStatus; readonly labe
 }
 
 .css-map-legend__table th:nth-child(1),
-.css-map-legend__table th:nth-child(3),
-.css-map-legend__table td:nth-child(1),
-.css-map-legend__table td:nth-child(3) {
+.css-map-legend__table td:nth-child(1) {
   width: 52px;
   padding: 0;
 }
