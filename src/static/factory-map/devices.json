@@ -1585,21 +1585,11 @@
       "height": 158,
       "section": null,
       "deviceCodes": [
-        "2311",
         "2312",
         "2313",
         "2314"
       ],
       "children": [
-        {
-          "id": "device-2311",
-          "name": "自动液压-6",
-          "deviceCode": "2311",
-          "x": 0,
-          "y": 0,
-          "width": 45,
-          "height": 45
-        },
         {
           "id": "device-2312",
           "name": "自动液压-5",
