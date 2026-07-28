@@ -12,6 +12,8 @@ export type CssMapStaffCategory = 'operator'
 
 export type CssMapFiveMCategory = 'man' | 'machine' | 'material' | 'method' | 'environment'
 
+export type CssMapDeviceContentLayout = 'right-l-shape'
+
 export interface CssMapDeviceLayout {
   id: string
   name: string
@@ -21,6 +23,7 @@ export interface CssMapDeviceLayout {
   w: number
   h: number
   polygon?: CssMapPoint[]
+  contentLayout?: CssMapDeviceContentLayout
 }
 
 export type CssMapSelectionMode = 'department' | 'process'
@@ -101,6 +104,7 @@ export interface CssMapJsonDevice {
   width: number
   height: number
   polygon?: CssMapPoint[]
+  contentLayout?: CssMapDeviceContentLayout
   deviceCode?: string
   deviceCodes?: string[]
   children?: CssMapJsonDeviceChild[]
@@ -115,6 +119,7 @@ export interface CssMapJsonDeviceChild {
   width: number
   height: number
   polygon?: CssMapPoint[]
+  contentLayout?: CssMapDeviceContentLayout
 }
 
 export interface CssMapJsonSection {

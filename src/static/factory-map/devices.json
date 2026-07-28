@@ -1542,18 +1542,45 @@
           "id": "device-2324",
           "name": "CG涂装-2",
           "deviceCode": "2324",
-          "x": 50,
+          "x": 0,
           "y": 0,
-          "width": 40,
-          "height": 20
+          "width": 100,
+          "height": 50,
+          "contentLayout": "right-l-shape",
+          "polygon": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 100,
+              "y": 0
+            },
+            {
+              "x": 100,
+              "y": 50
+            },
+            {
+              "x": 80,
+              "y": 50
+            },
+            {
+              "x": 80,
+              "y": 20
+            },
+            {
+              "x": 0,
+              "y": 20
+            }
+          ]
         },
         {
           "id": "device-2326",
           "name": "CG涂装-4",
           "deviceCode": "2325",
-          "x": 50,
-          "y": 25,
-          "width": 40,
+          "x": 0,
+          "y": 30,
+          "width": 75,
           "height": 20
         },
         {

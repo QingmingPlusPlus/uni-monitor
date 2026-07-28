@@ -6,6 +6,11 @@ import type {
 const MIN_POLYGON_POINTS = 3
 const MIN_POLYGON_AREA = 0.0001
 
+export interface CssMapRightLShapeMetrics {
+  readonly legStartRatio: number
+  readonly barHeightRatio: number
+}
+
 function getPolygonArea(points: readonly CssMapPoint[]): number {
   let doubleArea = 0
 
@@ -87,6 +92,38 @@ export function getCssMapDeviceShapeKey(
   if (!isValidCssMapDevicePolygon(device.polygon, device.w, device.h)) return 'rectangle'
 
   return device.polygon.map((point) => `${point.x},${point.y}`).join(';')
+}
+
+export function getCssMapRightLShapeMetrics(
+  device: Pick<CssMapDeviceLayout, 'w' | 'h' | 'polygon'>,
+): CssMapRightLShapeMetrics | undefined {
+  if (!isValidCssMapDevicePolygon(device.polygon, device.w, device.h)) return undefined
+
+  const tolerance = Math.max(device.w, device.h) * 0.000001
+  const bottomXs = device.polygon
+    .filter((point) => Math.abs(point.y - device.h) <= tolerance)
+    .map((point) => point.x)
+  const leftYs = device.polygon
+    .filter((point) => Math.abs(point.x) <= tolerance)
+    .map((point) => point.y)
+
+  if (bottomXs.length < 2 || leftYs.length < 2) return undefined
+
+  const legStartRatio = Math.min(...bottomXs) / device.w
+  const barHeightRatio = Math.max(...leftYs) / device.h
+  if (
+    legStartRatio <= 0 ||
+    legStartRatio >= 1 ||
+    barHeightRatio <= 0 ||
+    barHeightRatio >= 1
+  ) {
+    return undefined
+  }
+
+  return {
+    legStartRatio,
+    barHeightRatio,
+  }
 }
 
 export function isCssMapDevicePointInsideShape(

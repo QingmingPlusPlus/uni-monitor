@@ -196,6 +196,7 @@ describe('loadCssMapData realtime status mapping', () => {
             y: 5,
             width: 40,
             height: 30,
+            contentLayout: 'right-l-shape',
             polygon: [
               { x: 0, y: 0 },
               { x: 40, y: 0 },
@@ -234,6 +235,7 @@ describe('loadCssMapData realtime status mapping', () => {
       { x: 48, y: 0 },
       { x: 24, y: 24 },
     ])
+    expect(data.devices[0]?.contentLayout).toBe('right-l-shape')
     expect(data.devices.map((device) => device.runtime.status)).toEqual([
       'production',
       'plannedStop',

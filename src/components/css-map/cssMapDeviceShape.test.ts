@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createCssMapScaledPolygon,
   getCssMapDeviceClipPath,
+  getCssMapRightLShapeMetrics,
   isCssMapDevicePointInsideShape,
   isValidCssMapDevicePolygon,
 } from './cssMapDeviceShape'
@@ -49,5 +50,23 @@ describe('cssMapDeviceShape', () => {
       { x: 21, y: 0 },
       { x: 10, y: 10 },
     ], 20, 20)).toBe(false)
+  })
+
+  it('从右侧 L 型顶点提取横条高度和竖条起点', () => {
+    expect(getCssMapRightLShapeMetrics({
+      w: 100,
+      h: 50,
+      polygon: [
+        { x: 0, y: 0 },
+        { x: 100, y: 0 },
+        { x: 100, y: 50 },
+        { x: 80, y: 50 },
+        { x: 80, y: 20 },
+        { x: 0, y: 20 },
+      ],
+    })).toEqual({
+      legStartRatio: 0.8,
+      barHeightRatio: 0.4,
+    })
   })
 })

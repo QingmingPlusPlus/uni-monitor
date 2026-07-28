@@ -33,6 +33,23 @@
 - **WHEN** 设备配置不包含 `polygon`
 - **THEN** 设备继续使用原有圆角矩形外框和矩形点击区域
 
+### Requirement: 右侧 L 型设备支持专用内容排列
+
+配置 `contentLayout: "right-l-shape"` 且具有有效右侧 L 型 `polygon` 的设备必须（MUST）从多边形提取横条高度和右侧竖条起点，并使用完整多边形空间排列原有内容。名称、状态、负荷率、人员和 5M 五类内容必须（MUST）全部保留；Sprite 与 CSS3D 回退渲染器必须（MUST）使用一致的区域划分。
+
+#### Scenario: 显示右侧 L 型设备的全部内容
+
+- **WHEN** 右侧 L 型设备配置 `contentLayout: "right-l-shape"`
+- **THEN** 名称和状态显示在顶部横条
+- **AND** 人员与 5M 显示在横条的剩余区域
+- **AND** 负荷率显示在右侧竖条
+- **AND** 所有信息均位于多边形有效区域内
+
+#### Scenario: 专用布局与形状不匹配
+
+- **WHEN** 设备声明 `contentLayout: "right-l-shape"` 但无法从 `polygon` 提取有效横条和竖条
+- **THEN** 渲染器回退到按设备宽高规划的通用布局
+
 ### Requirement: 信息区按设备方向和内容分档
 
 信息区必须（MUST）根据设备原始宽高选择布局方向，并根据名称、工况、负荷率、可见人员和可见 5M 标记估算所需宽度。`height >= width` 使用纵向布局，否则使用横向布局；布局方向和宽度档位不得因地图缩放而改变。

@@ -12,6 +12,7 @@ import {
 } from './cssMapDeviceContentLayout'
 import {
   getCssMapDeviceClipPath,
+  getCssMapRightLShapeMetrics,
   getCssMapDeviceSvgPolygonPoints,
 } from './cssMapDeviceShape'
 import type {
@@ -130,12 +131,23 @@ const polygonClipPath = computed(() => getCssMapDeviceClipPath(props.device))
 
 const polygonPoints = computed(() => getCssMapDeviceSvgPolygonPoints(props.device))
 
+const rightLShapeMetrics = computed(() => (
+  props.device.contentLayout === 'right-l-shape'
+    ? getCssMapRightLShapeMetrics(props.device)
+    : undefined
+))
+
+const usesRightLShapeContent = computed(() => Boolean(rightLShapeMetrics.value))
+
 const surfaceStyle = computed(() => {
   const scale = Math.max(props.screen.scale, 0.001)
   const width = Math.max(props.screen.width, 1)
   const height = Math.max(props.screen.height, 1)
   const smallSide = Math.min(width, height)
   const status = statusStyle.value
+  const rightLShape = rightLShapeMetrics.value
+  const rightLBarHeight = rightLShape?.barHeightRatio ?? 1
+  const rightLHeaderHeight = rightLBarHeight * 0.55
 
   return {
     width: `${width}px`,
@@ -150,7 +162,12 @@ const surfaceStyle = computed(() => {
     '--css-map-node-border-width': `${equipmentBorderWidth}px`,
     '--css-map-staff-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
     '--css-map-five-m-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
-    '--css-map-node-content-width': `${contentPlan.value.contentWidthRatio * 100}%`,
+    '--css-map-node-content-width': usesRightLShapeContent.value
+      ? '100%'
+      : `${contentPlan.value.contentWidthRatio * 100}%`,
+    '--css-map-right-l-leg-start': `${(rightLShape?.legStartRatio ?? 1) * 100}%`,
+    '--css-map-right-l-bar-height': `${rightLBarHeight * 100}%`,
+    '--css-map-right-l-header-height': `${rightLHeaderHeight * 100}%`,
   }
 })
 </script>
@@ -165,6 +182,7 @@ const surfaceStyle = computed(() => {
       'css-map-equipment-node--horizontal': contentPlan.orientation === 'horizontal',
       'css-map-equipment-node--wide': contentPlan.isWide,
       'css-map-equipment-node--polygon': Boolean(polygonPoints),
+      'css-map-equipment-node--right-l-shape': usesRightLShapeContent,
     }"
     :style="surfaceStyle"
     :data-device-id="device.id"

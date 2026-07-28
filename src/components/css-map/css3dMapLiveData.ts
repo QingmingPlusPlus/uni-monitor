@@ -88,6 +88,10 @@ function isOptionalDevicePolygon(
   )
 }
 
+function isOptionalDeviceContentLayout(value: unknown): boolean {
+  return value === undefined || value === 'right-l-shape'
+}
+
 function isDeviceChild(value: unknown): value is CssMapJsonDeviceChild {
   return (
     isRecord(value) &&
@@ -98,7 +102,8 @@ function isDeviceChild(value: unknown): value is CssMapJsonDeviceChild {
     typeof value.y === 'number' &&
     typeof value.width === 'number' &&
     typeof value.height === 'number' &&
-    isOptionalDevicePolygon(value.polygon, value.width, value.height)
+    isOptionalDevicePolygon(value.polygon, value.width, value.height) &&
+    isOptionalDeviceContentLayout(value.contentLayout)
   )
 }
 
@@ -124,7 +129,8 @@ function isDevice(value: unknown): value is CssMapJsonDevice {
     (value.deviceCode === undefined || typeof value.deviceCode === 'string') &&
     (deviceCodes === undefined || (Array.isArray(deviceCodes) && deviceCodes.every((code) => typeof code === 'string'))) &&
     (children === undefined || (Array.isArray(children) && children.every(isDeviceChild))) &&
-    isOptionalDevicePolygon(value.polygon, value.width, value.height)
+    isOptionalDevicePolygon(value.polygon, value.width, value.height) &&
+    isOptionalDeviceContentLayout(value.contentLayout)
   )
 }
 
@@ -436,6 +442,7 @@ async function createCssMapData(
               width,
               height,
             ),
+            contentLayout: child.contentLayout,
             deviceCode: child.deviceCode,
             deviceCodes: [normalizeDeviceCode(child.deviceCode)],
             children: [],
@@ -453,6 +460,7 @@ async function createCssMapData(
         w: device.width,
         h: device.height,
         polygon: device.polygon,
+        contentLayout: device.contentLayout,
         deviceCode: device.deviceCode,
         deviceCodes: runtimeCodes,
         children: [],

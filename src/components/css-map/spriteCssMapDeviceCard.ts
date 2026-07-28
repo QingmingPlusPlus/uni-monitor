@@ -9,7 +9,10 @@ import type {
   CssMapDisplayOptions,
   CssMapPoint,
 } from './css3dMapTypes'
-import { isValidCssMapDevicePolygon } from './cssMapDeviceShape'
+import {
+  getCssMapRightLShapeMetrics,
+  isValidCssMapDevicePolygon,
+} from './cssMapDeviceShape'
 import {
   planCssMapDeviceContent,
   planCssMapMarkerSlots,
@@ -87,6 +90,7 @@ export function createSpriteCssMapDeviceTextureKey(
   return [
     device.id,
     device.polygon?.map((point) => `${point.x},${point.y}`).join(';') ?? 'rectangle',
+    device.contentLayout ?? 'standard-layout',
     layout.cacheBucket,
     contentPlan.cacheKey,
     selectMode ? 'select' : 'normal',
@@ -563,6 +567,42 @@ function drawVerticalLoadRate(
   context.restore()
 }
 
+function drawRightLLoadRate(
+  context: CanvasRenderingContext2D,
+  device: CssMapDevice,
+  rect: DrawRect,
+  colorPlan: SpriteCssMapDeviceColorPlan,
+): void {
+  const labelHeight = rect.h * 0.38
+  const value = formatSpriteCssMapLoadRate(device.runtime.loadRate)
+
+  context.save()
+  context.fillStyle = colorPlan.loadRateBackground
+  context.fillRect(rect.x, rect.y, rect.w, rect.h)
+  context.fillStyle = 'rgba(20, 33, 61, 0.72)'
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.font = createFont(800, clamp(Math.min(rect.w * 0.3, labelHeight * 0.36), 7, 11))
+  context.fillText('负荷率', rect.x + rect.w / 2, rect.y + labelHeight / 2, rect.w - 4)
+
+  const valueFontSize = fitSingleLineFontSize(
+    context,
+    value,
+    Math.max(1, rect.w - 5),
+    clamp(Math.min(rect.w * 0.38, (rect.h - labelHeight) * 0.42), 8, 17),
+    7,
+  )
+  context.fillStyle = '#14213d'
+  context.font = createFont(900, valueFontSize)
+  context.fillText(
+    value,
+    rect.x + rect.w / 2,
+    rect.y + labelHeight + (rect.h - labelHeight) / 2,
+    rect.w - 5,
+  )
+  context.restore()
+}
+
 function drawMarkerOverflowText(
   context: CanvasRenderingContext2D,
   text: string,
@@ -904,6 +944,66 @@ function drawHorizontalCard(
   drawWideBody(context, options, bodyRect, colorPlan)
 }
 
+function drawRightLShapeCard(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  rect: DrawRect,
+  colorPlan: SpriteCssMapDeviceColorPlan,
+): boolean {
+  const metrics = getCssMapRightLShapeMetrics(options.device)
+  if (!metrics) return false
+
+  const legX = rect.x + rect.w * metrics.legStartRatio
+  const barBottom = rect.y + rect.h * metrics.barHeightRatio
+  const barHeight = Math.max(1, barBottom - rect.y)
+  const headerHeight = barHeight * 0.55
+  const headerBottom = rect.y + headerHeight
+  const detailWidth = Math.max(1, legX - rect.x)
+  const detailHeight = Math.max(1, barBottom - headerBottom)
+  const detailColumnWidth = detailWidth / 2
+  const inset = clamp(Math.min(detailHeight, detailColumnWidth) * 0.08, 2, 5)
+
+  drawHorizontalHeader(context, options, {
+    x: rect.x,
+    y: rect.y,
+    w: rect.w,
+    h: headerHeight,
+  }, colorPlan)
+  drawHorizontalMarkerRow(context, options, {
+    x: rect.x + inset,
+    y: headerBottom + 1,
+    w: Math.max(1, detailColumnWidth - inset * 2),
+    h: Math.max(1, detailHeight - 2),
+  }, 'staff')
+  drawHorizontalMarkerRow(context, options, {
+    x: rect.x + detailColumnWidth + inset,
+    y: headerBottom + 1,
+    w: Math.max(1, detailColumnWidth - inset * 2),
+    h: Math.max(1, detailHeight - 2),
+  }, 'fiveM')
+  drawRightLLoadRate(context, options.device, {
+    x: legX,
+    y: headerBottom,
+    w: Math.max(1, rect.x + rect.w - legX),
+    h: Math.max(1, rect.y + rect.h - headerBottom),
+  }, colorPlan)
+
+  context.save()
+  context.strokeStyle = 'rgba(21, 43, 70, 0.16)'
+  context.lineWidth = 1
+  context.beginPath()
+  context.moveTo(rect.x, headerBottom)
+  context.lineTo(rect.x + rect.w, headerBottom)
+  context.moveTo(rect.x + detailColumnWidth, headerBottom)
+  context.lineTo(rect.x + detailColumnWidth, barBottom)
+  context.moveTo(legX, headerBottom)
+  context.lineTo(legX, rect.y + rect.h)
+  context.stroke()
+  context.restore()
+
+  return true
+}
+
 function drawVerticalCard(
   context: CanvasRenderingContext2D,
   options: SpriteCssMapDeviceCardDrawOptions,
@@ -1020,9 +1120,13 @@ export function drawSpriteCssMapDeviceCard(
   context.save()
   traceDeviceShape(context, options.device, width, height, borderWidth, radius)
   context.clip()
-  if (contentPlan.orientation === 'vertical') {
+  const usedRightLShapeLayout = (
+    options.device.contentLayout === 'right-l-shape' &&
+    drawRightLShapeCard(context, options, contentRect, colorPlan)
+  )
+  if (!usedRightLShapeLayout && contentPlan.orientation === 'vertical') {
     drawVerticalCard(context, options, informationRect, colorPlan)
-  } else {
+  } else if (!usedRightLShapeLayout) {
     drawHorizontalCard(context, options, informationRect, colorPlan)
   }
   context.restore()
