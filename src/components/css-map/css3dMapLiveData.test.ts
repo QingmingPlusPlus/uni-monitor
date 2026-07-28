@@ -188,7 +188,20 @@ describe('loadCssMapData realtime status mapping', () => {
         width: 120,
         height: 80,
         children: [
-          { id: 'child-1', name: 'child-1', deviceCode: 'D-01', x: 2, y: 5, width: 40, height: 30 },
+          {
+            id: 'child-1',
+            name: 'child-1',
+            deviceCode: 'D-01',
+            x: 2,
+            y: 5,
+            width: 40,
+            height: 30,
+            polygon: [
+              { x: 0, y: 0 },
+              { x: 40, y: 0 },
+              { x: 20, y: 30 },
+            ],
+          },
           { id: 'child-2', name: 'child-2', deviceCode: 'D-02', x: 51, y: 5, width: 47, height: 30 },
           { id: 'child-3', name: 'child-3', deviceCode: 'D-03', x: 2, y: 60, width: 96, height: 38 },
         ],
@@ -215,6 +228,11 @@ describe('loadCssMapData realtime status mapping', () => {
       { x: 12.4, y: 24, w: 48, h: 24 },
       { x: 71.2, y: 24, w: 56.4, h: 24 },
       { x: 12.4, y: 68, w: 115.2, h: 30.4 },
+    ])
+    expect(data.devices[0]?.polygon).toEqual([
+      { x: 0, y: 0 },
+      { x: 48, y: 0 },
+      { x: 24, y: 24 },
     ])
     expect(data.devices.map((device) => device.runtime.status)).toEqual([
       'production',

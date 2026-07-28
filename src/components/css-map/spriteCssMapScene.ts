@@ -9,6 +9,10 @@ import type {
 } from './css3dMapTypes'
 import { SpriteCssMapTextureCache } from './spriteCssMapTextureCache'
 import { createSpriteCssMapCanvasTheme } from './spriteCssMapTheme'
+import {
+  getCssMapDeviceShapeKey,
+  isCssMapDevicePointInsideShape,
+} from './cssMapDeviceShape'
 
 const PROCESS_BOUNDARY_LAYER_ELEVATION = 1
 const DEVICE_LAYER_ELEVATION = PROCESS_BOUNDARY_LAYER_ELEVATION
@@ -93,7 +97,7 @@ function mapRectToGroundCenter(rect: CssMapRect, mapSize: CssMapSize): THREE.Vec
 }
 
 function getDeviceLayoutKey(device: CssMapDevice): string {
-  return `${device.id}-${device.x}-${device.y}-${device.w}-${device.h}`
+  return `${device.id}-${device.x}-${device.y}-${device.w}-${device.h}-${getCssMapDeviceShapeKey(device)}`
 }
 
 function isPrimaryPointer(event: PointerEvent): boolean {
@@ -307,10 +311,16 @@ export function createSpriteCssMapScene(options: CreateSpriteCssMapSceneOptions)
     pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1)
     raycaster.setFromCamera(pointer, camera)
     const intersections = raycaster.intersectObjects(deviceObjects.map((item) => item.sprite), false)
-    const hit = intersections[0]?.object
-    if (!hit) return null
+    for (const intersection of intersections) {
+      const item = deviceObjects.find((candidate) => candidate.sprite === intersection.object)
+      if (!item) continue
+      const uv = intersection.uv
+      if (!uv || isCssMapDevicePointInsideShape(item.device, uv.x, 1 - uv.y)) {
+        return item
+      }
+    }
 
-    return deviceObjects.find((item) => item.sprite === hit) ?? null
+    return null
   }
 
   function resetNavigation(): void {

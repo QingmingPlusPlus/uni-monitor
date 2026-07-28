@@ -25,7 +25,45 @@
   outline-offset: 2px;
 }
 
+.css-map-equipment-node--polygon {
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.css-map-equipment-node--polygon.css-map-equipment-node--selecting {
+  outline: 0;
+}
+
+.css-map-equipment-node__shape {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.css-map-equipment-node__shape-border,
+.css-map-equipment-node__shape-selection {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.css-map-equipment-node__shape-border {
+  stroke: var(--css-map-node-status-border);
+  stroke-width: var(--css-map-node-border-width, 4px);
+}
+
+.css-map-equipment-node__shape-selection {
+  stroke: rgba(36, 113, 255, 0.5);
+  stroke-width: 3px;
+}
+
 .css-map-equipment-node__content {
+  position: relative;
+  z-index: 1;
   display: grid;
   overflow: hidden;
   width: var(--css-map-node-content-width, 100%);

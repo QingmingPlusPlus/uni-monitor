@@ -32,6 +32,10 @@ import {
   isCssMapProcessValue,
 } from './css3dMapSelection'
 import {
+  createCssMapScaledPolygon,
+  isValidCssMapDevicePolygon,
+} from './cssMapDeviceShape'
+import {
   createCssMapMockChangePointRecords,
   createCssMapMockDeviceLoadRecords,
   createCssMapMockRealtimeItems,
@@ -69,6 +73,21 @@ function isPoint(value: unknown): value is CssMapPoint {
   return isRecord(value) && typeof value.x === 'number' && typeof value.y === 'number'
 }
 
+function isOptionalDevicePolygon(
+  value: unknown,
+  width: number,
+  height: number,
+): value is CssMapPoint[] | undefined {
+  return (
+    value === undefined ||
+    (
+      Array.isArray(value) &&
+      value.every(isPoint) &&
+      isValidCssMapDevicePolygon(value, width, height)
+    )
+  )
+}
+
 function isDeviceChild(value: unknown): value is CssMapJsonDeviceChild {
   return (
     isRecord(value) &&
@@ -78,7 +97,8 @@ function isDeviceChild(value: unknown): value is CssMapJsonDeviceChild {
     typeof value.x === 'number' &&
     typeof value.y === 'number' &&
     typeof value.width === 'number' &&
-    typeof value.height === 'number'
+    typeof value.height === 'number' &&
+    isOptionalDevicePolygon(value.polygon, value.width, value.height)
   )
 }
 
@@ -103,7 +123,8 @@ function isDevice(value: unknown): value is CssMapJsonDevice {
     (section === null || isCssMapProcessValue(typeof section === 'string' ? section : undefined)) &&
     (value.deviceCode === undefined || typeof value.deviceCode === 'string') &&
     (deviceCodes === undefined || (Array.isArray(deviceCodes) && deviceCodes.every((code) => typeof code === 'string'))) &&
-    (children === undefined || (Array.isArray(children) && children.every(isDeviceChild)))
+    (children === undefined || (Array.isArray(children) && children.every(isDeviceChild))) &&
+    isOptionalDevicePolygon(value.polygon, value.width, value.height)
   )
 }
 
@@ -396,19 +417,31 @@ async function createCssMapData(
       const runtimeCodes = collectDeviceRuntimeCodes(device)
 
       if (device.children?.length) {
-        return device.children.map((child) => ({
-          id: child.id,
-          name: formatDeviceDisplayName(child.name),
-          section: device.section,
-          x: device.x + (device.width * child.x) / childLayoutSize,
-          y: device.y + (device.height * child.y) / childLayoutSize,
-          w: (device.width * child.width) / childLayoutSize,
-          h: (device.height * child.height) / childLayoutSize,
-          deviceCode: child.deviceCode,
-          deviceCodes: [normalizeDeviceCode(child.deviceCode)],
-          children: [],
-          runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
-        }))
+        return device.children.map((child) => {
+          const width = (device.width * child.width) / childLayoutSize
+          const height = (device.height * child.height) / childLayoutSize
+
+          return {
+            id: child.id,
+            name: formatDeviceDisplayName(child.name),
+            section: device.section,
+            x: device.x + (device.width * child.x) / childLayoutSize,
+            y: device.y + (device.height * child.y) / childLayoutSize,
+            w: width,
+            h: height,
+            polygon: createCssMapScaledPolygon(
+              child.polygon,
+              child.width,
+              child.height,
+              width,
+              height,
+            ),
+            deviceCode: child.deviceCode,
+            deviceCodes: [normalizeDeviceCode(child.deviceCode)],
+            children: [],
+            runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
+          }
+        })
       }
 
       return [{
@@ -419,6 +452,7 @@ async function createCssMapData(
         y: device.y,
         w: device.width,
         h: device.height,
+        polygon: device.polygon,
         deviceCode: device.deviceCode,
         deviceCodes: runtimeCodes,
         children: [],

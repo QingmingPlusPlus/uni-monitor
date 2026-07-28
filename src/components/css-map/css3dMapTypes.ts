@@ -20,6 +20,7 @@ export interface CssMapDeviceLayout {
   y: number
   w: number
   h: number
+  polygon?: CssMapPoint[]
 }
 
 export type CssMapSelectionMode = 'department' | 'process'
@@ -99,6 +100,7 @@ export interface CssMapJsonDevice {
   y: number
   width: number
   height: number
+  polygon?: CssMapPoint[]
   deviceCode?: string
   deviceCodes?: string[]
   children?: CssMapJsonDeviceChild[]
@@ -112,6 +114,7 @@ export interface CssMapJsonDeviceChild {
   y: number
   width: number
   height: number
+  polygon?: CssMapPoint[]
 }
 
 export interface CssMapJsonSection {

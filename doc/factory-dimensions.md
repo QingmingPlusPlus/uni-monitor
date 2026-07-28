@@ -38,6 +38,7 @@
 - 地图默认渲染器：`src/components/css-map/SpriteCssMapPanel.vue`，使用 Three.js `WebGLRenderer` + `Sprite` 绘制设备卡片；旧 `src/components/css-map/index.vue`（CSS3D DOM 版本）保留为代码级回退。
 - Sprite 地图仅承诺 H5 大屏使用；WebGL 初始化失败时，`FactoryDashboardView` 自动回退到 CSS3D DOM 地图。
 - 地图不绘制 `devices.json` 中带 `children` 的外层设备组，而是将每个 `children` 子设备直接绘制为独立设备。子设备的 `x`、`y`、`width`、`height` 使用外层设备内部 100×100 局部坐标，并按外层设备在地图上的宽高换算，因此每台子设备按自身实际位置和尺寸显示。无 `children` 的单设备保持原布局。子设备使用自身运行状态、负荷率、人员和 5M 变化点，并可独立进入设备详情。
+- 设备和子设备可选配置 `polygon` 局部顶点数组绘制多边形；顶点以设备自身左上角为原点，坐标范围为 `0..width`、`0..height`，至少三个点且按边界顺序排列。未配置 `polygon` 时保持原矩形卡片。Sprite 与 CSS3D 回退都按同一多边形裁剪外观和点击区域。
 - 地图默认嵌入在部门/工序维度左侧，支持部门、工序选择和设备双击进入详情。
 - 左侧地图提供展开按钮，点击后打开 80vw × 80vh 弹窗，弹窗内展示放大的 `css-map`。
 - 地图弹窗内的部门选择、工序选择、清空工序和设备打开事件均不驱动页面路由切换，只用于弹窗内临时查看。

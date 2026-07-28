@@ -1,4 +1,5 @@
 import type { CssMapDevice } from './css3dMapTypes'
+import { getCssMapDeviceShapeKey } from './cssMapDeviceShape'
 
 const deviceNavigationDoubleTapMs = 420
 const deviceNavigationMoveTolerance = 10
@@ -31,7 +32,7 @@ export interface CssMapDeviceNavigation {
 }
 
 export function getCssMapDeviceLayoutKey(device: CssMapDevice): string {
-  return `${device.id}-${device.x}-${device.y}-${device.w}-${device.h}`
+  return `${device.id}-${device.x}-${device.y}-${device.w}-${device.h}-${getCssMapDeviceShapeKey(device)}`
 }
 
 function isPrimaryPointer(event: PointerEvent): boolean {

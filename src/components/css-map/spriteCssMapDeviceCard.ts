@@ -7,7 +7,9 @@ import type {
   CssMapDeviceRuntime,
   CssMapDeviceStatus,
   CssMapDisplayOptions,
+  CssMapPoint,
 } from './css3dMapTypes'
+import { isValidCssMapDevicePolygon } from './cssMapDeviceShape'
 import {
   planCssMapDeviceContent,
   planCssMapMarkerSlots,
@@ -84,6 +86,7 @@ export function createSpriteCssMapDeviceTextureKey(
 
   return [
     device.id,
+    device.polygon?.map((point) => `${point.x},${point.y}`).join(';') ?? 'rectangle',
     layout.cacheBucket,
     contentPlan.cacheKey,
     selectMode ? 'select' : 'normal',
@@ -162,6 +165,63 @@ function roundedRect(
   context.lineTo(x, y + r)
   context.quadraticCurveTo(x, y, x + r, y)
   context.closePath()
+}
+
+export function drawSpriteCssMapDevicePolygon(
+  context: CanvasRenderingContext2D,
+  polygon: readonly CssMapPoint[],
+  sourceWidth: number,
+  sourceHeight: number,
+  targetWidth: number,
+  targetHeight: number,
+  inset = 0,
+): void {
+  const drawableWidth = Math.max(0, targetWidth - inset * 2)
+  const drawableHeight = Math.max(0, targetHeight - inset * 2)
+
+  context.beginPath()
+  polygon.forEach((point, index) => {
+    const x = inset + (point.x / sourceWidth) * drawableWidth
+    const y = inset + (point.y / sourceHeight) * drawableHeight
+
+    if (index === 0) {
+      context.moveTo(x, y)
+    } else {
+      context.lineTo(x, y)
+    }
+  })
+  context.closePath()
+}
+
+function traceDeviceShape(
+  context: CanvasRenderingContext2D,
+  device: CssMapDevice,
+  width: number,
+  height: number,
+  inset: number,
+  radius: number,
+): void {
+  if (isValidCssMapDevicePolygon(device.polygon, device.w, device.h)) {
+    drawSpriteCssMapDevicePolygon(
+      context,
+      device.polygon,
+      device.w,
+      device.h,
+      width,
+      height,
+      inset,
+    )
+    return
+  }
+
+  roundedRect(
+    context,
+    inset,
+    inset,
+    Math.max(0, width - inset * 2),
+    Math.max(0, height - inset * 2),
+    radius,
+  )
 }
 
 function ellipsizeText(
@@ -925,19 +985,16 @@ export function drawSpriteCssMapDeviceCard(
   const colorPlan = getSpriteCssMapDeviceColorPlan(options.device, options.display, theme)
 
   context.save()
-  roundedRect(context, borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth, radius)
+  traceDeviceShape(
+    context,
+    options.device,
+    width,
+    height,
+    borderWidth / 2,
+    radius,
+  )
   context.fillStyle = 'rgba(255, 255, 255, 0.94)'
   context.fill()
-  context.lineWidth = borderWidth
-  context.strokeStyle = colorPlan.statusBorder
-  context.stroke()
-
-  if (selectMode) {
-    roundedRect(context, borderWidth + 2, borderWidth + 2, width - borderWidth * 2 - 4, height - borderWidth * 2 - 4, radius)
-    context.lineWidth = Math.max(2, borderWidth * 0.72)
-    context.strokeStyle = 'rgba(36, 113, 255, 0.5)'
-    context.stroke()
-  }
   context.restore()
 
   const inset = borderWidth
@@ -960,9 +1017,41 @@ export function drawSpriteCssMapDeviceCard(
     h: contentRect.h,
   }
 
+  context.save()
+  traceDeviceShape(context, options.device, width, height, borderWidth, radius)
+  context.clip()
   if (contentPlan.orientation === 'vertical') {
     drawVerticalCard(context, options, informationRect, colorPlan)
   } else {
     drawHorizontalCard(context, options, informationRect, colorPlan)
   }
+  context.restore()
+
+  context.save()
+  traceDeviceShape(
+    context,
+    options.device,
+    width,
+    height,
+    borderWidth / 2,
+    radius,
+  )
+  context.lineWidth = borderWidth
+  context.strokeStyle = colorPlan.statusBorder
+  context.stroke()
+
+  if (selectMode) {
+    traceDeviceShape(
+      context,
+      options.device,
+      width,
+      height,
+      borderWidth + 2,
+      radius,
+    )
+    context.lineWidth = Math.max(2, borderWidth * 0.72)
+    context.strokeStyle = 'rgba(36, 113, 255, 0.5)'
+    context.stroke()
+  }
+  context.restore()
 }

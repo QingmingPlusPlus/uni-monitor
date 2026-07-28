@@ -1,6 +1,10 @@
 import * as THREE from 'three'
 import { CSS3DObject, CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js'
 import { createCss3dMapControls, type Css3dMapControls } from './css3dMapControls'
+import {
+  getCssMapDeviceClipPath,
+  getCssMapDeviceShapeKey,
+} from './cssMapDeviceShape'
 import type {
   CssMapDeviceLayout,
   CssMapDeviceScreenRect,
@@ -121,12 +125,13 @@ function positionDeviceObject(
   object.element.dataset.cssMapDeviceId = device.id
   object.element.style.width = `${device.w}px`
   object.element.style.height = `${device.h}px`
+  object.element.style.clipPath = getCssMapDeviceClipPath(device) ?? ''
   object.position.copy(mapLayoutToGroundPosition(device, mapSize))
   object.rotation.x = CSS3D_GROUND_ROTATION_X
 }
 
 function getDeviceLayoutKey(device: CssMapDeviceLayout) {
-  return `${device.id}-${device.x}-${device.y}-${device.w}-${device.h}`
+  return `${device.id}-${device.x}-${device.y}-${device.w}-${device.h}-${getCssMapDeviceShapeKey(device)}`
 }
 
 export function createCss3dMapScene(options: CreateCss3dMapSceneOptions): Css3dMapScene {

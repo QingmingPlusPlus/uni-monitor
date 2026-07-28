@@ -10,6 +10,10 @@ import {
   planCssMapDeviceContent,
   planCssMapMarkerSlots,
 } from './cssMapDeviceContentLayout'
+import {
+  getCssMapDeviceClipPath,
+  getCssMapDeviceSvgPolygonPoints,
+} from './cssMapDeviceShape'
 import type {
   CssMapDevice,
   CssMapDeviceChild,
@@ -122,6 +126,10 @@ const detailTitle = computed(() => {
   return `${props.device.name} / ${statusLabel.value} / 负荷率 ${loadRateLabel.value} / ${staffing} / ${fiveM}`
 })
 
+const polygonClipPath = computed(() => getCssMapDeviceClipPath(props.device))
+
+const polygonPoints = computed(() => getCssMapDeviceSvgPolygonPoints(props.device))
+
 const surfaceStyle = computed(() => {
   const scale = Math.max(props.screen.scale, 0.001)
   const width = Math.max(props.screen.width, 1)
@@ -133,6 +141,7 @@ const surfaceStyle = computed(() => {
     width: `${width}px`,
     height: `${height}px`,
     transform: `scale(${1 / scale})`,
+    clipPath: polygonClipPath.value,
     '--css-map-node-font-size': `${Math.max(10, Math.min(20, smallSide * 0.16))}px`,
     '--css-map-node-load-size': `${Math.max(9, Math.min(15, smallSide * 0.11))}px`,
     '--css-map-node-status-background': status.background,
@@ -155,6 +164,7 @@ const surfaceStyle = computed(() => {
       'css-map-equipment-node--vertical': contentPlan.orientation === 'vertical',
       'css-map-equipment-node--horizontal': contentPlan.orientation === 'horizontal',
       'css-map-equipment-node--wide': contentPlan.isWide,
+      'css-map-equipment-node--polygon': Boolean(polygonPoints),
     }"
     :style="surfaceStyle"
     :data-device-id="device.id"
@@ -224,6 +234,24 @@ const surfaceStyle = computed(() => {
         </div>
       </section>
     </div>
+
+    <svg
+      v-if="polygonPoints"
+      class="css-map-equipment-node__shape"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <polygon
+        class="css-map-equipment-node__shape-border"
+        :points="polygonPoints"
+      />
+      <polygon
+        v-if="selectMode"
+        class="css-map-equipment-node__shape-selection"
+        :points="polygonPoints"
+      />
+    </svg>
   </article>
 </template>
 
