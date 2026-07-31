@@ -32,6 +32,9 @@ const metrics = {
   pixelRatio: 1,
 }
 
+const createCanvas = (width: number, height: number): HTMLCanvasElement =>
+  ({ width, height } as HTMLCanvasElement)
+
 function createDevice(
   loadRate: number,
   fiveMCategory: CssMapFiveMCategory = 'machine',
@@ -69,7 +72,7 @@ describe('SpriteCssMapTextureCache', () => {
     let drawCount = 0
     const textures: FakeTexture[] = []
     const cache = new SpriteCssMapTextureCache<FakeTexture>({
-      createCanvas: (width, height) => ({ width, height } as HTMLCanvasElement),
+      createCanvas,
       createTexture: () => {
         const texture = new FakeTexture()
         textures.push(texture)
@@ -93,7 +96,7 @@ describe('SpriteCssMapTextureCache', () => {
   it('运行态变化后重建纹理并释放旧纹理', () => {
     const textures: FakeTexture[] = []
     const cache = new SpriteCssMapTextureCache<FakeTexture>({
-      createCanvas: (width, height) => ({ width, height } as HTMLCanvasElement),
+      createCanvas,
       createTexture: () => {
         const texture = new FakeTexture()
         textures.push(texture)
@@ -118,7 +121,7 @@ describe('SpriteCssMapTextureCache', () => {
   it('5M 类别变化后重建纹理以更新菱形配色', () => {
     let drawCount = 0
     const cache = new SpriteCssMapTextureCache<FakeTexture>({
-      createCanvas: (width, height) => ({ width, height } as HTMLCanvasElement),
+      createCanvas,
       createTexture: () => new FakeTexture(),
       drawDeviceCard: () => {
         drawCount += 1

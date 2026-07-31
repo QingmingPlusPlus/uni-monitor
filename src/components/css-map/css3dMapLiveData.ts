@@ -22,7 +22,6 @@ import type {
   CssMapJsonSection,
   CssMapPoint,
   CssMapProcessBoundary,
-  CssMapProcessValue,
   CssMapSelectionConfig,
   CssMapSize,
 } from './css3dMapTypes'

@@ -65,7 +65,6 @@
 }
 
 .data-table__cell--label {
-  color: var(--um-color-text-primary);
   font-weight: 700;
 }
 

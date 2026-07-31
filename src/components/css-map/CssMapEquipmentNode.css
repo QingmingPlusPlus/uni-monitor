@@ -339,8 +339,6 @@
 }
 
 .css-map-equipment-node--right-l-shape.css-map-equipment-node--horizontal
-  .css-map-equipment-node__header,
-.css-map-equipment-node--right-l-shape.css-map-equipment-node--horizontal.css-map-equipment-node--compact-name
   .css-map-equipment-node__header {
   position: absolute;
   top: 0;
@@ -357,8 +355,6 @@
 }
 
 .css-map-equipment-node--right-l-shape.css-map-equipment-node--horizontal
-  .css-map-equipment-node__header strong,
-.css-map-equipment-node--right-l-shape.css-map-equipment-node--horizontal.css-map-equipment-node--compact-name
   .css-map-equipment-node__header strong {
   display: block;
   width: auto;
@@ -370,8 +366,6 @@
 }
 
 .css-map-equipment-node--right-l-shape.css-map-equipment-node--horizontal
-  .css-map-equipment-node__status,
-.css-map-equipment-node--right-l-shape.css-map-equipment-node--horizontal.css-map-equipment-node--compact-name
   .css-map-equipment-node__status {
   max-width: 42%;
   justify-self: auto;

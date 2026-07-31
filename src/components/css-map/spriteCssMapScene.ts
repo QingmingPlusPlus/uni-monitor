@@ -180,7 +180,7 @@ export function createSpriteCssMapScene(options: CreateSpriteCssMapSceneOptions)
 
   renderer.domElement.className = 'sprite-css-map-renderer'
   renderer.setClearColor(0x000000, 0)
-  renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, MAX_RENDERER_PIXEL_RATIO))
+  renderer.setPixelRatio(getRendererPixelRatio())
   options.container.appendChild(renderer.domElement)
 
   const boundaryObjects = (options.processBoundaries ?? []).map((boundary) => createBoundaryObject(boundary, options.mapSize))

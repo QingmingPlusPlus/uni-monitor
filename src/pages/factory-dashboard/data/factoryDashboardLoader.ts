@@ -74,9 +74,6 @@ import type {
   PersonnelDetailShift,
 } from './personnelDetailMock'
 
-// 临时固定人员明细及状态查询日期，待后端当前日数据补齐后移除。
-// const TEMP_PERSONNEL_DETAIL_REQUEST_DATE = '2026-06-29'
-
 // ---------------------------------------------------------------------------
 // 值映射：CssMap 值 → API 参数
 // ---------------------------------------------------------------------------
@@ -415,7 +412,6 @@ function calculateAttendanceRate(rosterTotal: number, actualAttendance: number):
 // #1 人员出勤适配：CurrentAttendanceStatisticsVO[] → PersonnelAttendanceData
 // ---------------------------------------------------------------------------
 
-/** 接口 positionType: 'direct' | 'indirect' */
 type ApiPositionType = 'direct' | 'indirect'
 
 function mapShiftType(shiftType: string): PersonnelAttendanceShift {
@@ -1652,11 +1648,14 @@ function formatWorkHours(vo: AttendanceDetailSituationVO): string {
 
 function mapDetailRow(vo: AttendanceDetailSituationVO, index: number): PersonnelDetailRow {
   const shiftName = vo.shiftName ?? ''
-  const shift: PersonnelDetailShift = shiftName.includes('夜')
-    ? 'night'
-    : shiftName.includes('早') || shiftName.includes('白')
-      ? 'day'
-      : 'regular'
+  let shift: PersonnelDetailShift
+  if (shiftName.includes('夜')) {
+    shift = 'night'
+  } else if (shiftName.includes('早') || shiftName.includes('白')) {
+    shift = 'day'
+  } else {
+    shift = 'regular'
+  }
 
   return {
     id: `detail-${index + 1}`,
@@ -1683,7 +1682,6 @@ export async function loadPersonnelDetailCard(
   refreshedAt: Date,
 ): Promise<PersonnelDetailData> {
   const departmentCode = toApiDepartmentCode(department)
-  // const date = TEMP_PERSONNEL_DETAIL_REQUEST_DATE
   const date = getCurrentDateParam()
 
   const allVos: AttendanceDetailSituationVO[] = []

@@ -77,6 +77,12 @@ function stubFactoryMapConfig(devices: readonly CssMapJsonDevice[]): void {
   })))
 }
 
+function stubRealtimeList(items: readonly DeviceRealtimeItem[]): void {
+  vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+    data: { success: true, code: '200', message: 'ok', data: items },
+  } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+}
+
 function stubEmptyRuntimeSideData(): void {
   vi.mocked(getScheduleDeviceLoadByMonth).mockResolvedValue({
     data: { success: true, code: '200', message: 'ok', data: [] },
@@ -128,14 +134,7 @@ describe('loadCssMapData realtime status mapping', () => {
     ] as const
 
     stubFactoryMapConfig(cases.map((item) => createMapDevice(item.id, item.code)))
-    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
-      data: {
-        success: true,
-        code: '200',
-        message: 'ok',
-        data: cases.map((item) => createRealtimeItem(item.code, item.actualStatus, item.deviceParseType)),
-      },
-    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubRealtimeList(cases.map((item) => createRealtimeItem(item.code, item.actualStatus, item.deviceParseType)))
     stubEmptyRuntimeSideData()
 
     const data = await loadCssMapData()
@@ -159,17 +158,10 @@ describe('loadCssMapData realtime status mapping', () => {
         deviceCodes: ['D-01', 'D-02'],
       },
     ])
-    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
-      data: {
-        success: true,
-        code: '200',
-        message: 'ok',
-        data: [
-          createRealtimeItem('D-01', 'normal'),
-          createRealtimeItem('D-02', 'pause_running', 'CUT'),
-        ],
-      },
-    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubRealtimeList([
+      createRealtimeItem('D-01', 'normal'),
+      createRealtimeItem('D-02', 'pause_running', 'CUT'),
+    ])
     stubEmptyRuntimeSideData()
 
     const data = await loadCssMapData()
@@ -208,18 +200,11 @@ describe('loadCssMapData realtime status mapping', () => {
         ],
       },
     ])
-    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
-      data: {
-        success: true,
-        code: '200',
-        message: 'ok',
-        data: [
-          createRealtimeItem('D-01', 'running'),
-          createRealtimeItem('D-02', 'normal'),
-          createRealtimeItem('D-03', 'pause_running', 'CUT'),
-        ],
-      },
-    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubRealtimeList([
+      createRealtimeItem('D-01', 'running'),
+      createRealtimeItem('D-02', 'normal'),
+      createRealtimeItem('D-03', 'pause_running', 'CUT'),
+    ])
     stubEmptyRuntimeSideData()
 
     const data = await loadCssMapData()
@@ -262,14 +247,7 @@ describe('loadCssMapData realtime status mapping', () => {
         ],
       },
     ])
-    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
-      data: {
-        success: true,
-        code: '200',
-        message: 'ok',
-        data: [],
-      },
-    } as unknown as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+    stubRealtimeList([])
     stubEmptyRuntimeSideData()
 
     const data = await loadCssMapData()
