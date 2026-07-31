@@ -272,6 +272,65 @@ describe('loadAttendanceCard', () => {
     })
   })
 
+  it('多个前端工序映射到同一接口工序时只请求并汇总一次', async () => {
+    vi.mocked(getAttendanceSituation).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          {
+            shiftType: 'three_early',
+            shiftTypeName: '早班',
+            positionId: 'operator',
+            positionName: '操作工',
+            schedulePersonCount: 8,
+            actualAttendancePersonCount: 26,
+            positionType: 'direct',
+          },
+          {
+            shiftType: 'three_early',
+            shiftTypeName: '早班',
+            positionId: 'group-leader',
+            positionName: '组长',
+            schedulePersonCount: 2,
+            actualAttendancePersonCount: 4,
+            positionType: 'direct',
+          },
+          {
+            shiftType: 'three_early',
+            shiftTypeName: '早班',
+            positionId: 'dispatched',
+            positionName: '派遣工',
+            schedulePersonCount: 0,
+            actualAttendancePersonCount: 3,
+            positionType: 'direct',
+          },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getAttendanceSituation>>)
+
+    const card = await loadAttendanceCard(
+      'department1',
+      ['pretreatment1', 'pretreatment2'],
+      defaultCssMapSelectionConfig,
+      new Date(2026, 6, 1, 8, 0, 0),
+    )
+
+    expect(getAttendanceSituation).toHaveBeenCalledTimes(1)
+    expect(getAttendanceSituation).toHaveBeenCalledWith({
+      date: '2026-07-01',
+      department: '1',
+      processType: 'preprocessing',
+    })
+
+    const row = card.groups[0]?.rows.find((item) => item.shift === 'day')
+    expect(row).toMatchObject({
+      directRosterTotal: 10,
+      actualAttendance: 33,
+    })
+  })
+
   it('多工序族时部门全体合计行汇总所有明细，不返回 0', async () => {
     vi.mocked(getAttendanceSituation).mockImplementation((params) => {
       const processType = (params as { processType: string }).processType

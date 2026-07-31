@@ -559,7 +559,11 @@ function createAttendanceSummaryRow(
 }
 
 /**
- * 人员出勤适配：按 processTypes[] 多次调用 getAttendanceSituation，前端按工序族分组聚合。
+ * 人员出勤适配：按工序族调用 getAttendanceSituation，并聚合接口记录。
+ *
+ * 同一工序族下可能有多个 CssMap 工序映射到同一个 API processType
+ * （例如 pretreatment1、pretreatment2 均映射为 preprocessing），请求前必须去重，
+ * 避免部门维度重复累加同一份出勤数据。
  */
 export async function loadAttendanceCard(
   department: CssMapDepartmentValue,
@@ -585,12 +589,14 @@ export async function loadAttendanceCard(
 
   for (const [familyLabel, processIds] of familyGroups) {
     const allVos: CurrentAttendanceStatisticsVO[] = []
-    for (const processId of processIds) {
+    const apiProcessTypes = [...new Set(processIds.map(toApiProcessType))]
+
+    for (const apiProcessType of apiProcessTypes) {
       try {
         const response = await getAttendanceSituation({
           date,
           department: departmentCode,
-          processType: toApiProcessType(processId),
+          processType: apiProcessType,
         })
         const vos = response.data?.data
         if (Array.isArray(vos)) {
@@ -598,7 +604,7 @@ export async function loadAttendanceCard(
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.warn(`[DepartmentLoader] 人员出勤接口失败 (${processId}): ${error.message}`)
+          console.warn(`[DepartmentLoader] 人员出勤接口失败 (${apiProcessType}): ${error.message}`)
         }
       }
     }

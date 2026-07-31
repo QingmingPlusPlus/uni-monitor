@@ -7,7 +7,7 @@
 | 前端概念 | 来源/转换 | 说明 |
 | --- | --- | --- |
 | 当前部门 | `departmentId` query，例如 `department2` | 通过 `toApiDepartmentCode` 转为接口 `department=2`。 |
-| 当前工序 | `processId` query，例如 `vulcanization1` | 通过 `toApiProcessType` 转为接口工序：`pretreatment* -> preprocessing`，`vulcanization* -> sulfur_addition`，`posttreatment* -> post_processing`。 |
+| 当前工序 | `processId` query，例如 `vulcanization1` | 通过 `toApiProcessType` 转为接口工序：`pretreatment* -> preprocessing`，`vulcanization* -> sulfur_addition`，`posttreatment* -> post_processing`。实时人员出勤按转换后的 API 工序去重后请求；例如制造1课的 `pretreatment1`、`pretreatment2` 只请求并汇总一次 `preprocessing`，避免重复累加。 |
 | 工序设备范围 | `public/factory-map/devices.json` 的 `section`、`deviceCode`、`deviceCodes`、`children[].deviceCode` | 用于把设备级接口过滤到当前部门或工序。 |
 | 当前月 | 前端本地日期 `YYYY-MM` | 推移表接口按月查询。 |
 | 月周配置 | `GET /basic/month-segment/base-data` | 前端按接口周配置聚合日数据；配置缺失时回退自然周。sessionStorage 记录键为 `${departmentId}:${processType}` 复合键；推移表查找时将 CssMap 值经 `toApiDepartmentCode`/`toApiProcessType` 转为接口格式后拼键读取，未命中的 (部门,工序) 组合回退自然周。 |
