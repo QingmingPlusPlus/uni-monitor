@@ -637,6 +637,7 @@ function drawMarkerItem(
     x,
     y,
     size,
+    options.theme,
   )
 }
 

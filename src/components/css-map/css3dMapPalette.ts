@@ -11,6 +11,13 @@ interface CssMapTitleStyle {
   color: string
 }
 
+export interface CssMapFiveMVisualStyle {
+  readonly glyph: string
+  readonly fill: string
+  readonly color: string
+  readonly border: string
+}
+
 export const cssMapStatusPalette: Record<CssMapDeviceStatus, CssMapTitleStyle> = {
   production: {
     background: 'var(--um-color-success-soft)',
@@ -56,12 +63,45 @@ export const cssMapStaffCategoryColors: Record<CssMapStaffCategory, string> = {
   operator: 'rgba(22, 119, 255, 0.92)',
 }
 
-export const cssMapFiveMGlyphs: Record<CssMapFiveMCategory, string> = {
-  man: '人',
-  machine: '机',
-  material: '料',
-  method: '法',
-  environment: '环',
+export const cssMapFiveMCategoryOrder: readonly CssMapFiveMCategory[] = [
+  'man',
+  'machine',
+  'material',
+  'method',
+  'environment',
+]
+
+export const cssMapFiveMVisualPalette: Readonly<Record<CssMapFiveMCategory, CssMapFiveMVisualStyle>> = {
+  man: {
+    glyph: '人',
+    fill: '#7C3FA1',
+    color: '#FFFFFF',
+    border: 'var(--um-color-operation)',
+  },
+  machine: {
+    glyph: '机',
+    fill: '#C9363E',
+    color: '#FFFFFF',
+    border: 'var(--um-color-operation)',
+  },
+  material: {
+    glyph: '料',
+    fill: '#2E8B3C',
+    color: '#FFFFFF',
+    border: 'var(--um-color-operation)',
+  },
+  method: {
+    glyph: '法',
+    fill: '#162033',
+    color: '#FFFFFF',
+    border: 'var(--um-color-operation)',
+  },
+  environment: {
+    glyph: '环',
+    fill: '#F5D90A',
+    color: '#162033',
+    border: 'var(--um-color-operation)',
+  },
 }
 
 export function getCssMapTitleStyle(status: CssMapDeviceStatus | null, enabled = true) {
@@ -87,6 +127,10 @@ export function getCssMapStaffShiftAngle(shift: CssMapStaffShift) {
   return shift === 'full' ? 180 : 120
 }
 
+export function getCssMapFiveMVisualStyle(category: CssMapFiveMCategory): CssMapFiveMVisualStyle {
+  return cssMapFiveMVisualPalette[category]
+}
+
 export function getCssMapFiveMGlyph(category: CssMapFiveMCategory) {
-  return cssMapFiveMGlyphs[category]
+  return getCssMapFiveMVisualStyle(category).glyph
 }

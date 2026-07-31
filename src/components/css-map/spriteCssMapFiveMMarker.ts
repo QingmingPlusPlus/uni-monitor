@@ -1,8 +1,33 @@
-import { getCssMapFiveMGlyph } from './css3dMapPalette'
+import { getCssMapFiveMGlyph, getCssMapFiveMVisualStyle } from './css3dMapPalette'
 import type { CssMapFiveMChange } from './css3dMapTypes'
+import {
+  resolveSpriteCssMapColorToken,
+  type SpriteCssMapCanvasTheme,
+} from './spriteCssMapTheme'
+
+export interface SpriteCssMapFiveMMarkerPlan {
+  readonly glyph: string
+  readonly fill: string
+  readonly color: string
+  readonly border: string
+}
 
 export function getSpriteCssMapFiveMMarkerGlyph(change: CssMapFiveMChange): string {
   return getCssMapFiveMGlyph(change.category)
+}
+
+export function getSpriteCssMapFiveMMarkerPlan(
+  change: CssMapFiveMChange,
+  theme: SpriteCssMapCanvasTheme,
+): SpriteCssMapFiveMMarkerPlan {
+  const visualStyle = getCssMapFiveMVisualStyle(change.category)
+
+  return {
+    glyph: visualStyle.glyph,
+    fill: resolveSpriteCssMapColorToken(visualStyle.fill, theme),
+    color: resolveSpriteCssMapColorToken(visualStyle.color, theme),
+    border: resolveSpriteCssMapColorToken(visualStyle.border, theme),
+  }
 }
 
 export function drawSpriteCssMapFiveMMarker(
@@ -11,24 +36,29 @@ export function drawSpriteCssMapFiveMMarker(
   x: number,
   y: number,
   size: number,
+  theme: SpriteCssMapCanvasTheme,
 ): void {
-  const radius = Math.max(2, size * 0.2)
+  const plan = getSpriteCssMapFiveMMarkerPlan(change, theme)
+  const halfLineWidth = 0.5
+  const centerX = x + size / 2
+  const centerY = y + size / 2
 
   context.save()
   context.beginPath()
-  context.roundRect?.(x, y, size, size, radius)
-  if (!context.roundRect) {
-    context.rect(x, y, size, size)
-  }
-  context.fillStyle = 'rgba(21, 43, 70, 0.92)'
+  context.moveTo(centerX, y + halfLineWidth)
+  context.lineTo(x + size - halfLineWidth, centerY)
+  context.lineTo(centerX, y + size - halfLineWidth)
+  context.lineTo(x + halfLineWidth, centerY)
+  context.closePath()
+  context.fillStyle = plan.fill
   context.fill()
-  context.strokeStyle = 'rgba(21, 43, 70, 0.2)'
+  context.strokeStyle = plan.border
   context.lineWidth = 1
   context.stroke()
-  context.fillStyle = '#ffffff'
-  context.font = `900 ${Math.max(9, Math.round(size * 0.62))}px system-ui, sans-serif`
+  context.fillStyle = plan.color
+  context.font = `900 ${Math.max(6, Math.round(size * 0.56))}px system-ui, sans-serif`
   context.textAlign = 'center'
   context.textBaseline = 'middle'
-  context.fillText(getSpriteCssMapFiveMMarkerGlyph(change), x + size / 2, y + size / 2 + 0.5)
+  context.fillText(plan.glyph, centerX, centerY + 0.5)
   context.restore()
 }

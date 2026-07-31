@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type {
   CssMapDevice,
   CssMapDisplayOptions,
+  CssMapFiveMCategory,
 } from './css3dMapTypes'
 import { SpriteCssMapTextureCache, type SpriteCssMapDisposableTexture } from './spriteCssMapTextureCache'
 import { createSpriteCssMapCanvasTheme } from './spriteCssMapTheme'
@@ -31,7 +32,10 @@ const metrics = {
   pixelRatio: 1,
 }
 
-function createDevice(loadRate: number): CssMapDevice {
+function createDevice(
+  loadRate: number,
+  fiveMCategory: CssMapFiveMCategory = 'machine',
+): CssMapDevice {
   return {
     id: 'device-1',
     name: '测试设备',
@@ -53,7 +57,7 @@ function createDevice(loadRate: number): CssMapDevice {
       }],
       fiveMChanges: [{
         id: 'change-1',
-        category: 'machine',
+        category: fiveMCategory,
         label: '设备变化',
       }],
     },
@@ -109,5 +113,24 @@ describe('SpriteCssMapTextureCache', () => {
     cache.clear()
 
     expect(textures[1].disposed).toBe(true)
+  })
+
+  it('5M 类别变化后重建纹理以更新菱形配色', () => {
+    let drawCount = 0
+    const cache = new SpriteCssMapTextureCache<FakeTexture>({
+      createCanvas: (width, height) => ({ width, height } as HTMLCanvasElement),
+      createTexture: () => new FakeTexture(),
+      drawDeviceCard: () => {
+        drawCount += 1
+      },
+    })
+    const theme = createSpriteCssMapCanvasTheme()
+    const first = cache.getOrCreate(createDevice(80, 'machine'), metrics, display, false, theme)
+    const second = cache.getOrCreate(createDevice(80, 'material'), metrics, display, false, theme)
+
+    expect(first.cacheHit).toBe(false)
+    expect(second.cacheHit).toBe(false)
+    expect(second.key).not.toBe(first.key)
+    expect(drawCount).toBe(2)
   })
 })
