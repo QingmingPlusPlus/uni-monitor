@@ -484,7 +484,7 @@ describe('loadInboundPlanTrendCard', () => {
 describe('loadProductionPlanTrendCard', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date(2026, 6, 1, 8, 0, 0))
+    vi.setSystemTime(new Date(2026, 6, 2, 8, 0, 0))
     installSessionStorage({
       '2:sulfur_addition': [
         { segmentIndex: 1, startDay: 1, endDay: 5 },
@@ -555,6 +555,59 @@ describe('loadProductionPlanTrendCard', () => {
       'actual',
       'achievementRate',
     ])
+  })
+
+  it('计划周合计和月合计只累计到当前班次，日计划仍展示全天值', async () => {
+    vi.setSystemTime(new Date(2026, 6, 2, 15, 0, 0))
+    vi.mocked(getSchedulePlanByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { workDate: '2026-07-01', shebei: 'D1', number: 10, process: '加硫', zhifan: '', banci: 'night', dept: '2' },
+          { workDate: '2026-07-02', shebei: 'D1', number: 20, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+          { workDate: '2026-07-02', shebei: 'D1', number: 30, process: '加硫', zhifan: '', banci: 'middle', dept: '2' },
+          { workDate: '2026-07-02', shebei: 'D1', number: 40, process: '加硫', zhifan: '', banci: 'night', dept: '2' },
+          { workDate: '2026-07-03', shebei: 'D1', number: 50, process: '加硫', zhifan: '', banci: 'day', dept: '2' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getSchedulePlanByMonth>>)
+    vi.mocked(getScheduleOutputByMonth).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          { date: '2026-07-01', shebei: 'D1', number: 8, process: '加硫', zhifan: '', banci: 'night', dept: '2' },
+          { date: '2026-07-02', shebei: 'D1', number: 45, process: '加硫', zhifan: '', banci: 'middle', dept: '2' },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getScheduleOutputByMonth>>)
+
+    const card = await loadProductionPlanTrendCard('department2', ['vulcanization1'], {
+      forceRefresh: true,
+    })
+
+    if (card === null) {
+      throw new Error('expected production plan trend card')
+    }
+
+    expect(card.tableData.plan.day2).toBe(90)
+    expect(card.tableData.plan.day3).toBe(50)
+    expect(card.tableData.plan.week1).toBe(60)
+    expect(card.tableData.plan.month).toBe(60)
+    expect(card.tableData.actual.month).toBe(53)
+    expect(card.tableData.gap.month).toBe(-7)
+    expect(card.tableData.achievementRate.month).toBe(88.3)
+
+    vi.setSystemTime(new Date(2026, 6, 3, 2, 0, 0))
+    const nightShiftCard = await loadProductionPlanTrendCard('department2', ['vulcanization1'], {
+      forceRefresh: true,
+    })
+
+    expect(nightShiftCard?.tableData.plan.month).toBe(100)
+    expect(nightShiftCard?.tableData.plan.week1).toBe(100)
   })
 
   it('强制刷新时绕过同月生产计划和实绩缓存重新请求接口', async () => {
@@ -739,6 +792,52 @@ describe('loadAttendanceTrendCard', () => {
     // 日列保持当天原值（day8 在当前周内联列，day1 仅弹窗展示）
     expect(card.tableData.indirectCount.day8).toBe(0)
     expect(card.modalTableData?.indirectCount.day1).toBe(2)
+  })
+
+  it('只展示截至当前班次所属生产日的出勤数据', async () => {
+    vi.setSystemTime(new Date(2026, 6, 10, 2, 0, 0))
+    vi.mocked(getMonthlyAttendanceSituation).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          {
+            statDate: '2026-07-09',
+            indirectSchedulePersonCount: 2,
+            directSchedulePersonCount: 10,
+            directAttendancePersonCount: 8,
+            directAttendanceRate: 80,
+          },
+          {
+            statDate: '2026-07-10',
+            indirectSchedulePersonCount: 3,
+            directSchedulePersonCount: 20,
+            directAttendancePersonCount: 18,
+            directAttendanceRate: 90,
+          },
+          {
+            statDate: '2026-07-11',
+            indirectSchedulePersonCount: 4,
+            directSchedulePersonCount: 30,
+            directAttendancePersonCount: 27,
+            directAttendanceRate: 90,
+          },
+        ],
+      },
+    } as Awaited<ReturnType<typeof getMonthlyAttendanceSituation>>)
+
+    const card = await loadAttendanceTrendCard('department2', ['pretreatment1'])
+
+    if (card === null) {
+      throw new Error('expected attendance trend card')
+    }
+
+    expect(card.modalTableData?.directAttendance.day9).toBe(8)
+    expect(card.tableData.directAttendance.day10).toBeNull()
+    expect(card.modalTableData?.directAttendance.day11).toBeNull()
+    expect(card.tableData.directAttendance.week2).toBe(8)
+    expect(card.tableData.directAttendance.month).toBe(8)
   })
 })
 

@@ -269,6 +269,101 @@ const refreshedAtFormatter = new Intl.DateTimeFormat('zh-CN', {
   hour12: false,
 })
 
+const dayShiftStartMinutes = 6 * 60 + 30
+const middleShiftStartMinutes = 14 * 60 + 30
+const nightShiftStartMinutes = 22 * 60 + 30
+
+type ActiveAttendanceShift = Exclude<PersonnelAttendanceShift, 'regular' | 'total'>
+
+interface CurrentShiftCutoff {
+  readonly dateKey: number
+  readonly shift: ActiveAttendanceShift
+}
+
+function getMinutesSinceMidnight(date: Date): number {
+  return date.getHours() * 60 + date.getMinutes()
+}
+
+function getCurrentAttendanceShift(now = new Date()): ActiveAttendanceShift {
+  const minutes = getMinutesSinceMidnight(now)
+
+  if (minutes >= dayShiftStartMinutes && minutes < middleShiftStartMinutes) return 'day'
+  if (minutes >= middleShiftStartMinutes && minutes < nightShiftStartMinutes) return 'middle'
+  return 'night'
+}
+
+function toLocalDateKey(date: Date): number {
+  return date.getFullYear() * 10_000 + (date.getMonth() + 1) * 100 + date.getDate()
+}
+
+function extractLocalDateKey(dateStr: string): number | null {
+  const match = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:$|[T\s])/u.exec(dateStr.trim())
+  if (match === null) return null
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  if (!Number.isInteger(year) || month < 1 || month > 12 || day < 1 || day > 31) return null
+  return year * 10_000 + month * 100 + day
+}
+
+function getCurrentShiftCutoff(now = new Date()): CurrentShiftCutoff {
+  const businessDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  if (getMinutesSinceMidnight(now) < dayShiftStartMinutes) {
+    businessDate.setDate(businessDate.getDate() - 1)
+  }
+
+  return {
+    dateKey: toLocalDateKey(businessDate),
+    shift: getCurrentAttendanceShift(now),
+  }
+}
+
+function isDateAtOrBeforeShiftCutoff(dateStr: string, cutoff: CurrentShiftCutoff): boolean {
+  const dateKey = extractLocalDateKey(dateStr)
+  return dateKey === null || dateKey <= cutoff.dateKey
+}
+
+function getShiftSequence(shift: ActiveAttendanceShift): number {
+  if (shift === 'day') return 0
+  if (shift === 'middle') return 1
+  return 2
+}
+
+function getScheduleShiftSequence(value: string | null | undefined): number | null {
+  const text = String(value ?? '').trim()
+  const shift = mapShiftType(text)
+  if (shift === 'day' || shift === 'middle' || shift === 'night') {
+    return getShiftSequence(shift)
+  }
+
+  const normalized = text.toLowerCase()
+  if (
+    normalized.includes('正常') ||
+    normalized.includes('常日') ||
+    normalized.includes('regular') ||
+    normalized.includes('normal')
+  ) {
+    return getShiftSequence('day')
+  }
+  return null
+}
+
+function isSchedulePlanAtOrBeforeShiftCutoff(
+  record: ScheduleMonthlyRecord,
+  cutoff: CurrentShiftCutoff,
+): boolean {
+  const dateStr = record.workDate ?? record.date
+  if (typeof dateStr !== 'string') return true
+
+  const dateKey = extractLocalDateKey(dateStr)
+  if (dateKey === null || dateKey < cutoff.dateKey) return true
+  if (dateKey > cutoff.dateKey) return false
+
+  const shiftSequence = getScheduleShiftSequence(record.banci)
+  return shiftSequence === null || shiftSequence <= getShiftSequence(cutoff.shift)
+}
+
 function extractDayFromDate(dateStr: string): number {
   const parts = dateStr.split('-')
   return parts.length >= 3 ? Number(parts[2]) : 1
@@ -865,6 +960,7 @@ export async function loadAttendanceTrendCard(
 ): Promise<FactoryDashboardCard | null> {
   const departmentCode = toApiDepartmentCode(department)
   const month = getCurrentMonthParam()
+  const cutoff = getCurrentShiftCutoff()
 
   const dailyRows: AttendanceTrendDailyRow[] = []
 
@@ -880,6 +976,8 @@ export async function loadAttendanceTrendCard(
         if (!Array.isArray(vos)) return
 
         for (const vo of vos) {
+          if (!isDateAtOrBeforeShiftCutoff(vo.statDate, cutoff)) continue
+
           dailyRows.push({
             processType: processId,
             day: extractDayFromDate(vo.statDate),
@@ -1215,6 +1313,7 @@ function createFlowTrendCard(params: {
   readonly department: CssMapDepartmentValue
   readonly processTypes: readonly CssMapProcessValue[]
   readonly dailyRows: readonly FlowDailyRow[]
+  readonly aggregateDailyRows?: readonly FlowDailyRow[]
   readonly tableRows: readonly TableRowConfig[]
   readonly chartOptions: ChartOptionConfig
   readonly keys: { readonly plan: string; readonly actual: string; readonly gap: string; readonly rate: string }
@@ -1225,8 +1324,11 @@ function createFlowTrendCard(params: {
   const allPeriods = [...periods.inlinePeriods, ...periods.modalPeriods]
   const periodValues: Record<string, FlowPeriodValue> = {}
   for (const period of allPeriods) {
+    const sourceRows = period.kind === 'day'
+      ? params.dailyRows
+      : params.aggregateDailyRows ?? params.dailyRows
     periodValues[period.key] = aggregateFlowPeriod(
-      getRowsForPeriod(params.dailyRows, params.processTypes, periods.segmentGroups, period),
+      getRowsForPeriod(sourceRows, params.processTypes, periods.segmentGroups, period),
     )
   }
 
@@ -1313,10 +1415,18 @@ export async function loadProductionPlanTrendCard(
     loadScheduleOutputRecords(month),
   ])
   const scope: ScheduleScope = { department, processTypes, deviceCodeMap }
+  const scopedPlanRecords = filterScheduleRecordsForScope(planRecords, scope)
+  const scopedActualRecords = filterScheduleRecordsForScope(actualRecords, scope)
   const dailyRows = createDailyFlowRows(
     processTypes,
-    filterScheduleRecordsForScope(planRecords, scope),
-    filterScheduleRecordsForScope(actualRecords, scope),
+    scopedPlanRecords,
+    scopedActualRecords,
+  )
+  const cutoff = getCurrentShiftCutoff()
+  const aggregateDailyRows = createDailyFlowRows(
+    processTypes,
+    scopedPlanRecords.filter((record) => isSchedulePlanAtOrBeforeShiftCutoff(record, cutoff)),
+    scopedActualRecords,
   )
   const hasActual = dailyRows.some((row) => typeof row.actual === 'number')
 
@@ -1329,6 +1439,7 @@ export async function loadProductionPlanTrendCard(
     department,
     processTypes,
     dailyRows,
+    aggregateDailyRows,
     tableRows: [
       { key: 'plan', label: '计划生产数' },
       { key: 'actual', label: '实绩生产数', tone: 'success' },
@@ -1515,17 +1626,6 @@ export async function createFactorySummaryData(params: {
       },
     ],
   }
-}
-
-function getCurrentAttendanceShift(now = new Date()): PersonnelAttendanceShift {
-  const minutes = now.getHours() * 60 + now.getMinutes()
-  const dayStart = 6 * 60 + 30
-  const middleStart = 14 * 60 + 30
-  const nightStart = 22 * 60 + 30
-
-  if (minutes >= dayStart && minutes < middleStart) return 'day'
-  if (minutes >= middleStart && minutes < nightStart) return 'middle'
-  return 'night'
 }
 
 // ---------------------------------------------------------------------------
