@@ -3,6 +3,7 @@ import {
   estimateCssMapTextWidth,
   planCssMapDeviceContent,
   planCssMapMarkerSlots,
+  planCssMapRightLShapeContent,
 } from './cssMapDeviceContentLayout'
 
 function createPlan(overrides: Partial<Parameters<typeof planCssMapDeviceContent>[0]> = {}) {
@@ -98,5 +99,18 @@ describe('planCssMapMarkerSlots', () => {
       columns: 5,
       rows: 1,
     })
+  })
+})
+
+describe('planCssMapRightLShapeContent', () => {
+  it('把负荷率放在横条左侧并将右侧凸出竖条留空', () => {
+    const plan = planCssMapRightLShapeContent(0.8, 0.4)
+
+    expect(plan.headerHeightRatio).toBeCloseTo(0.22)
+    expect(plan.bodyHeightRatio).toBeCloseTo(0.18)
+    expect(plan.loadRateWidthRatio).toBeCloseTo(0.144)
+    expect(plan.detailsLeftRatio).toBeCloseTo(0.144)
+    expect(plan.detailsWidthRatio).toBeCloseTo(0.656)
+    expect(plan.detailsLeftRatio + plan.detailsWidthRatio).toBeCloseTo(0.8)
   })
 })

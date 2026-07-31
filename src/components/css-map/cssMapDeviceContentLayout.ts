@@ -47,6 +47,14 @@ export interface CssMapDeviceContentPlan {
   readonly cacheKey: string
 }
 
+export interface CssMapRightLShapeContentPlan {
+  readonly headerHeightRatio: number
+  readonly bodyHeightRatio: number
+  readonly loadRateWidthRatio: number
+  readonly detailsLeftRatio: number
+  readonly detailsWidthRatio: number
+}
+
 interface WidthBucket {
   readonly key: CssMapDeviceContentWidthBucket
   readonly ratio: number
@@ -57,6 +65,8 @@ const VERTICAL_MARKER_CAPACITY = 6
 const HORIZONTAL_MARKER_CAPACITY = 5
 const VERTICAL_MARKER_COLUMNS = 3
 const HORIZONTAL_MARKER_COLUMNS = 5
+const RIGHT_L_SHAPE_HEADER_BAR_RATIO = 0.55
+const RIGHT_L_SHAPE_LOAD_RATE_BAR_RATIO = 0.18
 
 const verticalWidthBuckets: readonly WidthBucket[] = [
   { key: 'vertical-55', ratio: 0.55 },
@@ -111,6 +121,22 @@ export function planCssMapMarkerSlots(
     overflowCount,
     columns: Math.min(maximumColumns, occupiedSlots),
     rows: occupiedSlots === 0 ? 0 : Math.ceil(occupiedSlots / maximumColumns),
+  }
+}
+
+export function planCssMapRightLShapeContent(
+  legStartRatio: number,
+  barHeightRatio: number,
+): CssMapRightLShapeContentPlan {
+  const headerHeightRatio = barHeightRatio * RIGHT_L_SHAPE_HEADER_BAR_RATIO
+  const loadRateWidthRatio = legStartRatio * RIGHT_L_SHAPE_LOAD_RATE_BAR_RATIO
+
+  return {
+    headerHeightRatio,
+    bodyHeightRatio: barHeightRatio - headerHeightRatio,
+    loadRateWidthRatio,
+    detailsLeftRatio: loadRateWidthRatio,
+    detailsWidthRatio: legStartRatio - loadRateWidthRatio,
   }
 }
 

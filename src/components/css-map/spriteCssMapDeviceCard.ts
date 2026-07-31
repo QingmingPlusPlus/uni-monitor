@@ -16,6 +16,7 @@ import {
 import {
   planCssMapDeviceContent,
   planCssMapMarkerSlots,
+  planCssMapRightLShapeContent,
   type CssMapDeviceContentPlan,
 } from './cssMapDeviceContentLayout'
 import { drawSpriteCssMapFiveMMarker } from './spriteCssMapFiveMMarker'
@@ -567,42 +568,6 @@ function drawVerticalLoadRate(
   context.restore()
 }
 
-function drawRightLLoadRate(
-  context: CanvasRenderingContext2D,
-  device: CssMapDevice,
-  rect: DrawRect,
-  colorPlan: SpriteCssMapDeviceColorPlan,
-): void {
-  const labelHeight = rect.h * 0.38
-  const value = formatSpriteCssMapLoadRate(device.runtime.loadRate)
-
-  context.save()
-  context.fillStyle = colorPlan.loadRateBackground
-  context.fillRect(rect.x, rect.y, rect.w, rect.h)
-  context.fillStyle = 'rgba(20, 33, 61, 0.72)'
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
-  context.font = createFont(800, clamp(Math.min(rect.w * 0.3, labelHeight * 0.36), 7, 11))
-  context.fillText('负荷率', rect.x + rect.w / 2, rect.y + labelHeight / 2, rect.w - 4)
-
-  const valueFontSize = fitSingleLineFontSize(
-    context,
-    value,
-    Math.max(1, rect.w - 5),
-    clamp(Math.min(rect.w * 0.38, (rect.h - labelHeight) * 0.42), 8, 17),
-    7,
-  )
-  context.fillStyle = '#14213d'
-  context.font = createFont(900, valueFontSize)
-  context.fillText(
-    value,
-    rect.x + rect.w / 2,
-    rect.y + labelHeight + (rect.h - labelHeight) / 2,
-    rect.w - 5,
-  )
-  context.restore()
-}
-
 function drawMarkerOverflowText(
   context: CanvasRenderingContext2D,
   text: string,
@@ -953,15 +918,20 @@ function drawRightLShapeCard(
   const metrics = getCssMapRightLShapeMetrics(options.device)
   if (!metrics) return false
 
+  const contentPlan = planCssMapRightLShapeContent(
+    metrics.legStartRatio,
+    metrics.barHeightRatio,
+  )
   const legX = rect.x + rect.w * metrics.legStartRatio
   const barBottom = rect.y + rect.h * metrics.barHeightRatio
-  const barHeight = Math.max(1, barBottom - rect.y)
-  const headerHeight = barHeight * 0.55
+  const headerHeight = rect.h * contentPlan.headerHeightRatio
   const headerBottom = rect.y + headerHeight
-  const detailWidth = Math.max(1, legX - rect.x)
-  const detailHeight = Math.max(1, barBottom - headerBottom)
-  const detailColumnWidth = detailWidth / 2
-  const inset = clamp(Math.min(detailHeight, detailColumnWidth) * 0.08, 2, 5)
+  const bodyHeight = Math.max(1, rect.h * contentPlan.bodyHeightRatio)
+  const loadRateWidth = Math.max(1, rect.w * contentPlan.loadRateWidthRatio)
+  const detailsX = rect.x + rect.w * contentPlan.detailsLeftRatio
+  const detailsWidth = Math.max(1, rect.w * contentPlan.detailsWidthRatio)
+  const detailRowHeight = bodyHeight / 2
+  const inset = clamp(Math.min(detailRowHeight, detailsWidth) * 0.08, 2, 5)
 
   drawHorizontalHeader(context, options, {
     x: rect.x,
@@ -969,24 +939,24 @@ function drawRightLShapeCard(
     w: rect.w,
     h: headerHeight,
   }, colorPlan)
+  drawLoadRate(context, options.device, {
+    x: rect.x,
+    y: headerBottom,
+    w: loadRateWidth,
+    h: bodyHeight,
+  }, colorPlan)
   drawHorizontalMarkerRow(context, options, {
-    x: rect.x + inset,
+    x: detailsX + inset,
     y: headerBottom + 1,
-    w: Math.max(1, detailColumnWidth - inset * 2),
-    h: Math.max(1, detailHeight - 2),
+    w: Math.max(1, detailsWidth - inset * 2),
+    h: Math.max(1, detailRowHeight - 2),
   }, 'staff')
   drawHorizontalMarkerRow(context, options, {
-    x: rect.x + detailColumnWidth + inset,
-    y: headerBottom + 1,
-    w: Math.max(1, detailColumnWidth - inset * 2),
-    h: Math.max(1, detailHeight - 2),
+    x: detailsX + inset,
+    y: headerBottom + detailRowHeight,
+    w: Math.max(1, detailsWidth - inset * 2),
+    h: Math.max(1, detailRowHeight - 2),
   }, 'fiveM')
-  drawRightLLoadRate(context, options.device, {
-    x: legX,
-    y: headerBottom,
-    w: Math.max(1, rect.x + rect.w - legX),
-    h: Math.max(1, rect.y + rect.h - headerBottom),
-  }, colorPlan)
 
   context.save()
   context.strokeStyle = 'rgba(21, 43, 70, 0.16)'
@@ -994,10 +964,10 @@ function drawRightLShapeCard(
   context.beginPath()
   context.moveTo(rect.x, headerBottom)
   context.lineTo(rect.x + rect.w, headerBottom)
-  context.moveTo(rect.x + detailColumnWidth, headerBottom)
-  context.lineTo(rect.x + detailColumnWidth, barBottom)
-  context.moveTo(legX, headerBottom)
-  context.lineTo(legX, rect.y + rect.h)
+  context.moveTo(detailsX, headerBottom)
+  context.lineTo(detailsX, barBottom)
+  context.moveTo(detailsX, headerBottom + detailRowHeight)
+  context.lineTo(legX, headerBottom + detailRowHeight)
   context.stroke()
   context.restore()
 

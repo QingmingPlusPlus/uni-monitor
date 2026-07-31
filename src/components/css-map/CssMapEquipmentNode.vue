@@ -9,6 +9,7 @@ import {
 import {
   planCssMapDeviceContent,
   planCssMapMarkerSlots,
+  planCssMapRightLShapeContent,
 } from './cssMapDeviceContentLayout'
 import {
   getCssMapDeviceClipPath,
@@ -139,6 +140,16 @@ const rightLShapeMetrics = computed(() => (
 
 const usesRightLShapeContent = computed(() => Boolean(rightLShapeMetrics.value))
 
+const rightLShapeContentPlan = computed(() => {
+  const metrics = rightLShapeMetrics.value
+  if (!metrics) return undefined
+
+  return planCssMapRightLShapeContent(
+    metrics.legStartRatio,
+    metrics.barHeightRatio,
+  )
+})
+
 const surfaceStyle = computed(() => {
   const scale = Math.max(props.screen.scale, 0.001)
   const width = Math.max(props.screen.width, 1)
@@ -146,8 +157,8 @@ const surfaceStyle = computed(() => {
   const smallSide = Math.min(width, height)
   const status = statusStyle.value
   const rightLShape = rightLShapeMetrics.value
+  const rightLContent = rightLShapeContentPlan.value
   const rightLBarHeight = rightLShape?.barHeightRatio ?? 1
-  const rightLHeaderHeight = rightLBarHeight * 0.55
 
   return {
     width: `${width}px`,
@@ -165,9 +176,11 @@ const surfaceStyle = computed(() => {
     '--css-map-node-content-width': usesRightLShapeContent.value
       ? '100%'
       : `${contentPlan.value.contentWidthRatio * 100}%`,
-    '--css-map-right-l-leg-start': `${(rightLShape?.legStartRatio ?? 1) * 100}%`,
     '--css-map-right-l-bar-height': `${rightLBarHeight * 100}%`,
-    '--css-map-right-l-header-height': `${rightLHeaderHeight * 100}%`,
+    '--css-map-right-l-header-height': `${(rightLContent?.headerHeightRatio ?? 1) * 100}%`,
+    '--css-map-right-l-load-width': `${(rightLContent?.loadRateWidthRatio ?? 0) * 100}%`,
+    '--css-map-right-l-details-left': `${(rightLContent?.detailsLeftRatio ?? 0) * 100}%`,
+    '--css-map-right-l-details-width': `${(rightLContent?.detailsWidthRatio ?? 1) * 100}%`,
   }
 })
 </script>
