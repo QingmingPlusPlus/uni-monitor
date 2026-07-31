@@ -84,6 +84,26 @@
   text-align: right;
 }
 
+.data-table__value {
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.data-table--compact .data-table__cell--value {
+  padding-right: 3px;
+  padding-left: 3px;
+  container-type: inline-size;
+}
+
+.data-table--compact .data-table__value {
+  max-width: 100%;
+}
+
+.data-table--compact .data-table__value--compact-fit {
+  font-size: min(1em, var(--data-table-cell-fit-size, 1em));
+}
+
 .data-table__unit {
   margin-left: 4rpx;
   color: var(--um-color-text-secondary);

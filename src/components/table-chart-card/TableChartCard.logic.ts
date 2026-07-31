@@ -28,6 +28,22 @@ const TABLE_ROW_TONE_CLASSES: Readonly<Record<TableRowTone, string>> = {
 }
 
 const numberFormatter = new Intl.NumberFormat("en-US")
+const COMPACT_NUMERIC_CELL_PATTERN =
+  /^[+-]?\d[\d,.]*(?:%|\/[+-]?\d[\d,.]*%?)?$/u
+
+// 以 1em 为基准估算当前表格字体的字符宽度，交由 cqi 按实际单元格宽度缩放。
+const COMPACT_NUMERIC_GLYPH_WIDTH: Readonly<Record<string, number>> = {
+  ",": 0.32,
+  ".": 0.32,
+  "+": 0.4,
+  "-": 0.4,
+  "/": 0.5,
+  "%": 0.93,
+}
+
+const DEFAULT_NUMERIC_GLYPH_WIDTH = 0.62
+const COMPACT_CELL_FIT_PERCENT = 98
+const COMPACT_CELL_FIT_SIZE_PROPERTY = "--data-table-cell-fit-size"
 
 export function getCellText(
   row: TableRowConfig,
@@ -54,6 +70,27 @@ export function formatCellValue(value: TableCellValue): string {
   }
 
   return value
+}
+
+export function getCompactNumericCellStyle(
+  text: string,
+): Readonly<Record<string, string>> | undefined {
+  const normalizedText = text.trim()
+
+  if (!COMPACT_NUMERIC_CELL_PATTERN.test(normalizedText)) {
+    return undefined
+  }
+
+  const widthUnits = Array.from(normalizedText).reduce(
+    (total, character) =>
+      total + (COMPACT_NUMERIC_GLYPH_WIDTH[character] ?? DEFAULT_NUMERIC_GLYPH_WIDTH),
+    0,
+  )
+
+  return {
+    [COMPACT_CELL_FIT_SIZE_PROPERTY]:
+      `${(COMPACT_CELL_FIT_PERCENT / widthUnits).toFixed(3)}cqi`,
+  }
 }
 
 export function getCellAlignClass(align: TableCellAlign | undefined): string {

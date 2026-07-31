@@ -34,9 +34,21 @@
           <text
             v-for="column in tableColumns"
             :key="`${keyPrefix}-${row.key}-${column.key}`"
-            :class="['data-table__cell', getCellAlignClass(column.align)]"
+            :class="[
+              'data-table__cell',
+              'data-table__cell--value',
+              getCellAlignClass(column.align),
+            ]"
           >
-            {{ getCellText(row, column, tableData) }}
+            <text
+              :class="[
+                'data-table__value',
+                { 'data-table__value--compact-fit': compact },
+              ]"
+              :style="getCellValueStyle(row, column)"
+            >
+              {{ getCellText(row, column, tableData) }}
+            </text>
           </text>
         </view>
       </view>
@@ -51,6 +63,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import {
+  getCompactNumericCellStyle,
   getCellAlignClass,
   getCellText,
   getRowToneClass,
@@ -78,6 +91,17 @@ const props = withDefaults(
 
 const hasTableData = computed(() => props.tableRows.length > 0 && props.tableColumns.length > 0)
 const keyPrefix = computed(() => (props.isModal ? "modal" : "inline"))
+
+const getCellValueStyle = (
+  row: TableRowConfig,
+  column: TableColumnConfig,
+): Readonly<Record<string, string>> | undefined => {
+  if (!props.compact) {
+    return undefined
+  }
+
+  return getCompactNumericCellStyle(getCellText(row, column, props.tableData))
+}
 </script>
 
 <style scoped src="./TableChartCard.table.css"></style>
