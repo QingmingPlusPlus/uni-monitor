@@ -1293,80 +1293,80 @@
           "deviceCode": "1A01",
           "x": 0,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a02",
           "name": "1A02",
           "deviceCode": "1A02",
-          "x": 10,
+          "x": 11,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a03",
           "name": "1A03",
           "deviceCode": "1A03",
-          "x": 20,
+          "x": 22,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a04",
           "name": "1A04",
           "deviceCode": "1A04",
-          "x": 30,
+          "x": 33,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a05",
           "name": "1A05",
           "deviceCode": "1A05",
-          "x": 40,
+          "x": 44,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a06",
           "name": "1A06",
           "deviceCode": "1A06",
-          "x": 50,
+          "x": 55,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a07",
           "name": "1A07",
           "deviceCode": "1A07",
-          "x": 60,
+          "x": 66,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a08",
           "name": "1A08",
           "deviceCode": "1A08",
-          "x": 70,
+          "x": 77,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         },
         {
           "id": "device-1a09",
           "name": "1A09",
           "deviceCode": "1A09",
-          "x": 80,
+          "x": 88,
           "y": 0,
-          "width": 8,
-          "height": 100
+          "width": 10,
+          "height": 91.66666666666667
         }
       ]
     },
