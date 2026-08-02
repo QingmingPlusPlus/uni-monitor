@@ -570,21 +570,21 @@
       "x": 846,
       "y": 183,
       "width": 90,
-      "height": 230,
+      "height": 205,
       "section": "vulcanization1",
       "deviceCodes": [
-        "STI450-1D07",
-        "STI450-1D08",
-        "STI450-1D09",
-        "STI450-1D10",
-        "STI450-1D11",
-        "STI450-1D12"
+        "1D07",
+        "1D08",
+        "1D09",
+        "1D10",
+        "1D11",
+        "1D12"
       ],
       "children": [
         {
           "id": "device-1d07",
           "name": "1D07",
-          "deviceCode": "STI450-1D07",
+          "deviceCode": "1D07",
           "x": 2,
           "y": 0,
           "width": 90,
@@ -593,7 +593,7 @@
         {
           "id": "device-1d08",
           "name": "1D08",
-          "deviceCode": "STI450-1D08",
+          "deviceCode": "1D08",
           "x": 2,
           "y": 16,
           "width": 90,
@@ -602,7 +602,7 @@
         {
           "id": "device-1d09",
           "name": "1D09",
-          "deviceCode": "STI450-1D09",
+          "deviceCode": "1D09",
           "x": 2,
           "y": 32,
           "width": 90,
@@ -611,7 +611,7 @@
         {
           "id": "device-1d10",
           "name": "1D10",
-          "deviceCode": "STI450-1D10",
+          "deviceCode": "1D10",
           "x": 2,
           "y": 48,
           "width": 90,
@@ -620,18 +620,18 @@
         {
           "id": "device-1d11",
           "name": "1D11",
-          "deviceCode": "STI450-1D11",
+          "deviceCode": "1D11",
           "x": 2,
-          "y": 54,
+          "y": 64,
           "width": 90,
           "height": 14
         },
         {
           "id": "device-1d12",
           "name": "1D12",
-          "deviceCode": "STI450-1D12",
+          "deviceCode": "1D12",
           "x": 2,
-          "y": 70,
+          "y": 80,
           "width": 90,
           "height": 14
         }
