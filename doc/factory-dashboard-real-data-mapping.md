@@ -1,6 +1,6 @@
 # 工厂首页组件接口字段映射
 
-本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口主要在 `src/pages/factory-dashboard/data/factoryDashboardLoader.ts`，地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
+本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口已从单个 `factoryDashboardLoader.ts` 拆分为 `src/pages/factory-dashboard/data/loaders/`（卡片级 loader）和 `src/pages/factory-dashboard/data/dashboard/`（维度级缓存与装配）；`factoryDashboardLoader.ts` 保留为统一导出 barrel。地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
 
 ## 公共过滤与时间
 
@@ -15,8 +15,8 @@
 ## 卡片刷新与缓存
 
 - 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，生产计划实绩推移使用 `schedulePlanCache`/`scheduleOutputCache`，键均为当前月 `YYYY-MM`。
-- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移与生产计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，loader 内部 `invalidateInboundScheduleRecords(month)`/`invalidateProductionScheduleRecords(month)` 清除当月缓存后才会重新请求接口；否则命中同月缓存，刷新表现为不生效。
-- `invalidateDepartmentDashboardCache`/`invalidateProcessDashboardCache` 只清除整页 sessionStorage 缓存，不清除上述月级 schedule 记录缓存，因此不能替代 `forceRefresh`。
+- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移与生产计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)`/`invalidateProductionScheduleRecords(month)` 清除当月缓存后才会重新请求接口；否则命中同月缓存，刷新表现为不生效。
+- `invalidateDepartmentDashboardCache`/`invalidateProcessDashboardCache`（位于 `src/pages/factory-dashboard/data/dashboard/*DashboardLoader.ts`）只清除整页 sessionStorage 缓存，不清除上述月级 schedule 记录缓存，因此不能替代 `forceRefresh`。
 - 新增基于月级 schedule 缓存的推移卡片时，需同时补充对应的 `invalidate*ScheduleRecords(month)` 并在 `refreshCard` 中传 `forceRefresh: true`，否则刷新按钮不生效。
 
 ## 左侧 css-map
