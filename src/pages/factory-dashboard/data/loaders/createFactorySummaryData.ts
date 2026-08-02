@@ -52,8 +52,8 @@ export async function createFactorySummaryData(params: {
   readonly attendance: PersonnelAttendanceData
   readonly processTypes: readonly string[]
 }): Promise<FactorySummaryData> {
-  const running = params.activity.summaryRunningCount
-  const total = params.activity.summaryTotalCount
+  const running = sumBy(params.activity.rows, (row) => row.runningCount)
+  const total = sumBy(params.activity.rows, (row) => row.totalCount)
   const attendance = getAttendanceTotals(params.attendance)
   const month = getCurrentMonthParam()
   const [rukuPlan, rukuShiji, schedulePlan, scheduleOutput] = await Promise.all([

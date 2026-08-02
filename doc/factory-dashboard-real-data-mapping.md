@@ -15,6 +15,7 @@
 ## 卡片刷新与缓存
 
 - 部门维度和工序维度的整页看板数据不再写入或读取 `sessionStorage`；页面刷新、部门切换、工序切换或刷新版本变化时重新调用 loader 读取接口。仅保留同一请求仍在进行时的 Promise 去重，不复用已完成结果。
+- 生产线稼动使用的地图设备范围通过 `factoryMapConfigCache.ts` 读取 `devices.json`；请求禁用浏览器缓存，只复用仍在进行中的并发请求，完成后释放，下次页面刷新重新读取最新设备 JSON。
 - 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，生产计划实绩推移使用 `schedulePlanCache`/`scheduleOutputCache`，键均为当前月 `YYYY-MM`。
 - 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移与生产计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)`/`invalidateProductionScheduleRecords(month)` 清除当月缓存后才会重新请求接口；否则命中同月缓存，刷新表现为不生效。
 - 新增基于月级 schedule 缓存的推移卡片时，需同时补充对应的 `invalidate*ScheduleRecords(month)` 并在 `refreshCard` 中传 `forceRefresh: true`，否则刷新按钮不生效。
@@ -56,7 +57,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 生产线稼动 | `GET /device/realtime/list` | `deviceId`、`deviceCode`、`actualStatus`、`deviceParseType`、`deviceParseTypeName` | 汇总卡片直接使用当前部门/接口工序返回的 JSON；跨前端工序先按 `deviceId`（缺失时按 `deviceCode`）去重，总台数取去重后的接口记录数，不读取地图 `devices.json`。除计划停止外的接口设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
+| 生产线稼动 | `GET /device/realtime/list` + 地图设备范围 | `deviceCode`、`actualStatus`、`deviceParseType`、`deviceParseTypeName` | 汇总卡片累加“生产线稼动情况”各工序行；设备范围和总台数以地图 `devices.json` 中当前工序的设备编码为准，实时接口只提供匹配设备的状态。除计划停止外的设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`；信息汇总不统计 `正常班`。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |

@@ -57,7 +57,7 @@ function collectDeviceCodes(device: CssMapJsonDevice): readonly string[] {
 }
 
 async function fetchFactoryMapConfig(url: string): Promise<CssMapJsonConfig> {
-  const response = await fetch(url)
+  const response = await fetch(url, { cache: 'no-store' })
   if (!response.ok) {
     throw new Error(`地图设备配置加载失败: ${response.status}`)
   }
@@ -98,7 +98,7 @@ function createProcessDeviceCodeMap(config: CssMapJsonConfig): ProcessDeviceCode
 export async function loadProcessDeviceCodeMap(): Promise<ProcessDeviceCodeMap> {
   if (deviceCodeMapPromise !== null) return deviceCodeMapPromise
 
-  deviceCodeMapPromise = loadFactoryMapConfig()
+  const request = loadFactoryMapConfig()
     .then(createProcessDeviceCodeMap)
     .catch((error: unknown) => {
       if (error instanceof Error) {
@@ -106,6 +106,10 @@ export async function loadProcessDeviceCodeMap(): Promise<ProcessDeviceCodeMap> 
       }
       return {}
     })
+    .finally(() => {
+      if (deviceCodeMapPromise === request) deviceCodeMapPromise = null
+    })
 
-  return deviceCodeMapPromise
+  deviceCodeMapPromise = request
+  return request
 }

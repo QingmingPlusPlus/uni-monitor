@@ -166,10 +166,6 @@ describe('loadProductionActivityData', () => {
       abnormalCount: 1,
       plannedStopCount: 2,
     })
-    expect(card).toMatchObject({
-      summaryTotalCount: 8,
-      summaryRunningCount: 5,
-    })
   })
 })
 
@@ -961,12 +957,7 @@ describe('createFactorySummaryData', () => {
   const EMPTY_SUMMARY_LINES = { value: '-', rate: '-' }
 
   function buildStubActivity() {
-    return {
-      title: '生产线稼动情况',
-      summaryTotalCount: 0,
-      summaryRunningCount: 0,
-      rows: [],
-    }
+    return { title: '生产线稼动情况', rows: [] }
   }
 
   function buildStubAttendance() {
@@ -1085,12 +1076,10 @@ describe('createFactorySummaryData', () => {
     return lines.find((line) => line.id === id)
   }
 
-  it('生产线稼动汇总使用后端统计值，不再累加地图范围行', async () => {
+  it('生产线稼动汇总累加按地图设备范围生成的工序行', async () => {
     const summary = await createFactorySummaryData({
       activity: {
         title: '生产线稼动情况',
-        summaryTotalCount: 103,
-        summaryRunningCount: 3,
         rows: [{
           id: 'vulcanization1',
           departmentLabel: '制造2课',
@@ -1106,8 +1095,8 @@ describe('createFactorySummaryData', () => {
     })
 
     const activity = findLine(summary.left, 'activity')
-    expect(activity?.value).toBe('3/103')
-    expect(activity?.rate).toBe('2.9%')
+    expect(activity?.value).toBe('13/82')
+    expect(activity?.rate).toBe('15.9%')
   })
 
   it('入库实绩/生产实际取当月接口全量合计，不按当前部门过滤', async () => {

@@ -111,8 +111,6 @@ export interface ProductionActivityRow {
 
 export interface ProductionActivityData {
   readonly title: string
-  readonly summaryTotalCount: number
-  readonly summaryRunningCount: number
   readonly rows: readonly ProductionActivityRow[]
 }
 

@@ -18,7 +18,6 @@ type ActivityDeviceStatus = 'running' | 'abnormal' | 'plannedStop' | 'neutral'
 
 interface ProcessRealtimeData {
   readonly processType: CssMapProcessValue
-  readonly apiItems: readonly DeviceRealtimeItem[]
   readonly scopedItems: readonly DeviceRealtimeItem[]
 }
 
@@ -58,25 +57,6 @@ function filterRealtimeForProcess(
 
   const filtered = items.filter((item) => codeSet.has(normalizeDeviceCode(item.deviceCode)))
   return filtered.length > 0 ? filtered : items
-}
-
-function deduplicateApiItems(results: readonly ProcessRealtimeData[]): readonly DeviceRealtimeItem[] {
-  const uniqueItems = new Map<string, DeviceRealtimeItem>()
-
-  results.forEach(({ apiItems }) => {
-    apiItems.forEach((item, index) => {
-      const deviceId = String(item.deviceId ?? '').trim()
-      const deviceCode = normalizeDeviceCode(item.deviceCode)
-      const key = deviceId
-        ? `id:${deviceId}`
-        : deviceCode
-          ? `code:${deviceCode}`
-          : `anonymous:${uniqueItems.size}:${index}`
-      if (!uniqueItems.has(key)) uniqueItems.set(key, item)
-    })
-  })
-
-  return [...uniqueItems.values()]
 }
 
 function createProductionActivityRow(
@@ -122,18 +102,13 @@ export async function loadProductionActivityData(
       const apiItems = await request
       return {
         processType,
-        apiItems,
         scopedItems: filterRealtimeForProcess(apiItems, processType, deviceCodeMap),
       } satisfies ProcessRealtimeData
     }),
   )
-  const summaryItems = deduplicateApiItems(results)
-  const summaryStatuses = summaryItems.map(mapRealtimeToActivityStatus)
 
   return {
     title: '生产线稼动情况',
-    summaryTotalCount: summaryItems.length,
-    summaryRunningCount: summaryStatuses.filter((status) => status !== 'plannedStop').length,
     rows: results.map(({ processType, scopedItems }) =>
       createProductionActivityRow(department, processType, config, scopedItems, deviceCodeMap)),
   }
