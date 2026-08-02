@@ -60,6 +60,9 @@ const emit = defineEmits<{
 const currentTableData = computed(() => props.tableData)
 const currentChartOptions = computed(() => props.chartOptions)
 const currentChartData = computed(() => props.chartData)
+const labelColumnWidth = computed(() => (
+  props.compact ? "minmax(160px, 176px)" : ""
+))
 
 const handleRefresh = (): void => {
   emit("refresh")
@@ -73,6 +76,7 @@ const handleRefresh = (): void => {
     :title="title"
     :subtitle="subtitle"
     :compact="compact"
+    :label-column-width="labelColumnWidth"
     :table-rows="tableRows"
     :table-columns="tableColumns"
     :table-data="currentTableData"

@@ -141,6 +141,7 @@ import TableChartEchart from "./TableChartEchart.vue"
 import TableChartCardTable from "./TableChartCardTable.vue"
 import DashboardExpandMockModal from "../../pages/factory-dashboard/components/DashboardExpandMockModal/DashboardExpandMockModal.vue"
 import {
+  createTableGridStyle,
   hasRenderableChartData,
   resolveChartOptions,
 } from "./TableChartCard.logic"
@@ -158,6 +159,7 @@ const props = withDefaults(
     readonly subtitle?: string
     readonly tag?: string
     readonly compact?: boolean
+    readonly labelColumnWidth?: string
     readonly useMockExpand?: boolean
     readonly tableRows: readonly TableRowConfig[]
     readonly tableColumns: readonly TableColumnConfig[]
@@ -174,6 +176,7 @@ const props = withDefaults(
     subtitle: "",
     tag: "",
     compact: false,
+    labelColumnWidth: "",
     useMockExpand: false,
     chartData: undefined,
     modalTableRows: undefined,
@@ -205,26 +208,22 @@ type ChartResizeHandle = {
   readonly resize: () => void | Promise<void>
 }
 
-function createTableGridStyle(columns: readonly TableColumnConfig[]) {
-  const defaultColumnWidth = props.compact ? "minmax(92px, 1fr)" : "minmax(132px, 1fr)"
-  const firstColumnTrack = props.compact ? "minmax(120px, 140px)" : "minmax(156px, 188px)"
-  const columnTracks = columns
-    .map((column) => column.width ?? defaultColumnWidth)
-    .join(" ")
-
-  return {
-    gridTemplateColumns: `${firstColumnTrack} ${columnTracks}`,
-  }
-}
-
 const expandedTableRows = computed(() => props.modalTableRows ?? props.tableRows)
 const expandedTableColumns = computed(() => props.modalTableColumns ?? props.tableColumns)
 const expandedTableData = computed(() => props.modalTableData ?? props.tableData)
 const expandedChartOptions = computed(() => props.modalChartOptions ?? props.chartOptions)
 const expandedChartData = computed(() => props.modalChartData ?? props.chartData)
 
-const tableGridStyle = computed(() => createTableGridStyle(props.tableColumns))
-const modalTableGridStyle = computed(() => createTableGridStyle(expandedTableColumns.value))
+const tableGridStyle = computed(() => createTableGridStyle(
+  props.tableColumns,
+  props.compact,
+  props.labelColumnWidth,
+))
+const modalTableGridStyle = computed(() => createTableGridStyle(
+  expandedTableColumns.value,
+  props.compact,
+  props.labelColumnWidth,
+))
 
 const resolvedChartOptions = computed(() => resolveChartOptions(props.chartOptions, props.chartData))
 const resolvedModalChartOptions = computed(() => resolveChartOptions(

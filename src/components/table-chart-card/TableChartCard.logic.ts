@@ -101,6 +101,25 @@ export function getRowToneClass(tone: TableRowTone | undefined): string {
   return TABLE_ROW_TONE_CLASSES[tone ?? "normal"]
 }
 
+export function createTableGridStyle(
+  columns: readonly TableColumnConfig[],
+  compact: boolean,
+  labelColumnWidth = "",
+): Readonly<Record<"gridTemplateColumns", string>> {
+  const defaultColumnWidth = compact ? "minmax(92px, 1fr)" : "minmax(132px, 1fr)"
+  const defaultLabelColumnWidth = compact
+    ? "minmax(120px, 140px)"
+    : "minmax(156px, 188px)"
+  const firstColumnTrack = labelColumnWidth.trim() || defaultLabelColumnWidth
+  const columnTracks = columns
+    .map((column) => column.width ?? defaultColumnWidth)
+    .join(" ")
+
+  return {
+    gridTemplateColumns: `${firstColumnTrack} ${columnTracks}`,
+  }
+}
+
 export function resolveChartOptions(
   chartOptions: ChartOptionConfig,
   chartData: ChartDataConfig | undefined,
