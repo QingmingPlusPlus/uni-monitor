@@ -60,12 +60,13 @@ export const processProductionPlanTrendTableData = {
 const palette = {
   planProduction: "#4F81BD",
   actualProduction: "#70AD47",
+  achievementRate: "#C0504D",
   textSecondary: "#566579",
   rail: "#D8E1EB",
 } as const
 
 export const processProductionPlanTrendChartOptions: ChartOptionConfig = {
-  color: [palette.planProduction, palette.actualProduction],
+  color: [palette.planProduction, palette.actualProduction, palette.achievementRate],
   tooltip: {
     trigger: "axis",
     textStyle: {

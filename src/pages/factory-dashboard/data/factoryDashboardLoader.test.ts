@@ -614,6 +614,7 @@ describe('loadProductionPlanTrendCard', () => {
       'actual',
       'achievementRate',
     ])
+    expect(card.chartOptions.color).toEqual(['#4F81BD', '#70AD47', '#C0504D'])
   })
 
   it('计划周合计和月合计只累计到当前班次，日计划仍展示全天值', async () => {
