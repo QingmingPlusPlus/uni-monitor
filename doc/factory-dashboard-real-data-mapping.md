@@ -58,8 +58,8 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 生产线稼动 | `GET /device/realtime/list` + 地图设备范围 | `deviceCode`、`actualStatus`、`deviceParseType`、`deviceParseTypeName` | 汇总卡片累加“生产线稼动情况”各工序行；设备范围和总台数以地图 `devices.json` 中当前工序的设备编码为准，实时接口只提供匹配设备的状态。除计划停止外的设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
-| 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
-| 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`；信息汇总不统计 `正常班`。 |
+| 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 信息汇总采用两班显示口径：06:30（含）至 18:30（不含）只汇总早班直接人员的应出勤/实际出勤和出勤率；18:30（含）至次日 06:30（不含）只汇总晚班。中班不参与信息汇总。 |
+| 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 信息汇总采用两班显示口径：06:30（含）至 18:30（不含）只汇总早班间接人员的应出勤/实际出勤和出勤率；18:30（含）至次日 06:30（不含）只汇总晚班。中班和 `正常班(regular)` 不参与信息汇总；接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
 | 生产实际 | `GET /schedule/getPlan`、`GET /schedule/getOutput` | `number` | 计划来自 `getPlan`，实绩来自 `getOutput`；取当月接口全量合计，**不按部门/工序过滤**（与生产计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度。 |
 

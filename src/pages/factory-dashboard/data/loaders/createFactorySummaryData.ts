@@ -5,7 +5,7 @@ import type {
   ProductionActivityData,
   FactorySummaryData,
 } from '../factoryDashboardTypes'
-import { getCurrentAttendanceShift } from './dateTimeUtils'
+import { getMinutesSinceMidnight } from './dateTimeUtils'
 import {
   loadScheduleOutputRecords,
   loadSchedulePlanRecords,
@@ -20,13 +20,23 @@ import {
   sumBy,
 } from './numberUtils'
 
+const summaryDayShiftStartMinutes = 6 * 60 + 30
+const summaryNightShiftStartMinutes = 18 * 60 + 30
+
+function getCurrentSummaryAttendanceShift(now = new Date()): PersonnelAttendanceShift {
+  const minutes = getMinutesSinceMidnight(now)
+  return minutes >= summaryDayShiftStartMinutes && minutes < summaryNightShiftStartMinutes
+    ? 'day'
+    : 'night'
+}
+
 function getAttendanceTotals(data: PersonnelAttendanceData): {
   readonly directRoster: number
   readonly directAttendance: number
   readonly indirectRoster: number
   readonly indirectAttendance: number
 } {
-  const currentShift = getCurrentAttendanceShift()
+  const currentShift = getCurrentSummaryAttendanceShift()
   const shiftsToSum: readonly PersonnelAttendanceShift[] = [currentShift]
   const detailGroups = data.groups.filter((group) => !group.label.endsWith('全体'))
   const sourceGroups = detailGroups.length > 0 ? detailGroups : data.groups

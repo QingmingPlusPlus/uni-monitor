@@ -1116,7 +1116,7 @@ describe('createFactorySummaryData', () => {
     expect(production?.rate).toBe('80.0%')
   })
 
-  it('直接/间接只汇总当前时间对应班次，且不重复计入部门全体行', async () => {
+  it('06:30-18:29 汇总早班，且不重复计入部门全体行', async () => {
     vi.setSystemTime(new Date(2026, 7, 1, 15, 0, 0))
 
     const summary = await createFactorySummaryData({
@@ -1128,10 +1128,52 @@ describe('createFactorySummaryData', () => {
     const direct = findLine(summary.left, 'directAttendance')
     const indirect = findLine(summary.left, 'indirectAttendance')
 
-    expect(direct?.value).toBe('18/20')
-    expect(direct?.rate).toBe('90.0%')
-    expect(indirect?.value).toBe('2/3')
-    expect(indirect?.rate).toBe('66.7%')
+    expect(direct?.value).toBe('8/10')
+    expect(direct?.rate).toBe('80.0%')
+    expect(indirect?.value).toBe('1/2')
+    expect(indirect?.rate).toBe('50.0%')
+  })
+
+  it.each([
+    ['06:29', new Date(2026, 7, 1, 6, 29, 0)],
+    ['18:30', new Date(2026, 7, 1, 18, 30, 0)],
+  ])('%s 汇总晚班', async (_label, now) => {
+    vi.setSystemTime(now)
+
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance: buildShiftAttendance(),
+      processTypes: [],
+    })
+
+    const direct = findLine(summary.left, 'directAttendance')
+    const indirect = findLine(summary.left, 'indirectAttendance')
+
+    expect(direct?.value).toBe('24/30')
+    expect(direct?.rate).toBe('80.0%')
+    expect(indirect?.value).toBe('3/4')
+    expect(indirect?.rate).toBe('75.0%')
+  })
+
+  it.each([
+    ['06:30', new Date(2026, 7, 1, 6, 30, 0)],
+    ['18:29', new Date(2026, 7, 1, 18, 29, 0)],
+  ])('%s 汇总早班', async (_label, now) => {
+    vi.setSystemTime(now)
+
+    const summary = await createFactorySummaryData({
+      activity: buildStubActivity(),
+      attendance: buildShiftAttendance(),
+      processTypes: [],
+    })
+
+    const direct = findLine(summary.left, 'directAttendance')
+    const indirect = findLine(summary.left, 'indirectAttendance')
+
+    expect(direct?.value).toBe('8/10')
+    expect(direct?.rate).toBe('80.0%')
+    expect(indirect?.value).toBe('1/2')
+    expect(indirect?.rate).toBe('50.0%')
   })
 
   it('早班时段不并入正常班(regular)行', async () => {
@@ -1165,7 +1207,7 @@ describe('createFactorySummaryData', () => {
     expect(indirect?.rate).toBe('-')
   })
 
-  it('中班时段不并入正常班(regular)行', async () => {
+  it('原中班时段按早班显示，且不并入正常班(regular)行', async () => {
     vi.setSystemTime(new Date(2026, 7, 1, 15, 0, 0))
 
     const attendance: PersonnelAttendanceData = {
@@ -1193,7 +1235,8 @@ describe('createFactorySummaryData', () => {
     })
 
     const indirect = findLine(summary.left, 'indirectAttendance')
-    expect(indirect?.value).toBe('1/1')
+    expect(indirect?.value).toBe('0/0')
+    expect(indirect?.rate).toBe('-')
   })
 
   it('接口当月无数据时仍显示占位符', async () => {
