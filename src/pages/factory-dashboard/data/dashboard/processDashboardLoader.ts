@@ -11,33 +11,9 @@ import { loadInboundPlanTrendCard } from '../loaders/loadInboundPlanTrendCard'
 import { loadPersonnelDetailCard } from '../loaders/loadPersonnelDetailCard'
 import { loadProductionActivityData } from '../loaders/loadProductionActivityData'
 import { loadProductionPlanTrendCard } from '../loaders/loadProductionPlanTrendCard'
-import { buildCacheKey, invalidateCache, readCache, writeCache } from './dashboardCache'
-
-const PROCESS_CACHE_KEY_PREFIX = 'uni-monitor:process-dashboard:' as const
 
 let processInflightPromise: Promise<ProcessDashboardData> | null = null
 let processInflightKey = ''
-
-function isProcessDashboardData(value: unknown): value is ProcessDashboardData {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as ProcessDashboardData).summary === 'object'
-  )
-}
-
-export function invalidateProcessDashboardCache(
-  processType: CssMapProcessValue,
-  monthSegmentVersion: number,
-): void {
-  invalidateCache(
-    PROCESS_CACHE_KEY_PREFIX,
-    processType,
-    monthSegmentVersion,
-    'ProcessLoader',
-    { key: processInflightKey, promise: processInflightPromise },
-  )
-}
 
 export async function loadProcessDashboardData(
   processType: CssMapProcessValue,
@@ -47,15 +23,13 @@ export async function loadProcessDashboardData(
   monthSegmentVersion: number,
   fallback: ProcessDashboardData,
 ): Promise<ProcessDashboardData> {
-  const cacheKey = buildCacheKey(PROCESS_CACHE_KEY_PREFIX, processType, monthSegmentVersion)
-  const cached = readCache(cacheKey, isProcessDashboardData, 'ProcessLoader')
-  if (cached !== null) return cached
+  const requestKey = `${processType}:v${monthSegmentVersion}`
 
-  if (processInflightPromise !== null && processInflightKey === cacheKey) {
+  if (processInflightPromise !== null && processInflightKey === requestKey) {
     return processInflightPromise
   }
 
-  processInflightKey = cacheKey
+  processInflightKey = requestKey
   processInflightPromise = doLoadProcessDashboardData(processType, department, config, refreshedAt, fallback)
     .finally(() => {
       processInflightPromise = null
@@ -73,7 +47,6 @@ async function doLoadProcessDashboardData(
   fallback: ProcessDashboardData,
 ): Promise<ProcessDashboardData> {
   const processTypes = [processType] as const
-  const cacheKey = buildCacheKey(PROCESS_CACHE_KEY_PREFIX, processType, 0)
 
   const [activity, attendance, attendanceTrend, inboundPlanTrend, productionPlanTrend, personnelDetail] = await Promise.allSettled([
     loadProductionActivityData(department, processTypes, config),
@@ -103,7 +76,7 @@ async function doLoadProcessDashboardData(
     }
   }
 
-  const result: ProcessDashboardData = {
+  return {
     ...fallback,
     summary,
     activity: resolvedActivity,
@@ -113,7 +86,4 @@ async function doLoadProcessDashboardData(
     productionPlanTrend: resolvedProductionPlanTrend,
     personnelDetail: personnelDetail.status === 'fulfilled' ? personnelDetail.value : fallback.personnelDetail,
   }
-
-  writeCache(cacheKey, result, 'ProcessLoader')
-  return result
 }

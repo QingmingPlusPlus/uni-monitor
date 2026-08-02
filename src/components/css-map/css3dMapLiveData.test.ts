@@ -145,6 +145,19 @@ describe('loadCssMapData realtime status mapping', () => {
     })
   })
 
+  it('deviceParseType 返回枚举 ID 时仍按“用餐”名称判为计划停止', async () => {
+    stubFactoryMapConfig([createMapDevice('meal', 'D-MEAL')])
+    stubRealtimeList([{
+      ...createRealtimeItem('D-MEAL', 'pause_not_running', '1990236881923477506'),
+      deviceParseTypeName: '用餐',
+    }])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.devices[0]?.runtime.status).toBe('plannedStop')
+  })
+
   it('汇总节点优先显示切替或清扫，而不是普通计划停止', async () => {
     stubFactoryMapConfig([
       {

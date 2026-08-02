@@ -15,7 +15,6 @@ import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSele
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import {
-  invalidateDepartmentDashboardCache,
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadDepartmentDashboardData,
@@ -161,8 +160,6 @@ async function refreshCard(cardId: string): Promise<void> {
   const processTypes = config.departmentProcessMap[department] ?? []
   const refreshedAt = new Date()
   const base = dashboardData.value
-
-  invalidateDepartmentDashboardCache(department, monthSegmentVersion.value)
 
   try {
     if (cardId === 'attendance') {

@@ -18,7 +18,6 @@ import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import type { ProcessCardId } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
-  invalidateProcessDashboardCache,
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
@@ -181,8 +180,6 @@ async function refreshCard(cardId: string): Promise<void> {
   const processTypes = [process] as const
   const refreshedAt = new Date()
   const base = dashboardData.value
-
-  invalidateProcessDashboardCache(process, monthSegmentVersion.value)
 
   try {
     if (cardId === 'attendance') {

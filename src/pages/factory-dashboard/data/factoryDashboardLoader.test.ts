@@ -137,6 +137,8 @@ describe('loadProductionActivityData', () => {
           createRealtimeItem('D4', { actualStatus: 'pause_not_running', deviceParseType: 'MATERIAL_WAIT' }),
           createRealtimeItem('D5', { actualStatus: 'pause_running', deviceParseType: 'TOOL_CHANGE' }),
           createRealtimeItem('D6', { actualStatus: 'pause_not_running', deviceParseType: 'CLEAN' }),
+          createRealtimeItem('D7', { actualStatus: 'running' }),
+          createRealtimeItem('D8', { actualStatus: 'normal' }),
         ],
       },
     } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
@@ -163,6 +165,10 @@ describe('loadProductionActivityData', () => {
       runningCount: 4,
       abnormalCount: 1,
       plannedStopCount: 2,
+    })
+    expect(card).toMatchObject({
+      summaryTotalCount: 8,
+      summaryRunningCount: 5,
     })
   })
 })
@@ -955,7 +961,12 @@ describe('createFactorySummaryData', () => {
   const EMPTY_SUMMARY_LINES = { value: '-', rate: '-' }
 
   function buildStubActivity() {
-    return { title: '生产线稼动情况', rows: [] }
+    return {
+      title: '生产线稼动情况',
+      summaryTotalCount: 0,
+      summaryRunningCount: 0,
+      rows: [],
+    }
   }
 
   function buildStubAttendance() {
@@ -1073,6 +1084,31 @@ describe('createFactorySummaryData', () => {
   function findLine(lines: readonly { readonly id: string; readonly value: string; readonly rate: string }[], id: string) {
     return lines.find((line) => line.id === id)
   }
+
+  it('生产线稼动汇总使用后端统计值，不再累加地图范围行', async () => {
+    const summary = await createFactorySummaryData({
+      activity: {
+        title: '生产线稼动情况',
+        summaryTotalCount: 103,
+        summaryRunningCount: 3,
+        rows: [{
+          id: 'vulcanization1',
+          departmentLabel: '制造2课',
+          processLabel: '加硫1',
+          totalCount: 82,
+          runningCount: 13,
+          abnormalCount: 3,
+          plannedStopCount: 69,
+        }],
+      },
+      attendance: buildStubAttendance(),
+      processTypes: ['vulcanization1'],
+    })
+
+    const activity = findLine(summary.left, 'activity')
+    expect(activity?.value).toBe('3/103')
+    expect(activity?.rate).toBe('2.9%')
+  })
 
   it('入库实绩/生产实际取当月接口全量合计，不按当前部门过滤', async () => {
     const summary = await createFactorySummaryData({

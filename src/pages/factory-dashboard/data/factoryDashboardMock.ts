@@ -250,6 +250,8 @@ function createFallbackActivity(
 ): ProductionActivityData {
   return {
     title: '生产线稼动情况',
+    summaryTotalCount: 0,
+    summaryRunningCount: 0,
     rows: processTypes.map((processType) => ({
       id: processType,
       departmentLabel,

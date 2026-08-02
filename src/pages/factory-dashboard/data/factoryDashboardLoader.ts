@@ -25,9 +25,7 @@ export {
 } from './loaders/loadPersonnelDetailCard'
 export {
   loadDepartmentDashboardData,
-  invalidateDepartmentDashboardCache,
 } from './dashboard/departmentDashboardLoader'
 export {
   loadProcessDashboardData,
-  invalidateProcessDashboardCache,
 } from './dashboard/processDashboardLoader'

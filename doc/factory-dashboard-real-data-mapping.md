@@ -1,6 +1,6 @@
 # 工厂首页组件接口字段映射
 
-本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口已从单个 `factoryDashboardLoader.ts` 拆分为 `src/pages/factory-dashboard/data/loaders/`（卡片级 loader）和 `src/pages/factory-dashboard/data/dashboard/`（维度级缓存与装配）；`factoryDashboardLoader.ts` 保留为统一导出 barrel。地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
+本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口已从单个 `factoryDashboardLoader.ts` 拆分为 `src/pages/factory-dashboard/data/loaders/`（卡片级 loader）和 `src/pages/factory-dashboard/data/dashboard/`（维度级请求装配）；`factoryDashboardLoader.ts` 保留为统一导出 barrel。地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
 
 ## 公共过滤与时间
 
@@ -14,9 +14,9 @@
 
 ## 卡片刷新与缓存
 
+- 部门维度和工序维度的整页看板数据不再写入或读取 `sessionStorage`；页面刷新、部门切换、工序切换或刷新版本变化时重新调用 loader 读取接口。仅保留同一请求仍在进行时的 Promise 去重，不复用已完成结果。
 - 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，生产计划实绩推移使用 `schedulePlanCache`/`scheduleOutputCache`，键均为当前月 `YYYY-MM`。
 - 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移与生产计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)`/`invalidateProductionScheduleRecords(month)` 清除当月缓存后才会重新请求接口；否则命中同月缓存，刷新表现为不生效。
-- `invalidateDepartmentDashboardCache`/`invalidateProcessDashboardCache`（位于 `src/pages/factory-dashboard/data/dashboard/*DashboardLoader.ts`）只清除整页 sessionStorage 缓存，不清除上述月级 schedule 记录缓存，因此不能替代 `forceRefresh`。
 - 新增基于月级 schedule 缓存的推移卡片时，需同时补充对应的 `invalidate*ScheduleRecords(month)` 并在 `refreshCard` 中传 `forceRefresh: true`，否则刷新按钮不生效。
 
 ## 左侧 css-map
@@ -27,7 +27,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 再按 `deviceParseType` 判断，`CUT` 显示切替，`CLEAN` 显示清扫，`TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |
+| 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 优先按 `deviceParseTypeName` 中文名称映射，避免接口返回枚举 ID 时误判，再回退 `deviceParseType`。`CUT` 显示切替，`CLEAN` 显示清扫，“用餐”/`TOOL_CHANGE`、`DEVICE_TOOL_CHANGE`、“休息”/`REST`、`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |
 | 负荷率 | `GET /schedule/getDeviceload` | `devCode`、`fuhe` | 按设备编码匹配；`fuhe` 视为 0-1 或百分比值，前端格式化为一位小数百分比。 |
 | 人员配置 | `GET /device/realtime/list` | `onlinePersonList` | 展示当前设备在线人员数量和人员信息。 |
 | 生产任务 | `GET /device/realtime/list` | `productionTaskList` | 作为地图设备实时信息补充。 |
@@ -56,7 +56,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 生产线稼动 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType` | 从生产线稼动情况聚合：除计划停止外的设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
+| 生产线稼动 | `GET /device/realtime/list` | `deviceId`、`deviceCode`、`actualStatus`、`deviceParseType`、`deviceParseTypeName` | 汇总卡片直接使用当前部门/接口工序返回的 JSON；跨前端工序先按 `deviceId`（缺失时按 `deviceCode`）去重，总台数取去重后的接口记录数，不读取地图 `devices.json`。除计划停止外的接口设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的直接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 只汇总当前时间对应班次的间接人员应出勤/实际出勤和出勤率；早班 06:30-14:30，中班 14:30-22:30，晚班 22:30-次日 06:30。接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`；信息汇总不统计 `正常班`。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
@@ -73,7 +73,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 总台数 | `GET /device/realtime/list` + 地图设备范围 | 设备记录数 | 按当前部门或工序设备编码过滤后计数。 |
 | 稼动台数 | 同上 | `actualStatus`、`deviceParseType` | 除计划停止外均计入稼动台数（含生产中、切替、清扫、异常、中立）；状态判定与 css-map 同源（`deviceRealtimeStatus.ts`），以 `actualStatus` 为主，暂停再按 `deviceParseType` 细分。 |
 | 异常台数 | 同上 | `actualStatus`、`deviceParseType` | 暂停且 `deviceParseType` 不属于切替(CUT)/清扫(CLEAN)/计划停止类时计入（即 css-map 的 `abnormalStop`）。 |
-| 计划停止台数 | 同上 | `actualStatus`、`deviceParseType` | `actualStatus === 'normal'`，或暂停且 `deviceParseType` 为 `TOOL_CHANGE`/`DEVICE_TOOL_CHANGE`/`REST`/`DEVICE_REST` 时计入（与 css-map 的 `plannedStop` 一致）。 |
+| 计划停止台数 | 同上 | `actualStatus`、`deviceParseType`、`deviceParseTypeName` | `actualStatus === 'normal'`，或暂停且解析后的原因属于“用餐”/`TOOL_CHANGE`、`DEVICE_TOOL_CHANGE`、“休息”/`REST`、`DEVICE_REST` 时计入（与 css-map 的 `plannedStop` 一致）。 |
 
 ## 人员出勤情况
 

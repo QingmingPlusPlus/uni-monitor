@@ -10,40 +10,15 @@ import { loadInboundPlanTrendCard } from '../loaders/loadInboundPlanTrendCard'
 import { loadPersonnelDetailCard } from '../loaders/loadPersonnelDetailCard'
 import { loadProductionActivityData } from '../loaders/loadProductionActivityData'
 import { loadProductionPlanTrendCard } from '../loaders/loadProductionPlanTrendCard'
-import { buildCacheKey, invalidateCache, readCache, writeCache } from './dashboardCache'
-
-const CACHE_KEY_PREFIX = 'uni-monitor:department-dashboard:' as const
 
 let inflightPromise: Promise<DepartmentDashboardData> | null = null
 let inflightKey = ''
-
-function isDepartmentDashboardData(value: unknown): value is DepartmentDashboardData {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as DepartmentDashboardData).summary === 'object'
-  )
-}
-
-/** 单卡片刷新后清除整页缓存，避免后续整页刷新命中旧缓存回滚该卡片数据。 */
-export function invalidateDepartmentDashboardCache(
-  department: CssMapDepartmentValue,
-  monthSegmentVersion: number,
-): void {
-  invalidateCache(
-    CACHE_KEY_PREFIX,
-    department,
-    monthSegmentVersion,
-    'DepartmentLoader',
-    { key: inflightKey, promise: inflightPromise },
-  )
-}
 
 /**
  * 异步加载部门维度看板数据，覆盖四个瀑布流卡片。
  *
  * - Promise 去重：相同 key 的并发调用复用同一个 promise
- * - sessionStorage 缓存（TTL 60s）
+ * - 不缓存已完成结果，每次页面刷新或筛选变化都重新读取接口
  * - 任意卡片接口失败时该卡片降级为 fallback，不阻塞其他卡片
  *
  * @param fallback 同步 mock 数据，作为接口未就绪或失败时的降级值
@@ -55,18 +30,13 @@ export async function loadDepartmentDashboardData(
   monthSegmentVersion: number,
   fallback: DepartmentDashboardData,
 ): Promise<DepartmentDashboardData> {
-  const cacheKey = buildCacheKey(CACHE_KEY_PREFIX, department, monthSegmentVersion)
+  const requestKey = `${department}:v${monthSegmentVersion}`
 
-  const cached = readCache(cacheKey, isDepartmentDashboardData, 'DepartmentLoader')
-  if (cached !== null) {
-    return cached
-  }
-
-  if (inflightPromise !== null && inflightKey === cacheKey) {
+  if (inflightPromise !== null && inflightKey === requestKey) {
     return inflightPromise
   }
 
-  inflightKey = cacheKey
+  inflightKey = requestKey
   inflightPromise = doLoadDepartmentDashboardData(department, config, refreshedAt, fallback)
     .finally(() => {
       inflightPromise = null
@@ -83,7 +53,6 @@ async function doLoadDepartmentDashboardData(
   fallback: DepartmentDashboardData,
 ): Promise<DepartmentDashboardData> {
   const processTypes = config.departmentProcessMap[department] ?? []
-  const cacheKey = buildCacheKey(CACHE_KEY_PREFIX, department, 0)
 
   const [activity, attendance, attendanceTrend, inboundPlanTrend, productionPlanTrend, personnelDetail] = await Promise.allSettled([
     loadProductionActivityData(department, processTypes, config),
@@ -112,7 +81,7 @@ async function doLoadDepartmentDashboardData(
     }
   }
 
-  const result: DepartmentDashboardData = {
+  return {
     ...fallback,
     summary,
     activity: resolvedActivity,
@@ -121,7 +90,4 @@ async function doLoadDepartmentDashboardData(
     inboundPlanTrend: resolvedInboundPlanTrend,
     personnelDetail: personnelDetail.status === 'fulfilled' ? personnelDetail.value : fallback.personnelDetail,
   }
-
-  writeCache(cacheKey, result, 'DepartmentLoader')
-  return result
 }

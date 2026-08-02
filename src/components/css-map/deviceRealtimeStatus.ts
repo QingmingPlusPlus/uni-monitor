@@ -59,10 +59,13 @@ function normalizeDeviceParseType(value: string | null | undefined): string {
 }
 
 function resolveDeviceParseType(item: DeviceRealtimeItem): string {
+  const parseTypeFromName = deviceParseTypeNames[String(item.deviceParseTypeName ?? '').trim()]
+  if (parseTypeFromName) return parseTypeFromName
+
   const parseType = normalizeDeviceParseType(item.deviceParseType)
   if (parseType) return parseType
 
-  return deviceParseTypeNames[String(item.deviceParseTypeName ?? '').trim()] ?? ''
+  return ''
 }
 
 function mapPausedRealtimeStatus(item: DeviceRealtimeItem): CssMapDeviceStatus {
