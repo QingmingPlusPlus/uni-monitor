@@ -19,8 +19,8 @@ const percentAxisLabelFormatter = (value: unknown): string => {
 
 export const attendanceTrendRows = [
   { key: "indirectCount", label: "间接在籍人数" },
-  { key: "directCount", label: "直接在籍人数" },
-  { key: "directAttendance", label: "直接出勤人数" },
+  { key: "directCount", label: "直接计划出勤人数" },
+  { key: "directAttendance", label: "直接实际出勤人数" },
   { key: "directRate", label: "直接实际出勤率", formatter: percentFormatter },
   { key: "targetRate", label: "利计出勤率", formatter: percentFormatter },
 ] as const satisfies readonly TableRowConfig[]
@@ -115,8 +115,8 @@ export const attendanceTrendChartOptions: ChartOptionConfig = {
     },
   ],
   series: [
-    { id: "directCount", name: "直接在籍人数", type: "bar", barWidth: 12 },
-    { id: "directAttendance", name: "直接出勤人数", type: "bar", barWidth: 12 },
+    { id: "directCount", name: "直接计划出勤人数", type: "bar", barWidth: 12 },
+    { id: "directAttendance", name: "直接实际出勤人数", type: "bar", barWidth: 12 },
     { id: "indirectCount", name: "间接在籍人数", type: "bar", barWidth: 12 },
     {
       id: "directRate",

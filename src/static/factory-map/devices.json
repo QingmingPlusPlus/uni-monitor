@@ -739,9 +739,6 @@
       "height": 130,
       "section": "vulcanization1",
       "deviceCodes": [
-        "1H01",
-        "1H02",
-        "1H03",
         "1D27",
         "1D28",
         "1D29",
@@ -749,33 +746,6 @@
         "1D31"
       ],
       "children": [
-        {
-          "id": "device-1h01",
-          "name": "1H01",
-          "deviceCode": "1H01",
-          "x": 2,
-          "y": 0,
-          "width": 80,
-          "height": 20
-        },
-        {
-          "id": "device-1h02",
-          "name": "1H02",
-          "deviceCode": "1H02",
-          "x": 2,
-          "y": 22,
-          "width": 80,
-          "height": 20
-        },
-        {
-          "id": "device-1h03",
-          "name": "1H03",
-          "deviceCode": "1H03",
-          "x": 2,
-          "y": 44,
-          "width": 80,
-          "height": 20
-        },
         {
           "id": "device-1d27",
           "name": "1D27",
