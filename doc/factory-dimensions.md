@@ -33,7 +33,9 @@
 
 ## 地图交互
 
-- 地图数据源：`public/factory-map/devices.json`；H5 构建同时保留 `src/static/factory-map/devices.json` 作为 Uni-app 静态资源副本。
+- 地图数据源：`src/static/factory-map/devices.json`，H5 优先通过 `/static/factory-map/devices.json` 加载，并兼容 `/factory-map/devices.json` 回退地址。
+- 地图底图：`src/static/factory-map/factory-floorplan.png`。它由 `scripts/generate_factory_floorplan.py` 从一工厂、二工厂 PDF 裁白边、逆时针旋转并合成为 2 倍像素透明线稿；一工厂位于上半区，二工厂位于下半区，世界坐标仍保持 `2060×1280`。转换时的裁剪、缩放和放置参数记录在 `src/static/factory-map/factory-floorplan.transforms.json`，方便后续把 PDF 坐标换算为地图坐标。
+- 设备实际比例布局：`scripts/generate_factory_map_layout.py` 读取现场 Excel 的矢量红框、区域编号和设备表，把 151 台标注设备自动换算到 PDF 底图坐标；一个区域包含多台机台时生成独立子设备。当前配置合并保留设备后共渲染 207 个唯一 `deviceCode`。来源优先级、更新命令、校验和例外见 `doc/factory-map-layout-generation.md`。
 - 选择器配置源：`public/factory-map/selection.json`；H5 构建同时保留 `src/static/factory-map/selection.json`。
 - 地图默认渲染器：`src/components/css-map/SpriteCssMapPanel.vue`，使用 Three.js `WebGLRenderer` + `Sprite` 绘制设备卡片；设备卡片绘制入口为 `src/components/css-map/spriteCssMapDeviceCard.ts`，其内部已拆分到 `src/components/css-map/spriteCssMap/` 下的 `canvasText`、`canvasPrimitives`、`deviceColorPlan`、`drawHeader`、`drawLoadRate`、`drawMarkers`、`drawHorizontalCard`、`drawRightLShapeCard`、`drawVerticalCard` 等子模块。旧 `src/components/css-map/index.vue`（CSS3D DOM 版本）保留为代码级回退。
 - Sprite 地图仅承诺 H5 大屏使用；WebGL 初始化失败时，`FactoryDashboardView` 自动回退到 CSS3D DOM 地图。
@@ -45,6 +47,7 @@
 - 地图弹窗内的部门选择、工序选择、清空工序和设备打开事件均不驱动页面路由切换，只用于弹窗内临时查看。
 - 地图实时数据由 `src/components/css-map/css3dMapLiveData.ts` 聚合：设备工作状态、负荷率、人员配置和 5M 变化点均优先使用真实接口。
 - H5 浏览器中可通过控制台全局方法 `window.mapMock(true)`/`window.mapMock(false)` 切换地图运行态数据源：`true` 使用前端 mock 数据渲染当前地图组件，`false` 恢复真实接口数据；开关写入 `sessionStorage` 并通知已挂载地图重新加载。
+- H5 浏览器中可在手动平移、缩放到目标区域后调用 `window.mapCamera()`；函数会返回并在控制台打印当前渲染器、地图与视口尺寸、Three.js 相机位置、控制器 target、fov、aspect、near/far、相机距离，以及可复制给 `focusRect` 的 `focus.rect`。普通地图和展开地图同时存在时读取最后挂载实例，展开地图关闭后自动恢复普通地图。
 - 地图数据加载期间显示居中的圆形 loading spinner；加载失败时显示错误提示。
 - 加硫设备中 `STI375`、`STI450`、`STI450VX`、`STI450MVX` 设备节点省略机型，名称只显示设备编号（如 `STI375-1A01` 显示为 `1A01`）；其他机型保持原名，设备编码不变。地图配置请求禁用浏览器缓存，展示层也会统一处理上述机型前缀，避免旧静态数据导致名称回退。
 - 设备卡片外框、选择描边和点击区域始终覆盖设备原始占位；内部信息区根据设备原始宽高选择纵向或横向布局，并按名称、工况、负荷率、人员和 5M 标记数量估算内容宽度后进入稳定档位。纵向设备按名称、工况、人员、5M、负荷率顺序展示；横向设备使用紧凑横排。设备宽度超过内容档位时，信息区靠左显示且右侧保持白色留白。方向和宽度档位不随地图缩放变化，小尺寸设备仍允许名称省略，放大或聚焦后恢复完整名称。

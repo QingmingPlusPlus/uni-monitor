@@ -16,6 +16,7 @@ import type {
   CssMapDeviceRuntime,
   CssMapDeviceStatus,
   CssMapFiveMCategory,
+  CssMapBackground,
   CssMapJsonConfig,
   CssMapJsonDevice,
   CssMapJsonDeviceChild,
@@ -60,6 +61,7 @@ export class CssMapDataLoadError extends Error {
 
 export interface CssMapData {
   readonly size: CssMapSize
+  readonly background: CssMapBackground | null
   readonly sections: readonly CssMapProcessBoundary[]
   readonly devices: readonly CssMapDevice[]
 }
@@ -151,6 +153,35 @@ function isCssMapJsonConfig(value: unknown): value is CssMapJsonConfig {
     typeof value.source.imageHeight === 'number' &&
     value.source.coordinateOrigin === 'top-left' &&
     value.source.unit === 'px' &&
+    (
+      value.source.backgroundImage === undefined ||
+      (
+        typeof value.source.backgroundImage === 'string' &&
+        value.source.backgroundImage.trim().length > 0
+      )
+    ) &&
+    (
+      value.source.backgroundOpacity === undefined ||
+      (
+        typeof value.source.backgroundOpacity === 'number' &&
+        value.source.backgroundOpacity >= 0 &&
+        value.source.backgroundOpacity <= 1
+      )
+    ) &&
+    (
+      value.source.layoutCoordinateSystem === undefined ||
+      value.source.layoutCoordinateSystem === 'factory-floorplan-v1'
+    ) &&
+    (value.source.layoutWorkbook === undefined || typeof value.source.layoutWorkbook === 'string') &&
+    (value.source.deviceMaster === undefined || typeof value.source.deviceMaster === 'string') &&
+    (
+      value.source.annotatedDeviceCount === undefined ||
+      (
+        typeof value.source.annotatedDeviceCount === 'number' &&
+        Number.isInteger(value.source.annotatedDeviceCount) &&
+        value.source.annotatedDeviceCount >= 0
+      )
+    ) &&
     Array.isArray(value.sections) &&
     value.sections.every(isSection) &&
     Array.isArray(value.devices) &&
@@ -412,6 +443,12 @@ async function createCssMapData(
       width: mapConfig.source.imageWidth,
       height: mapConfig.source.imageHeight,
     },
+    background: mapConfig.source.backgroundImage
+      ? {
+          imageUrl: mapConfig.source.backgroundImage,
+          opacity: mapConfig.source.backgroundOpacity ?? 0.42,
+        }
+      : null,
     sections: mapConfig.sections.map((section) => ({
       process: section.id,
       labelKey: getCssMapProcessLabel(section.id, selectionConfig),

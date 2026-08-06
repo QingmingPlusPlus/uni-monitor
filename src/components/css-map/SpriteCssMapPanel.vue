@@ -3,6 +3,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CssMapLegend from './CssMapLegend.vue'
 import CssMapScreenControls from './CssMapScreenControls.vue'
 import CssMapToolbar from './CssMapToolbar.vue'
+import { installCssMapCameraDebug } from './cssMapCameraDebug'
 import { getCssMapProcessBoundaryFocusRect, getCssMapProcessBoundaryGroupFocusRect } from './css3dMapProcessBoundaries'
 import { loadCssMapData } from './css3dMapLiveData'
 import { subscribeCssMapMockChange } from './css3dMapMockRuntime'
@@ -10,6 +11,7 @@ import { runCssMapScreenAction } from './css3dMapScreenActions'
 import { createSpriteCssMapScene, type SpriteCssMapScene } from './spriteCssMapScene'
 import type {
   CssMapDepartmentValue,
+  CssMapBackground,
   CssMapDevice,
   CssMapDisplayOptions,
   CssMapProcessBoundary,
@@ -41,6 +43,7 @@ const mapContainer = ref<HTMLElement | null>(null)
 const cssMapDevices = ref<readonly CssMapDevice[]>([])
 const cssMapSections = ref<readonly CssMapProcessBoundary[]>([])
 const cssMapSize = ref<CssMapSize | null>(null)
+const cssMapBackground = ref<CssMapBackground | null>(null)
 const loadError = ref('')
 const isLoading = ref(true)
 const selectMode = ref(false)
@@ -54,8 +57,11 @@ const displayOptions: CssMapDisplayOptions = {
 let scene: SpriteCssMapScene | null = null
 let initializeGeneration = 0
 let unsubscribeMapMockChange: (() => void) | null = null
+let uninstallCameraDebug: (() => void) | null = null
 
 function disposeScene(): void {
+  uninstallCameraDebug?.()
+  uninstallCameraDebug = null
   scene?.dispose()
   scene = null
 }
@@ -64,6 +70,7 @@ function resetMapData(): void {
   cssMapDevices.value = []
   cssMapSections.value = []
   cssMapSize.value = null
+  cssMapBackground.value = null
 }
 
 function handleLoadError(error: unknown): void {
@@ -124,6 +131,7 @@ async function initializeScene(): Promise<void> {
   cssMapDevices.value = mapData.devices
   cssMapSections.value = mapData.sections
   cssMapSize.value = mapData.size
+  cssMapBackground.value = mapData.background
 
   await nextTick()
   if (generation !== initializeGeneration) return
@@ -139,10 +147,12 @@ async function initializeScene(): Promise<void> {
       devices: cssMapDevices.value,
       processBoundaries: cssMapSections.value,
       mapSize: cssMapSize.value,
+      background: cssMapBackground.value,
       display: displayOptions,
       isSelectMode: () => selectMode.value,
       openDevice,
     })
+    uninstallCameraDebug = installCssMapCameraDebug(() => scene?.getCameraSnapshot() ?? null)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Sprite 地图初始化失败'
     isLoading.value = false

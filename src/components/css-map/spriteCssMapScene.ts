@@ -1,12 +1,18 @@
 import * as THREE from 'three'
 import { MapControls } from 'three/examples/jsm/controls/MapControls.js'
 import type {
+  CssMapBackground,
+  CssMapCameraSnapshot,
   CssMapDevice,
   CssMapDisplayOptions,
   CssMapProcessBoundary,
   CssMapRect,
   CssMapSize,
 } from './css3dMapTypes'
+import {
+  createCssMapCameraSnapshot,
+  CSS_MAP_FOCUS_PADDING_RATIO,
+} from './cssMapCameraDebug'
 import { SpriteCssMapTextureCache } from './spriteCssMapTextureCache'
 import { createSpriteCssMapCanvasTheme } from './spriteCssMapTheme'
 import {
@@ -16,7 +22,7 @@ import {
 
 const PROCESS_BOUNDARY_LAYER_ELEVATION = 1
 const DEVICE_LAYER_ELEVATION = PROCESS_BOUNDARY_LAYER_ELEVATION
-const FOCUS_PADDING_RATIO = 1.35
+const BACKGROUND_LAYER_ELEVATION = 0
 const MIN_CAMERA_DISTANCE = 120
 const MAX_RENDERER_PIXEL_RATIO = 2
 const TEXTURE_REFRESH_IDLE_MS = 140
@@ -49,6 +55,7 @@ interface CreateSpriteCssMapSceneOptions {
   readonly devices: readonly CssMapDevice[]
   readonly processBoundaries?: readonly CssMapProcessBoundary[]
   readonly mapSize: CssMapSize
+  readonly background?: CssMapBackground | null
   readonly display: CssMapDisplayOptions
   readonly isSelectMode: () => boolean
   readonly openDevice: (deviceId: string) => void
@@ -61,6 +68,7 @@ export interface SpriteCssMapScene {
   readonly zoomBy: (factor: number) => void
   readonly resetView: () => void
   readonly focusRect: (rect: CssMapRect) => void
+  readonly getCameraSnapshot: () => CssMapCameraSnapshot
   readonly setSelectMode: (value: boolean) => void
   readonly dispose: () => void
 }
@@ -74,7 +82,31 @@ function computeFitDistance(mapSize: CssMapSize, aspect: number, fovRadians: num
 function computeRectFitDistance(rect: CssMapRect, aspect: number, fovRadians: number): number {
   const zForHeight = rect.h / 2 / Math.tan(fovRadians / 2)
   const zForWidth = rect.w / 2 / (Math.tan(fovRadians / 2) * aspect)
-  return Math.max(zForHeight, zForWidth) * FOCUS_PADDING_RATIO
+  return Math.max(zForHeight, zForWidth) * CSS_MAP_FOCUS_PADDING_RATIO
+}
+
+function createBackgroundObject(
+  background: CssMapBackground,
+  mapSize: CssMapSize,
+  render: () => void,
+): {
+  readonly mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>
+  readonly texture: THREE.Texture
+} {
+  const texture = new THREE.TextureLoader().load(background.imageUrl, render)
+  texture.colorSpace = THREE.SRGBColorSpace
+  const geometry = new THREE.PlaneGeometry(mapSize.width, mapSize.height)
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    opacity: background.opacity,
+    depthWrite: false,
+  })
+  const mesh = new THREE.Mesh(geometry, material)
+  mesh.position.y = BACKGROUND_LAYER_ELEVATION
+  mesh.rotation.x = -Math.PI / 2
+  mesh.renderOrder = 0
+  return { mesh, texture }
 }
 
 function mapLayoutToGroundPosition(
@@ -182,6 +214,11 @@ export function createSpriteCssMapScene(options: CreateSpriteCssMapSceneOptions)
   renderer.setClearColor(0x000000, 0)
   renderer.setPixelRatio(getRendererPixelRatio())
   options.container.appendChild(renderer.domElement)
+
+  const backgroundObject = options.background
+    ? createBackgroundObject(options.background, options.mapSize, render)
+    : null
+  if (backgroundObject) root.add(backgroundObject.mesh)
 
   const boundaryObjects = (options.processBoundaries ?? []).map((boundary) => createBoundaryObject(boundary, options.mapSize))
   boundaryObjects.forEach((boundary) => root.add(boundary))
@@ -454,6 +491,24 @@ export function createSpriteCssMapScene(options: CreateSpriteCssMapSceneOptions)
       render()
     },
     focusRect,
+    getCameraSnapshot() {
+      const viewport = renderer.domElement.getBoundingClientRect()
+      return createCssMapCameraSnapshot({
+        renderer: 'sprite',
+        mapSize: options.mapSize,
+        viewport: {
+          width: viewport.width,
+          height: viewport.height,
+        },
+        position: camera.position,
+        target: controls.target,
+        up: camera.up,
+        fov: camera.fov,
+        aspect: camera.aspect,
+        near: camera.near,
+        far: camera.far,
+      })
+    },
     setSelectMode(value: boolean) {
       if (selectMode === value) return
       selectMode = value
@@ -485,6 +540,12 @@ export function createSpriteCssMapScene(options: CreateSpriteCssMapSceneOptions)
         }
         boundary.removeFromParent()
       })
+      if (backgroundObject) {
+        backgroundObject.texture.dispose()
+        backgroundObject.mesh.geometry.dispose()
+        backgroundObject.mesh.material.dispose()
+        backgroundObject.mesh.removeFromParent()
+      }
       root.clear()
       scene.clear()
       renderer.domElement.remove()

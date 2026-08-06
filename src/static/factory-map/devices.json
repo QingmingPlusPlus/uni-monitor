@@ -3,7 +3,13 @@
     "imageWidth": 2060,
     "imageHeight": 1280,
     "coordinateOrigin": "top-left",
-    "unit": "px"
+    "unit": "px",
+    "backgroundImage": "/static/factory-map/factory-floorplan.png",
+    "backgroundOpacity": 0.46,
+    "layoutCoordinateSystem": "factory-floorplan-v1",
+    "layoutWorkbook": "布局图-2026-06-26 的副本.xlsx",
+    "deviceMaster": "全部设备导出.xls",
+    "annotatedDeviceCount": 151
   },
   "sections": [
     {
@@ -12,28 +18,28 @@
       "stroke": "#ffcf78",
       "points": [
         {
-          "x": 45,
-          "y": 414
+          "x": 190.5,
+          "y": 349.28
         },
         {
-          "x": 496,
-          "y": 414
+          "x": 590.43,
+          "y": 349.28
         },
         {
-          "x": 496,
-          "y": 230
+          "x": 590.43,
+          "y": 175.5
         },
         {
-          "x": 610,
-          "y": 230
+          "x": 691.53,
+          "y": 175.5
         },
         {
-          "x": 610,
-          "y": 669
+          "x": 691.53,
+          "y": 590.11
         },
         {
-          "x": 45,
-          "y": 669
+          "x": 190.5,
+          "y": 590.11
         }
       ]
     },
@@ -43,448 +49,672 @@
       "stroke": "#ffcf78",
       "points": [
         {
-          "x": 45,
-          "y": 705
+          "x": 90.0,
+          "y": 800.22
         },
         {
-          "x": 438,
-          "y": 705
+          "x": 478.86,
+          "y": 800.22
         },
         {
-          "x": 438,
-          "y": 1227
+          "x": 478.86,
+          "y": 1118.56
         },
         {
-          "x": 45,
-          "y": 1227
+          "x": 90.0,
+          "y": 1118.56
+        }
+      ]
+    },
+    {
+      "id": "posttreatment1",
+      "labelKey": "cssMap.focus.processes.posttreatment1",
+      "stroke": "#9edb8a",
+      "points": [
+        {
+          "x": 1173.93,
+          "y": 116.94
+        },
+        {
+          "x": 1251.97,
+          "y": 116.94
+        },
+        {
+          "x": 1251.97,
+          "y": 314.33
+        },
+        {
+          "x": 1173.93,
+          "y": 314.33
+        }
+      ]
+    },
+    {
+      "id": "posttreatment2",
+      "labelKey": "cssMap.focus.processes.posttreatment2",
+      "stroke": "#9edb8a",
+      "points": [
+        {
+          "x": 585.73,
+          "y": 872.79
+        },
+        {
+          "x": 1051.77,
+          "y": 872.79
+        },
+        {
+          "x": 1051.77,
+          "y": 846.57
+        },
+        {
+          "x": 1175.45,
+          "y": 846.57
+        },
+        {
+          "x": 1175.45,
+          "y": 960.0
+        },
+        {
+          "x": 585.73,
+          "y": 960.0
+        }
+      ]
+    },
+    {
+      "id": "posttreatment2",
+      "labelKey": "cssMap.focus.processes.posttreatment2",
+      "stroke": "#9edb8a",
+      "points": [
+        {
+          "x": 1175.45,
+          "y": 799.0
+        },
+        {
+          "x": 1954.17,
+          "y": 799.0
+        },
+        {
+          "x": 1954.17,
+          "y": 960.0
+        },
+        {
+          "x": 1175.45,
+          "y": 960.0
+        }
+      ]
+    },
+    {
+      "id": "posttreatment2",
+      "labelKey": "cssMap.focus.processes.posttreatment2",
+      "stroke": "#9edb8a",
+      "points": [
+        {
+          "x": 1175.45,
+          "y": 990.49
+        },
+        {
+          "x": 1970.0,
+          "y": 990.49
+        },
+        {
+          "x": 1970.0,
+          "y": 1121.0
+        },
+        {
+          "x": 1175.45,
+          "y": 1121.0
         }
       ]
     },
     {
       "id": "vulcanization1",
       "labelKey": "cssMap.focus.processes.vulcanization1",
-      "stroke": "#3f713a",
+      "stroke": "#78d6ff",
       "points": [
         {
-          "x": 836,
-          "y": 96
+          "x": 990.6,
+          "y": 47.1
         },
         {
-          "x": 1150,
-          "y": 96
+          "x": 1276.39,
+          "y": 47.1
         },
         {
-          "x": 1150,
-          "y": 379
+          "x": 1276.39,
+          "y": 328.67
         },
         {
-          "x": 836,
-          "y": 379
+          "x": 990.6,
+          "y": 328.67
         }
       ]
     },
     {
       "id": "vulcanization1",
       "labelKey": "cssMap.focus.processes.vulcanization1",
-      "stroke": "#3f713a",
+      "stroke": "#78d6ff",
       "points": [
         {
-          "x": 665,
-          "y": 410
+          "x": 792.56,
+          "y": 315.51
         },
         {
-          "x": 1223,
-          "y": 410
+          "x": 1425.85,
+          "y": 315.51
         },
         {
-          "x": 1223,
-          "y": 670
+          "x": 1425.85,
+          "y": 570.1
         },
         {
-          "x": 665,
-          "y": 670
+          "x": 792.56,
+          "y": 570.1
         }
       ]
     },
     {
       "id": "posttreatment1",
       "labelKey": "cssMap.focus.processes.posttreatment1",
-      "stroke": "#999999",
+      "stroke": "#9edb8a",
       "points": [
         {
-          "x": 1154,
-          "y": 168
+          "x": 1447.22,
+          "y": 49.94
         },
         {
-          "x": 1242,
-          "y": 168
+          "x": 1627.63,
+          "y": 49.94
         },
         {
-          "x": 1242,
-          "y": 377
+          "x": 1627.63,
+          "y": 212.22
         },
         {
-          "x": 1154,
-          "y": 377
+          "x": 1447.22,
+          "y": 212.22
         }
       ]
     },
     {
       "id": "posttreatment1",
       "labelKey": "cssMap.focus.processes.posttreatment1",
-      "stroke": "#999999",
+      "stroke": "#9edb8a",
       "points": [
         {
-          "x": 1338,
-          "y": 95
+          "x": 1444.23,
+          "y": 51.36
         },
         {
-          "x": 1875,
-          "y": 95
+          "x": 1857.81,
+          "y": 51.36
         },
         {
-          "x": 1875,
-          "y": 379
+          "x": 1857.81,
+          "y": 572.94
         },
         {
-          "x": 1338,
-          "y": 379
-        }
-      ]
-    },
-    {
-      "id": "posttreatment1",
-      "labelKey": "cssMap.focus.processes.posttreatment1",
-      "stroke": "#999999",
-      "points": [
-        {
-          "x": 1388,
-          "y": 410
-        },
-        {
-          "x": 1935,
-          "y": 410
-        },
-        {
-          "x": 1935,
-          "y": 671
-        },
-        {
-          "x": 1388,
-          "y": 671
+          "x": 1444.23,
+          "y": 572.94
         }
       ]
     },
     {
       "id": "vulcanization2",
       "labelKey": "cssMap.focus.processes.vulcanization2",
-      "stroke": "#3f713a",
+      "stroke": "#78d6ff",
       "points": [
         {
-          "x": 509,
-          "y": 704
+          "x": 545.9,
+          "y": 807.43
         },
         {
-          "x": 1117,
-          "y": 704
+          "x": 1180.88,
+          "y": 807.43
         },
         {
-          "x": 1117,
-          "y": 763
+          "x": 1180.88,
+          "y": 910.48
         },
         {
-          "x": 988,
-          "y": 763
-        },
-        {
-          "x": 988,
-          "y": 808
-        },
-        {
-          "x": 509,
-          "y": 808
+          "x": 545.9,
+          "y": 910.48
         }
       ]
     },
     {
       "id": "vulcanization2",
       "labelKey": "cssMap.focus.processes.vulcanization2",
-      "stroke": "#3f713a",
+      "stroke": "#78d6ff",
       "points": [
         {
-          "x": 509,
-          "y": 1054
+          "x": 565.48,
+          "y": 1012.75
         },
         {
-          "x": 1132,
-          "y": 1054
+          "x": 1608.59,
+          "y": 1012.75
         },
         {
-          "x": 1132,
-          "y": 1229
+          "x": 1608.59,
+          "y": 1117.45
         },
         {
-          "x": 509,
-          "y": 1229
-        }
-      ]
-    },
-    {
-      "id": "posttreatment2",
-      "labelKey": "cssMap.focus.processes.posttreatment2",
-      "stroke": "#999999",
-      "points": [
-        {
-          "x": 546,
-          "y": 824
-        },
-        {
-          "x": 1017,
-          "y": 824
-        },
-        {
-          "x": 1017,
-          "y": 781
-        },
-        {
-          "x": 1142,
-          "y": 781
-        },
-        {
-          "x": 1142,
-          "y": 967
-        },
-        {
-          "x": 546,
-          "y": 967
-        }
-      ]
-    },
-    {
-      "id": "posttreatment2",
-      "labelKey": "cssMap.focus.processes.posttreatment2",
-      "stroke": "#999999",
-      "points": [
-        {
-          "x": 1142,
-          "y": 703
-        },
-        {
-          "x": 1929,
-          "y": 703
-        },
-        {
-          "x": 1929,
-          "y": 967
-        },
-        {
-          "x": 1142,
-          "y": 967
-        }
-      ]
-    },
-    {
-      "id": "posttreatment2",
-      "labelKey": "cssMap.focus.processes.posttreatment2",
-      "stroke": "#999999",
-      "points": [
-        {
-          "x": 1142,
-          "y": 1017
-        },
-        {
-          "x": 1945,
-          "y": 1017
-        },
-        {
-          "x": 1945,
-          "y": 1231
-        },
-        {
-          "x": 1142,
-          "y": 1231
+          "x": 565.48,
+          "y": 1117.45
         }
       ]
     }
   ],
   "devices": [
     {
-      "id": "1101",
-      "name": "WB-1",
-      "x": 50,
-      "y": 421,
-      "width": 125,
-      "height": 96,
-      "section": "pretreatment1",
-      "deviceCode": "1101"
+      "id": "layout-factory1-region-n8",
+      "name": "vulcanization1区域⑧",
+      "x": 1109.95,
+      "y": 55.1,
+      "width": 77.72,
+      "height": 262.73,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "1D16",
+        "1D17",
+        "1D18",
+        "1D19",
+        "1D20",
+        "1D21",
+        "1D22",
+        "1D23"
+      ],
+      "children": [
+        {
+          "id": "device-1d16",
+          "name": "HTI-1D16",
+          "deviceCode": "1D16",
+          "x": 5.494,
+          "y": 2.6,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d17",
+          "name": "HTI-1D17",
+          "deviceCode": "1D17",
+          "x": 5.494,
+          "y": 14.601,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d18",
+          "name": "HTI-1D18",
+          "deviceCode": "1D18",
+          "x": 5.494,
+          "y": 26.601,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d19",
+          "name": "HTI-1D19",
+          "deviceCode": "1D19",
+          "x": 5.494,
+          "y": 38.599,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d20",
+          "name": "HTI-1D20",
+          "deviceCode": "1D20",
+          "x": 5.494,
+          "y": 50.599,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d21",
+          "name": "HTI-1D21",
+          "deviceCode": "1D21",
+          "x": 5.494,
+          "y": 62.6,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d22",
+          "name": "HTI-1D22",
+          "deviceCode": "1D22",
+          "x": 5.494,
+          "y": 74.601,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d23",
+          "name": "HTI-1D23",
+          "deviceCode": "1D23",
+          "x": 5.494,
+          "y": 86.598,
+          "width": 88.999,
+          "height": 10.798
+        }
+      ]
     },
     {
-      "id": "1121",
-      "name": "WB-3",
-      "x": 50,
-      "y": 543,
-      "width": 126,
-      "height": 121,
-      "section": "pretreatment1",
-      "deviceCode": "1121"
+      "id": "layout-factory1-region-n7",
+      "name": "vulcanization1区域⑦",
+      "x": 998.6,
+      "y": 57.23,
+      "width": 77.72,
+      "height": 262.73,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "1D05",
+        "1D06",
+        "1D07",
+        "1D08",
+        "1D09",
+        "1D10",
+        "1D11",
+        "1D12"
+      ],
+      "children": [
+        {
+          "id": "device-1d05",
+          "name": "大盘-1D05",
+          "deviceCode": "1D05",
+          "x": 5.494,
+          "y": 2.6,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d06",
+          "name": "大盘-1D06",
+          "deviceCode": "1D06",
+          "x": 5.494,
+          "y": 14.601,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d07",
+          "name": "STI450-1D07",
+          "deviceCode": "1D07",
+          "x": 5.494,
+          "y": 26.601,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d08",
+          "name": "STI450-1D08",
+          "deviceCode": "1D08",
+          "x": 5.494,
+          "y": 38.599,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d09",
+          "name": "STI450-1D09",
+          "deviceCode": "1D09",
+          "x": 5.494,
+          "y": 50.599,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d10",
+          "name": "STI450-1D10",
+          "deviceCode": "1D10",
+          "x": 5.494,
+          "y": 62.6,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d11",
+          "name": "STI450-1D11",
+          "deviceCode": "1D11",
+          "x": 5.494,
+          "y": 74.601,
+          "width": 88.999,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d12",
+          "name": "STI450-1D12",
+          "deviceCode": "1D12",
+          "x": 5.494,
+          "y": 86.598,
+          "width": 88.999,
+          "height": 10.798
+        }
+      ]
     },
     {
-      "id": "1102",
-      "name": "干研磨生产线-1",
-      "x": 251,
-      "y": 419,
-      "width": 89,
-      "height": 105,
-      "section": "pretreatment1",
-      "deviceCode": "1102"
+      "id": "layout-factory1-region-n9",
+      "name": "vulcanization1区域⑨",
+      "x": 1189.17,
+      "y": 57.94,
+      "width": 79.22,
+      "height": 262.73,
+      "section": "vulcanization1",
+      "deviceCodes": [
+        "1D24",
+        "1D25",
+        "1D26",
+        "1D27",
+        "1D28",
+        "1D29",
+        "1D30",
+        "1D31"
+      ],
+      "children": [
+        {
+          "id": "device-1d24",
+          "name": "STI450-1D24",
+          "deviceCode": "1D24",
+          "x": 5.504,
+          "y": 2.6,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d25",
+          "name": "STI450-1D25",
+          "deviceCode": "1D25",
+          "x": 5.504,
+          "y": 14.601,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d26",
+          "name": "STI450-1D26",
+          "deviceCode": "1D26",
+          "x": 5.504,
+          "y": 26.601,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d27",
+          "name": "STI450VX-1D27",
+          "deviceCode": "1D27",
+          "x": 5.504,
+          "y": 38.599,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d28",
+          "name": "STI450VX-1D28",
+          "deviceCode": "1D28",
+          "x": 5.504,
+          "y": 50.599,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d29",
+          "name": "STI450VX-1D29",
+          "deviceCode": "1D29",
+          "x": 5.504,
+          "y": 62.6,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d30",
+          "name": "STI450VX-1D30",
+          "deviceCode": "1D30",
+          "x": 5.504,
+          "y": 74.601,
+          "width": 89.005,
+          "height": 10.798
+        },
+        {
+          "id": "device-1d31",
+          "name": "STI450VX-1D31",
+          "deviceCode": "1D31",
+          "x": 5.504,
+          "y": 86.598,
+          "width": 89.005,
+          "height": 10.798
+        }
+      ]
     },
     {
-      "id": "1110",
-      "name": "自动喷涂粘接-1",
-      "x": 191,
-      "y": 542,
-      "width": 65,
-      "height": 121,
-      "section": "pretreatment1",
-      "deviceCode": "1110"
+      "id": "device-2324",
+      "name": "CG涂装-2",
+      "x": 1484.74,
+      "y": 59.23,
+      "width": 69.5,
+      "height": 34.34,
+      "section": "posttreatment1",
+      "deviceCode": "2324"
     },
     {
-      "id": "1120",
-      "name": "CG粘接-7",
-      "x": 264,
-      "y": 541,
-      "width": 64,
-      "height": 121,
-      "section": "pretreatment1",
-      "deviceCode": "1120"
+      "id": "device-2312",
+      "name": "自动液压-6",
+      "x": 1558.98,
+      "y": 61.65,
+      "width": 16.68,
+      "height": 60.76,
+      "section": "posttreatment1",
+      "deviceCode": "2312"
     },
     {
-      "id": "1113",
-      "name": "滚喷粘接-1",
-      "x": 348,
-      "y": 419,
-      "width": 78,
-      "height": 44,
-      "section": "pretreatment1",
-      "deviceCode": "1113"
+      "id": "device-2313",
+      "name": "自动液压-7",
+      "x": 1582.13,
+      "y": 63.07,
+      "width": 36.14,
+      "height": 60.76,
+      "section": "posttreatment1",
+      "deviceCode": "2313"
     },
     {
-      "id": "1123",
-      "name": "滚喷粘接-2",
-      "x": 348,
-      "y": 473,
-      "width": 78,
-      "height": 44,
-      "section": "pretreatment1",
-      "deviceCode": "1123"
+      "id": "2319",
+      "name": "SMT生产线-1",
+      "x": 1670.96,
+      "y": 63.93,
+      "width": 172.37,
+      "height": 121.51,
+      "section": "posttreatment1",
+      "deviceCode": "2319"
     },
     {
-      "id": "1114",
-      "name": "CG粘接-1",
-      "x": 432,
-      "y": 419,
-      "width": 78,
-      "height": 44,
-      "section": "pretreatment1",
-      "deviceCode": "1114"
+      "id": "device-2325",
+      "name": "CG涂装-4",
+      "x": 1484.84,
+      "y": 92.05,
+      "width": 72.28,
+      "height": 38.3,
+      "section": "posttreatment1",
+      "deviceCode": "2326"
     },
     {
-      "id": "1111",
-      "name": "自动喷涂粘接-2",
-      "x": 518,
-      "y": 419,
-      "width": 85,
-      "height": 44,
-      "section": "pretreatment1",
-      "deviceCode": "1111"
+      "id": "posttreatment1-cutting-2-3",
+      "name": "切口机-2-3",
+      "x": 1181.02,
+      "y": 125.44,
+      "width": 63.85,
+      "height": 183.22,
+      "section": "posttreatment1",
+      "deviceCodes": [
+        "1204",
+        "1205"
+      ],
+      "children": [
+        {
+          "id": "device-1204",
+          "name": "切口机-2",
+          "deviceCode": "1204",
+          "x": 2,
+          "y": 2,
+          "width": 96,
+          "height": 47
+        },
+        {
+          "id": "device-1205",
+          "name": "切口机-3",
+          "deviceCode": "1205",
+          "x": 2,
+          "y": 51,
+          "width": 96,
+          "height": 47
+        }
+      ]
     },
     {
-      "id": "1112",
-      "name": "自动喷涂粘接-3",
-      "x": 518,
-      "y": 473,
-      "width": 85,
-      "height": 44,
-      "section": "pretreatment1",
-      "deviceCode": "1112"
+      "id": "2311",
+      "name": "自动液压-5",
+      "x": 1557.48,
+      "y": 132.66,
+      "width": 16.68,
+      "height": 60.76,
+      "section": "posttreatment1",
+      "deviceCode": "2311"
     },
     {
-      "id": "1115",
-      "name": "CG粘接-2",
-      "x": 433,
-      "y": 473,
-      "width": 78,
-      "height": 44,
-      "section": "pretreatment1",
-      "deviceCode": "1115"
+      "id": "device-2314",
+      "name": "自动液压-8",
+      "x": 1580.63,
+      "y": 134.08,
+      "width": 36.14,
+      "height": 60.76,
+      "section": "posttreatment1",
+      "deviceCode": "2314"
     },
     {
-      "id": "1119",
-      "name": "CG粘接-6",
-      "x": 337,
-      "y": 541,
-      "width": 77,
-      "height": 56,
-      "section": "pretreatment1",
-      "deviceCode": "1119"
+      "id": "device-2326",
+      "name": "CG涂装-3",
+      "x": 1456.63,
+      "y": 137.02,
+      "width": 37.53,
+      "height": 63.4,
+      "section": "posttreatment1",
+      "deviceCode": "2325"
     },
     {
-      "id": "1117",
-      "name": "CG粘接-4",
-      "x": 421,
-      "y": 542,
-      "width": 80,
-      "height": 54,
-      "section": "pretreatment1",
-      "deviceCode": "1117"
-    },
-    {
-      "id": "3110",
-      "name": "内管辊涂粘接机-2",
-      "x": 506,
-      "y": 541,
-      "width": 96,
-      "height": 54,
-      "section": "pretreatment1",
-      "deviceCode": "3110"
-    },
-    {
-      "id": "1122",
-      "name": "CG粘接-12",
-      "x": 505,
-      "y": 601,
-      "width": 97,
-      "height": 62,
-      "section": "pretreatment1",
-      "deviceCode": "1122"
-    },
-    {
-      "id": "1116",
-      "name": "CG粘接-3",
-      "x": 421,
-      "y": 601,
-      "width": 78,
-      "height": 62,
-      "section": "pretreatment1",
-      "deviceCode": "1116"
-    },
-    {
-      "id": "1118",
-      "name": "CG粘接-5",
-      "x": 336,
-      "y": 603,
-      "width": 78,
-      "height": 61,
-      "section": "pretreatment1",
-      "deviceCode": "1118"
+      "id": "device-2327",
+      "name": "CG涂装-5",
+      "x": 1501.26,
+      "y": 138.44,
+      "width": 31.97,
+      "height": 63.4,
+      "section": "posttreatment1",
+      "deviceCode": "2327"
     },
     {
       "id": "pretreatment1-manual-adhesion-1-4",
       "name": "手动粘接",
-      "x": 506,
-      "y": 238,
-      "width": 96,
-      "height": 134,
+      "x": 599.3,
+      "y": 183.06,
+      "width": 85.13,
+      "height": 126.56,
       "section": "pretreatment1",
       "deviceCodes": [
         "1104",
@@ -532,307 +762,52 @@
       ]
     },
     {
-      "id": "vulcanization1-large-pan-1d05-1d06",
-      "name": "大盘",
-      "x": 846,
-      "y": 105,
-      "width": 96,
-      "height": 72,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1D05",
-        "1D06"
-      ],
-      "children": [
-        {
-          "id": "device-1d05",
-          "name": "大盘-1D05",
-          "deviceCode": "1D05",
-          "x": 2,
-          "y": 2,
-          "width": 96,
-          "height": 47
-        },
-        {
-          "id": "device-1d06",
-          "name": "大盘-1D06",
-          "deviceCode": "1D06",
-          "x": 2,
-          "y": 51,
-          "width": 96,
-          "height": 47
-        }
-      ]
+      "id": "device-2310",
+      "name": "自动液压-4",
+      "x": 1536.63,
+      "y": 232.54,
+      "width": 58.49,
+      "height": 35.66,
+      "section": "posttreatment1",
+      "deviceCode": "2310"
     },
     {
-      "id": "vulcanization1-sti-846-183",
-      "name": "STI",
-      "x": 846,
-      "y": 183,
-      "width": 90,
-      "height": 205,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1D07",
-        "1D08",
-        "1D09",
-        "1D10",
-        "1D11",
-        "1D12"
-      ],
-      "children": [
-        {
-          "id": "device-1d07",
-          "name": "1D07",
-          "deviceCode": "1D07",
-          "x": 2,
-          "y": 0,
-          "width": 88.88888888888889,
-          "height": 12.682926829268293
-        },
-        {
-          "id": "device-1d08",
-          "name": "1D08",
-          "deviceCode": "1D08",
-          "x": 2,
-          "y": 16,
-          "width": 88.88888888888889,
-          "height": 12.682926829268293
-        },
-        {
-          "id": "device-1d09",
-          "name": "1D09",
-          "deviceCode": "1D09",
-          "x": 2,
-          "y": 32,
-          "width": 88.88888888888889,
-          "height": 12.682926829268293
-        },
-        {
-          "id": "device-1d10",
-          "name": "1D10",
-          "deviceCode": "1D10",
-          "x": 2,
-          "y": 48,
-          "width": 88.88888888888889,
-          "height": 12.682926829268293
-        },
-        {
-          "id": "device-1d11",
-          "name": "1D11",
-          "deviceCode": "1D11",
-          "x": 2,
-          "y": 64,
-          "width": 88.88888888888889,
-          "height": 12.682926829268293
-        },
-        {
-          "id": "device-1d12",
-          "name": "1D12",
-          "deviceCode": "1D12",
-          "x": 2,
-          "y": 80,
-          "width": 88.88888888888889,
-          "height": 12.682926829268293
-        }
-      ]
+      "id": "device-2307",
+      "name": "自动液压-1",
+      "x": 1579.71,
+      "y": 233.96,
+      "width": 54.31,
+      "height": 35.66,
+      "section": "posttreatment1",
+      "deviceCode": "2307"
     },
     {
-      "id": "vulcanization1-sti450-1a10-1a21",
-      "name": "STI-450",
-      "x": 957,
-      "y": 111.8,
-      "width": 95,
-      "height": 280,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1D16",
-        "1D17",
-        "1D18",
-        "1D19",
-        "1D20",
-        "1D21",
-        "1D22",
-        "1D23"
-      ],
-      "children": [
-        {
-          "id": "device-1d16",
-          "name": "1D16",
-          "deviceCode": "1D16",
-          "x": 2,
-          "y": 0,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d17",
-          "name": "1D17",
-          "deviceCode": "1D17",
-          "x": 2,
-          "y": 12,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d18",
-          "name": "1D18",
-          "deviceCode": "1D18",
-          "x": 2,
-          "y": 24,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d19",
-          "name": "1D19",
-          "deviceCode": "1D19",
-          "x": 2,
-          "y": 36,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d20",
-          "name": "1D20",
-          "deviceCode": "1D20",
-          "x": 2,
-          "y": 48,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d21",
-          "name": "1D21",
-          "deviceCode": "1D21",
-          "x": 2,
-          "y": 60,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d22",
-          "name": "1D22",
-          "deviceCode": "1D22",
-          "x": 2,
-          "y": 72,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        },
-        {
-          "id": "device-1d23",
-          "name": "1D23",
-          "deviceCode": "1D23",
-          "x": 2,
-          "y": 84,
-          "width": 84.21052631578948,
-          "height": 9.285714285714286
-        }
-      ]
+      "id": "device-2308",
+      "name": "自动液压-2",
+      "x": 1581.21,
+      "y": 273.73,
+      "width": 54.31,
+      "height": 35.66,
+      "section": "posttreatment1",
+      "deviceCode": "2308"
     },
     {
-      "id": "vulcanization1-sti450-1b01-1b12",
-      "name": "STI-450",
-      "x": 1060,
-      "y": 232.6,
-      "width": 100,
-      "height": 140.4,
-      "section": "vulcanization1",
-      "deviceCodes": [
-        "1D27",
-        "1D28",
-        "1D29",
-        "1D30",
-        "1D31"
-      ],
-      "children": [
-        {
-          "id": "device-1d27",
-          "name": "1D27",
-          "deviceCode": "1D27",
-          "x": 2,
-          "y": 0,
-          "width": 80,
-          "height": 18.51851851851852
-        },
-        {
-          "id": "device-1d28",
-          "name": "1D28",
-          "deviceCode": "1D28",
-          "x": 2,
-          "y": 20.37037037037037,
-          "width": 80,
-          "height": 18.51851851851852
-        },
-        {
-          "id": "device-1d29",
-          "name": "1D29",
-          "deviceCode": "1D29",
-          "x": 2,
-          "y": 40.74074074074074,
-          "width": 80,
-          "height": 18.51851851851852
-        },
-        {
-          "id": "device-1d30",
-          "name": "1D30",
-          "deviceCode": "1D30",
-          "x": 2,
-          "y": 61.11111111111111,
-          "width": 80,
-          "height": 18.51851851851852
-        },
-        {
-          "id": "device-1d31",
-          "name": "1D31",
-          "deviceCode": "1D31",
-          "x": 2,
-          "y": 81.48148148148148,
-          "width": 80,
-          "height": 18.51851851851852
-        }
-      ]
+      "id": "device-2309",
+      "name": "自动液压-3",
+      "x": 1537.29,
+      "y": 275.15,
+      "width": 36.25,
+      "height": 35.66,
+      "section": "posttreatment1",
+      "deviceCode": "2309"
     },
     {
-      "id": "posttreatment1-cutting-2-3",
-      "name": "切口机-2-3",
-      "x": 1162,
-      "y": 177,
-      "width": 72,
-      "height": 194,
-      "section": null,
-      "deviceCodes": [
-        "1204",
-        "1205"
-      ],
-      "children": [
-        {
-          "id": "device-1204",
-          "name": "切口机-2",
-          "deviceCode": "1204",
-          "x": 2,
-          "y": 2,
-          "width": 96,
-          "height": 47
-        },
-        {
-          "id": "device-1205",
-          "name": "切口机-3",
-          "deviceCode": "1205",
-          "x": 2,
-          "y": 51,
-          "width": 96,
-          "height": 47
-        }
-      ]
-    },
-    {
-      "id": "vulcanization1-sti450-1b13-1b20",
-      "name": "STI-450",
-      "x": 677,
-      "y": 420,
-      "width": 270,
-      "height": 210,
+      "id": "layout-factory1-region-n5",
+      "name": "vulcanization1区域⑤",
+      "x": 802.06,
+      "y": 323.51,
+      "width": 291.46,
+      "height": 71.01,
       "section": "vulcanization1",
       "deviceCodes": [
         "1C01",
@@ -848,94 +823,94 @@
       "children": [
         {
           "id": "device-1c01",
-          "name": "1C01",
+          "name": "STI450-1C01",
           "deviceCode": "1C01",
-          "x": 0,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 1.928,
+          "y": 5.506,
+          "width": 15.59,
+          "height": 89.002
         },
         {
           "id": "device-1c02",
-          "name": "1C02",
+          "name": "STI450-1C02",
           "deviceCode": "1C02",
-          "x": 10,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 18.376,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c03",
-          "name": "1C03",
+          "name": "STI450-1C03",
           "deviceCode": "1C03",
-          "x": 20,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 28.12,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c04",
-          "name": "1C04",
+          "name": "STI450-1C04",
           "deviceCode": "1C04",
-          "x": 30,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 37.865,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c05",
-          "name": "1C05",
+          "name": "STI450-1C05",
           "deviceCode": "1C05",
-          "x": 40,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 47.609,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c06",
-          "name": "1C06",
+          "name": "STI450-1C06",
           "deviceCode": "1C06",
-          "x": 50,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 57.349,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c07",
-          "name": "1C07",
+          "name": "STI450VX-1C07",
           "deviceCode": "1C07",
-          "x": 60,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 67.093,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c08",
-          "name": "1C08",
+          "name": "STI450VX-1C08",
           "deviceCode": "1C08",
-          "x": 70,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 76.837,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1c09",
-          "name": "1C09",
+          "name": "STI450VX-1C09",
           "deviceCode": "1C09",
-          "x": 80,
-          "y": 0,
-          "width": 8,
-          "height": 47
+          "x": 86.581,
+          "y": 5.506,
+          "width": 11.49,
+          "height": 89.002
         }
       ]
     },
     {
-      "id": "vulcanization1-sti450-1c01-1c06",
-      "name": "STI-450",
-      "x": 940,
-      "y": 420,
-      "width": 230,
-      "height": 98,
+      "id": "layout-factory1-region-n6",
+      "name": "vulcanization1区域⑥",
+      "x": 1100.99,
+      "y": 323.51,
+      "width": 292.95,
+      "height": 71.01,
       "section": "vulcanization1",
       "deviceCodes": [
         "1C10",
@@ -946,109 +921,259 @@
         "1C15",
         "1C16",
         "1C17",
-        "1C18"
+        "1C18",
+        "1C21"
       ],
       "children": [
         {
           "id": "device-1c10",
-          "name": "1C10",
+          "name": "STI450-1C10",
           "deviceCode": "1C10",
-          "x": 0,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 1.925,
+          "y": 5.506,
+          "width": 10.401,
+          "height": 89.002
         },
         {
           "id": "device-1c11",
-          "name": "1C11",
+          "name": "STI450-1C11",
           "deviceCode": "1C11",
-          "x": 10,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 13.18,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c12",
-          "name": "1C12",
+          "name": "STI450-1C12",
           "deviceCode": "1C12",
-          "x": 20,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 22.874,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c13",
-          "name": "1C13",
+          "name": "STI450-1C13",
           "deviceCode": "1C13",
-          "x": 30,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 32.569,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c14",
-          "name": "1C14",
+          "name": "STI450-1C14",
           "deviceCode": "1C14",
-          "x": 40,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 42.263,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c15",
-          "name": "1C15",
+          "name": "STI450-1C15",
           "deviceCode": "1C15",
-          "x": 50,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 51.958,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c16",
-          "name": "1C16",
+          "name": "STI450-1C16",
           "deviceCode": "1C16",
-          "x": 60,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 61.649,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c17",
           "name": "HTI-1C17",
           "deviceCode": "1C17",
-          "x": 70,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 71.343,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
         },
         {
           "id": "device-1c18",
           "name": "HTI-1C18",
           "deviceCode": "1C18",
-          "x": 80,
-          "y": 0,
-          "width": 8,
-          "height": 95
+          "x": 81.038,
+          "y": 5.506,
+          "width": 8.841,
+          "height": 89.002
+        },
+        {
+          "id": "1C21",
+          "name": "MTI-1C21",
+          "deviceCode": "1C21",
+          "x": 90.715,
+          "y": 5.506,
+          "width": 7.377,
+          "height": 89.002
         }
       ]
     },
     {
-      "id": "1C21",
-      "name": "MTI-1C21",
-      "deviceCode": "1C21",
-      "x": 1144,
-      "y": 420,
-      "width": 72,
-      "height": 97,
-      "section": "vulcanization1"
+      "id": "2322",
+      "name": "自动喷涂涂装-1",
+      "x": 1454.74,
+      "y": 325.22,
+      "width": 66.72,
+      "height": 83.21,
+      "section": "posttreatment1",
+      "deviceCode": "2322"
     },
     {
-      "id": "vulcanization1-sti450-1c07-1c16",
-      "name": "STI-450",
-      "x": 677,
-      "y": 541,
-      "width": 266,
-      "height": 55,
+      "id": "2336",
+      "name": "CG涂装-6",
+      "x": 1521.95,
+      "y": 325.22,
+      "width": 65.33,
+      "height": 83.21,
+      "section": "posttreatment1",
+      "deviceCode": "2336"
+    },
+    {
+      "id": "device-2334",
+      "name": "液压-7",
+      "x": 1591.52,
+      "y": 325.25,
+      "width": 47.26,
+      "height": 46.23,
+      "section": "posttreatment1",
+      "deviceCode": "2334"
+    },
+    {
+      "id": "1102",
+      "name": "干研磨生产线-1",
+      "x": 373.18,
+      "y": 354.0,
+      "width": 78.92,
+      "height": 99.17,
+      "section": "pretreatment1",
+      "deviceCode": "1102"
+    },
+    {
+      "id": "1113",
+      "name": "滚喷粘接-1",
+      "x": 459.19,
+      "y": 354.0,
+      "width": 69.17,
+      "height": 41.56,
+      "section": "pretreatment1",
+      "deviceCode": "1113"
+    },
+    {
+      "id": "1114",
+      "name": "CG粘接-1",
+      "x": 533.68,
+      "y": 354.0,
+      "width": 69.17,
+      "height": 41.56,
+      "section": "pretreatment1",
+      "deviceCode": "1114"
+    },
+    {
+      "id": "1111",
+      "name": "自动喷涂粘接-2",
+      "x": 609.94,
+      "y": 354.0,
+      "width": 75.38,
+      "height": 41.56,
+      "section": "pretreatment1",
+      "deviceCode": "1111"
+    },
+    {
+      "id": "1101",
+      "name": "WB-1",
+      "x": 194.93,
+      "y": 355.89,
+      "width": 110.85,
+      "height": 90.67,
+      "section": "pretreatment1",
+      "deviceCode": "1101"
+    },
+    {
+      "id": "2341",
+      "name": "压入生产线-8",
+      "x": 1643.83,
+      "y": 372.09,
+      "width": 47.26,
+      "height": 83.21,
+      "section": "posttreatment1",
+      "deviceCode": "2341"
+    },
+    {
+      "id": "2342",
+      "name": "压入生产线-9",
+      "x": 1717.07,
+      "y": 372.09,
+      "width": 47.26,
+      "height": 83.21,
+      "section": "posttreatment1",
+      "deviceCode": "2342"
+    },
+    {
+      "id": "3329",
+      "name": "压入生产线-7",
+      "x": 1773.21,
+      "y": 373.51,
+      "width": 69.5,
+      "height": 83.21,
+      "section": "posttreatment1",
+      "deviceCode": "3329"
+    },
+    {
+      "id": "device-2305",
+      "name": "液压-5",
+      "x": 1594.5,
+      "y": 378.72,
+      "width": 47.26,
+      "height": 33.02,
+      "section": "posttreatment1",
+      "deviceCode": "2305"
+    },
+    {
+      "id": "1123",
+      "name": "滚喷粘接-2",
+      "x": 459.19,
+      "y": 405.0,
+      "width": 69.17,
+      "height": 41.56,
+      "section": "pretreatment1",
+      "deviceCode": "1123"
+    },
+    {
+      "id": "1115",
+      "name": "CG粘接-2",
+      "x": 534.57,
+      "y": 405.0,
+      "width": 69.17,
+      "height": 41.56,
+      "section": "pretreatment1",
+      "deviceCode": "1115"
+    },
+    {
+      "id": "1112",
+      "name": "自动喷涂粘接-3",
+      "x": 609.94,
+      "y": 405.0,
+      "width": 75.38,
+      "height": 41.56,
+      "section": "pretreatment1",
+      "deviceCode": "1112"
+    },
+    {
+      "id": "layout-factory1-region-n3",
+      "name": "vulcanization1区域③",
+      "x": 800.56,
+      "y": 421.5,
+      "width": 291.46,
+      "height": 71.01,
       "section": "vulcanization1",
       "deviceCodes": [
         "1B01",
@@ -1064,94 +1189,94 @@
       "children": [
         {
           "id": "device-1b01",
-          "name": "1B01",
+          "name": "STI450-1B01",
           "deviceCode": "1B01",
-          "x": 0,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 1.928,
+          "y": 5.506,
+          "width": 16.105,
+          "height": 89.002
         },
         {
           "id": "device-1b02",
-          "name": "1B02",
+          "name": "STI450-1B02",
           "deviceCode": "1B02",
-          "x": 11,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 18.891,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b03",
-          "name": "1B03",
+          "name": "STI450-1B03",
           "deviceCode": "1B03",
-          "x": 22,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 28.635,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b04",
-          "name": "1B04",
+          "name": "STI450-1B04",
           "deviceCode": "1B04",
-          "x": 33,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 38.379,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b05",
-          "name": "1B05",
+          "name": "STI450-1B05",
           "deviceCode": "1B05",
-          "x": 44,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 48.123,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b06",
-          "name": "1B06",
+          "name": "STI450-1B06",
           "deviceCode": "1B06",
-          "x": 55,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 57.864,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b07",
-          "name": "1B07",
+          "name": "STI450-1B07",
           "deviceCode": "1B07",
-          "x": 66,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 67.608,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b08",
-          "name": "1B08",
+          "name": "STI450-1B08",
           "deviceCode": "1B08",
-          "x": 77,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 77.352,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1b09",
-          "name": "1B09",
+          "name": "STI450-1B09",
           "deviceCode": "1B09",
-          "x": 88,
-          "y": 0,
-          "width": 10,
-          "height": 100
+          "x": 87.096,
+          "y": 5.506,
+          "width": 10.976,
+          "height": 89.002
         }
       ]
     },
     {
-      "id": "vulcanization1-sti450-1d07-1d12",
-      "name": "STI-450",
-      "x": 950,
-      "y": 541,
-      "width": 250,
-      "height": 56,
+      "id": "layout-factory1-region-n4",
+      "name": "vulcanization1区域④",
+      "x": 1100.99,
+      "y": 421.5,
+      "width": 316.86,
+      "height": 69.59,
       "section": "vulcanization1",
       "deviceCodes": [
         "1B10",
@@ -1169,112 +1294,202 @@
       "children": [
         {
           "id": "device-1b10",
-          "name": "1B10",
+          "name": "STI450-1B10",
           "deviceCode": "1B10",
-          "x": 0,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 1.894,
+          "y": 5.504,
+          "width": 9.503,
+          "height": 89.007
         },
         {
           "id": "device-1b11",
-          "name": "1B11",
+          "name": "STI450-1B11",
           "deviceCode": "1B11",
-          "x": 10,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 12.185,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b12",
-          "name": "1B12",
+          "name": "STI450-1B12",
           "deviceCode": "1B12",
-          "x": 20,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 21.148,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b13",
-          "name": "1B13",
+          "name": "STI450-1B13",
           "deviceCode": "1B13",
-          "x": 30,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 30.111,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b14",
-          "name": "1B14",
+          "name": "STI450-1B14",
           "deviceCode": "1B14",
-          "x": 40,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 39.074,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b15",
-          "name": "1B15",
+          "name": "STI450-1B15",
           "deviceCode": "1B15",
-          "x": 50,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 48.037,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b16",
-          "name": "1B16",
+          "name": "STI450-1B16",
           "deviceCode": "1B16",
-          "x": 60,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 56.997,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b17",
-          "name": "1B17",
+          "name": "STI450-1B17",
           "deviceCode": "1B17",
-          "x": 70,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 65.96,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b18",
-          "name": "1B18",
+          "name": "STI450-1B18",
           "deviceCode": "1B18",
-          "x": 80,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 74.923,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b19",
-          "name": "1B19",
+          "name": "STI450-1B19",
           "deviceCode": "1B19",
-          "x": 90,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 83.886,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1b20",
-          "name": "1B20",
+          "name": "STI450-1B20",
           "deviceCode": "1B20",
-          "x": 100,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 92.754,
+          "y": 5.504,
+          "width": 5.441,
+          "height": 89.007
         }
       ]
     },
     {
-      "id": "vulcanization1-sti375-1a01-1a09",
-      "name": "STI-375",
-      "x": 676,
-      "y": 603,
-      "width": 266,
-      "height": 60,
+      "id": "device-2301",
+      "name": "液压-1",
+      "x": 1584.04,
+      "y": 431.27,
+      "width": 47.26,
+      "height": 33.02,
+      "section": "posttreatment1",
+      "deviceCode": "2301"
+    },
+    {
+      "id": "2316",
+      "name": "自动液压-10",
+      "x": 1459.48,
+      "y": 432.37,
+      "width": 73.67,
+      "height": 62.08,
+      "section": "posttreatment1",
+      "deviceCode": "2316"
+    },
+    {
+      "id": "device-2303",
+      "name": "液压-3",
+      "x": 1584.04,
+      "y": 462.51,
+      "width": 47.26,
+      "height": 33.02,
+      "section": "posttreatment1",
+      "deviceCode": "2303"
+    },
+    {
+      "id": "1120",
+      "name": "CG粘接-7",
+      "x": 384.7,
+      "y": 469.22,
+      "width": 56.75,
+      "height": 114.28,
+      "section": "pretreatment1",
+      "deviceCode": "1120"
+    },
+    {
+      "id": "1119",
+      "name": "CG粘接-6",
+      "x": 449.44,
+      "y": 469.22,
+      "width": 68.28,
+      "height": 52.89,
+      "section": "pretreatment1",
+      "deviceCode": "1119"
+    },
+    {
+      "id": "3110",
+      "name": "内管辊涂粘接机-2",
+      "x": 599.3,
+      "y": 469.22,
+      "width": 85.13,
+      "height": 51.0,
+      "section": "pretreatment1",
+      "deviceCode": "3110"
+    },
+    {
+      "id": "1110",
+      "name": "自动喷涂粘接-1",
+      "x": 319.97,
+      "y": 470.17,
+      "width": 57.64,
+      "height": 114.28,
+      "section": "pretreatment1",
+      "deviceCode": "1110"
+    },
+    {
+      "id": "1117",
+      "name": "CG粘接-4",
+      "x": 523.93,
+      "y": 470.17,
+      "width": 70.94,
+      "height": 51.0,
+      "section": "pretreatment1",
+      "deviceCode": "1117"
+    },
+    {
+      "id": "1121",
+      "name": "WB-3",
+      "x": 194.93,
+      "y": 471.11,
+      "width": 111.73,
+      "height": 114.28,
+      "section": "pretreatment1",
+      "deviceCode": "1121"
+    },
+    {
+      "id": "layout-factory1-region-n1",
+      "name": "vulcanization1区域①",
+      "x": 800.56,
+      "y": 491.09,
+      "width": 291.46,
+      "height": 71.01,
       "section": "vulcanization1",
       "deviceCodes": [
         "1A01",
@@ -1290,94 +1505,94 @@
       "children": [
         {
           "id": "device-1a01",
-          "name": "1A01",
+          "name": "STI375-1A01",
           "deviceCode": "1A01",
-          "x": 0,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 1.928,
+          "y": 5.506,
+          "width": 16.105,
+          "height": 89.002
         },
         {
           "id": "device-1a02",
-          "name": "1A02",
+          "name": "STI375-1A02",
           "deviceCode": "1A02",
-          "x": 11,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 18.891,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a03",
-          "name": "1A03",
+          "name": "STI375-1A03",
           "deviceCode": "1A03",
-          "x": 22,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 28.635,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a04",
-          "name": "1A04",
+          "name": "STI375-1A04",
           "deviceCode": "1A04",
-          "x": 33,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 38.379,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a05",
-          "name": "1A05",
+          "name": "STI375-1A05",
           "deviceCode": "1A05",
-          "x": 44,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 48.123,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a06",
-          "name": "1A06",
+          "name": "STI375-1A06",
           "deviceCode": "1A06",
-          "x": 55,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 57.864,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a07",
-          "name": "1A07",
+          "name": "STI375-1A07",
           "deviceCode": "1A07",
-          "x": 66,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 67.608,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a08",
-          "name": "1A08",
+          "name": "STI375-1A08",
           "deviceCode": "1A08",
-          "x": 77,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 77.352,
+          "y": 5.506,
+          "width": 8.886,
+          "height": 89.002
         },
         {
           "id": "device-1a09",
-          "name": "1A09",
+          "name": "STI375-1A09",
           "deviceCode": "1A09",
-          "x": 88,
-          "y": 0,
-          "width": 10,
-          "height": 91.66666666666667
+          "x": 87.096,
+          "y": 5.506,
+          "width": 10.976,
+          "height": 89.002
         }
       ]
     },
     {
-      "id": "vulcanization1-sti450-1d27-1h03",
-      "name": "STI-450",
-      "x": 945,
-      "y": 601,
-      "width": 255,
-      "height": 60,
+      "id": "layout-factory1-region-n2",
+      "name": "vulcanization1区域②",
+      "x": 1100.99,
+      "y": 491.09,
+      "width": 316.86,
+      "height": 69.59,
       "section": "vulcanization1",
       "deviceCodes": [
         "1A10",
@@ -1395,494 +1610,638 @@
       "children": [
         {
           "id": "device-1a10",
-          "name": "1A10",
+          "name": "STI450-1A10",
           "deviceCode": "1A10",
-          "x": 0,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 1.894,
+          "y": 5.504,
+          "width": 9.503,
+          "height": 89.007
         },
         {
           "id": "device-1a11",
-          "name": "1A11",
+          "name": "STI450-1A11",
           "deviceCode": "1A11",
-          "x": 10,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 12.185,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a12",
-          "name": "1A12",
+          "name": "STI450-1A12",
           "deviceCode": "1A12",
-          "x": 20,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 21.148,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a13",
-          "name": "1A13",
+          "name": "STI450-1A13",
           "deviceCode": "1A13",
-          "x": 30,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 30.111,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a14",
-          "name": "1A14",
+          "name": "STI450-1A14",
           "deviceCode": "1A14",
-          "x": 40,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 39.074,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a15",
-          "name": "1A15",
+          "name": "STI450-1A15",
           "deviceCode": "1A15",
-          "x": 50,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 48.037,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a16",
-          "name": "1A16",
+          "name": "STI450-1A16",
           "deviceCode": "1A16",
-          "x": 60,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 56.997,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a17",
-          "name": "1A17",
+          "name": "STI450-1A17",
           "deviceCode": "1A17",
-          "x": 70,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 65.96,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a18",
-          "name": "1A18",
+          "name": "STI450-1A18",
           "deviceCode": "1A18",
-          "x": 80,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 74.923,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a19",
-          "name": "1A19",
+          "name": "STI450-1A19",
           "deviceCode": "1A19",
-          "x": 90,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 83.886,
+          "y": 5.504,
+          "width": 8.174,
+          "height": 89.007
         },
         {
           "id": "device-1a20",
-          "name": "1A20",
+          "name": "STI450-1A20",
           "deviceCode": "1A20",
-          "x": 100,
-          "y": 0,
-          "width": 8,
-          "height": 100
+          "x": 92.754,
+          "y": 5.504,
+          "width": 5.441,
+          "height": 89.007
         }
       ]
     },
     {
-      "id": "posttreatment1-cg-coating-2-5",
-      "name": "CG涂装-2-5",
-      "x": 1400,
-      "y": 103,
-      "width": 97,
-      "height": 171,
-      "section": null,
-      "deviceCodes": [
-        "2324",
-        "2325",
-        "2326",
-        "2327"
-      ],
-      "children": [
-        {
-          "id": "device-2324",
-          "name": "CG涂装-2",
-          "deviceCode": "2324",
-          "x": 0,
-          "y": 0,
-          "width": 100,
-          "height": 50,
-          "contentLayout": "right-l-shape",
-          "polygon": [
-            {
-              "x": 0,
-              "y": 0
-            },
-            {
-              "x": 100,
-              "y": 0
-            },
-            {
-              "x": 100,
-              "y": 50
-            },
-            {
-              "x": 80,
-              "y": 50
-            },
-            {
-              "x": 80,
-              "y": 20
-            },
-            {
-              "x": 0,
-              "y": 20
-            }
-          ]
-        },
-        {
-          "id": "device-2326",
-          "name": "CG涂装-4",
-          "deviceCode": "2325",
-          "x": 0,
-          "y": 30,
-          "width": 75,
-          "height": 20
-        },
-        {
-          "id": "device-2325",
-          "name": "CG涂装-3",
-          "deviceCode": "2326",
-          "x": 0,
-          "y": 50,
-          "width": 30,
-          "height": 40
-        },
-        {
-          "id": "device-2327",
-          "name": "CG涂装-5",
-          "deviceCode": "2327",
-          "x": 40,
-          "y": 50,
-          "width": 30,
-          "height": 40
-        }
-      ]
-    },
-    {
-      "id": "posttreatment1-auto-hydraulic-5-8",
-      "name": "自动液压-5-8",
-      "x": 1523,
-      "y": 111,
-      "width": 108,
-      "height": 158,
-      "section": null,
-      "deviceCodes": [
-        "2312",
-        "2313",
-        "2314"
-      ],
-      "children": [
-        {
-          "id": "device-2312",
-          "name": "自动液压-5",
-          "deviceCode": "2312",
-          "x": 50,
-          "y": 0,
-          "width": 45,
-          "height": 45
-        },
-        {
-          "id": "device-2313",
-          "name": "自动液压-8",
-          "deviceCode": "2313",
-          "x": 0,
-          "y": 50,
-          "width": 45,
-          "height": 45
-        },
-        {
-          "id": "device-2314",
-          "name": "自动液压-7",
-          "deviceCode": "2314",
-          "x": 50,
-          "y": 50,
-          "width": 45,
-          "height": 45
-        }
-      ]
-    },
-    {
-      "id": "2319",
-      "name": "SMT生产线-1",
-      "x": 1687,
-      "y": 110,
-      "width": 180,
-      "height": 121,
-      "section": null,
-      "deviceCode": "2319"
-    },
-    {
-      "id": "posttreatment1-auto-hydraulic-1-4",
-      "name": "自动液压-1-4",
-      "x": 1497,
-      "y": 299,
-      "width": 157,
-      "height": 74,
-      "section": null,
-      "deviceCodes": [
-        "2307",
-        "2308",
-        "2309",
-        "2310"
-      ],
-      "children": [
-        {
-          "id": "device-2310",
-          "name": "自动液压-4",
-          "deviceCode": "2310",
-          "x": 0,
-          "y": 0,
-          "width": 45,
-          "height": 45
-        },
-        {
-          "id": "device-2307",
-          "name": "自动液压-1",
-          "deviceCode": "2307",
-          "x": 50,
-          "y": 0,
-          "width": 45,
-          "height": 45
-        },
-        {
-          "id": "device-2309",
-          "name": "自动液压-3",
-          "deviceCode": "2309",
-          "x": 0,
-          "y": 50,
-          "width": 45,
-          "height": 45
-        },
-        {
-          "id": "device-2308",
-          "name": "自动液压-2",
-          "deviceCode": "2308",
-          "x": 50,
-          "y": 50,
-          "width": 45,
-          "height": 45
-        }
-      ]
-    },
-    {
-      "id": "2322",
-      "name": "自动喷涂涂装-1",
-      "x": 1401,
-      "y": 420,
-      "width": 79,
-      "height": 98,
-      "section": null,
-      "deviceCode": "2322"
-    },
-    {
-      "id": "2336",
-      "name": "CG涂装-6",
-      "x": 1485,
-      "y": 419,
-      "width": 77,
-      "height": 98,
-      "section": null,
-      "deviceCode": "2336"
-    },
-    {
-      "id": "posttreatment1-hydraulic-7-5",
-      "name": "液压-7/5",
-      "x": 1571,
-      "y": 420,
-      "width": 83,
-      "height": 96,
-      "section": null,
-      "deviceCodes": [
-        "2334",
-        "2305"
-      ],
-      "children": [
-        {
-          "id": "device-2334",
-          "name": "液压-7",
-          "deviceCode": "2334",
-          "x": 2,
-          "y": 2,
-          "width": 47,
-          "height": 96
-        },
-        {
-          "id": "device-2305",
-          "name": "液压-5",
-          "deviceCode": "2305",
-          "x": 51,
-          "y": 2,
-          "width": 47,
-          "height": 96
-        }
-      ]
-    },
-    {
-      "id": "2341",
-      "name": "压入生产线-8",
-      "x": 1674,
-      "y": 432,
-      "width": 77,
-      "height": 110,
-      "section": null,
-      "deviceCode": "2341"
-    },
-    {
-      "id": "2342",
-      "name": "压入生产线-9",
-      "x": 1760,
-      "y": 432,
-      "width": 77,
-      "height": 109,
-      "section": null,
-      "deviceCode": "2342"
-    },
-    {
-      "id": "3329",
-      "name": "压入生产线-7",
-      "x": 1844,
-      "y": 431,
-      "width": 84,
-      "height": 110,
-      "section": null,
-      "deviceCode": "3329"
+      "id": "2318",
+      "name": "压入生产线-1",
+      "x": 1584.04,
+      "y": 493.75,
+      "width": 47.26,
+      "height": 33.02,
+      "section": "posttreatment1",
+      "deviceCode": "2318"
     },
     {
       "id": "2315",
       "name": "自动液压-9",
-      "x": 1399,
-      "y": 542,
-      "width": 86,
-      "height": 53,
-      "section": null,
+      "x": 1457.99,
+      "y": 500.53,
+      "width": 73.67,
+      "height": 62.08,
+      "section": "posttreatment1",
       "deviceCode": "2315"
     },
     {
-      "id": "2316",
-      "name": "自动液压-10",
-      "x": 1400,
-      "y": 602,
-      "width": 85,
-      "height": 61,
-      "section": null,
-      "deviceCode": "2316"
+      "id": "device-2304",
+      "name": "液压-4",
+      "x": 1584.04,
+      "y": 525.0,
+      "width": 47.26,
+      "height": 33.02,
+      "section": "posttreatment1",
+      "deviceCode": "2304"
     },
     {
-      "id": "posttreatment1-hydraulic-1-3-4",
-      "name": "液压-1/3/4",
-      "x": 1569,
-      "y": 542,
-      "width": 86,
-      "height": 95,
-      "section": null,
-      "deviceCodes": [
-        "2301",
-        "2303",
-        "2304"
-      ],
-      "children": [
-        {
-          "id": "device-2301",
-          "name": "液压-1",
-          "deviceCode": "2301",
-          "x": 2,
-          "y": 2,
-          "width": 30,
-          "height": 96
-        },
-        {
-          "id": "device-2303",
-          "name": "液压-3",
-          "deviceCode": "2303",
-          "x": 34,
-          "y": 2,
-          "width": 30,
-          "height": 96
-        },
-        {
-          "id": "device-2304",
-          "name": "液压-4",
-          "deviceCode": "2304",
-          "x": 66,
-          "y": 2,
-          "width": 30,
-          "height": 96
-        }
-      ]
+      "id": "1116",
+      "name": "CG粘接-3",
+      "x": 523.93,
+      "y": 525.89,
+      "width": 69.17,
+      "height": 58.56,
+      "section": "pretreatment1",
+      "deviceCode": "1116"
+    },
+    {
+      "id": "1122",
+      "name": "CG粘接-12",
+      "x": 598.42,
+      "y": 525.89,
+      "width": 86.02,
+      "height": 58.56,
+      "section": "pretreatment1",
+      "deviceCode": "1122"
+    },
+    {
+      "id": "1118",
+      "name": "CG粘接-5",
+      "x": 448.55,
+      "y": 527.78,
+      "width": 69.17,
+      "height": 57.61,
+      "section": "pretreatment1",
+      "deviceCode": "1118"
     },
     {
       "id": "3101",
       "name": "WB-2",
-      "x": 50,
-      "y": 711,
-      "width": 151,
-      "height": 195,
+      "x": 94.95,
+      "y": 803.88,
+      "width": 149.41,
+      "height": 118.92,
       "section": "pretreatment2",
       "deviceCode": "3101"
     },
     {
-      "id": "3115",
-      "name": "CG粘接-13",
-      "x": 214,
-      "y": 712,
-      "width": 115,
-      "height": 115,
-      "section": "pretreatment2",
-      "deviceCode": "3115"
-    },
-    {
       "id": "3113",
       "name": "CG粘接-10",
-      "x": 336,
-      "y": 711,
-      "width": 96,
-      "height": 116,
+      "x": 377.94,
+      "y": 803.88,
+      "width": 94.99,
+      "height": 70.74,
       "section": "pretreatment2",
       "deviceCode": "3113"
     },
     {
+      "id": "2338",
+      "name": "浸油生产线-2",
+      "x": 1028.02,
+      "y": 803.88,
+      "width": 113.79,
+      "height": 30.49,
+      "section": null,
+      "deviceCode": "2338"
+    },
+    {
+      "id": "3331",
+      "name": "压入生产线-10",
+      "x": 1424.8,
+      "y": 803.88,
+      "width": 113.79,
+      "height": 56.11,
+      "section": "posttreatment2",
+      "deviceCode": "3331"
+    },
+    {
+      "id": "3322",
+      "name": "SMT生产线-3",
+      "x": 1737.47,
+      "y": 803.88,
+      "width": 204.82,
+      "height": 148.19,
+      "section": "posttreatment2",
+      "deviceCode": "3322"
+    },
+    {
+      "id": "3115",
+      "name": "CG粘接-13",
+      "x": 257.22,
+      "y": 804.49,
+      "width": 113.79,
+      "height": 70.13,
+      "section": "pretreatment2",
+      "deviceCode": "3115"
+    },
+    {
+      "id": "3307",
+      "name": "压入生产线-2",
+      "x": 1184.36,
+      "y": 804.49,
+      "width": 52.44,
+      "height": 58.55,
+      "section": "posttreatment2",
+      "deviceCode": "3307"
+    },
+    {
+      "id": "3315",
+      "name": "辊压生产线-1",
+      "x": 1245.71,
+      "y": 804.49,
+      "width": 57.39,
+      "height": 59.16,
+      "section": "posttreatment2",
+      "deviceCode": "3315"
+    },
+    {
+      "id": "layout-factory2-region-n2",
+      "name": "vulcanization2区域②",
+      "x": 986.13,
+      "y": 815.43,
+      "width": 186.75,
+      "height": 82.13,
+      "section": "vulcanization2",
+      "deviceCodes": [
+        "2A14",
+        "2A15",
+        "2A16",
+        "2A17",
+        "2A18"
+      ],
+      "children": [
+        {
+          "id": "device-2a14",
+          "name": "STI450-2A14",
+          "deviceCode": "2A14",
+          "x": 2.169,
+          "y": 5.503,
+          "width": 22.163,
+          "height": 89.005
+        },
+        {
+          "id": "device-2a15",
+          "name": "STI450-2A15",
+          "deviceCode": "2A15",
+          "x": 25.671,
+          "y": 5.503,
+          "width": 14.79,
+          "height": 89.005
+        },
+        {
+          "id": "device-2a16",
+          "name": "STI450-2A16",
+          "deviceCode": "2A16",
+          "x": 41.799,
+          "y": 5.503,
+          "width": 14.79,
+          "height": 89.005
+        },
+        {
+          "id": "device-2a17",
+          "name": "STI450-2A17",
+          "deviceCode": "2A17",
+          "x": 57.928,
+          "y": 5.503,
+          "width": 14.79,
+          "height": 89.005
+        },
+        {
+          "id": "device-2a18",
+          "name": "STI450-2A18",
+          "deviceCode": "2A18",
+          "x": 74.056,
+          "y": 5.503,
+          "width": 23.775,
+          "height": 89.005
+        }
+      ]
+    },
+    {
+      "id": "layout-factory2-region-n1",
+      "name": "vulcanization2区域①",
+      "x": 553.9,
+      "y": 820.35,
+      "width": 391.57,
+      "height": 82.13,
+      "section": "vulcanization2",
+      "deviceCodes": [
+        "2A01",
+        "2A02",
+        "2A03",
+        "2A04",
+        "2A05",
+        "2A06",
+        "2A07",
+        "2A08",
+        "2A09",
+        "2A10",
+        "2A11",
+        "2A12",
+        "2A13"
+      ],
+      "children": [
+        {
+          "id": "2A01",
+          "name": "HTI-2A01",
+          "deviceCode": "2A01",
+          "x": 1.772,
+          "y": 5.503,
+          "width": 4.88,
+          "height": 89.005
+        },
+        {
+          "id": "2A02",
+          "name": "STI450VY-2A02",
+          "deviceCode": "2A02",
+          "x": 7.243,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A03",
+          "name": "STI450VY-2A03",
+          "deviceCode": "2A03",
+          "x": 14.935,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A04",
+          "name": "STI450VY-2A04",
+          "deviceCode": "2A04",
+          "x": 22.627,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A05",
+          "name": "STI450VY-2A05",
+          "deviceCode": "2A05",
+          "x": 30.319,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A06",
+          "name": "STI450VY2A06",
+          "deviceCode": "2A06",
+          "x": 38.011,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A07",
+          "name": "STI450VY2A07",
+          "deviceCode": "2A07",
+          "x": 45.703,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A08",
+          "name": "STI450-2A08",
+          "deviceCode": "2A08",
+          "x": 53.395,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A09",
+          "name": "STI450-2A09",
+          "deviceCode": "2A09",
+          "x": 61.087,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A10",
+          "name": "STI450-2A10",
+          "deviceCode": "2A10",
+          "x": 68.78,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A11",
+          "name": "STI450VX-2A11",
+          "deviceCode": "2A11",
+          "x": 76.472,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A12",
+          "name": "STI450VX-2A12",
+          "deviceCode": "2A12",
+          "x": 84.164,
+          "y": 5.503,
+          "width": 7.054,
+          "height": 89.005
+        },
+        {
+          "id": "2A13",
+          "name": "STI450VX-2A13",
+          "deviceCode": "2A13",
+          "x": 91.856,
+          "y": 5.503,
+          "width": 6.323,
+          "height": 89.005
+        }
+      ]
+    },
+    {
+      "id": "3304",
+      "name": "流体EMT生产线-1",
+      "x": 1310.02,
+      "y": 833.76,
+      "width": 107.85,
+      "height": 118.31,
+      "section": "posttreatment2",
+      "deviceCode": "3304"
+    },
+    {
+      "id": "3321",
+      "name": "自动喷涂涂装-2",
+      "x": 1057.71,
+      "y": 848.4,
+      "width": 89.05,
+      "height": 102.45,
+      "section": "posttreatment2",
+      "deviceCode": "3321"
+    },
+    {
+      "id": "3306",
+      "name": "压入生产线-6",
+      "x": 1423.81,
+      "y": 863.03,
+      "width": 114.78,
+      "height": 89.04,
+      "section": "posttreatment2",
+      "deviceCode": "3306"
+    },
+    {
+      "id": "3303",
+      "name": "流体EMT生产线-2",
+      "x": 1544.53,
+      "y": 864.25,
+      "width": 119.73,
+      "height": 89.04,
+      "section": "posttreatment2",
+      "deviceCode": "3303"
+    },
+    {
+      "id": "3312",
+      "name": "液封生产线-3",
+      "x": 1182.38,
+      "y": 874.01,
+      "width": 120.72,
+      "height": 78.06,
+      "section": "posttreatment2",
+      "deviceCode": "3312"
+    },
+    {
+      "id": "3325",
+      "name": "阻焊机-1",
+      "x": 593.64,
+      "y": 877.67,
+      "width": 79.16,
+      "height": 74.4,
+      "section": "posttreatment2",
+      "deviceCode": "3325"
+    },
+    {
+      "id": "3309",
+      "name": "压入生产线-4",
+      "x": 1005.26,
+      "y": 877.67,
+      "width": 45.52,
+      "height": 74.4,
+      "section": "posttreatment2",
+      "deviceCode": "3309"
+    },
+    {
+      "id": "3323",
+      "name": "CO2熔接机-1",
+      "x": 678.74,
+      "y": 878.28,
+      "width": 89.05,
+      "height": 73.79,
+      "section": "posttreatment2",
+      "deviceCode": "3323"
+    },
+    {
+      "id": "3324",
+      "name": "CO2熔接机-2",
+      "x": 774.72,
+      "y": 878.28,
+      "width": 84.11,
+      "height": 73.79,
+      "section": "posttreatment2",
+      "deviceCode": "3324"
+    },
+    {
+      "id": "3308",
+      "name": "压入生产线-3",
+      "x": 883.56,
+      "y": 878.28,
+      "width": 71.24,
+      "height": 73.79,
+      "section": "posttreatment2",
+      "deviceCode": "3308"
+    },
+    {
       "id": "3116",
       "name": "CG粘接-14",
-      "x": 213,
-      "y": 834,
-      "width": 116,
-      "height": 121,
+      "x": 256.23,
+      "y": 878.89,
+      "width": 114.78,
+      "height": 73.79,
       "section": "pretreatment2",
       "deviceCode": "3116"
     },
     {
       "id": "3114",
       "name": "CG粘接-11",
-      "x": 336,
-      "y": 834,
-      "width": 96,
-      "height": 121,
+      "x": 377.94,
+      "y": 878.89,
+      "width": 94.99,
+      "height": 73.79,
       "section": "pretreatment2",
       "deviceCode": "3114"
     },
     {
+      "id": "3301",
+      "name": "液压-6",
+      "x": 961.73,
+      "y": 878.89,
+      "width": 35.62,
+      "height": 73.18,
+      "section": "posttreatment2",
+      "deviceCode": "3301"
+    },
+    {
+      "id": "3305",
+      "name": "流体EMT生产线-3",
+      "x": 1544.53,
+      "y": 995.98,
+      "width": 119.73,
+      "height": 119.53,
+      "section": "posttreatment2",
+      "deviceCode": "3305"
+    },
+    {
+      "id": "3311",
+      "name": "液封生产线-2",
+      "x": 1184.36,
+      "y": 997.2,
+      "width": 118.74,
+      "height": 54.89,
+      "section": "posttreatment2",
+      "deviceCode": "3311"
+    },
+    {
+      "id": "3316",
+      "name": "后悬架减震生产线-1",
+      "x": 1677.12,
+      "y": 997.2,
+      "width": 90.04,
+      "height": 117.7,
+      "section": "posttreatment2",
+      "deviceCode": "3316"
+    },
+    {
+      "id": "3317",
+      "name": "后悬架减震生产线-2",
+      "x": 1774.08,
+      "y": 997.2,
+      "width": 89.05,
+      "height": 118.31,
+      "section": "posttreatment2",
+      "deviceCode": "3317"
+    },
+    {
+      "id": "3328",
+      "name": "液压-9",
+      "x": 1870.06,
+      "y": 997.2,
+      "width": 95.98,
+      "height": 117.7,
+      "section": "posttreatment2",
+      "deviceCode": "3328"
+    },
+    {
       "id": "posttreatment1-manual-coating-1-2",
       "name": "手动涂装-1/2",
-      "x": 57,
-      "y": 1062,
-      "width": 65,
-      "height": 159,
+      "x": 101.87,
+      "y": 1017.94,
+      "width": 64.32,
+      "height": 96.97,
       "section": "pretreatment2",
       "deviceCodes": [
         "2328",
@@ -1910,419 +2269,179 @@
       ]
     },
     {
-      "id": "3111",
-      "name": "CG粘接-8",
-      "x": 129,
-      "y": 1088,
-      "width": 66,
-      "height": 134,
-      "section": "pretreatment2",
-      "deviceCode": "3111"
-    },
-    {
-      "id": "3112",
-      "name": "CG粘接-9",
-      "x": 202,
-      "y": 1089,
-      "width": 67,
-      "height": 133,
-      "section": "pretreatment2",
-      "deviceCode": "3112"
-    },
-    {
       "id": "3106",
       "name": "自动喷涂粘接-4",
-      "x": 276,
-      "y": 1064,
-      "width": 65,
-      "height": 159,
+      "x": 318.57,
+      "y": 1019.16,
+      "width": 64.32,
+      "height": 96.97,
       "section": "pretreatment2",
       "deviceCode": "3106"
     },
     {
       "id": "3107",
       "name": "自动喷涂粘接-5",
-      "x": 349,
-      "y": 1064,
-      "width": 71,
-      "height": 158,
+      "x": 390.8,
+      "y": 1019.16,
+      "width": 70.25,
+      "height": 96.36,
       "section": "pretreatment2",
       "deviceCode": "3107"
     },
     {
-      "id": "vulcanization2-sti450-2a02-2a13",
-      "name": "STI450",
-      "x": 518,
-      "y": 711,
-      "width": 303,
-      "height": 94,
-      "section": null,
+      "id": "layout-factory2-region-n5",
+      "name": "vulcanization2区域⑤",
+      "x": 1499.69,
+      "y": 1020.75,
+      "width": 100.9,
+      "height": 82.13,
+      "section": "vulcanization2",
       "deviceCodes": [
-        "2A01",
-        "2A02",
-        "2A03",
-        "2A04",
-        "2A05",
-        "2A06",
-        "2A07",
-        "2A08",
-        "2A09",
-        "2A10",
-        "2A11",
-        "2A12",
-        "2A13"
+        "2B22",
+        "2B23",
+        "2B24"
       ],
       "children": [
         {
-          "id": "2A01",
-          "name": "HTI-2A01",
-          "deviceCode": "2A01",
-          "x": 0,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "id": "device-2b22",
+          "name": "STI450MVX-2B22",
+          "deviceCode": "2B22",
+          "x": 2.735,
+          "y": 5.503,
+          "width": 40.803,
+          "height": 89.005
         },
         {
-          "id": "2A02",
-          "name": "2A02",
-          "deviceCode": "2A02",
-          "x": 8,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "id": "device-2b23",
+          "name": "STI450MVX-2B23",
+          "deviceCode": "2B23",
+          "x": 46.016,
+          "y": 5.503,
+          "width": 27.374,
+          "height": 89.005
         },
         {
-          "id": "2A03",
-          "name": "2A03",
-          "deviceCode": "2A03",
-          "x": 16,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A04",
-          "name": "2A04",
-          "deviceCode": "2A04",
-          "x": 24,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A05",
-          "name": "2A05",
-          "deviceCode": "2A05",
-          "x": 32,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A06",
-          "name": "2A06",
-          "deviceCode": "2A06",
-          "x": 40,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A07",
-          "name": "2A07",
-          "deviceCode": "2A07",
-          "x": 48,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A08",
-          "name": "2A08",
-          "deviceCode": "2A08",
-          "x": 56,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A09",
-          "name": "2A09",
-          "deviceCode": "2A09",
-          "x": 64,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A10",
-          "name": "2A10",
-          "deviceCode": "2A10",
-          "x": 72,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A11",
-          "name": "2A11",
-          "deviceCode": "2A11",
-          "x": 80,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A12",
-          "name": "2A12",
-          "deviceCode": "2A12",
-          "x": 80,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "2A13",
-          "name": "2A13",
-          "deviceCode": "2A13",
-          "x": 88,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "id": "device-2b24",
+          "name": "STI450MVX-2B24",
+          "deviceCode": "2B24",
+          "x": 75.818,
+          "y": 5.503,
+          "width": 21.487,
+          "height": 89.005
         }
       ]
     },
     {
-      "id": "vulcanization2-sti450-2a14-2a18",
-      "name": "STI450",
-      "x": 835,
-      "y": 712,
-      "width": 145,
-      "height": 91,
-      "section": null,
+      "id": "layout-factory2-region-n4",
+      "name": "vulcanization2区域④",
+      "x": 992.15,
+      "y": 1025.68,
+      "width": 265.06,
+      "height": 82.13,
+      "section": "vulcanization2",
       "deviceCodes": [
-        "2A14",
-        "2A15",
-        "2A16",
-        "2A17",
-        "2A18"
+        "2B13",
+        "2B14",
+        "2B15",
+        "2B16",
+        "2B17",
+        "2B18",
+        "2B19",
+        "2B20",
+        "2B21"
       ],
       "children": [
         {
-          "id": "device-2a14",
-          "name": "2A14",
-          "deviceCode": "2A14",
-          "x": 2,
-          "y": 2,
-          "width": 17,
-          "height": 96
+          "id": "device-2b13",
+          "name": "STI450-2B13",
+          "deviceCode": "2B13",
+          "x": 1.973,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
         },
         {
-          "id": "device-2a15",
-          "name": "2A15",
-          "deviceCode": "2A15",
-          "x": 21,
-          "y": 2,
-          "width": 17,
-          "height": 96
+          "id": "device-2b14",
+          "name": "STI450-2B14",
+          "deviceCode": "2B14",
+          "x": 12.748,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
         },
         {
-          "id": "device-2a16",
-          "name": "2A16",
-          "deviceCode": "2A16",
-          "x": 40,
-          "y": 2,
-          "width": 17,
-          "height": 96
+          "id": "device-2b15",
+          "name": "STI450-2B15",
+          "deviceCode": "2B15",
+          "x": 23.527,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
         },
         {
-          "id": "device-2a17",
-          "name": "2A17",
-          "deviceCode": "2A17",
-          "x": 59,
-          "y": 2,
-          "width": 17,
-          "height": 96
+          "id": "device-2b16",
+          "name": "STI450-2B16",
+          "deviceCode": "2B16",
+          "x": 34.305,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
         },
         {
-          "id": "device-2a18",
-          "name": "2A18",
-          "deviceCode": "2A18",
-          "x": 78,
-          "y": 2,
-          "width": 17,
-          "height": 96
+          "id": "device-2b17",
+          "name": "STI450-2B17",
+          "deviceCode": "2B17",
+          "x": 45.084,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
+        },
+        {
+          "id": "device-2b18",
+          "name": "STI450-2B18",
+          "deviceCode": "2B18",
+          "x": 55.859,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
+        },
+        {
+          "id": "device-2b19",
+          "name": "STI450-2B19",
+          "deviceCode": "2B19",
+          "x": 66.638,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
+        },
+        {
+          "id": "device-2b20",
+          "name": "STI450-2B20",
+          "deviceCode": "2B20",
+          "x": 77.416,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
+        },
+        {
+          "id": "device-2b21",
+          "name": "STI450-2B21",
+          "deviceCode": "2B21",
+          "x": 88.195,
+          "y": 5.503,
+          "width": 9.836,
+          "height": 89.005
         }
       ]
     },
     {
-      "id": "2338",
-      "name": "浸油生产线-2",
-      "x": 993,
-      "y": 711,
-      "width": 115,
-      "height": 50,
-      "section": null,
-      "deviceCode": "2338"
-    },
-    {
-      "id": "3325",
-      "name": "阻焊机-1",
-      "x": 554,
-      "y": 832,
-      "width": 80,
-      "height": 122,
-      "section": null,
-      "deviceCode": "3325"
-    },
-    {
-      "id": "3323",
-      "name": "CO2熔接机-1",
-      "x": 640,
-      "y": 833,
-      "width": 90,
-      "height": 121,
-      "section": null,
-      "deviceCode": "3323"
-    },
-    {
-      "id": "3324",
-      "name": "CO2熔接机-2",
-      "x": 737,
-      "y": 833,
-      "width": 85,
-      "height": 121,
-      "section": null,
-      "deviceCode": "3324"
-    },
-    {
-      "id": "3308",
-      "name": "压入生产线-3",
-      "x": 847,
-      "y": 833,
-      "width": 72,
-      "height": 121,
-      "section": null,
-      "deviceCode": "3308"
-    },
-    {
-      "id": "3301",
-      "name": "液压-6",
-      "x": 926,
-      "y": 834,
-      "width": 36,
-      "height": 120,
-      "section": null,
-      "deviceCode": "3301"
-    },
-    {
-      "id": "3309",
-      "name": "压入生产线-4",
-      "x": 970,
-      "y": 832,
-      "width": 46,
-      "height": 122,
-      "section": null,
-      "deviceCode": "3309"
-    },
-    {
-      "id": "3321",
-      "name": "自动喷涂涂装-2",
-      "x": 1023,
-      "y": 784,
-      "width": 90,
-      "height": 168,
-      "section": null,
-      "deviceCode": "3321"
-    },
-    {
-      "id": "3307",
-      "name": "压入生产线-2",
-      "x": 1151,
-      "y": 712,
-      "width": 53,
-      "height": 96,
-      "section": null,
-      "deviceCode": "3307"
-    },
-    {
-      "id": "3315",
-      "name": "辊压生产线-1",
-      "x": 1213,
-      "y": 712,
-      "width": 58,
-      "height": 97,
-      "section": null,
-      "deviceCode": "3315"
-    },
-    {
-      "id": "3312",
-      "name": "液封生产线-3",
-      "x": 1149,
-      "y": 826,
-      "width": 122,
-      "height": 128,
-      "section": null,
-      "deviceCode": "3312"
-    },
-    {
-      "id": "3304",
-      "name": "流体EMT生产线-1",
-      "x": 1278,
-      "y": 760,
-      "width": 109,
-      "height": 194,
-      "section": null,
-      "deviceCode": "3304"
-    },
-    {
-      "id": "3331",
-      "name": "压入生产线-10",
-      "x": 1394,
-      "y": 711,
-      "width": 115,
-      "height": 92,
-      "section": null,
-      "deviceCode": "3331"
-    },
-    {
-      "id": "3306",
-      "name": "压入生产线-6",
-      "x": 1393,
-      "y": 808,
-      "width": 116,
-      "height": 146,
-      "section": null,
-      "deviceCode": "3306"
-    },
-    {
-      "id": "3303",
-      "name": "流体EMT生产线-2",
-      "x": 1515,
-      "y": 810,
-      "width": 121,
-      "height": 146,
-      "section": null,
-      "deviceCode": "3303"
-    },
-    {
-      "id": "3322",
-      "name": "SMT生产线-3",
-      "x": 1710,
-      "y": 711,
-      "width": 207,
-      "height": 243,
-      "section": null,
-      "deviceCode": "3322"
-    },
-    {
-      "id": "vulcanization2-sti450-2b01-2b06",
-      "name": "STI450",
-      "x": 517,
-      "y": 1064,
-      "width": 290,
-      "height": 158,
-      "section": null,
+      "id": "layout-factory2-region-n3",
+      "name": "vulcanization2区域③",
+      "x": 573.48,
+      "y": 1027.32,
+      "width": 343.38,
+      "height": 82.13,
+      "section": "vulcanization2",
       "deviceCodes": [
         "2B01",
         "2B02",
@@ -2340,319 +2459,143 @@
       "children": [
         {
           "id": "device-2b01",
-          "name": "2B01",
+          "name": "STI450-2B01",
           "deviceCode": "2B01",
-          "x": 0,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 1.864,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b02",
-          "name": "2B02",
+          "name": "STI450-2B02",
           "deviceCode": "2B02",
-          "x": 8,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 9.948,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b03",
-          "name": "2B03",
+          "name": "STI450-2B03",
           "deviceCode": "2B03",
-          "x": 16,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 18.03,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b04",
-          "name": "2B04",
+          "name": "STI450-2B04",
           "deviceCode": "2B04",
-          "x": 24,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 26.114,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b05",
-          "name": "2B05",
+          "name": "STI450-2B05",
           "deviceCode": "2B05",
-          "x": 32,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 34.198,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b06",
-          "name": "2B06",
+          "name": "STI450-2B06",
           "deviceCode": "2B06",
-          "x": 40,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 42.28,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b07",
-          "name": "2B07",
+          "name": "STI450-2B07",
           "deviceCode": "2B07",
-          "x": 48,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 50.364,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b08",
-          "name": "2B08",
+          "name": "STI450-2B08",
           "deviceCode": "2B08",
-          "x": 56,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 58.448,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b09",
-          "name": "2B09",
+          "name": "STI450-2B09",
           "deviceCode": "2B09",
-          "x": 64,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 66.53,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b10",
-          "name": "2B10",
+          "name": "STI450-2B10",
           "deviceCode": "2B10",
-          "x": 72,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 74.614,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b11",
-          "name": "2B11",
+          "name": "STI450-2B11",
           "deviceCode": "2B11",
-          "x": 80,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 82.698,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         },
         {
           "id": "device-2b12",
-          "name": "2B12",
+          "name": "STI450-2B12",
           "deviceCode": "2B12",
-          "x": 88,
-          "y": 0,
-          "width": 7,
-          "height": 96
+          "x": 90.78,
+          "y": 5.503,
+          "width": 7.356,
+          "height": 89.005
         }
       ]
     },
     {
-      "id": "vulcanization2-sti450-2b13-2b24",
-      "name": "STI-450",
-      "x": 827,
-      "y": 1063,
-      "width": 298,
-      "height": 157,
-      "section": null,
-      "deviceCodes": [
-        "2B13",
-        "2B14",
-        "2B15",
-        "2B16",
-        "2B17",
-        "2B18",
-        "2B19",
-        "2B20",
-        "2B21"
-      ],
-      "children": [
-        {
-          "id": "device-2b13",
-          "name": "2B13",
-          "deviceCode": "2B13",
-          "x": 0,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b14",
-          "name": "2B14",
-          "deviceCode": "2B14",
-          "x": 8,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b15",
-          "name": "2B15",
-          "deviceCode": "2B15",
-          "x": 16,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b16",
-          "name": "2B16",
-          "deviceCode": "2B16",
-          "x": 24,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b17",
-          "name": "2B17",
-          "deviceCode": "2B17",
-          "x": 32,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b18",
-          "name": "2B18",
-          "deviceCode": "2B18",
-          "x": 40,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b19",
-          "name": "2B19",
-          "deviceCode": "2B19",
-          "x": 48,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b20",
-          "name": "2B20",
-          "deviceCode": "2B20",
-          "x": 56,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        },
-        {
-          "id": "device-2b21",
-          "name": "2B21",
-          "deviceCode": "2B21",
-          "x": 64,
-          "y": 0,
-          "width": 7,
-          "height": 96
-        }
-      ]
+      "id": "3111",
+      "name": "CG粘接-8",
+      "x": 173.12,
+      "y": 1033.79,
+      "width": 65.31,
+      "height": 81.72,
+      "section": "pretreatment2",
+      "deviceCode": "3111"
     },
     {
-      "id": "3311",
-      "name": "液封生产线-2",
-      "x": 1151,
-      "y": 1028,
-      "width": 120,
-      "height": 90,
-      "section": null,
-      "deviceCode": "3311"
+      "id": "3112",
+      "name": "CG粘接-9",
+      "x": 245.35,
+      "y": 1034.4,
+      "width": 66.29,
+      "height": 81.11,
+      "section": "pretreatment2",
+      "deviceCode": "3112"
     },
     {
       "id": "3310",
       "name": "液封生产线-1",
-      "x": 1150,
-      "y": 1124,
-      "width": 121,
-      "height": 98,
-      "section": null,
+      "x": 1183.37,
+      "y": 1055.75,
+      "width": 119.73,
+      "height": 59.77,
+      "section": "posttreatment2",
       "deviceCode": "3310"
-    },
-    {
-      "id": "posttreatment2-stimuvex-1388-1030",
-      "name": "STIMUVEX",
-      "x": 1388,
-      "y": 1030,
-      "width": 115,
-      "height": 192,
-      "section": null,
-      "deviceCodes": [
-        "2B22",
-        "2B23",
-        "2B24"
-      ],
-      "children": [
-        {
-          "id": "device-2b22",
-          "name": "2B22",
-          "deviceCode": "2B22",
-          "x": 0,
-          "y": 0,
-          "width": 96,
-          "height": 30
-        },
-        {
-          "id": "device-2b23",
-          "name": "2B23",
-          "deviceCode": "2B23",
-          "x": 0,
-          "y": 33,
-          "width": 96,
-          "height": 30
-        },
-        {
-          "id": "device-2b24",
-          "name": "2B24",
-          "deviceCode": "2B24",
-          "x": 0,
-          "y": 66,
-          "width": 96,
-          "height": 30
-        }
-      ]
-    },
-    {
-      "id": "3305",
-      "name": "流体EMT生产线-3",
-      "x": 1515,
-      "y": 1026,
-      "width": 121,
-      "height": 196,
-      "section": null,
-      "deviceCode": "3305"
-    },
-    {
-      "id": "3316",
-      "name": "后悬架减震生产线-1",
-      "x": 1649,
-      "y": 1028,
-      "width": 91,
-      "height": 193,
-      "section": null,
-      "deviceCode": "3316"
-    },
-    {
-      "id": "3317",
-      "name": "后悬架减震生产线-2",
-      "x": 1747,
-      "y": 1028,
-      "width": 90,
-      "height": 194,
-      "section": null,
-      "deviceCode": "3317"
-    },
-    {
-      "id": "3328",
-      "name": "液压-9",
-      "x": 1844,
-      "y": 1028,
-      "width": 97,
-      "height": 193,
-      "section": null,
-      "deviceCode": "3328"
     }
   ]
 }

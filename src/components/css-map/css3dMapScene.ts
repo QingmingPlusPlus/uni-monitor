@@ -6,17 +6,22 @@ import {
   getCssMapDeviceShapeKey,
 } from './cssMapDeviceShape'
 import type {
+  CssMapBackground,
+  CssMapCameraSnapshot,
   CssMapDeviceLayout,
   CssMapDeviceScreenRect,
   CssMapProcessBoundary,
   CssMapRect,
   CssMapSize,
 } from './css3dMapTypes'
+import {
+  createCssMapCameraSnapshot,
+  CSS_MAP_FOCUS_PADDING_RATIO,
+} from './cssMapCameraDebug'
 
 const CSS3D_GROUND_ROTATION_X = -Math.PI / 2
 const DEVICE_LAYER_ELEVATION = 90
 const PROCESS_BOUNDARY_LAYER_ELEVATION = DEVICE_LAYER_ELEVATION
-const FOCUS_PADDING_RATIO = 1.35
 
 function computeFitDistance(mapSize: CssMapSize, aspect: number, fovRadians: number): number {
   const zForHeight = mapSize.height / 2 / Math.tan(fovRadians / 2)
@@ -28,7 +33,7 @@ function computeRectFitDistance(rect: CssMapRect, aspect: number, fovRadians: nu
   const zForHeight = rect.h / 2 / Math.tan(fovRadians / 2)
   const zForWidth = rect.w / 2 / (Math.tan(fovRadians / 2) * aspect)
 
-  return Math.max(zForHeight, zForWidth) * FOCUS_PADDING_RATIO
+  return Math.max(zForHeight, zForWidth) * CSS_MAP_FOCUS_PADDING_RATIO
 }
 
 export interface Css3dMapDeviceElement {
@@ -41,6 +46,7 @@ interface CreateCss3dMapSceneOptions {
   devices: Css3dMapDeviceElement[]
   processBoundaries?: CssMapProcessBoundary[]
   mapSize: CssMapSize
+  background?: CssMapBackground | null
   onDeviceScreenRectsChange?: (rects: Record<string, CssMapDeviceScreenRect>) => void
 }
 
@@ -51,14 +57,22 @@ export interface Css3dMapScene {
   zoomBy: (factor: number) => void
   resetView: () => void
   focusRect: (rect: CssMapRect) => void
+  getCameraSnapshot: () => CssMapCameraSnapshot
   dispose: () => void
 }
 
-function createMapPlane(mapSize: CssMapSize) {
+function createMapPlane(mapSize: CssMapSize, background?: CssMapBackground | null) {
   const plane = document.createElement('div')
   plane.className = 'css3d-map-plane'
   plane.style.width = `${mapSize.width}px`
   plane.style.height = `${mapSize.height}px`
+  if (background) {
+    plane.style.backgroundImage = `url(${JSON.stringify(background.imageUrl)})`
+    plane.style.backgroundPosition = 'center'
+    plane.style.backgroundRepeat = 'no-repeat'
+    plane.style.backgroundSize = '100% 100%'
+    plane.style.opacity = String(background.opacity)
+  }
   return plane
 }
 
@@ -144,7 +158,7 @@ export function createCss3dMapScene(options: CreateCss3dMapSceneOptions): Css3dM
   renderer.domElement.className = 'css3d-map-renderer'
   options.container.appendChild(renderer.domElement)
 
-  const mapPlane = new CSS3DObject(createMapPlane(options.mapSize))
+  const mapPlane = new CSS3DObject(createMapPlane(options.mapSize, options.background))
   setObjectOnGroundPlane(mapPlane)
   root.add(mapPlane)
 
@@ -249,6 +263,24 @@ export function createCss3dMapScene(options: CreateCss3dMapSceneOptions): Css3dM
     panBy: controls.panBy,
     zoomBy: controls.zoomBy,
     focusRect,
+    getCameraSnapshot() {
+      const viewport = renderer.domElement.getBoundingClientRect()
+      return createCssMapCameraSnapshot({
+        renderer: 'css3d',
+        mapSize: options.mapSize,
+        viewport: {
+          width: viewport.width,
+          height: viewport.height,
+        },
+        position: camera.position,
+        target: controls.getTarget(),
+        up: camera.up,
+        fov: camera.fov,
+        aspect: camera.aspect,
+        near: camera.near,
+        far: camera.far,
+      })
+    },
     resetView: controls.reset,
     dispose() {
       controls.dispose()

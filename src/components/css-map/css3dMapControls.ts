@@ -15,6 +15,7 @@ export interface Css3dMapControls {
   panBy: (deltaX: number, deltaZ: number) => void
   zoomBy: (factor: number) => void
   setMaxDistance: (distance: number) => void
+  getTarget: () => THREE.Vector3
   dispose: () => void
 }
 
@@ -86,6 +87,9 @@ export function createCss3dMapControls(options: Css3dMapControlsOptions): Css3dM
       maxDistance = distance
       controls.maxDistance = distance
       controls.update()
+    },
+    getTarget() {
+      return controls.target.clone()
     },
     dispose() {
       controls.removeEventListener('change', onChange)

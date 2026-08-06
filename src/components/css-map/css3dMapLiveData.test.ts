@@ -60,7 +60,10 @@ function createRealtimeItem(
   }
 }
 
-function stubFactoryMapConfig(devices: readonly CssMapJsonDevice[]): void {
+function stubFactoryMapConfig(
+  devices: readonly CssMapJsonDevice[],
+  sourceOverrides: Record<string, unknown> = {},
+): void {
   vi.stubGlobal('fetch', vi.fn(async () => ({
     ok: true,
     status: 200,
@@ -70,6 +73,7 @@ function stubFactoryMapConfig(devices: readonly CssMapJsonDevice[]): void {
         imageHeight: 600,
         coordinateOrigin: 'top-left',
         unit: 'px',
+        ...sourceOverrides,
       },
       sections: [],
       devices,
@@ -142,6 +146,26 @@ describe('loadCssMapData realtime status mapping', () => {
 
     cases.forEach((item) => {
       expect(statusByDeviceId.get(item.id)).toBe(item.expected)
+    })
+  })
+
+  it('从地图配置读取底图地址和透明度', async () => {
+    stubFactoryMapConfig([], {
+      backgroundImage: '/static/factory-map/factory-floorplan.png',
+      backgroundOpacity: 0.46,
+      layoutCoordinateSystem: 'factory-floorplan-v1',
+      layoutWorkbook: '布局图.xlsx',
+      deviceMaster: '全部设备导出.xls',
+      annotatedDeviceCount: 151,
+    })
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.background).toEqual({
+      imageUrl: '/static/factory-map/factory-floorplan.png',
+      opacity: 0.46,
     })
   })
 

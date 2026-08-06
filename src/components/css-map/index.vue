@@ -4,6 +4,7 @@ import CssMapEquipmentNode from './CssMapEquipmentNode.vue'
 import CssMapLegend from './CssMapLegend.vue'
 import CssMapScreenControls from './CssMapScreenControls.vue'
 import CssMapToolbar from './CssMapToolbar.vue'
+import { installCssMapCameraDebug } from './cssMapCameraDebug'
 import { createCss3dMapScene, type Css3dMapScene } from './css3dMapScene'
 import { getCssMapProcessBoundaryFocusRect, getCssMapProcessBoundaryGroupFocusRect } from './css3dMapProcessBoundaries'
 import { loadCssMapData } from './css3dMapLiveData'
@@ -15,6 +16,7 @@ import {
 } from './css3dMapDeviceNavigation'
 import type {
   CssMapDepartmentValue,
+  CssMapBackground,
   CssMapDevice,
   CssMapDeviceChild,
   CssMapDeviceScreenRect,
@@ -48,6 +50,7 @@ const deviceElements = ref<HTMLElement[]>([])
 const cssMapDevices = ref<readonly CssMapDevice[]>([])
 const cssMapSections = ref<readonly CssMapProcessBoundary[]>([])
 const cssMapSize = ref<CssMapSize | null>(null)
+const cssMapBackground = ref<CssMapBackground | null>(null)
 const loadError = ref('')
 const isLoading = ref(true)
 const selectMode = ref(false)
@@ -62,8 +65,11 @@ const displayOptions: CssMapDisplayOptions = {
 let scene: Css3dMapScene | null = null
 let initializeGeneration = 0
 let unsubscribeMapMockChange: (() => void) | null = null
+let uninstallCameraDebug: (() => void) | null = null
 
 function disposeScene(): void {
+  uninstallCameraDebug?.()
+  uninstallCameraDebug = null
   scene?.dispose()
   scene = null
 }
@@ -141,6 +147,7 @@ function resetMapData(): void {
   cssMapDevices.value = []
   cssMapSections.value = []
   cssMapSize.value = null
+  cssMapBackground.value = null
   deviceElements.value = []
   setDeviceScreenRects({})
 }
@@ -164,6 +171,7 @@ async function initializeScene(): Promise<void> {
   cssMapDevices.value = mapData.devices
   cssMapSections.value = mapData.sections
   cssMapSize.value = mapData.size
+  cssMapBackground.value = mapData.background
 
   await nextTick()
   if (generation !== initializeGeneration) return
@@ -183,8 +191,10 @@ async function initializeScene(): Promise<void> {
     )),
     processBoundaries: [...cssMapSections.value],
     mapSize: cssMapSize.value,
+    background: cssMapBackground.value,
     onDeviceScreenRectsChange: setDeviceScreenRects,
   })
+  uninstallCameraDebug = installCssMapCameraDebug(() => scene?.getCameraSnapshot() ?? null)
 
   focusActiveSelection()
   isLoading.value = false
