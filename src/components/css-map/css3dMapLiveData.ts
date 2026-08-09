@@ -182,6 +182,15 @@ function isCssMapJsonConfig(value: unknown): value is CssMapJsonConfig {
         value.source.annotatedDeviceCount >= 0
       )
     ) &&
+    (
+      value.source.visibleDeviceCodes === undefined ||
+      (
+        Array.isArray(value.source.visibleDeviceCodes) &&
+        value.source.visibleDeviceCodes.every(
+          (code) => typeof code === 'string' && code.trim().length > 0,
+        )
+      )
+    ) &&
     Array.isArray(value.sections) &&
     value.sections.every(isSection) &&
     Array.isArray(value.devices) &&
@@ -205,6 +214,20 @@ function collectDeviceRuntimeCodes(device: CssMapJsonDevice): string[] {
   device.deviceCodes?.forEach((code) => appendUniqueDeviceCode(codes, code))
   device.children?.forEach((child) => appendUniqueDeviceCode(codes, child.deviceCode))
   return codes
+}
+
+function createVisibleDeviceCodeSet(
+  codes: readonly string[] | undefined,
+): ReadonlySet<string> | null {
+  if (codes === undefined) return null
+  return new Set(codes.map(normalizeDeviceCode).filter(Boolean))
+}
+
+function isDeviceCodeVisible(
+  code: string,
+  visibleDeviceCodes: ReadonlySet<string> | null,
+): boolean {
+  return visibleDeviceCodes === null || visibleDeviceCodes.has(normalizeDeviceCode(code))
 }
 
 function formatDeviceDisplayName(name: string): string {
@@ -435,7 +458,10 @@ async function createCssMapData(
   mapConfig: CssMapJsonConfig,
   selectionConfig: CssMapSelectionConfig,
 ): Promise<CssMapData> {
-  const runtimeCodes = mapConfig.devices.flatMap(collectDeviceRuntimeCodes)
+  const visibleDeviceCodes = createVisibleDeviceCodeSet(mapConfig.source.visibleDeviceCodes)
+  const runtimeCodes = mapConfig.devices
+    .flatMap(collectDeviceRuntimeCodes)
+    .filter((code) => isDeviceCodeVisible(code, visibleDeviceCodes))
   const runtimeLookup = await loadRuntimeLookup(runtimeCodes)
 
   return {
@@ -457,35 +483,40 @@ async function createCssMapData(
     })),
     devices: mapConfig.devices.flatMap((device) => {
       const runtimeCodes = collectDeviceRuntimeCodes(device)
+        .filter((code) => isDeviceCodeVisible(code, visibleDeviceCodes))
 
       if (device.children?.length) {
-        return device.children.map((child) => {
-          const width = (device.width * child.width) / childLayoutSize
-          const height = (device.height * child.height) / childLayoutSize
+        return device.children
+          .filter((child) => isDeviceCodeVisible(child.deviceCode, visibleDeviceCodes))
+          .map((child) => {
+            const width = (device.width * child.width) / childLayoutSize
+            const height = (device.height * child.height) / childLayoutSize
 
-          return {
-            id: child.id,
-            name: formatDeviceDisplayName(child.name),
-            section: device.section,
-            x: device.x + (device.width * child.x) / childLayoutSize,
-            y: device.y + (device.height * child.y) / childLayoutSize,
-            w: width,
-            h: height,
-            polygon: createCssMapScaledPolygon(
-              child.polygon,
-              child.width,
-              child.height,
-              width,
-              height,
-            ),
-            contentLayout: child.contentLayout,
-            deviceCode: child.deviceCode,
-            deviceCodes: [normalizeDeviceCode(child.deviceCode)],
-            children: [],
-            runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
-          }
-        })
+            return {
+              id: child.id,
+              name: formatDeviceDisplayName(child.name),
+              section: device.section,
+              x: device.x + (device.width * child.x) / childLayoutSize,
+              y: device.y + (device.height * child.y) / childLayoutSize,
+              w: width,
+              h: height,
+              polygon: createCssMapScaledPolygon(
+                child.polygon,
+                child.width,
+                child.height,
+                width,
+                height,
+              ),
+              contentLayout: child.contentLayout,
+              deviceCode: child.deviceCode,
+              deviceCodes: [normalizeDeviceCode(child.deviceCode)],
+              children: [],
+              runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
+            }
+          })
       }
+
+      if (visibleDeviceCodes !== null && runtimeCodes.length === 0) return []
 
       return [{
         id: device.id,

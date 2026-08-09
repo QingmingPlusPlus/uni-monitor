@@ -265,6 +265,41 @@ describe('loadCssMapData realtime status mapping', () => {
     ])
   })
 
+  it('按 visibleDeviceCodes 只加载和显示白名单中的独立设备与子设备', async () => {
+    stubFactoryMapConfig([
+      createMapDevice('standalone-visible', 'D-01'),
+      createMapDevice('standalone-hidden', 'D-02'),
+      {
+        id: 'device-group',
+        name: 'device-group',
+        section: 'vulcanization1',
+        x: 10,
+        y: 20,
+        width: 120,
+        height: 80,
+        children: [
+          { id: 'child-visible', name: 'child-visible', deviceCode: 'D-03', x: 0, y: 0, width: 50, height: 100 },
+          { id: 'child-hidden', name: 'child-hidden', deviceCode: 'D-04', x: 50, y: 0, width: 50, height: 100 },
+        ],
+      },
+    ], {
+      visibleDeviceCodes: ['d-01', 'D-03'],
+    })
+    stubRealtimeList([
+      createRealtimeItem('D-01', 'running'),
+      createRealtimeItem('D-03', 'normal'),
+    ])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.devices.map((device) => device.id)).toEqual([
+      'standalone-visible',
+      'child-visible',
+    ])
+    expect(getDeviceRealtimeList).toHaveBeenCalledWith({ deviceCodes: 'D-01,D-03' })
+  })
+
   it('STI375 与 STI450 系列设备名只显示编号，其他机型保持原名', async () => {
     stubFactoryMapConfig([
       {

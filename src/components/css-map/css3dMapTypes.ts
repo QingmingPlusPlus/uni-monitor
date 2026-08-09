@@ -99,6 +99,7 @@ export interface CssMapJsonSource {
   layoutWorkbook?: string
   deviceMaster?: string
   annotatedDeviceCount?: number
+  visibleDeviceCodes?: string[]
 }
 
 export interface CssMapBackground {
