@@ -169,6 +169,16 @@ describe('loadCssMapData realtime status mapping', () => {
     })
   })
 
+  it('未配置底图时保持地图背景为空', async () => {
+    stubFactoryMapConfig([])
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.background).toBeNull()
+  })
+
   it('deviceParseType 返回枚举 ID 时仍按“用餐”名称判为计划停止', async () => {
     stubFactoryMapConfig([createMapDevice('meal', 'D-MEAL')])
     stubRealtimeList([{

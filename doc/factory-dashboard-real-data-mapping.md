@@ -26,9 +26,9 @@
 
 H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前端 mock 运行态数据，调用 `window.mapMock(false)` 恢复真实接口。mock 只替换设备工作状态、负荷率、人员配置和 5M 变化点，不替换 `devices.json` 静态布局；切换后已挂载地图会重新加载。
 
-`devices.json` 的 `source.backgroundImage` 和 `source.backgroundOpacity` 配置 PDF 转换后的厂区底图。Sprite 渲染器使用 Three.js 纹理平面，CSS3D 回退使用同尺寸 DOM 背景，两者随地图相机同步平移、缩放和聚焦。H5 控制台可调用 `window.mapCamera()` 采集当前相机和 `focus.rect` 参数，用于后续固化工序或设备区域聚焦配置。
+`devices.json` 的 `source.imageWidth` / `source.imageHeight` 决定地图世界尺寸，`source.backgroundImage` 和 `source.backgroundOpacity` 是可选底图配置。当前画布和截图点位继续使用 `1650×953` 原始像素坐标，但配置不声明 `backgroundImage`，因此 Sprite 与 CSS3D 回退都不加载或显示底图；设备、工序边界及相机交互仍使用同一地图坐标。H5 控制台可调用 `window.mapCamera()` 采集当前相机和 `focus.rect` 参数，用于后续固化工序或设备区域聚焦配置。
 
-静态布局由 `scripts/generate_factory_map_layout.py` 从现场布局 Excel 生成：PDF 决定实际厂房比例，红框和编号决定 151 台现场标注设备的位置及拆分，设备主数据通过唯一 `deviceCode` 绑定实时接口。输出配置带 `source.layoutCoordinateSystem = "factory-floorplan-v1"`，重复生成不会再次缩放既有坐标。全量配置定义 207 个唯一设备 code；当前 `source.visibleDeviceCodes` 只允许 2026-08-09 点位 slices JSON 中的 17 台设备进入地图渲染、实时接口请求和看板工序设备范围，其他设备定义继续保留但不显示、不统计。详细生成规则和来源冲突见 `doc/factory-map-layout-generation.md`。
+静态布局由 `scripts/generate_factory_map_layout.py` 从现场布局 Excel 生成：PDF 决定实际厂房比例，红框和编号决定 151 台现场标注设备的位置及拆分，设备主数据通过唯一 `deviceCode` 绑定实时接口。输出配置带 `source.layoutCoordinateSystem = "factory-floorplan-v1"`，重复生成不会再次缩放既有坐标。全量配置定义 207 个唯一设备 code；当前 `source.visibleDeviceCodes` 只允许 2026-08-09 点位 slices JSON 及后续同组排布中确认的 46 台设备进入地图渲染、实时接口请求和看板工序设备范围，其他设备定义继续保留但不显示、不统计。详细生成规则和来源冲突见 `doc/factory-map-layout-generation.md`。
 
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |

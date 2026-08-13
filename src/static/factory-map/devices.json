@@ -1,11 +1,9 @@
 {
   "source": {
-    "imageWidth": 2060,
-    "imageHeight": 1280,
+    "imageWidth": 1650,
+    "imageHeight": 953,
     "coordinateOrigin": "top-left",
     "unit": "px",
-    "backgroundImage": "/static/factory-map/factory-floorplan.png",
-    "backgroundOpacity": 0.46,
     "layoutCoordinateSystem": "factory-floorplan-v1",
     "layoutWorkbook": "布局图-2026-06-26 的副本.xlsx",
     "deviceMaster": "全部设备导出.xls",

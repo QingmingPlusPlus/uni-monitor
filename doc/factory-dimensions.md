@@ -34,7 +34,7 @@
 ## 地图交互
 
 - 地图数据源：`src/static/factory-map/devices.json`，H5 优先通过 `/static/factory-map/devices.json` 加载，并兼容 `/factory-map/devices.json` 回退地址。
-- 地图底图：`src/static/factory-map/factory-floorplan.png`。它由 `scripts/generate_factory_floorplan.py` 从一工厂、二工厂 PDF 裁白边、逆时针旋转并合成为 2 倍像素透明线稿；一工厂位于上半区，二工厂位于下半区，世界坐标仍保持 `2060×1280`。转换时的裁剪、缩放和放置参数记录在 `src/static/factory-map/factory-floorplan.transforms.json`，方便后续把 PDF 坐标换算为地图坐标。
+- 地图画布与底图：当前地图世界坐标保持 `1650×953`，用于承载按新底图截图原始像素标注的设备点位。`devices.json` 当前不声明 `source.backgroundImage`，因此 Sprite 与 CSS3D 渲染器都不加载或显示底图；`src/static/factory-map/factory-floorplan.png` 仅作为点位参考和可恢复资源保留。`scripts/generate_factory_floorplan.py` 和 `factory-floorplan.transforms.json` 仍描述旧 PDF 合成流程的 `2060×1280` 世界坐标；白名单外历史设备重新启用前需先完成坐标换算。
 - 设备实际比例布局：`scripts/generate_factory_map_layout.py` 读取现场 Excel 的矢量红框、区域编号和设备表，把 151 台标注设备自动换算到 PDF 底图坐标；一个区域包含多台机台时生成独立子设备。全量配置保留 207 个唯一 `deviceCode`；当前 `source.visibleDeviceCodes` 明确列出 46 台可见设备，未列入的定义不渲染且不进入看板设备范围统计。`1C01–1C09` 统一为 `22×58` 地图单位，从 `(671, 291)` 起按 `24` 的固定水平步距排列；`1B01–1B09` 复用相同的 x 坐标、尺寸和间距，y 坐标为 `381`；`1A01–1A09` 继续复用相同的 x 坐标、尺寸和间距，y 坐标为 `450`；`1A10–1A20` 从 `(908, 450)` 起按相同规则排列。相邻设备之间保留 `2` 个地图单位空隙。来源优先级、更新命令、校验和例外见 `doc/factory-map-layout-generation.md`。
 - 选择器配置源：`public/factory-map/selection.json`；H5 构建同时保留 `src/static/factory-map/selection.json`。
 - 地图默认渲染器：`src/components/css-map/SpriteCssMapPanel.vue`，使用 Three.js `WebGLRenderer` + `Sprite` 绘制设备卡片；设备卡片绘制入口为 `src/components/css-map/spriteCssMapDeviceCard.ts`，其内部已拆分到 `src/components/css-map/spriteCssMap/` 下的 `canvasText`、`canvasPrimitives`、`deviceColorPlan`、`drawHeader`、`drawLoadRate`、`drawMarkers`、`drawHorizontalCard`、`drawRightLShapeCard`、`drawVerticalCard` 等子模块。旧 `src/components/css-map/index.vue`（CSS3D DOM 版本）保留为代码级回退。

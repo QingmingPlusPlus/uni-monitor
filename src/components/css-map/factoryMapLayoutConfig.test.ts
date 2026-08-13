@@ -26,7 +26,7 @@ interface MapConfig {
   source: {
     imageWidth: number
     imageHeight: number
-    backgroundImage: string
+    backgroundImage?: string
     layoutCoordinateSystem: string
     annotatedDeviceCount: number
     visibleDeviceCodes?: string[]
@@ -141,15 +141,15 @@ function expectRect(
 }
 
 describe('factory floorplan layout config', () => {
-  it('声明 PDF 底图坐标系、全量标注数量和当前显示白名单', () => {
+  it('声明当前底图坐标尺寸、全量标注数量和当前显示白名单', () => {
     expect(mapConfig.source).toMatchObject({
-      imageWidth: 2060,
-      imageHeight: 1280,
-      backgroundImage: '/static/factory-map/factory-floorplan.png',
+      imageWidth: 1650,
+      imageHeight: 953,
       layoutCoordinateSystem: 'factory-floorplan-v1',
       annotatedDeviceCount: 151,
       visibleDeviceCodes: expectedVisibleCodes,
     })
+    expect(mapConfig.source.backgroundImage).toBeUndefined()
 
     const sectionCounts = mapConfig.sections.reduce<Record<string, number>>((counts, section) => {
       counts[section.id] = (counts[section.id] ?? 0) + 1
@@ -187,6 +187,12 @@ describe('factory floorplan layout config', () => {
       expect(device.height, device.code).toBeGreaterThan(0)
       expect(device.x, device.code).toBeGreaterThanOrEqual(0)
       expect(device.y, device.code).toBeGreaterThanOrEqual(0)
+    })
+
+    const visibleCodes = new Set<string>(expectedVisibleCodes)
+    const visibleDevices = rendered.filter((device) => visibleCodes.has(device.code))
+    expect(visibleDevices).toHaveLength(expectedVisibleCodes.length)
+    visibleDevices.forEach((device) => {
       expect(device.x + device.width, device.code).toBeLessThanOrEqual(mapConfig.source.imageWidth)
       expect(device.y + device.height, device.code).toBeLessThanOrEqual(mapConfig.source.imageHeight)
     })
