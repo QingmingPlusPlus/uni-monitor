@@ -27,6 +27,7 @@ interface MapConfig {
     imageWidth: number
     imageHeight: number
     backgroundImage?: string
+    backgroundOpacity?: number
     layoutCoordinateSystem: string
     annotatedDeviceCount: number
     visibleDeviceCodes?: string[]
@@ -166,11 +167,12 @@ describe('factory floorplan layout config', () => {
     expect(mapConfig.source).toMatchObject({
       imageWidth: 1650,
       imageHeight: 953,
+      backgroundImage: '/static/factory-map/factory-floorplan.png',
+      backgroundOpacity: 0.46,
       layoutCoordinateSystem: 'factory-floorplan-v1',
       annotatedDeviceCount: 151,
       visibleDeviceCodes: expectedVisibleCodes,
     })
-    expect(mapConfig.source.backgroundImage).toBeUndefined()
 
     const sectionCounts = mapConfig.sections.reduce<Record<string, number>>((counts, section) => {
       counts[section.id] = (counts[section.id] ?? 0) + 1

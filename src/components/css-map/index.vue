@@ -189,7 +189,6 @@ async function initializeScene(): Promise<void> {
     })).filter((entry): entry is { readonly device: CssMapDevice; readonly element: HTMLElement } => (
       entry.element instanceof HTMLElement
     )),
-    processBoundaries: [...cssMapSections.value],
     mapSize: cssMapSize.value,
     background: cssMapBackground.value,
     onDeviceScreenRectsChange: setDeviceScreenRects,

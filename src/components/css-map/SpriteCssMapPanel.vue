@@ -145,7 +145,6 @@ async function initializeScene(): Promise<void> {
     scene = createSpriteCssMapScene({
       container: mapContainer.value,
       devices: cssMapDevices.value,
-      processBoundaries: cssMapSections.value,
       mapSize: cssMapSize.value,
       background: cssMapBackground.value,
       display: displayOptions,

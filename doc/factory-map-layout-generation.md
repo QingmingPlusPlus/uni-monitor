@@ -43,7 +43,7 @@
 
 ## 当前运行时画布与底图状态
 
-当前显示白名单内设备的点位来自 `1650×953` 新底图截图的原始像素坐标。因此运行时继续以 `source.imageWidth = 1650`、`source.imageHeight = 953` 建立地图世界坐标，但 `devices.json` 不再声明 `source.backgroundImage`，Sprite 与 CSS3D 渲染器均不加载或绘制底图。`factory-floorplan.png` 文件继续保留作为点位参考和可恢复资源。
+当前显示白名单内设备的点位来自 `1650×953` 新底图截图的原始像素坐标。因此运行时以 `source.imageWidth = 1650`、`source.imageHeight = 953` 建立地图世界坐标，并通过 `source.backgroundImage = "/static/factory-map/factory-floorplan.png"`、`source.backgroundOpacity = 0.46` 显示同尺寸底图。Sprite 与 CSS3D 渲染器均按地图世界坐标 `1:1` 铺设图片，使设备左上角坐标、尺寸和底图原始像素直接对应。
 
 `factory-floorplan.transforms.json` 和白名单外的全量点位仍记录旧 PDF 生成流程的 `2060×1280` 坐标，仅作为历史生成输入保留，不参与当前可见设备的画布边界校验。后续若重新启用这些设备，必须先换算到当前底图坐标，或重新生成与其配套的标准底图。
 
