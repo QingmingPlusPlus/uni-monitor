@@ -102,8 +102,8 @@ export const departmentInboundPlanTrendChartOptions: ChartOptionConfig = {
     },
   ],
   series: [
-    { id: "planInbound", name: "计划入库数", type: "line", smooth: false, symbol: "circle", symbolSize: 6 },
-    { id: "actualInbound", name: "实绩入库数", type: "line", smooth: false, symbol: "circle", symbolSize: 6 },
+    { id: "planInbound", name: "计划入库数", type: "line", smooth: false, symbol: "circle", symbolSize: 6, connectNulls: false },
+    { id: "actualInbound", name: "实绩入库数", type: "line", smooth: false, symbol: "circle", symbolSize: 6, connectNulls: false },
     {
       id: "achievementRate",
       name: "入库达成率",
@@ -112,6 +112,7 @@ export const departmentInboundPlanTrendChartOptions: ChartOptionConfig = {
       symbol: "circle",
       symbolSize: 6,
       yAxisIndex: 1,
+      connectNulls: false,
     },
   ],
 }

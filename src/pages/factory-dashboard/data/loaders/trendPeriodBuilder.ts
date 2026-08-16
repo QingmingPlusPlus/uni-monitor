@@ -13,7 +13,7 @@ import {
 } from './dateTimeUtils'
 import { toApiDepartmentCode, toApiProcessType } from './cssMapValueMapping'
 
-export type TrendPeriodKind = 'month' | 'week' | 'day'
+export type TrendPeriodKind = 'month' | 'toDate' | 'week' | 'day'
 
 export interface TrendPeriod {
   readonly kind: TrendPeriodKind
@@ -35,7 +35,7 @@ export interface DailyProcessRow {
 }
 
 export function createTrendColumn(period: TrendPeriod, isModal: boolean): TableColumnConfig {
-  if (period.kind === 'month') {
+  if (period.kind === 'month' || period.kind === 'toDate') {
     return {
       key: period.key,
       label: period.label,
@@ -143,6 +143,15 @@ export function getRowsForPeriod<TDailyRow extends DailyProcessRow>(
 
   if (period.kind === 'month') {
     return rows.filter((row) => processTypeSet.has(row.processType))
+  }
+
+  if (period.kind === 'toDate') {
+    return rows.filter(
+      (row) =>
+        processTypeSet.has(row.processType) &&
+        period.day !== undefined &&
+        row.day <= period.day,
+    )
   }
 
   if (period.kind === 'day') {

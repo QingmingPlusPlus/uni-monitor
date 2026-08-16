@@ -460,7 +460,7 @@ describe('loadInboundPlanTrendCard', () => {
     Reflect.deleteProperty(globalThis, 'window')
   })
 
-  it('右侧小表展示当前周工作日列并隐藏周六日，展开表保留全月日列', async () => {
+  it('展示全月、截止当天、固定月周段和当前周全部自然日，展开视图使用相同周期', async () => {
     const card = await loadInboundPlanTrendCard('department2', ['pretreatment1'])
 
     if (card === null) {
@@ -471,14 +471,30 @@ describe('loadInboundPlanTrendCard', () => {
     expect(getScheduleRukuShijiByMonth).toHaveBeenCalledWith('2026-07')
     expect(card.tableColumns.map((column) => column.key)).toEqual([
       'month',
+      'toDate',
       'week1',
       'week2',
+      'week3',
+      'week4',
+      'week5',
       'day1',
       'day2',
       'day3',
+      'day4',
+      'day5',
+      'day6',
+      'day7',
     ])
-    expect(card.modalTableColumns?.map((column) => column.key)).toContain('day4')
-    expect(card.modalTableColumns?.map((column) => column.key)).toContain('day5')
+    expect(card.tableColumns.map((column) => column.label).slice(0, 2)).toEqual([
+      '7月全月',
+      '7月截止1日',
+    ])
+    expect(card.modalTableColumns?.map((column) => column.key)).toEqual(
+      card.tableColumns.map((column) => column.key),
+    )
+    expect(card.tableData.planInbound.month).toBe(120)
+    expect(card.tableData.planInbound.toDate).toBe(10)
+    expect(card.tableData.actualInbound.toDate).toBe(4)
     expect(card.tableData.planInbound.day1).toBe(10)
     expect(card.tableData.planInbound.day2).toBe(20)
     expect(card.tableData.planInbound.day3).toBeNull()
@@ -486,9 +502,13 @@ describe('loadInboundPlanTrendCard', () => {
     expect(card.tableData.actualInbound.day2).toBe(21)
     expect(card.tableData.gap.day1).toBe(-6)
     expect(card.tableData.achievementRate.day1).toBe(40)
-    expect(card.tableData.planInbound.day4).toBeUndefined()
-    expect(card.tableData.planInbound.day5).toBeUndefined()
-    expect(card.chartData?.xAxisData).toEqual(['1W', '2W', '1', '2', '3'])
+    expect(card.tableData.planInbound.day4).toBe(40)
+    expect(card.tableData.planInbound.day5).toBe(50)
+    expect(card.tableData.planInbound.day6).toBeNull()
+    expect(card.tableData.planInbound.day7).toBeNull()
+    expect(card.chartData?.xAxisData).toEqual([
+      '1W', '2W', '3W', '4W', '5W', '1', '2', '3', '4', '5',
+    ])
     expect(card.modalTableData?.planInbound.day4).toBe(40)
     expect(card.modalTableData?.planInbound.day5).toBe(50)
   })

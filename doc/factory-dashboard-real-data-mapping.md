@@ -10,7 +10,7 @@
 | 当前工序 | `processId` query，例如 `vulcanization1` | 通过 `toApiProcessType` 转为接口工序：`pretreatment* -> preprocessing`，`vulcanization* -> sulfur_addition`，`posttreatment* -> post_processing`。实时人员出勤按转换后的 API 工序去重后请求；例如制造1课的 `pretreatment1`、`pretreatment2` 只请求并汇总一次 `preprocessing`，避免重复累加。 |
 | 工序设备范围 | `public/factory-map/devices.json` 的 `section`、`deviceCode`、`deviceCodes`、`children[].deviceCode` | 用于把设备级接口过滤到当前部门或工序。 |
 | 当前月 | 前端本地日期 `YYYY-MM` | 推移表接口按月查询。 |
-| 月周配置 | `GET /basic/month-segment/base-data` | 前端按接口周配置聚合日数据；配置缺失时回退自然周。sessionStorage 记录键为 `${departmentId}:${processType}` 复合键；推移表查找时将 CssMap 值经 `toApiDepartmentCode`/`toApiProcessType` 转为接口格式后拼键读取，未命中的 (部门,工序) 组合回退自然周。 |
+| 月周配置 | `GET /basic/month-segment/base-data` | 出勤率推移和生产计划实绩推移按接口周配置聚合日数据，配置缺失时回退自然周。sessionStorage 记录键为 `${departmentId}:${processType}` 复合键，查找时将 CssMap 值经 `toApiDepartmentCode`/`toApiProcessType` 转为接口格式后拼键读取。入库计划实绩推移不读取此配置，固定使用月内七日分桶。 |
 
 ## 卡片刷新与缓存
 
@@ -124,7 +124,11 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 实绩计划差 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 - 计划`。 |
 | 入库达成率 | 前端派生 | 计划、实绩 | 有计划和实绩时计算 `实绩 / 计划`。 |
 
-显示规则：部门维度和工序维度均展示；制造1课以及制造1课下的前处理1/前处理2不展示。工序维度因 `getRukuPlan` 暂无 `processType` 或设备字段，入库计划实绩口径为当前工序所属部门。表格保留月列，折线图不展示月列。
+显示规则：部门维度和工序维度均展示；制造1课以及制造1课下的前处理1/前处理2不展示。工序维度因 `getRukuPlan` 暂无 `processType` 或设备字段，入库计划实绩口径为当前工序所属部门。
+
+表格和展开表格使用同一周期列：当前月全月累计、当月 1 日至设备本地当天（包含当天）的截止累计、固定月内周段、当天所在周段的全部自然日。固定周段为 `1W=1–7日`、`2W=8–14日`、`3W=15–21日`、`4W=22–28日`、`5W=29日–月末`；只有月份存在第 29 日时才显示 `5W`，不生成 `6W`。当周日列包含周六和周日，并在月末截止。
+
+折线图不展示全月和截止当天两个累计列，只使用周段和当周日列。有限且大于 `0` 的值才作为图表点，`0`、空值和非有限值转换为空点；图表裁掉第一个和最后一个有效点以外的首尾空类目，保留中间空类目并禁止跨空点连线。完全没有有效点的系列不显示，全部系列均无有效点时展示图表空状态；表格中的真实 `0` 仍正常显示。
 
 ## 生产计划实绩推移表
 

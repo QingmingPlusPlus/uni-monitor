@@ -15,9 +15,10 @@
 | `src/components/css-map`、`SpriteCssMapPanel`、`public/factory-map`、`src/static/factory-map`、`scripts/generate_factory_floorplan.py`、`scripts/generate_factory_map_layout.py`、`css-map` 厂区地图、实际比例布局、设备显示白名单、`visibleDeviceCodes`、设备卡片自适应布局、设备多边形、L 型专用内容布局 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md`、`doc/factory-map-layout-generation.md`、`DESIGN.md` | `openspec/specs/css-map/spec.md` | - | 更新 css-map spec、工厂维度 doc、实际比例生成 doc、接口映射 doc、设计系统或地图组件 | 生效 |
 | `src/utils/monthSegment.ts`、`src/components/LoadingIcon.vue`、月分段/自然周/sessionStorage 缓存 | `doc/shared-utilities.md`、`doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | - | - | 更新共享工具说明：自然周计算、session 读写、`departmentId:processType` 复合键查找、CssMap→接口格式转换、加载器去重 | 生效 |
 | `src/pages/factory-dashboard/data/factoryDashboardLoader.ts`、部门/工序维度首页真实接口适配 | `doc/factory-dashboard-architecture.md`、`doc/factory-dashboard-real-data-mapping.md`、`doc/department-api-gaps.md`、`doc/factory-dimensions.md` | - | - | 更新看板架构、接口映射、接口缺口或工厂维度 doc；若新增/调整 loader 子模块，同步更新架构和映射入口 | 生效 |
-| `src/components/table-chart-card`、`TableChartCard`、推移表共用紧凑表格/展开弹窗 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | - | - | 更新共用表格数值适配、滚动或图表行为说明及组件测试 | 生效 |
+| `src/components/table-chart-card`、`TableChartCard`、推移表共用紧凑表格/展开弹窗 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | `openspec/specs/configurable-table-chart-card/spec.md` | - | 更新共用表格数值适配、滚动或图表行为说明及组件测试 | 生效 |
 | `src/components/attendance-trend-card`、`出勤率推移表`、`loadAttendanceTrendCard` | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新出勤率推移表聚合口径、列展示规则或组件测试 | 生效 |
-| `src/components/department-inbound-plan-trend-card`、`src/components/process-production-plan-trend-card`、`loadInboundPlanTrendCard`、`loadProductionPlanTrendCard`、推移卡片月级缓存与 `forceRefresh` 刷新 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新卡片刷新与缓存说明或推移表口径 | 生效 |
+| `src/components/department-inbound-plan-trend-card`、`loadInboundPlanTrendCard`、`inboundTrendDisplay.ts`、入库固定月内七日分桶/截止当天/图表零值断线 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/shared-utilities.md` | `openspec/specs/inbound-trend-period-display/spec.md` | - | 更新入库周期、聚合、图表规则和对应测试 | 生效 |
+| `src/components/process-production-plan-trend-card`、`loadProductionPlanTrendCard`、推移卡片月级缓存与 `forceRefresh` 刷新 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新卡片刷新与缓存说明或生产计划推移口径 | 生效 |
 
 ## 兜底策略
 
