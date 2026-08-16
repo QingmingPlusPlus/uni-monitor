@@ -22,6 +22,7 @@ import {
   type DailyProcessRow,
   getRowsForPeriod,
   type TrendPeriod,
+  type TrendPeriods,
 } from './trendPeriodBuilder'
 import { extractDayFromDate, getScheduleShiftSequence } from './attendanceShifts'
 import { extractLocalDateKey, getCurrentShiftCutoff, type CurrentShiftCutoff } from './dateTimeUtils'
@@ -241,7 +242,7 @@ export function createFlowChartData(
 }
 
 export function getFlowChartPeriods(periods: readonly TrendPeriod[]): readonly TrendPeriod[] {
-  return periods.filter((period) => period.kind !== 'month')
+  return periods.filter((period) => period.kind !== 'month' && period.kind !== 'toDate')
 }
 
 export function cloneRowsWithPercent(
@@ -299,8 +300,10 @@ export function createFlowTrendCard(params: {
   readonly tableRows: readonly TableRowConfig[]
   readonly chartOptions: ChartOptionConfig
   readonly keys: { readonly plan: string; readonly actual: string; readonly gap: string; readonly rate: string }
+  readonly periods?: TrendPeriods
+  readonly chartDataFactory?: typeof createFlowChartData
 }): FactoryDashboardCard | null {
-  const periods = createTrendPeriods(params.department, params.processTypes)
+  const periods = params.periods ?? createTrendPeriods(params.department, params.processTypes)
   if (periods === null) return null
 
   const allPeriods = [...periods.inlinePeriods, ...periods.modalPeriods]
@@ -319,6 +322,7 @@ export function createFlowTrendCard(params: {
   const modalTableData = createFlowTableData(periods.modalPeriods, periodValues, params.keys)
   const chartPeriods = getFlowChartPeriods(periods.inlinePeriods)
   const modalChartPeriods = getFlowChartPeriods(periods.modalPeriods)
+  const chartDataFactory = params.chartDataFactory ?? createFlowChartData
 
   return {
     id: params.id,
@@ -328,12 +332,12 @@ export function createFlowTrendCard(params: {
     tableColumns: createTrendColumns(periods.inlinePeriods, false),
     tableData,
     chartOptions: params.chartOptions,
-    chartData: createFlowChartData(chartPeriods, tableData, params.keys),
+    chartData: chartDataFactory(chartPeriods, tableData, params.keys),
     modalTableRows: tableRows,
     modalTableColumns: createTrendColumns(periods.modalPeriods, true),
     modalTableData,
     modalChartOptions: params.chartOptions,
-    modalChartData: createFlowChartData(modalChartPeriods, modalTableData, params.keys),
+    modalChartData: chartDataFactory(modalChartPeriods, modalTableData, params.keys),
   }
 }
 

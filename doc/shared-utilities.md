@@ -4,7 +4,7 @@
 
 ## `src/utils/monthSegment.ts`
 
-该工具把当前月的后端分段配置转换为同步可读取的 `sessionStorage` 记录，供出勤、入库和生产计划趋势按月、周、日构造列和聚合数据。
+该工具把当前月的后端分段配置转换为同步可读取的 `sessionStorage` 记录，供出勤率推移和生产计划实绩推移按月、周、日构造列和聚合数据。真实入库计划实绩推移使用 `data/loaders/inboundTrendDisplay.ts` 的固定月内七日分桶，不读取此 session 配置；历史 mock 聚合仍可使用本模块相关工具。
 
 ### 记录结构
 
@@ -37,7 +37,7 @@
 - `createWeekKey`、`createWeekColumns`：生成 `week1`、`1W` 等表格配置。
 - `getRowsInSegment`：按工序和起止日筛选日数据。
 
-它不负责百分比、计划实绩或人数等业务聚合，也不直接读取 session。真实接口趋势的通用周期构造位于 `data/loaders/trendPeriodBuilder.ts`，两者不要互相复制业务口径。
+它不负责百分比、计划实绩或人数等业务聚合，也不直接读取 session。真实接口趋势的通用周期构造位于 `data/loaders/trendPeriodBuilder.ts`；入库专用周期与图表投影位于 `data/loaders/inboundTrendDisplay.ts`，不要把其固定七日分桶和零值语义扩散到其他推移表。
 
 ## `src/components/LoadingIcon.vue`
 

@@ -14,6 +14,10 @@ import {
   filterRecordsForDepartment,
 } from './flowTrendCommon'
 import {
+  createInboundFlowChartData,
+  createInboundTrendPeriods,
+} from './inboundTrendDisplay'
+import {
   invalidateInboundScheduleRecords,
   loadScheduleRukuPlanRecords,
   loadScheduleRukuShijiRecords,
@@ -46,11 +50,13 @@ export async function loadInboundPlanTrendCard(
     id: 'department-inbound-plan-trend',
     title: '入库计划实绩推移表',
     subtitle: hasActual
-      ? '按月、周及当前周工作日别汇总入库计划与实绩'
-      : '按月、周及当前周工作日别汇总入库计划；当前月实绩接口暂无记录',
+      ? '按全月、截止当天、月内周及当前周每日汇总入库计划与实绩'
+      : '按全月、截止当天、月内周及当前周每日汇总入库计划；当前月实绩接口暂无记录',
     department,
     processTypes: [bucketProcessType],
     dailyRows,
+    periods: createInboundTrendPeriods([bucketProcessType]),
+    chartDataFactory: createInboundFlowChartData,
     tableRows: departmentInboundPlanTrendRows,
     chartOptions: departmentInboundPlanTrendChartOptions,
     keys: {
