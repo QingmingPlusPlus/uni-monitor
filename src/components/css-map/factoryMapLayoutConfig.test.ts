@@ -63,6 +63,16 @@ const expectedVisibleCodes = [
   '1C07',
   '1C08',
   '1C09',
+  '1C10',
+  '1C11',
+  '1C12',
+  '1C13',
+  '1C14',
+  '1C15',
+  '1C16',
+  '1C17',
+  '1C18',
+  '1C21',
   '1B01',
   '1B02',
   '1B03',
@@ -72,6 +82,17 @@ const expectedVisibleCodes = [
   '1B07',
   '1B08',
   '1B09',
+  '1B10',
+  '1B11',
+  '1B12',
+  '1B13',
+  '1B14',
+  '1B15',
+  '1B16',
+  '1B17',
+  '1B18',
+  '1B19',
+  '1B20',
   '1A01',
   '1A02',
   '1A03',
@@ -165,7 +186,7 @@ describe('factory floorplan layout config', () => {
     })
   })
 
-  it('保留全量点位定义，但只把本次 slices JSON 的 46 台列入显示白名单', () => {
+  it('保留全量点位定义，但只把已确认的 67 台列入显示白名单', () => {
     const rendered = flattenDevices()
     const codes = rendered.map((device) => device.code).sort()
     const nodeIds = mapConfig.devices.flatMap((device) => [
@@ -295,6 +316,31 @@ describe('factory floorplan layout config', () => {
     horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
   })
 
+  it('让 1C10–1C18 和 1C21 从指定坐标开始按统一尺寸和间距排列', () => {
+    const expectedCodes = [...codeRange('1C', 10, 18), '1C21']
+    const byCode = new Map(flattenDevices().map((device) => [device.code, device]))
+    const devices = expectedCodes.map((code) => byCode.get(code))
+
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 906 + index * 24,
+        y: 291,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => (device?.x ?? 0) - (devices[index]?.x ?? 0),
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => (device?.x ?? 0) - (devices[index]?.x ?? 0) - (devices[index]?.width ?? 0),
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
+  })
+
   it('让 1B01–1B09 位于 1C01–1C09 正下方并复用相同尺寸和间距', () => {
     const devices = flattenDevices()
       .filter((device) => /^1B0[1-9]$/.test(device.code))
@@ -316,6 +362,32 @@ describe('factory floorplan layout config', () => {
       expect(device.width).toBeCloseTo(upperDevices[index].width, 6)
       expect(device.height).toBeCloseTo(upperDevices[index].height, 6)
     })
+  })
+
+  it('让 1B10–1B20 从指定坐标开始按统一尺寸和间距排列', () => {
+    const devices = flattenDevices()
+      .filter((device) => /^1B1[0-9]$|^1B20$/.test(device.code))
+      .sort((left, right) => left.code.localeCompare(right.code))
+
+    expect(devices).toHaveLength(11)
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 906 + index * 24,
+        y: 381,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x,
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x - devices[index].width,
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
   })
 
   it('让 1A01–1A09 位于 1B01–1B09 正下方并复用相同尺寸和间距', () => {
