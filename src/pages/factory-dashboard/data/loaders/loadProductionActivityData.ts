@@ -53,10 +53,9 @@ function filterRealtimeForProcess(
   deviceCodeMap: Readonly<Record<string, ReadonlySet<string>>>,
 ): readonly DeviceRealtimeItem[] {
   const codeSet = deviceCodeMap[processType]
-  if (codeSet === undefined || codeSet.size === 0) return items
+  if (codeSet === undefined) return items
 
-  const filtered = items.filter((item) => codeSet.has(normalizeDeviceCode(item.deviceCode)))
-  return filtered.length > 0 ? filtered : items
+  return items.filter((item) => codeSet.has(normalizeDeviceCode(item.deviceCode)))
 }
 
 function createProductionActivityRow(
@@ -67,7 +66,7 @@ function createProductionActivityRow(
   deviceCodeMap: Readonly<Record<string, ReadonlySet<string>>>,
 ): ProductionActivityRow {
   const codeSet = deviceCodeMap[processType]
-  const totalCount = Math.max(items.length, codeSet?.size ?? 0)
+  const totalCount = codeSet === undefined ? items.length : codeSet.size
   const statuses = items.map(mapRealtimeToActivityStatus)
   const plannedStopCount = statuses.filter((status) => status === 'plannedStop').length
   const abnormalCount = statuses.filter((status) => status === 'abnormal').length
