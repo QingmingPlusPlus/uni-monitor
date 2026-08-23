@@ -167,6 +167,61 @@ describe('loadProductionActivityData', () => {
       plannedStopCount: 2,
     })
   })
+
+  it('后台返回的设备与地图配置完全无交集时按地图清空，不回退信任后台', async () => {
+    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          createRealtimeItem('X1', { actualStatus: 'running' }),
+          createRealtimeItem('X2', { actualStatus: 'running' }),
+          createRealtimeItem('X3', { actualStatus: 'running' }),
+        ],
+      },
+    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+
+    const card = await loadProductionActivityData(
+      'department2',
+      ['vulcanization1'],
+      defaultCssMapSelectionConfig,
+    )
+
+    expect(card.rows[0]).toMatchObject({
+      totalCount: 6,
+      runningCount: 6,
+      abnormalCount: 0,
+      plannedStopCount: 0,
+    })
+  })
+
+  it('地图中未配置该工序设备时回退信任后台返回', async () => {
+    vi.mocked(getDeviceRealtimeList).mockResolvedValue({
+      data: {
+        success: true,
+        code: '200',
+        message: 'ok',
+        data: [
+          createRealtimeItem('P1', { actualStatus: 'running' }),
+          createRealtimeItem('P2', { actualStatus: 'normal' }),
+        ],
+      },
+    } as Awaited<ReturnType<typeof getDeviceRealtimeList>>)
+
+    const card = await loadProductionActivityData(
+      'department2',
+      ['posttreatment1'],
+      defaultCssMapSelectionConfig,
+    )
+
+    expect(card.rows[0]).toMatchObject({
+      totalCount: 2,
+      runningCount: 1,
+      abnormalCount: 0,
+      plannedStopCount: 1,
+    })
+  })
 })
 
 describe('loadAttendanceCard', () => {

@@ -57,7 +57,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 | 指标 | 接口/来源 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 生产线稼动 | `GET /device/realtime/list` + 地图设备范围 | `deviceCode`、`actualStatus`、`deviceParseType`、`deviceParseTypeName` | 汇总卡片累加“生产线稼动情况”各工序行；设备范围和总台数以地图 `devices.json` 中当前工序的设备编码为准，实时接口只提供匹配设备的状态。除计划停止外的设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。 |
+| 生产线稼动 | `GET /device/realtime/list` + 地图设备范围 | `deviceCode`、`actualStatus`、`deviceParseType`、`deviceParseTypeName` | 汇总卡片累加“生产线稼动情况”各工序行；设备范围严格以地图 `devices.json` 中当前工序的设备编码为准，后台返回的地图外设备不计入任何指标。**总台数固定等于地图配置设备数**（即使部分设备无实时数据，失联也计入总台数），稼动/异常/计划停止台数均在「地图 ∩ 后台」交集上统计。除计划停止外的设备均计入稼动台数（含异常、切替、清扫），并计算稼动率。状态判定与 css-map 同源（`src/components/css-map/deviceRealtimeStatus.ts`）。仅当 `devices.json` 中**完全未配置当前工序**（`codeSet === undefined`，通常为地图配置缺失或加载失败）时才回退为信任后台返回。 |
 | 人员出勤-直接 | `GET /attendance/attendanceSituation` | `positionType=direct`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 信息汇总采用两班显示口径：06:30（含）至 18:30（不含）只汇总早班直接人员的应出勤/实际出勤和出勤率；18:30（含）至次日 06:30（不含）只汇总晚班。中班不参与信息汇总。 |
 | 人员出勤-间接 | `GET /attendance/attendanceSituation` | `positionType=indirect`、`shiftType`/`shiftTypeName`、`schedulePersonCount`、`actualAttendancePersonCount` | 信息汇总采用两班显示口径：06:30（含）至 18:30（不含）只汇总早班间接人员的应出勤/实际出勤和出勤率；18:30（含）至次日 06:30（不含）只汇总晚班。中班和 `正常班(regular)` 不参与信息汇总；接口 `shiftTypeName` 不含早/中/晚/夜/白等关键词时前端归为 `正常班(regular)`。 |
 | 入库实绩 | `GET /schedule/getRukuPlan`、`GET /schedule/getRukuShiji` | `number` | 计划来自 `getRukuPlan`，实绩来自 `getRukuShiji`；取当月接口全量合计，**不按部门/工序过滤**（与入库计划实绩推移表口径不同），计算实绩/计划与达成率。此卡片不区分维度，后续按设备 id 访问为预留扩展点。 |
@@ -71,10 +71,10 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | --- | --- | --- | --- |
 | 部门 | 页面状态、`selection.json` | `departmentId` | 部门维度显示当前部门名称；工序维度显示当前工序所属部门名称。 |
 | 工序 | `selection.json` | `processId`、label | 部门维度每个工序一行；工序维度只显示当前工序一行。 |
-| 总台数 | `GET /device/realtime/list` + 地图设备范围 | 设备记录数 | 按当前部门或工序设备编码过滤后计数。 |
-| 稼动台数 | 同上 | `actualStatus`、`deviceParseType` | 除计划停止外均计入稼动台数（含生产中、切替、清扫、异常、中立）；状态判定与 css-map 同源（`deviceRealtimeStatus.ts`），以 `actualStatus` 为主，暂停再按 `deviceParseType` 细分。 |
-| 异常台数 | 同上 | `actualStatus`、`deviceParseType` | 暂停且 `deviceParseType` 不属于切替(CUT)/清扫(CLEAN)/计划停止类时计入（即 css-map 的 `abnormalStop`）。 |
-| 计划停止台数 | 同上 | `actualStatus`、`deviceParseType`、`deviceParseTypeName` | `actualStatus === 'normal'`，或暂停且解析后的原因属于“用餐”/`TOOL_CHANGE`、`DEVICE_TOOL_CHANGE`、“休息”/`REST`、`DEVICE_REST` 时计入（与 css-map 的 `plannedStop` 一致）。 |
+| 总台数 | 地图 `devices.json` | `deviceCode`/`deviceCodes`/`children[].deviceCode` 数量 | 严格等于当前工序在地图上配置的设备数（含子设备）。地图配置后即使后台无实时数据也计入；后台返回的地图外设备不影响总台数。仅当 `devices.json` 完全未配置当前工序时回退为后台返回设备数。 |
+| 稼动台数 | `GET /device/realtime/list` + 地图设备范围 | `actualStatus`、`deviceParseType` | 在「地图 ∩ 后台」交集上统计；除计划停止外均计入稼动台数（含生产中、切替、清扫、异常、中立）；状态判定与 css-map 同源（`deviceRealtimeStatus.ts`），以 `actualStatus` 为主，暂停再按 `deviceParseType` 细分。计算公式：`总台数 - 计划停止台数`。 |
+| 异常台数 | 同上 | `actualStatus`、`deviceParseType` | 在「地图 ∩ 后台」交集上统计；暂停且 `deviceParseType` 不属于切替(CUT)/清扫(CLEAN)/计划停止类时计入（即 css-map 的 `abnormalStop`）。 |
+| 计划停止台数 | 同上 | `actualStatus`、`deviceParseType`、`deviceParseTypeName` | 在「地图 ∩ 后台」交集上统计；`actualStatus === 'normal'`，或暂停且解析后的原因属于“用餐”/`TOOL_CHANGE`、`DEVICE_TOOL_CHANGE`、“休息”/`REST`、`DEVICE_REST` 时计入（与 css-map 的 `plannedStop` 一致）。 |
 
 ## 人员出勤情况
 
