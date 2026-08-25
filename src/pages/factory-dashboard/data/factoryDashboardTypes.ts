@@ -67,6 +67,7 @@ export interface PersonnelAttendanceRow {
   readonly directDispatched: number
   readonly directTemporary: number
   readonly directStandby: number
+  readonly directNewcomer: number
   readonly directRosterTotal: number
   readonly actualAttendance: number
   readonly attendanceRate: number | null

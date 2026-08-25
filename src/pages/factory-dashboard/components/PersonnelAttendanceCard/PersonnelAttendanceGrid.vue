@@ -13,11 +13,12 @@
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--actual-attendance">实际出勤</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">班长</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">班长</text>
-        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">组长</text>
-        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">正式工</text>
-        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">派遣工</text>
-        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">临时工</text>
+        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--role-team-leader">组长</text>
+        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--role-regular">正式工</text>
+        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--role-dispatched">派遣工</text>
+        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--role-temporary">临时工</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">顶岗</text>
+        <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head personnel-attendance-table__cell--role-newcomer">新人</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">合计</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">人数</text>
         <text class="personnel-attendance-table__cell personnel-attendance-table__cell--head">出勤率</text>
@@ -36,6 +37,7 @@
           <text :class="getCellClass(item, 'metric')">{{ formatCount(item.row.directDispatched) }}</text>
           <text :class="getCellClass(item, 'metric')">{{ formatCount(item.row.directTemporary) }}</text>
           <text :class="getCellClass(item, 'metric')">{{ formatCount(item.row.directStandby) }}</text>
+          <text :class="getCellClass(item, 'metric')">{{ formatCount(item.row.directNewcomer) }}</text>
           <text :class="getCellClass(item, 'metric')">{{ formatCount(item.row.directRosterTotal) }}</text>
           <text :class="getCellClass(item, 'metric')">{{ formatCount(item.row.actualAttendance) }}</text>
           <text :class="getCellClass(item, 'metric')">{{ formatRate(item.row.attendanceRate) }}</text>

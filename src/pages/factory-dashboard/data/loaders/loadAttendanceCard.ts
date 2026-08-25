@@ -41,7 +41,7 @@ function sumPositionRoster(
  * 卡片需要按工序族分组的 (indirectDirectRoster, indirectLeaderRoster, directTeamLeader, ...) 明细。
  *
  * 接口不提供稳定的人员子类枚举，因此按 positionName 中文关键词拆分。
- * 班长按间接口径展示；组长、派遣、临时、顶岗从直接在籍中拆分。
+ * 班长按间接口径展示；组长、派遣、临时、顶岗、新人从直接在籍中拆分。
  */
 export function aggregateAttendanceRows(
   vos: readonly CurrentAttendanceStatisticsVO[],
@@ -78,7 +78,12 @@ export function aggregateAttendanceRows(
     const directDispatched = sumPositionRoster(directPositions, (name) => name.includes('派遣'))
     const directTemporary = sumPositionRoster(directPositions, (name) => name.includes('临时'))
     const directStandby = sumPositionRoster(directPositions, (name) => name.includes('顶岗'))
-    const knownDirectRoster = directTeamLeader + directDispatched + directTemporary + directStandby
+    const directNewcomer = sumPositionRoster(directPositions, (name) => name.includes('新人'))
+    const knownDirectRoster = directTeamLeader
+      + directDispatched
+      + directTemporary
+      + directStandby
+      + directNewcomer
 
     rows.push({
       id: `${shiftType}-detail`,
@@ -94,6 +99,7 @@ export function aggregateAttendanceRows(
       directDispatched,
       directTemporary,
       directStandby,
+      directNewcomer,
       directRosterTotal,
       actualAttendance,
       attendanceRate: calculateAttendanceRate(directRosterTotal, actualAttendance),
@@ -129,6 +135,7 @@ export function createAttendanceSummaryRow(
     directDispatched: rows.reduce((total, row) => total + row.directDispatched, 0),
     directTemporary: rows.reduce((total, row) => total + row.directTemporary, 0),
     directStandby: rows.reduce((total, row) => total + row.directStandby, 0),
+    directNewcomer: rows.reduce((total, row) => total + row.directNewcomer, 0),
     directRosterTotal,
     actualAttendance,
     attendanceRate: calculateAttendanceRate(directRosterTotal, actualAttendance),

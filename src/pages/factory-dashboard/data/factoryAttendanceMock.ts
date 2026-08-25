@@ -23,15 +23,15 @@ const refreshedAtFormatter = new Intl.DateTimeFormat('zh-CN', {
 })
 
 const pretreatmentRows = [
-  createTemplate('day', '早班', 37, 1, 1, 3, 30, 3, 0, 0, 36, 34),
-  createTemplate('night', '夜班', 38, 1, 1, 3, 29, 5, 0, 0, 37, 33),
-  createTemplate('regular', '正常班', 1, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+  createTemplate('day', '早班', 37, 1, 1, 3, 29, 3, 0, 0, 1, 36, 34),
+  createTemplate('night', '夜班', 38, 1, 1, 3, 28, 5, 0, 0, 1, 37, 33),
+  createTemplate('regular', '正常班', 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 ] as const satisfies readonly AttendanceTemplate[]
 
 const posttreatmentRows = [
-  createTemplate('day', '早班', 43, 1, null, 3, 32, 7, 0, 0, 42, 39),
-  createTemplate('night', '夜班', 42, 1, null, 4, 35, 2, 0, 0, 41, 41),
-  createTemplate('regular', '正常班', 2, 2, null, 0, 0, 0, 0, 0, 0, 0),
+  createTemplate('day', '早班', 43, 1, null, 3, 31, 7, 0, 0, 1, 42, 39),
+  createTemplate('night', '夜班', 42, 1, null, 4, 34, 2, 0, 0, 1, 41, 41),
+  createTemplate('regular', '正常班', 2, 2, null, 0, 0, 0, 0, 0, 0, 0, 0),
 ] as const satisfies readonly AttendanceTemplate[]
 
 function createTemplate(
@@ -45,6 +45,7 @@ function createTemplate(
   directDispatched: number,
   directTemporary: number,
   directStandby: number,
+  directNewcomer: number,
   directRosterTotal: number,
   actualAttendance: number,
 ): AttendanceTemplate {
@@ -63,6 +64,7 @@ function createTemplate(
     directDispatched,
     directTemporary,
     directStandby,
+    directNewcomer,
     directRosterTotal,
     actualAttendance,
     attendanceRate: calculateAttendanceRate(directRosterTotal, actualAttendance),
@@ -129,6 +131,7 @@ function createSummaryRow(
     directDispatched: rows.reduce((total, row) => total + row.directDispatched, 0),
     directTemporary: rows.reduce((total, row) => total + row.directTemporary, 0),
     directStandby: rows.reduce((total, row) => total + row.directStandby, 0),
+    directNewcomer: rows.reduce((total, row) => total + row.directNewcomer, 0),
     directRosterTotal,
     actualAttendance,
     attendanceRate: calculateAttendanceRate(directRosterTotal, actualAttendance),
