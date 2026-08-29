@@ -310,7 +310,7 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(getDeviceRealtimeList).toHaveBeenCalledWith({ deviceCodes: 'D-01,D-03' })
   })
 
-  it('STI375 与 STI450 系列设备名只显示编号，其他机型保持原名', async () => {
+  it('加硫设备名称只显示设备编号，其他机型保持原名', async () => {
     stubFactoryMapConfig([
       {
         id: 'vulcanization-group',
@@ -326,6 +326,8 @@ describe('loadCssMapData realtime status mapping', () => {
           { id: 'sti450mvx', name: 'STI450MVX-2B22', deviceCode: '2B22', x: 40, y: 0, width: 20, height: 100 },
           { id: 'sti375', name: 'STI375-1A01', deviceCode: '1A01', x: 60, y: 0, width: 20, height: 100 },
           { id: 'hti', name: 'HTI-2A01', deviceCode: '2A01', x: 80, y: 0, width: 20, height: 100 },
+          { id: 'sti450vy', name: 'STI450VY-2A02', deviceCode: '2A02', x: 100, y: 0, width: 20, height: 100 },
+          { id: 'sti450vy-no-hyphen', name: 'STI450VY2A06', deviceCode: '2A06', x: 120, y: 0, width: 20, height: 100 },
         ],
       },
     ])
@@ -339,7 +341,9 @@ describe('loadCssMapData realtime status mapping', () => {
       '1C07',
       '2B22',
       '1A01',
-      'HTI-2A01',
+      '2A01',
+      '2A02',
+      '2A06',
     ])
   })
 

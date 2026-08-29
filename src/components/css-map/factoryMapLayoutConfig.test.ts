@@ -74,6 +74,30 @@ const expectedVisibleCodes = [
   '1C17',
   '1C18',
   '1C21',
+  '1D05',
+  '1D06',
+  '1D07',
+  '1D08',
+  '1D09',
+  '1D10',
+  '1D11',
+  '1D12',
+  '1D16',
+  '1D17',
+  '1D18',
+  '1D19',
+  '1D20',
+  '1D21',
+  '1D22',
+  '1D23',
+  '1D24',
+  '1D25',
+  '1D26',
+  '1D27',
+  '1D28',
+  '1D29',
+  '1D30',
+  '1D31',
   '1B01',
   '1B02',
   '1B03',
@@ -114,6 +138,48 @@ const expectedVisibleCodes = [
   '1A18',
   '1A19',
   '1A20',
+  '2A01',
+  '2A02',
+  '2A03',
+  '2A04',
+  '2A05',
+  '2A06',
+  '2A07',
+  '2A08',
+  '2A09',
+  '2A10',
+  '2A11',
+  '2A12',
+  '2A13',
+  '2A14',
+  '2A15',
+  '2A16',
+  '2A17',
+  '2A18',
+  '2B01',
+  '2B02',
+  '2B03',
+  '2B04',
+  '2B05',
+  '2B06',
+  '2B07',
+  '2B08',
+  '2B09',
+  '2B10',
+  '2B11',
+  '2B12',
+  '2B13',
+  '2B14',
+  '2B15',
+  '2B16',
+  '2B17',
+  '2B18',
+  '2B19',
+  '2B20',
+  '2B21',
+  '2B22',
+  '2B23',
+  '2B24',
   '1110',
   '1111',
 ] as const
@@ -188,7 +254,7 @@ describe('factory floorplan layout config', () => {
     })
   })
 
-  it('保留全量点位定义，但只把已确认的 67 台列入显示白名单', () => {
+  it('保留全量点位定义，并只渲染当前显示白名单', () => {
     const rendered = flattenDevices()
     const codes = rendered.map((device) => device.code).sort()
     const nodeIds = mapConfig.devices.flatMap((device) => [
@@ -218,6 +284,60 @@ describe('factory floorplan layout config', () => {
     visibleDevices.forEach((device) => {
       expect(device.x + device.width, device.code).toBeLessThanOrEqual(mapConfig.source.imageWidth)
       expect(device.y + device.height, device.code).toBeLessThanOrEqual(mapConfig.source.imageHeight)
+    })
+  })
+
+  it('按评审坐标纵向排列 1D05–1D12 加硫设备', () => {
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+    const expected = [
+      ['1D05', 79, 33, 21],
+      ['1D06', 102, 33, 21],
+      ['1D07', 125, 34, 20],
+      ['1D08', 147, 34, 20],
+      ['1D09', 169, 34, 20],
+      ['1D10', 191, 34, 20],
+      ['1D11', 213, 34, 20],
+      ['1D12', 235, 34, 20],
+    ] as const
+
+    expected.forEach(([code, y, width, height]) => {
+      expectRect(renderedByCode.get(code), { x: 815, y, width, height })
+    })
+  })
+
+  it('按评审坐标纵向排列 1D16–1D23 加硫设备', () => {
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+    const expected = [
+      ['1D16', 73],
+      ['1D17', 95],
+      ['1D18', 117],
+      ['1D19', 139],
+      ['1D20', 161],
+      ['1D21', 183],
+      ['1D22', 205],
+      ['1D23', 227],
+    ] as const
+
+    expected.forEach(([code, y]) => {
+      expectRect(renderedByCode.get(code), { x: 948, y, width: 34, height: 20 })
+    })
+  })
+
+  it('按评审坐标分组纵向排列 1D24–1D31 加硫设备', () => {
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+    const expected = [
+      ['1D24', 52],
+      ['1D25', 74],
+      ['1D26', 96],
+      ['1D27', 145],
+      ['1D28', 167],
+      ['1D29', 189],
+      ['1D30', 211],
+      ['1D31', 233],
+    ] as const
+
+    expected.forEach(([code, y]) => {
+      expectRect(renderedByCode.get(code), { x: 989, y, width: 34, height: 20 })
     })
   })
 
@@ -264,12 +384,12 @@ describe('factory floorplan layout config', () => {
     expect(firstFactoryAnnotated).toHaveLength(83)
     expect(secondFactoryAnnotated).toHaveLength(42)
     expect(Math.max(...firstFactoryAnnotated.map((device) => device.y + device.height))).toBeLessThan(592)
-    expect(Math.min(...secondFactoryAnnotated.map((device) => device.y))).toBeGreaterThan(799)
+    expect(Math.min(...secondFactoryAnnotated.map((device) => device.y))).toBeGreaterThanOrEqual(597)
 
     const firstRow = mapConfig.devices.find((device) => device.id === 'layout-factory1-region-n1')
     const secondRow = mapConfig.devices.find((device) => device.id === 'layout-factory2-region-n1')
     expect(firstRow).toMatchObject({ x: 671, y: 450, width: 214, height: 58 })
-    expect(secondRow).toMatchObject({ x: 553.9, y: 820.35, width: 391.57, height: 82.13 })
+    expect(secondRow).toMatchObject({ x: 509, y: 597, width: 310, height: 58 })
   })
 
   it('保留全量来源中的推断 code 和唯一工厂冲突设备', () => {
@@ -425,6 +545,136 @@ describe('factory floorplan layout config', () => {
       expectRect(device, {
         x: 908 + index * 24,
         y: 450,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x,
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x - devices[index].width,
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
+  })
+
+  it('让 2A01–2A13 从指定坐标开始按统一尺寸和间距横向排列', () => {
+    const devices = flattenDevices()
+      .filter((device) => /^2A(?:0[1-9]|1[0-3])$/.test(device.code))
+      .sort((left, right) => left.code.localeCompare(right.code))
+
+    expect(devices).toHaveLength(13)
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 509 + index * 24,
+        y: 597,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x,
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x - devices[index].width,
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
+  })
+
+  it('让 2A14–2A18 参考上一组从指定坐标开始横向排列', () => {
+    const devices = flattenDevices()
+      .filter((device) => /^2A1[4-8]$/.test(device.code))
+      .sort((left, right) => left.code.localeCompare(right.code))
+
+    expect(devices).toHaveLength(5)
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 879 + index * 24,
+        y: 597,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x,
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x - devices[index].width,
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
+  })
+
+  it('让 2B01–2B12 从指定坐标开始按统一尺寸和间距横向排列', () => {
+    const devices = flattenDevices()
+      .filter((device) => /^2B(?:0[1-9]|1[0-2])$/.test(device.code))
+      .sort((left, right) => left.code.localeCompare(right.code))
+
+    expect(devices).toHaveLength(12)
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 529 + index * 24,
+        y: 776,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x,
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x - devices[index].width,
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
+  })
+
+  it('让 2B13–2B21 从指定坐标开始按统一尺寸和间距横向排列', () => {
+    const devices = flattenDevices()
+      .filter((device) => /^2B1[3-9]$|^2B20$|^2B21$/.test(device.code))
+      .sort((left, right) => left.code.localeCompare(right.code))
+
+    expect(devices).toHaveLength(9)
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 882 + index * 24,
+        y: 774,
+        width: 22,
+        height: 58,
+      })
+    })
+
+    const horizontalSteps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x,
+    )
+    horizontalSteps.forEach((step) => expect(step).toBeCloseTo(24, 6))
+
+    const horizontalGaps = devices.slice(1).map(
+      (device, index) => device.x - devices[index].x - devices[index].width,
+    )
+    horizontalGaps.forEach((gap) => expect(gap).toBeCloseTo(2, 6))
+  })
+
+  it('让 2B22–2B24 从指定坐标开始按统一尺寸和间距横向排列', () => {
+    const devices = flattenDevices()
+      .filter((device) => /^2B2[2-4]$/.test(device.code))
+      .sort((left, right) => left.code.localeCompare(right.code))
+
+    expect(devices).toHaveLength(3)
+    devices.forEach((device, index) => {
+      expectRect(device, {
+        x: 1265 + index * 24,
+        y: 780,
         width: 22,
         height: 58,
       })

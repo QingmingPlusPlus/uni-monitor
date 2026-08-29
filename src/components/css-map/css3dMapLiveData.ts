@@ -50,7 +50,7 @@ const factoryMapConfigUrls = [
 ] as const
 
 const childLayoutSize = 100
-const abbreviatedDeviceNamePattern = /^(?:STI375|STI450(?:VX|MVX)?)-([0-9][A-Z][0-9]{2})$/
+const abbreviatedDeviceNamePattern = /^(?:HTI|STI375|STI450(?:VY|VX|MVX)?)-?([0-9][A-Z][0-9]{2})$/
 
 export class CssMapDataLoadError extends Error {
   constructor(message: string) {
