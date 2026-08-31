@@ -56,7 +56,14 @@ const expectedVisibleCodes = [
   '1123',
   '1114',
   '1115',
+  '1120',
+  '1119',
+  '1118',
+  '1117',
+  '1116',
+  '1122',
   '1112',
+  '1110',
   '1121',
   '1104',
   '1105',
@@ -311,6 +318,48 @@ describe('factory floorplan layout config', () => {
     })
   })
 
+  it('按评审坐标显示 CG 连接设备 3–7', () => {
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+    const expected = [
+      ['1120', 'CG连接7', 352, 397, 39, 46],
+      ['1119', 'CG连接6', 408, 398, 36, 46],
+      ['1118', 'CG连接5', 408, 467, 35, 48],
+      ['1117', 'CG连接4', 464, 423, 28, 33],
+      ['1116', 'CG连接3', 464, 471, 28, 36],
+    ] as const
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = renderedByCode.get(code)
+      expect(device).toMatchObject({ x, y, width, height })
+      expect(mapConfig.devices.find((item) => item.deviceCode === code)?.name).toBe(name)
+    })
+  })
+
+  it('按评审坐标显示自动喷涂粘接-1', () => {
+    const device = mapConfig.devices.find((item) => item.deviceCode === '1110')
+
+    expect(device).toMatchObject({
+      name: '自动喷涂粘接-1',
+      x: 233,
+      y: 441,
+      width: 112,
+      height: 56,
+    })
+  })
+
+  it('按评审坐标显示 CG 粘接-12', () => {
+    const device = mapConfig.devices.find((item) => item.deviceCode === '1122')
+
+    expect(device).toMatchObject({
+      name: 'CG粘接-12',
+      x: 533,
+      y: 470,
+      width: 70,
+      height: 47,
+      section: 'pretreatment1',
+    })
+  })
+
   it('按评审坐标纵向排列 1D16–1D23 加硫设备', () => {
     const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
     const expected = [
@@ -422,7 +471,7 @@ describe('factory floorplan layout config', () => {
     expectRect(byCode.get('1105'), { x: 540, y: 212, width: 48, height: 10 })
     expectRect(byCode.get('1106'), { x: 540, y: 226, width: 48, height: 10 })
     expectRect(byCode.get('1107'), { x: 540, y: 250, width: 48, height: 10 })
-    expectRect(byCode.get('1110'), { x: 550, y: 292, width: 50, height: 34 })
+    expectRect(byCode.get('1110'), { x: 233, y: 441, width: 112, height: 56 })
   })
 
   it('让 1C01–1C09 等宽等高并保留统一水平空隙', () => {
