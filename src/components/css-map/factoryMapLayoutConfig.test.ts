@@ -12,6 +12,7 @@ interface MapChild {
 
 interface MapDevice {
   id: string
+  name?: string
   section: string | null
   x: number
   y: number
@@ -50,6 +51,12 @@ const mapConfig = mapConfigJson as MapConfig
 
 const expectedVisibleCodes = [
   '1101',
+  '1102',
+  '1113',
+  '1123',
+  '1114',
+  '1115',
+  '1112',
   '1121',
   '1104',
   '1105',
@@ -180,7 +187,6 @@ const expectedVisibleCodes = [
   '2B22',
   '2B23',
   '2B24',
-  '1110',
   '1111',
 ] as const
 
@@ -403,13 +409,20 @@ describe('factory floorplan layout config', () => {
     const byCode = new Map(flattenDevices().map((device) => [device.code, device]))
 
     expectRect(byCode.get('1101'), { x: 93, y: 319, width: 108, height: 49 })
+    expectRect(byCode.get('1102'), { x: 368, y: 286, width: 24, height: 16 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '1102')?.name).toBe('干研磨生产线1')
+    expectRect(byCode.get('1113'), { x: 414, y: 308, width: 40, height: 20 })
+    expectRect(byCode.get('1123'), { x: 414, y: 337, width: 40, height: 20 })
+    expectRect(byCode.get('1114'), { x: 471, y: 289, width: 24, height: 28 })
+    expectRect(byCode.get('1115'), { x: 471, y: 331, width: 24, height: 28 })
+    expectRect(byCode.get('1111'), { x: 550, y: 293, width: 50, height: 34 })
+    expectRect(byCode.get('1112'), { x: 550, y: 336, width: 50, height: 34 })
     expectRect(byCode.get('1121'), { x: 88, y: 436, width: 108, height: 49 })
     expectRect(byCode.get('1104'), { x: 540, y: 185, width: 48, height: 10 })
     expectRect(byCode.get('1105'), { x: 540, y: 212, width: 48, height: 10 })
     expectRect(byCode.get('1106'), { x: 540, y: 226, width: 48, height: 10 })
     expectRect(byCode.get('1107'), { x: 540, y: 250, width: 48, height: 10 })
     expectRect(byCode.get('1110'), { x: 550, y: 292, width: 50, height: 34 })
-    expectRect(byCode.get('1111'), { x: 550, y: 337, width: 50, height: 34 })
   })
 
   it('让 1C01–1C09 等宽等高并保留统一水平空隙', () => {
