@@ -206,6 +206,9 @@ const expectedVisibleCodes = [
   '3106',
   '3107',
   '1111',
+  '3325',
+  '3323',
+  '3324',
 ] as const
 
 function codeRange(prefix: string, start: number, end: number): string[] {
@@ -513,6 +516,12 @@ describe('factory floorplan layout config', () => {
     expectRect(byCode.get('3107'), { x: 309, y: 780, width: 26, height: 44 })
     expect(mapConfig.devices.find((device) => device.deviceCode === '3107')?.name).toBe('自动喷涂粘接-5')
     expectRect(byCode.get('1110'), { x: 233, y: 441, width: 112, height: 56 })
+    expectRect(byCode.get('3325'), { x: 575, y: 674, width: 26, height: 26 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3325')?.name).toBe('阻焊机-1')
+    expectRect(byCode.get('3323'), { x: 605, y: 674, width: 26, height: 26 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3323')?.name).toBe('CO2熔接机-1')
+    expectRect(byCode.get('3324'), { x: 641, y: 674, width: 26, height: 26 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3324')?.name).toBe('CO2熔接机-2')
   })
 
   it('让 1C01–1C09 等宽等高并保留统一水平空隙', () => {
