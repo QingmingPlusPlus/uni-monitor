@@ -169,6 +169,15 @@ function isCssMapJsonConfig(value: unknown): value is CssMapJsonConfig {
       )
     ) &&
     (
+      value.source.backgroundVisibleHeight === undefined ||
+      (
+        typeof value.source.backgroundVisibleHeight === 'number' &&
+        Number.isFinite(value.source.backgroundVisibleHeight) &&
+        value.source.backgroundVisibleHeight > 0 &&
+        value.source.backgroundVisibleHeight <= value.source.imageHeight
+      )
+    ) &&
+    (
       value.source.layoutCoordinateSystem === undefined ||
       value.source.layoutCoordinateSystem === 'factory-floorplan-v1'
     ) &&
@@ -473,6 +482,9 @@ async function createCssMapData(
       ? {
           imageUrl: mapConfig.source.backgroundImage,
           opacity: mapConfig.source.backgroundOpacity ?? 0.42,
+          ...(mapConfig.source.backgroundVisibleHeight === undefined
+            ? {}
+            : { visibleHeight: mapConfig.source.backgroundVisibleHeight }),
         }
       : null,
     sections: mapConfig.sections.map((section) => ({

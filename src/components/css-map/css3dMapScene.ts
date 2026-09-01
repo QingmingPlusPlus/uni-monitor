@@ -18,6 +18,7 @@ import {
   createCssMapCameraSnapshot,
   CSS_MAP_FOCUS_PADDING_RATIO,
 } from './cssMapCameraDebug'
+import { getCssMapBackgroundVisibleHeight } from './cssMapBackground'
 
 const CSS3D_GROUND_ROTATION_X = -Math.PI / 2
 const DEVICE_LAYER_ELEVATION = 90
@@ -65,12 +66,15 @@ function createMapPlane(mapSize: CssMapSize, background?: CssMapBackground | nul
   const plane = document.createElement('div')
   plane.className = 'css3d-map-plane'
   plane.style.width = `${mapSize.width}px`
-  plane.style.height = `${mapSize.height}px`
+  const visibleHeight = background
+    ? getCssMapBackgroundVisibleHeight(background, mapSize)
+    : mapSize.height
+  plane.style.height = `${visibleHeight}px`
   if (background) {
     plane.style.backgroundImage = `url(${JSON.stringify(background.imageUrl)})`
-    plane.style.backgroundPosition = 'center'
+    plane.style.backgroundPosition = 'top center'
     plane.style.backgroundRepeat = 'no-repeat'
-    plane.style.backgroundSize = '100% 100%'
+    plane.style.backgroundSize = `${mapSize.width}px ${mapSize.height}px`
     plane.style.opacity = String(background.opacity)
   }
   return plane
@@ -158,8 +162,13 @@ export function createCss3dMapScene(options: CreateCss3dMapSceneOptions): Css3dM
   renderer.domElement.className = 'css3d-map-renderer'
   options.container.appendChild(renderer.domElement)
 
-  const mapPlane = new CSS3DObject(createMapPlane(options.mapSize, options.background))
+  const mapPlaneElement = createMapPlane(options.mapSize, options.background)
+  const mapPlane = new CSS3DObject(mapPlaneElement)
   setObjectOnGroundPlane(mapPlane)
+  if (options.background) {
+    const visibleHeight = getCssMapBackgroundVisibleHeight(options.background, options.mapSize)
+    mapPlane.position.z = (visibleHeight - options.mapSize.height) / 2
+  }
   root.add(mapPlane)
 
   const processBoundaryLayer = options.processBoundaries?.length

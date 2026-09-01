@@ -95,6 +95,7 @@ export interface CssMapJsonSource {
   unit: 'px'
   backgroundImage?: string
   backgroundOpacity?: number
+  backgroundVisibleHeight?: number
   layoutCoordinateSystem?: 'factory-floorplan-v1'
   layoutWorkbook?: string
   deviceMaster?: string
@@ -105,6 +106,7 @@ export interface CssMapJsonSource {
 export interface CssMapBackground {
   imageUrl: string
   opacity: number
+  visibleHeight?: number
 }
 
 export interface CssMapJsonDevice {

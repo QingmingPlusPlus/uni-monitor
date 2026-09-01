@@ -8,7 +8,7 @@
 
 ### Requirement: 地图底图与相机同步
 
-底图必须（MUST）由 `devices.json` 的可选 `source.backgroundImage` 控制。声明底图时，地图必须（MUST）将其按地图世界坐标完整铺设在设备和工序边界下方；WebGL Sprite 默认渲染器与 CSS3D DOM 回退渲染器必须（MUST）使用同一底图地址、透明度和 `source.imageWidth` / `source.imageHeight` 尺寸。当点位来自底图原始像素标注时，声明尺寸必须（MUST）与底图实际像素尺寸一致，不得拉伸到底图的历史坐标尺寸。未声明底图时，两种渲染器都不得（MUST NOT）加载或绘制底图，但仍必须（MUST）使用 `source.imageWidth` / `source.imageHeight` 保持地图世界坐标、设备位置和相机行为。已声明的底图必须（MUST）随相机平移、缩放、重置和聚焦，不得固定在屏幕坐标中。
+底图必须（MUST）由 `devices.json` 的可选 `source.backgroundImage` 控制。声明底图时，地图必须（MUST）将其按地图世界坐标铺设在设备和工序边界下方；WebGL Sprite 默认渲染器与 CSS3D DOM 回退渲染器必须（MUST）使用同一底图地址、透明度和 `source.imageWidth` / `source.imageHeight` 尺寸。当点位来自底图原始像素标注时，声明尺寸必须（MUST）与底图实际像素尺寸一致，不得拉伸到底图的历史坐标尺寸。若声明 `source.backgroundVisibleHeight`，两种渲染器必须（MUST）从底图顶部开始只显示 y=`0..backgroundVisibleHeight` 的区域，且不得改变地图世界坐标、设备位置或相机行为；该值必须（MUST）大于 0 且不超过 `source.imageHeight`。未声明底图时，两种渲染器都不得（MUST NOT）加载或绘制底图，但仍必须（MUST）使用 `source.imageWidth` / `source.imageHeight` 保持地图世界坐标、设备位置和相机行为。已声明的底图必须（MUST）随相机平移、缩放、重置和聚焦，不得固定在屏幕坐标中。
 
 #### Scenario: 浏览实际厂区底图
 
@@ -26,6 +26,16 @@
 - **THEN** 地图世界坐标使用 `1650×953`
 - **AND** 底图与设备点位按 `1:1` 像素坐标渲染
 - **AND** 不再把底图拉伸到历史 `2060×1280` 坐标尺寸
+
+#### Scenario: 裁剪底图底部空白区域
+
+- **GIVEN** `source.imageHeight` 为 `953`
+- **AND** `source.backgroundVisibleHeight` 为 `852`
+- **WHEN** 地图加载 Sprite 或 CSS3D 渲染器
+- **THEN** 底图只显示 y=`0..852` 的顶部区域
+- **AND** y>852 的底图内容不显示
+- **AND** 地图世界坐标仍保持 `1650×953`
+- **AND** 设备位置、点击区域和相机行为不发生变化
 
 #### Scenario: 关闭底图显示
 

@@ -150,8 +150,26 @@ describe('createCss3dMapScene', () => {
 
     const plane = vi.mocked(document.createElement).mock.results[0]?.value as HTMLElement
     expect(plane.style.backgroundImage).toContain('factory-floorplan.png')
-    expect(plane.style.backgroundSize).toBe('100% 100%')
+    expect(plane.style.backgroundPosition).toBe('top center')
+    expect(plane.style.backgroundSize).toBe('1000px 800px')
     expect(plane.style.opacity).toBe('0.46')
+  })
+
+  it('按底图可见高度裁剪 y 大于阈值的区域', async () => {
+    const createCss3dMapScene = await importScene()
+    createCss3dMapScene({
+      container: createContainer(),
+      devices: [],
+      mapSize: { width: 1000, height: 800 },
+      background: {
+        imageUrl: '/static/factory-map/factory-floorplan.png',
+        opacity: 0.46,
+        visibleHeight: 666,
+      },
+    })
+
+    const plane = vi.mocked(document.createElement).mock.results[0]?.value as HTMLElement
+    expect(plane.style.height).toBe('666px')
   })
 
   it('render 调用 renderer.render 并发布设备屏幕矩形', async () => {

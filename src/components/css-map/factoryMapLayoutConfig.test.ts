@@ -69,6 +69,11 @@ const expectedVisibleCodes = [
   '1105',
   '1106',
   '1107',
+  '3101',
+  '3115',
+  '3116',
+  '3113',
+  '3114',
   '1C01',
   '1C02',
   '1C03',
@@ -248,6 +253,7 @@ describe('factory floorplan layout config', () => {
       imageHeight: 953,
       backgroundImage: '/static/factory-map/factory-floorplan.png',
       backgroundOpacity: 0.46,
+      backgroundVisibleHeight: 852,
       layoutCoordinateSystem: 'factory-floorplan-v1',
       annotatedDeviceCount: 151,
       visibleDeviceCodes: expectedVisibleCodes,
@@ -327,6 +333,23 @@ describe('factory floorplan layout config', () => {
       ['1117', 'CG连接4', 464, 423, 28, 33],
       ['1116', 'CG连接3', 464, 471, 28, 36],
     ] as const
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = renderedByCode.get(code)
+      expect(device).toMatchObject({ x, y, width, height })
+      expect(mapConfig.devices.find((item) => item.deviceCode === code)?.name).toBe(name)
+    })
+  })
+
+  it('按评审坐标显示 WB-2 和 CG 粘接 10/11/13/14', () => {
+    const expected = [
+      ['3101', 'WB-2', 111, 639, 105, 52],
+      ['3115', 'CG粘接-13', 278, 647, 72, 48],
+      ['3116', 'CG粘接-14', 278, 596, 72, 48],
+      ['3113', 'CG粘接-10', 356, 596, 72, 48],
+      ['3114', 'CG粘接-11', 356, 647, 72, 48],
+    ] as const
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
 
     expected.forEach(([code, name, x, y, width, height]) => {
       const device = renderedByCode.get(code)

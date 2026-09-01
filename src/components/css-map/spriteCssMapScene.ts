@@ -19,6 +19,7 @@ import {
   getCssMapDeviceShapeKey,
   isCssMapDevicePointInsideShape,
 } from './cssMapDeviceShape'
+import { getCssMapBackgroundVisibleHeight } from './cssMapBackground'
 
 const PROCESS_BOUNDARY_LAYER_ELEVATION = 1
 const DEVICE_LAYER_ELEVATION = PROCESS_BOUNDARY_LAYER_ELEVATION
@@ -95,7 +96,10 @@ function createBackgroundObject(
 } {
   const texture = new THREE.TextureLoader().load(background.imageUrl, render)
   texture.colorSpace = THREE.SRGBColorSpace
-  const geometry = new THREE.PlaneGeometry(mapSize.width, mapSize.height)
+  const visibleHeight = getCssMapBackgroundVisibleHeight(background, mapSize)
+  const geometry = new THREE.PlaneGeometry(mapSize.width, visibleHeight)
+  texture.repeat.set(1, visibleHeight / mapSize.height)
+  texture.offset.set(0, 1 - visibleHeight / mapSize.height)
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     transparent: true,
@@ -104,6 +108,7 @@ function createBackgroundObject(
   })
   const mesh = new THREE.Mesh(geometry, material)
   mesh.position.y = BACKGROUND_LAYER_ELEVATION
+  mesh.position.z = (visibleHeight - mapSize.height) / 2
   mesh.rotation.x = -Math.PI / 2
   mesh.renderOrder = 0
   return { mesh, texture }

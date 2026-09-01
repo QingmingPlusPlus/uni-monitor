@@ -153,6 +153,7 @@ describe('loadCssMapData realtime status mapping', () => {
     stubFactoryMapConfig([], {
       backgroundImage: '/static/factory-map/factory-floorplan.png',
       backgroundOpacity: 0.46,
+      backgroundVisibleHeight: 566,
       layoutCoordinateSystem: 'factory-floorplan-v1',
       layoutWorkbook: '布局图.xlsx',
       deviceMaster: '全部设备导出.xls',
@@ -166,6 +167,7 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(data.background).toEqual({
       imageUrl: '/static/factory-map/factory-floorplan.png',
       opacity: 0.46,
+      visibleHeight: 566,
     })
   })
 

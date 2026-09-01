@@ -32,6 +32,8 @@ const rendererDispose = vi.fn()
 const backgroundTextureDispose = vi.fn()
 const backgroundTexture = {
   colorSpace: '',
+  repeat: { set: vi.fn() },
+  offset: { set: vi.fn() },
   dispose: backgroundTextureDispose,
 }
 const textureLoaderLoad = vi.fn(() => backgroundTexture)
@@ -237,6 +239,26 @@ describe('createSpriteCssMapScene', () => {
       '/static/factory-map/factory-floorplan.png',
       expect.any(Function),
     )
+  })
+
+  it('按底图可见高度裁剪 y 大于阈值的区域', async () => {
+    const createSpriteCssMapScene = await importScene()
+    createSpriteCssMapScene({
+      container: createContainer(),
+      devices: [],
+      mapSize: { width: 1000, height: 800 },
+      background: {
+        imageUrl: '/static/factory-map/factory-floorplan.png',
+        opacity: 0.46,
+        visibleHeight: 666,
+      },
+      display,
+      isSelectMode: () => false,
+      openDevice: vi.fn(),
+    })
+
+    expect(backgroundTexture.repeat.set).toHaveBeenCalledWith(1, 666 / 800)
+    expect(backgroundTexture.offset.set).toHaveBeenCalledWith(0, 1 - 666 / 800)
   })
 
   it('render 调用 renderer.render', async () => {
