@@ -234,6 +234,25 @@ const expectedVisibleCodes = [
   '2341',
   '2342',
   '3329',
+  '3311',
+  '3310',
+  '3305',
+  '3316',
+  '3317',
+  '3328',
+  '2338',
+  '3308',
+  '3301',
+  '3309',
+  '3321',
+  '3307',
+  '3315',
+  '3312',
+  '3304',
+  '3331',
+  '3306',
+  '3303',
+  '3322',
   '3325',
   '3323',
   '3324',
@@ -493,6 +512,67 @@ describe('factory floorplan layout config', () => {
       ['2341', '压入生产线-8', 1413, 367, 64, 60],
       ['2342', '压入生产线-9', 1516, 367, 55, 60],
       ['3329', '压入生产线-7', 1576, 366, 55, 60],
+    ] as const
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = mapConfig.devices.find((item) => item.deviceCode === code)
+      expect(device).toMatchObject({ name, x, y, width, height })
+    })
+  })
+
+  it('按指定坐标显示二工厂设备', () => {
+    const expected = [
+      ['3311', '液封生产线-2', 1104, 739, 77, 49],
+      ['3310', '液封生产线-1', 1104, 790, 80, 50],
+      ['3305', '流体EMT生产线-3', 1348, 771, 63, 68],
+      ['3316', '后悬架减震生产线-1', 1469, 740, 43, 72],
+      ['3317', '后悬架减震生产线-2', 1522, 740, 43, 72],
+      ['3328', '液压-9', 1574, 764, 47, 49],
+    ] as const
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = mapConfig.devices.find((item) => item.deviceCode === code)
+      expect(device).toMatchObject({ name, x, y, width, height })
+    })
+  })
+
+  it('按指定坐标显示浸油生产线-2', () => {
+    const device = mapConfig.devices.find((item) => item.deviceCode === '2338')
+
+    expect(device).toMatchObject({
+      name: '浸油生产线-2',
+      x: 1034,
+      y: 600,
+      width: 43,
+      height: 33,
+      section: null,
+    })
+  })
+
+  it('按指定坐标显示压入生产线/液压/自动喷涂涂装设备', () => {
+    const expected = [
+      ['3308', '压入生产线-3', 878, 656, 36, 52],
+      ['3301', '液压-6', 921, 656, 36, 52],
+      ['3309', '压入生产线-4', 963, 656, 36, 52],
+      ['3321', '自动喷涂涂装-2', 1031, 635, 48, 80],
+    ] as const
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = mapConfig.devices.find((item) => item.deviceCode === code)
+      expect(device).toMatchObject({ name, x, y, width, height })
+    })
+  })
+
+  it('按指定坐标显示二工厂剩余设备', () => {
+    const expected = [
+      ['3307', '压入生产线-2', 1107, 597, 27, 29],
+      ['3315', '辊压生产线-1', 1159, 597, 30, 30],
+      ['3312', '液封生产线-3', 1119, 642, 85, 69],
+      ['3304', '流体EMT生产线-1', 1211, 600, 28, 82],
+      ['3331', '压入生产线-10', 1245, 606, 78, 53],
+      ['3306', '压入生产线-6', 1235, 684, 51, 31],
+      ['3303', '流体EMT生产线-2', 1331, 640, 86, 73],
+      ['3322', 'SMT生产线-3', 1430, 598, 115, 115],
     ] as const
 
     expected.forEach(([code, name, x, y, width, height]) => {
