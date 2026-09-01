@@ -16,6 +16,7 @@ import type {
   CssMapDeviceRuntime,
   CssMapDeviceStatus,
   CssMapFiveMCategory,
+  CssMapBackground,
   CssMapJsonConfig,
   CssMapJsonDevice,
   CssMapJsonDeviceChild,
@@ -49,7 +50,7 @@ const factoryMapConfigUrls = [
 ] as const
 
 const childLayoutSize = 100
-const abbreviatedDeviceNamePattern = /^(?:STI375|STI450(?:VX|MVX)?)-([0-9][A-Z][0-9]{2})$/
+const abbreviatedDeviceNamePattern = /^(?:HTI|STI375|STI450(?:VY|VX|MVX)?)-?([0-9][A-Z][0-9]{2})$/
 
 export class CssMapDataLoadError extends Error {
   constructor(message: string) {
@@ -60,6 +61,7 @@ export class CssMapDataLoadError extends Error {
 
 export interface CssMapData {
   readonly size: CssMapSize
+  readonly background: CssMapBackground | null
   readonly sections: readonly CssMapProcessBoundary[]
   readonly devices: readonly CssMapDevice[]
 }
@@ -151,6 +153,53 @@ function isCssMapJsonConfig(value: unknown): value is CssMapJsonConfig {
     typeof value.source.imageHeight === 'number' &&
     value.source.coordinateOrigin === 'top-left' &&
     value.source.unit === 'px' &&
+    (
+      value.source.backgroundImage === undefined ||
+      (
+        typeof value.source.backgroundImage === 'string' &&
+        value.source.backgroundImage.trim().length > 0
+      )
+    ) &&
+    (
+      value.source.backgroundOpacity === undefined ||
+      (
+        typeof value.source.backgroundOpacity === 'number' &&
+        value.source.backgroundOpacity >= 0 &&
+        value.source.backgroundOpacity <= 1
+      )
+    ) &&
+    (
+      value.source.backgroundVisibleHeight === undefined ||
+      (
+        typeof value.source.backgroundVisibleHeight === 'number' &&
+        Number.isFinite(value.source.backgroundVisibleHeight) &&
+        value.source.backgroundVisibleHeight > 0 &&
+        value.source.backgroundVisibleHeight <= value.source.imageHeight
+      )
+    ) &&
+    (
+      value.source.layoutCoordinateSystem === undefined ||
+      value.source.layoutCoordinateSystem === 'factory-floorplan-v1'
+    ) &&
+    (value.source.layoutWorkbook === undefined || typeof value.source.layoutWorkbook === 'string') &&
+    (value.source.deviceMaster === undefined || typeof value.source.deviceMaster === 'string') &&
+    (
+      value.source.annotatedDeviceCount === undefined ||
+      (
+        typeof value.source.annotatedDeviceCount === 'number' &&
+        Number.isInteger(value.source.annotatedDeviceCount) &&
+        value.source.annotatedDeviceCount >= 0
+      )
+    ) &&
+    (
+      value.source.visibleDeviceCodes === undefined ||
+      (
+        Array.isArray(value.source.visibleDeviceCodes) &&
+        value.source.visibleDeviceCodes.every(
+          (code) => typeof code === 'string' && code.trim().length > 0,
+        )
+      )
+    ) &&
     Array.isArray(value.sections) &&
     value.sections.every(isSection) &&
     Array.isArray(value.devices) &&
@@ -174,6 +223,20 @@ function collectDeviceRuntimeCodes(device: CssMapJsonDevice): string[] {
   device.deviceCodes?.forEach((code) => appendUniqueDeviceCode(codes, code))
   device.children?.forEach((child) => appendUniqueDeviceCode(codes, child.deviceCode))
   return codes
+}
+
+function createVisibleDeviceCodeSet(
+  codes: readonly string[] | undefined,
+): ReadonlySet<string> | null {
+  if (codes === undefined) return null
+  return new Set(codes.map(normalizeDeviceCode).filter(Boolean))
+}
+
+function isDeviceCodeVisible(
+  code: string,
+  visibleDeviceCodes: ReadonlySet<string> | null,
+): boolean {
+  return visibleDeviceCodes === null || visibleDeviceCodes.has(normalizeDeviceCode(code))
 }
 
 function formatDeviceDisplayName(name: string): string {
@@ -404,7 +467,10 @@ async function createCssMapData(
   mapConfig: CssMapJsonConfig,
   selectionConfig: CssMapSelectionConfig,
 ): Promise<CssMapData> {
-  const runtimeCodes = mapConfig.devices.flatMap(collectDeviceRuntimeCodes)
+  const visibleDeviceCodes = createVisibleDeviceCodeSet(mapConfig.source.visibleDeviceCodes)
+  const runtimeCodes = mapConfig.devices
+    .flatMap(collectDeviceRuntimeCodes)
+    .filter((code) => isDeviceCodeVisible(code, visibleDeviceCodes))
   const runtimeLookup = await loadRuntimeLookup(runtimeCodes)
 
   return {
@@ -412,6 +478,15 @@ async function createCssMapData(
       width: mapConfig.source.imageWidth,
       height: mapConfig.source.imageHeight,
     },
+    background: mapConfig.source.backgroundImage
+      ? {
+          imageUrl: mapConfig.source.backgroundImage,
+          opacity: mapConfig.source.backgroundOpacity ?? 0.42,
+          ...(mapConfig.source.backgroundVisibleHeight === undefined
+            ? {}
+            : { visibleHeight: mapConfig.source.backgroundVisibleHeight }),
+        }
+      : null,
     sections: mapConfig.sections.map((section) => ({
       process: section.id,
       labelKey: getCssMapProcessLabel(section.id, selectionConfig),
@@ -420,35 +495,40 @@ async function createCssMapData(
     })),
     devices: mapConfig.devices.flatMap((device) => {
       const runtimeCodes = collectDeviceRuntimeCodes(device)
+        .filter((code) => isDeviceCodeVisible(code, visibleDeviceCodes))
 
       if (device.children?.length) {
-        return device.children.map((child) => {
-          const width = (device.width * child.width) / childLayoutSize
-          const height = (device.height * child.height) / childLayoutSize
+        return device.children
+          .filter((child) => isDeviceCodeVisible(child.deviceCode, visibleDeviceCodes))
+          .map((child) => {
+            const width = (device.width * child.width) / childLayoutSize
+            const height = (device.height * child.height) / childLayoutSize
 
-          return {
-            id: child.id,
-            name: formatDeviceDisplayName(child.name),
-            section: device.section,
-            x: device.x + (device.width * child.x) / childLayoutSize,
-            y: device.y + (device.height * child.y) / childLayoutSize,
-            w: width,
-            h: height,
-            polygon: createCssMapScaledPolygon(
-              child.polygon,
-              child.width,
-              child.height,
-              width,
-              height,
-            ),
-            contentLayout: child.contentLayout,
-            deviceCode: child.deviceCode,
-            deviceCodes: [normalizeDeviceCode(child.deviceCode)],
-            children: [],
-            runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
-          }
-        })
+            return {
+              id: child.id,
+              name: formatDeviceDisplayName(child.name),
+              section: device.section,
+              x: device.x + (device.width * child.x) / childLayoutSize,
+              y: device.y + (device.height * child.y) / childLayoutSize,
+              w: width,
+              h: height,
+              polygon: createCssMapScaledPolygon(
+                child.polygon,
+                child.width,
+                child.height,
+                width,
+                height,
+              ),
+              contentLayout: child.contentLayout,
+              deviceCode: child.deviceCode,
+              deviceCodes: [normalizeDeviceCode(child.deviceCode)],
+              children: [],
+              runtime: createRuntimeForCode(child.deviceCode, runtimeLookup),
+            }
+          })
       }
+
+      if (visibleDeviceCodes !== null && runtimeCodes.length === 0) return []
 
       return [{
         id: device.id,

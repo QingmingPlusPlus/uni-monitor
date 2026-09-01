@@ -35,7 +35,26 @@ function isCssMapJsonDevice(value: unknown): value is CssMapJsonDevice {
 }
 
 function isCssMapJsonConfig(value: unknown): value is CssMapJsonConfig {
-  return isRecord(value) && Array.isArray(value.devices) && value.devices.every(isCssMapJsonDevice)
+  return (
+    isRecord(value) &&
+    (
+      value.source === undefined ||
+      (
+        isRecord(value.source) &&
+        (
+          value.source.visibleDeviceCodes === undefined ||
+          (
+            Array.isArray(value.source.visibleDeviceCodes) &&
+            value.source.visibleDeviceCodes.every(
+              (code) => typeof code === 'string' && code.trim().length > 0,
+            )
+          )
+        )
+      )
+    ) &&
+    Array.isArray(value.devices) &&
+    value.devices.every(isCssMapJsonDevice)
+  )
 }
 
 export function normalizeDeviceCode(value: string | null | undefined): string {
@@ -54,6 +73,13 @@ function collectDeviceCodes(device: CssMapJsonDevice): readonly string[] {
   device.deviceCodes?.forEach((code) => addDeviceCode(codes, code))
   device.children?.forEach((child) => addDeviceCode(codes, child.deviceCode))
   return [...codes]
+}
+
+function createVisibleDeviceCodeSet(
+  codes: readonly string[] | undefined,
+): ReadonlySet<string> | null {
+  if (codes === undefined) return null
+  return new Set(codes.map(normalizeDeviceCode).filter(Boolean))
 }
 
 async function fetchFactoryMapConfig(url: string): Promise<CssMapJsonConfig> {
@@ -85,10 +111,13 @@ async function loadFactoryMapConfig(): Promise<CssMapJsonConfig> {
 
 function createProcessDeviceCodeMap(config: CssMapJsonConfig): ProcessDeviceCodeMap {
   const map: Record<string, Set<string>> = {}
+  const visibleDeviceCodes = createVisibleDeviceCodeSet(config.source?.visibleDeviceCodes)
   for (const device of config.devices) {
     if (typeof device.section !== 'string') continue
     const set = map[device.section] ?? new Set<string>()
-    collectDeviceCodes(device).forEach((code) => set.add(code))
+    collectDeviceCodes(device)
+      .filter((code) => visibleDeviceCodes === null || visibleDeviceCodes.has(code))
+      .forEach((code) => set.add(code))
     map[device.section] = set
   }
 

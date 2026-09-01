@@ -6,6 +6,101 @@
 
 ## Requirements
 
+### Requirement: 地图底图与相机同步
+
+底图必须（MUST）由 `devices.json` 的可选 `source.backgroundImage` 控制。声明底图时，地图必须（MUST）将其按地图世界坐标铺设在设备和工序边界下方；WebGL Sprite 默认渲染器与 CSS3D DOM 回退渲染器必须（MUST）使用同一底图地址、透明度和 `source.imageWidth` / `source.imageHeight` 尺寸。当点位来自底图原始像素标注时，声明尺寸必须（MUST）与底图实际像素尺寸一致，不得拉伸到底图的历史坐标尺寸。若声明 `source.backgroundVisibleHeight`，两种渲染器必须（MUST）从底图顶部开始只显示 y=`0..backgroundVisibleHeight` 的区域，且不得改变地图世界坐标、设备位置或相机行为；该值必须（MUST）大于 0 且不超过 `source.imageHeight`。未声明底图时，两种渲染器都不得（MUST NOT）加载或绘制底图，但仍必须（MUST）使用 `source.imageWidth` / `source.imageHeight` 保持地图世界坐标、设备位置和相机行为。已声明的底图必须（MUST）随相机平移、缩放、重置和聚焦，不得固定在屏幕坐标中。
+
+#### Scenario: 浏览实际厂区底图
+
+- **WHEN** 用户平移、缩放或聚焦厂区地图
+- **THEN** PDF 转换后的厂区底图与设备节点保持同一世界坐标关系
+- **AND** 一工厂位于地图上半区，二工厂位于地图下半区
+- **AND** WebGL Sprite 与 CSS3D 回退显示相同底图
+
+#### Scenario: 使用新底图的实际像素尺寸
+
+- **GIVEN** 当前底图实际尺寸为 `1650×953`
+- **AND** 当前显示设备的点位来自该底图的原始像素标注
+- **AND** `devices.json` 声明该底图地址和 `0.46` 透明度
+- **WHEN** 地图加载 `devices.json`
+- **THEN** 地图世界坐标使用 `1650×953`
+- **AND** 底图与设备点位按 `1:1` 像素坐标渲染
+- **AND** 不再把底图拉伸到历史 `2060×1280` 坐标尺寸
+
+#### Scenario: 裁剪底图底部空白区域
+
+- **GIVEN** `source.imageHeight` 为 `953`
+- **AND** `source.backgroundVisibleHeight` 为 `852`
+- **WHEN** 地图加载 Sprite 或 CSS3D 渲染器
+- **THEN** 底图只显示 y=`0..852` 的顶部区域
+- **AND** y>852 的底图内容不显示
+- **AND** 地图世界坐标仍保持 `1650×953`
+- **AND** 设备位置、点击区域和相机行为不发生变化
+
+#### Scenario: 关闭底图显示
+
+- **GIVEN** `devices.json` 未声明 `source.backgroundImage`
+- **WHEN** Sprite 或 CSS3D 地图加载配置
+- **THEN** 地图不请求且不绘制底图图片
+- **AND** 地图世界坐标仍保持 `1650×953`
+- **AND** 设备位置、工序边界和相机交互保持不变
+
+### Requirement: 设备按实际厂图比例落位
+
+`devices.json` 中实际渲染设备的位置和尺寸必须（MUST）与 `source.imageWidth` / `source.imageHeight` 声明的当前地图世界坐标一致；即使关闭底图显示，当前截图点位仍使用 `1650×953` 原始像素坐标。现场布局表覆盖的设备必须（MUST）依据同源底图上的矢量红框和区域编号生成；同一红框包含多台设备时，必须（MUST）将每台设备作为具有独立 `deviceCode`、独立占位和独立点击区域的子设备渲染，不得把相邻机台合并为一个状态卡片。
+
+设备名称映射到主数据时必须（MUST）得到唯一 code；缺失或重名必须（MUST）停止生成，除非调用方显式允许并能从规范化设备名称唯一推断 code。现场布局表未覆盖的设备必须（MUST）保留已评审地图中的工厂、工序和相对位置，不得仅凭缺少坐标的主数据移动到另一工厂。生成结果必须（MUST）保证设备 code、节点 id 唯一、尺寸为正；实际渲染的设备必须（MUST）位于当前地图尺寸内。经用户明确评审的点位 JSON 只包含当前显示子集时，完整点位定义可以（MAY）继续保留历史坐标，但地图渲染和看板设备范围必须（MUST）只使用 `source.visibleDeviceCodes` 中列出的 code，不得把白名单外设备重新显示、用于当前地图边界判断或计入统计。
+
+#### Scenario: 一个红框标注多台相邻机台
+
+- **WHEN** 现场布局表为一个红框列出多个按编号排列的设备
+- **THEN** 配置生成一个不参与绘制的局部坐标容器
+- **AND** 每台机台作为独立子设备按编号位置排列
+- **AND** 每台机台独立读取实时状态并可独立进入设备详情
+
+#### Scenario: 重复生成实际比例布局
+
+- **WHEN** 已使用 `factory-floorplan-v1` 坐标系的配置再次作为生成输入
+- **THEN** 未被现场表覆盖的设备保持现有实际底图坐标
+- **AND** 现场标注设备按红框重新生成
+- **AND** 不发生二次缩放或坐标漂移
+
+#### Scenario: 设备来源发生工厂冲突
+
+- **WHEN** 未被现场表覆盖的设备在已评审地图与主数据中属于不同工厂
+- **THEN** 生成器保留已评审地图位置
+- **AND** 不自动补写冲突工序
+- **AND** 在生成报告中列出冲突，等待现场来源修正
+
+#### Scenario: 点位 JSON 只声明当前显示子集
+
+- **WHEN** `devices.json` 的 `source.visibleDeviceCodes` 声明经评审的设备 code 白名单
+- **THEN** 地图只请求并渲染白名单内的独立设备或子设备
+- **AND** 看板工序设备范围只包含同一白名单内的 code
+- **AND** 白名单外设备可以保留原始点位定义，但不得显示或参与设备数量和稼动统计
+
+#### Scenario: 同组设备等尺寸均匀排列
+
+- **WHEN** 点位评审要求一组相邻设备统一尺寸和间距
+- **THEN** 组内子设备使用一致的实际宽高
+- **AND** 相邻设备的水平或垂直步距保持一致
+- **AND** 每台设备仍保留独立 `deviceCode` 和点击区域
+
+### Requirement: 浏览器可采集相机与聚焦参数
+
+H5 地图挂载后必须（MUST）在 `window` 上提供 `mapCamera()` 调试函数。函数必须（MUST）返回当前活跃地图的渲染器、地图尺寸、视口尺寸、相机位置、控制器目标点、相机 up、fov、aspect、near、far、相机距离，以及可重新传给 `focusRect` 的聚焦矩形和 padding ratio；同时应（SHOULD）把相同 JSON 输出到浏览器控制台。存在普通地图和展开地图等多个实例时，函数必须（MUST）读取最后挂载的活跃实例，并在该实例销毁后恢复读取前一个实例。
+
+#### Scenario: 人工记录聚焦区域
+
+- **WHEN** 开发者把地图平移和缩放到目标区域后调用 `window.mapCamera()`
+- **THEN** 返回值包含 `camera.position`、`camera.target`、`camera.distance` 和 `focus.rect`
+- **AND** `focus.rect` 使用地图左上角坐标，可作为后续 `focusRect` 配置
+
+#### Scenario: 关闭展开地图
+
+- **WHEN** 展开地图销毁且页面内仍存在普通地图
+- **THEN** `window.mapCamera()` 自动恢复输出普通地图的参数
+
 ### Requirement: 设备外框保持原始占位
 
 未配置 `polygon` 的设备卡片外框、选择描边和点击区域必须（MUST）覆盖 `devices.json` 中设备或换算后子设备的完整原始占位，不得因信息内容宽度变化而缩小。配置 `polygon` 时，外框、内容和点击区域必须（MUST）裁剪到多边形轮廓。

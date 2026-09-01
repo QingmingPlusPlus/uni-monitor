@@ -60,7 +60,10 @@ function createRealtimeItem(
   }
 }
 
-function stubFactoryMapConfig(devices: readonly CssMapJsonDevice[]): void {
+function stubFactoryMapConfig(
+  devices: readonly CssMapJsonDevice[],
+  sourceOverrides: Record<string, unknown> = {},
+): void {
   vi.stubGlobal('fetch', vi.fn(async () => ({
     ok: true,
     status: 200,
@@ -70,6 +73,7 @@ function stubFactoryMapConfig(devices: readonly CssMapJsonDevice[]): void {
         imageHeight: 600,
         coordinateOrigin: 'top-left',
         unit: 'px',
+        ...sourceOverrides,
       },
       sections: [],
       devices,
@@ -143,6 +147,38 @@ describe('loadCssMapData realtime status mapping', () => {
     cases.forEach((item) => {
       expect(statusByDeviceId.get(item.id)).toBe(item.expected)
     })
+  })
+
+  it('从地图配置读取底图地址和透明度', async () => {
+    stubFactoryMapConfig([], {
+      backgroundImage: '/static/factory-map/factory-floorplan.png',
+      backgroundOpacity: 0.46,
+      backgroundVisibleHeight: 566,
+      layoutCoordinateSystem: 'factory-floorplan-v1',
+      layoutWorkbook: '布局图.xlsx',
+      deviceMaster: '全部设备导出.xls',
+      annotatedDeviceCount: 151,
+    })
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.background).toEqual({
+      imageUrl: '/static/factory-map/factory-floorplan.png',
+      opacity: 0.46,
+      visibleHeight: 566,
+    })
+  })
+
+  it('未配置底图时保持地图背景为空', async () => {
+    stubFactoryMapConfig([])
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.background).toBeNull()
   })
 
   it('deviceParseType 返回枚举 ID 时仍按“用餐”名称判为计划停止', async () => {
@@ -241,7 +277,42 @@ describe('loadCssMapData realtime status mapping', () => {
     ])
   })
 
-  it('STI375 与 STI450 系列设备名只显示编号，其他机型保持原名', async () => {
+  it('按 visibleDeviceCodes 只加载和显示白名单中的独立设备与子设备', async () => {
+    stubFactoryMapConfig([
+      createMapDevice('standalone-visible', 'D-01'),
+      createMapDevice('standalone-hidden', 'D-02'),
+      {
+        id: 'device-group',
+        name: 'device-group',
+        section: 'vulcanization1',
+        x: 10,
+        y: 20,
+        width: 120,
+        height: 80,
+        children: [
+          { id: 'child-visible', name: 'child-visible', deviceCode: 'D-03', x: 0, y: 0, width: 50, height: 100 },
+          { id: 'child-hidden', name: 'child-hidden', deviceCode: 'D-04', x: 50, y: 0, width: 50, height: 100 },
+        ],
+      },
+    ], {
+      visibleDeviceCodes: ['d-01', 'D-03'],
+    })
+    stubRealtimeList([
+      createRealtimeItem('D-01', 'running'),
+      createRealtimeItem('D-03', 'normal'),
+    ])
+    stubEmptyRuntimeSideData()
+
+    const data = await loadCssMapData()
+
+    expect(data.devices.map((device) => device.id)).toEqual([
+      'standalone-visible',
+      'child-visible',
+    ])
+    expect(getDeviceRealtimeList).toHaveBeenCalledWith({ deviceCodes: 'D-01,D-03' })
+  })
+
+  it('加硫设备名称只显示设备编号，其他机型保持原名', async () => {
     stubFactoryMapConfig([
       {
         id: 'vulcanization-group',
@@ -257,6 +328,8 @@ describe('loadCssMapData realtime status mapping', () => {
           { id: 'sti450mvx', name: 'STI450MVX-2B22', deviceCode: '2B22', x: 40, y: 0, width: 20, height: 100 },
           { id: 'sti375', name: 'STI375-1A01', deviceCode: '1A01', x: 60, y: 0, width: 20, height: 100 },
           { id: 'hti', name: 'HTI-2A01', deviceCode: '2A01', x: 80, y: 0, width: 20, height: 100 },
+          { id: 'sti450vy', name: 'STI450VY-2A02', deviceCode: '2A02', x: 100, y: 0, width: 20, height: 100 },
+          { id: 'sti450vy-no-hyphen', name: 'STI450VY2A06', deviceCode: '2A06', x: 120, y: 0, width: 20, height: 100 },
         ],
       },
     ])
@@ -270,7 +343,9 @@ describe('loadCssMapData realtime status mapping', () => {
       '1C07',
       '2B22',
       '1A01',
-      'HTI-2A01',
+      '2A01',
+      '2A02',
+      '2A06',
     ])
   })
 

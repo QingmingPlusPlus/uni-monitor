@@ -93,6 +93,20 @@ export interface CssMapJsonSource {
   imageHeight: number
   coordinateOrigin: 'top-left'
   unit: 'px'
+  backgroundImage?: string
+  backgroundOpacity?: number
+  backgroundVisibleHeight?: number
+  layoutCoordinateSystem?: 'factory-floorplan-v1'
+  layoutWorkbook?: string
+  deviceMaster?: string
+  annotatedDeviceCount?: number
+  visibleDeviceCodes?: string[]
+}
+
+export interface CssMapBackground {
+  imageUrl: string
+  opacity: number
+  visibleHeight?: number
 }
 
 export interface CssMapJsonDevice {
@@ -176,6 +190,35 @@ export interface CssMapDevice extends CssMapDeviceLayout {
 export interface CssMapSize {
   width: number
   height: number
+}
+
+export interface CssMapVector3Snapshot {
+  x: number
+  y: number
+  z: number
+}
+
+export interface CssMapCameraSnapshot {
+  renderer: 'sprite' | 'css3d'
+  mapSize: CssMapSize
+  viewport: {
+    width: number
+    height: number
+  }
+  camera: {
+    position: CssMapVector3Snapshot
+    target: CssMapVector3Snapshot
+    up: CssMapVector3Snapshot
+    fov: number
+    aspect: number
+    near: number
+    far: number
+    distance: number
+  }
+  focus: {
+    paddingRatio: number
+    rect: CssMapRect
+  }
 }
 
 export interface CssMapDisplayOptions {

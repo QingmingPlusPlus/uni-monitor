@@ -1,0 +1,69 @@
+{
+  "mapSize": {
+    "width": 2060,
+    "height": 1280
+  },
+  "outputPixelSize": {
+    "width": 4120,
+    "height": 2560
+  },
+  "outputScale": 2,
+  "factories": [
+    {
+      "id": "factory1",
+      "sourcePdf": "一工厂.pdf",
+      "renderedPixelSize": {
+        "width": 2551,
+        "height": 3272
+      },
+      "crop": {
+        "left": 735,
+        "top": 0,
+        "right": 1821,
+        "bottom": 3260
+      },
+      "rotation": "counter-clockwise-90",
+      "placementPixel": {
+        "x": 367,
+        "y": 76,
+        "width": 3386,
+        "height": 1128
+      },
+      "placementMap": {
+        "x": 183.5,
+        "y": 38.0,
+        "width": 1693.0,
+        "height": 564.0
+      },
+      "scaleAfterRotation": 1.0386740331491713
+    },
+    {
+      "id": "factory2",
+      "sourcePdf": "二工厂.pdf",
+      "renderedPixelSize": {
+        "width": 3509,
+        "height": 4961
+      },
+      "crop": {
+        "left": 1301,
+        "top": 0,
+        "right": 2206,
+        "bottom": 4961
+      },
+      "rotation": "counter-clockwise-90",
+      "placementPixel": {
+        "x": 180,
+        "y": 1577,
+        "width": 3760,
+        "height": 686
+      },
+      "placementMap": {
+        "x": 90.0,
+        "y": 788.5,
+        "width": 1880.0,
+        "height": 343.0
+      },
+      "scaleAfterRotation": 0.7579117113485184
+    }
+  ]
+}

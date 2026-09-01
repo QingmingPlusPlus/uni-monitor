@@ -29,6 +29,14 @@ const rendererSetSize = vi.fn()
 const rendererSetPixelRatio = vi.fn()
 const rendererSetClearColor = vi.fn()
 const rendererDispose = vi.fn()
+const backgroundTextureDispose = vi.fn()
+const backgroundTexture = {
+  colorSpace: '',
+  repeat: { set: vi.fn() },
+  offset: { set: vi.fn() },
+  dispose: backgroundTextureDispose,
+}
+const textureLoaderLoad = vi.fn(() => backgroundTexture)
 
 const rendererDomElement = {
   className: '',
@@ -51,6 +59,7 @@ vi.mock('three', async () => {
       setClearColor: rendererSetClearColor,
       dispose: rendererDispose,
     })),
+    TextureLoader: vi.fn(() => ({ load: textureLoaderLoad })),
   }
 })
 
@@ -206,8 +215,50 @@ describe('createSpriteCssMapScene', () => {
     expect(typeof scene.zoomBy).toBe('function')
     expect(typeof scene.resetView).toBe('function')
     expect(typeof scene.focusRect).toBe('function')
+    expect(typeof scene.getCameraSnapshot).toBe('function')
     expect(typeof scene.setSelectMode).toBe('function')
     expect(typeof scene.dispose).toBe('function')
+  })
+
+  it('使用配置的底图纹理创建地图地面', async () => {
+    const createSpriteCssMapScene = await importScene()
+    createSpriteCssMapScene({
+      container: createContainer(),
+      devices: [],
+      mapSize: { width: 1000, height: 800 },
+      background: {
+        imageUrl: '/static/factory-map/factory-floorplan.png',
+        opacity: 0.46,
+      },
+      display,
+      isSelectMode: () => false,
+      openDevice: vi.fn(),
+    })
+
+    expect(textureLoaderLoad).toHaveBeenCalledWith(
+      '/static/factory-map/factory-floorplan.png',
+      expect.any(Function),
+    )
+  })
+
+  it('按底图可见高度裁剪 y 大于阈值的区域', async () => {
+    const createSpriteCssMapScene = await importScene()
+    createSpriteCssMapScene({
+      container: createContainer(),
+      devices: [],
+      mapSize: { width: 1000, height: 800 },
+      background: {
+        imageUrl: '/static/factory-map/factory-floorplan.png',
+        opacity: 0.46,
+        visibleHeight: 666,
+      },
+      display,
+      isSelectMode: () => false,
+      openDevice: vi.fn(),
+    })
+
+    expect(backgroundTexture.repeat.set).toHaveBeenCalledWith(1, 666 / 800)
+    expect(backgroundTexture.offset.set).toHaveBeenCalledWith(0, 1 - 666 / 800)
   })
 
   it('render 调用 renderer.render', async () => {
