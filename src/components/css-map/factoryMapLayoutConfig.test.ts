@@ -70,6 +70,8 @@ const expectedVisibleCodes = [
   '1106',
   '1107',
   '3101',
+  '3103',
+  '3104',
   '3115',
   '3116',
   '3113',
@@ -199,6 +201,10 @@ const expectedVisibleCodes = [
   '2B22',
   '2B23',
   '2B24',
+  '3111',
+  '3112',
+  '3106',
+  '3107',
   '1111',
 ] as const
 
@@ -281,9 +287,9 @@ describe('factory floorplan layout config', () => {
       ...(device.children?.map((child) => child.id) ?? []),
     ])
 
-    expect(mapConfig.devices).toHaveLength(91)
-    expect(rendered).toHaveLength(207)
-    expect(new Set(codes).size).toBe(207)
+    expect(mapConfig.devices).toHaveLength(93)
+    expect(rendered).toHaveLength(209)
+    expect(new Set(codes).size).toBe(209)
     expect([...(mapConfig.source.visibleDeviceCodes ?? [])].sort()).toEqual(
       [...expectedVisibleCodes].sort(),
     )
@@ -494,6 +500,18 @@ describe('factory floorplan layout config', () => {
     expectRect(byCode.get('1105'), { x: 540, y: 212, width: 48, height: 10 })
     expectRect(byCode.get('1106'), { x: 540, y: 226, width: 48, height: 10 })
     expectRect(byCode.get('1107'), { x: 540, y: 250, width: 48, height: 10 })
+    expectRect(byCode.get('3103'), { x: 75, y: 756, width: 18, height: 40 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3103')?.name).toBe('手动粘接-5')
+    expectRect(byCode.get('3104'), { x: 114, y: 756, width: 18, height: 40 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3104')?.name).toBe('手动粘接-6')
+    expectRect(byCode.get('3111'), { x: 160, y: 787, width: 35, height: 40 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3111')?.name).toBe('CG粘接-8')
+    expectRect(byCode.get('3112'), { x: 219, y: 787, width: 35, height: 40 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3112')?.name).toBe('CG粘接-9')
+    expectRect(byCode.get('3106'), { x: 272, y: 780, width: 26, height: 44 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3106')?.name).toBe('自动喷涂粘接-4')
+    expectRect(byCode.get('3107'), { x: 309, y: 780, width: 26, height: 44 })
+    expect(mapConfig.devices.find((device) => device.deviceCode === '3107')?.name).toBe('自动喷涂粘接-5')
     expectRect(byCode.get('1110'), { x: 233, y: 441, width: 112, height: 56 })
   })
 
