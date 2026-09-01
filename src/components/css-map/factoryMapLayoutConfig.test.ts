@@ -221,6 +221,19 @@ const expectedVisibleCodes = [
   '2313',
   '2314',
   '2319',
+  '2322',
+  '2336',
+  '2334',
+  '2305',
+  '2316',
+  '2315',
+  '2301',
+  '2303',
+  '2318',
+  '2304',
+  '2341',
+  '2342',
+  '3329',
   '3325',
   '3323',
   '3324',
@@ -434,6 +447,57 @@ describe('factory floorplan layout config', () => {
       y: 38,
       width: 124,
       height: 115,
+    })
+  })
+
+  it('按指定坐标显示后处理设备', () => {
+    const expected = [
+      ['2322', '自动喷涂涂装-1', 1230, 299, 52, 78],
+      ['2336', 'CG涂装-6', 1288, 298, 53, 78],
+      ['2334', '液压-7', 1343, 298, 63, 37],
+      ['2305', '液压-5', 1344, 337, 56, 42],
+      ['2316', '自动液压-10', 1227, 414, 59, 54],
+      ['2315', '自动液压-9', 1229, 476, 57, 54],
+    ] as const
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = renderedByCode.get(code)
+      expectRect(device, { x, y, width, height })
+      expect(mapConfig.devices.find((item) => item.deviceCode === code)?.name).toBe(name)
+    })
+  })
+
+  it('按统一尺寸和间隔显示液压/压入生产线设备', () => {
+    const expected = [
+      ['2301', '液压-1', 397],
+      ['2303', '液压-3', 432],
+      ['2318', '压入生产线-1', 467],
+      ['2304', '液压-4', 502],
+    ] as const
+
+    expected.forEach(([code, name, y]) => {
+      const device = mapConfig.devices.find((item) => item.deviceCode === code)
+      expect(device).toMatchObject({
+        name,
+        x: 1335,
+        y,
+        width: 64,
+        height: 30,
+      })
+    })
+  })
+
+  it('按指定坐标显示压入生产线-7/8/9', () => {
+    const expected = [
+      ['2341', '压入生产线-8', 1413, 367, 64, 60],
+      ['2342', '压入生产线-9', 1516, 367, 55, 60],
+      ['3329', '压入生产线-7', 1576, 366, 55, 60],
+    ] as const
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      const device = mapConfig.devices.find((item) => item.deviceCode === code)
+      expect(device).toMatchObject({ name, x, y, width, height })
     })
   })
 
