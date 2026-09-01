@@ -206,6 +206,21 @@ const expectedVisibleCodes = [
   '3106',
   '3107',
   '1111',
+  '1204',
+  '1205',
+  '2324',
+  '2325',
+  '2326',
+  '2327',
+  '2307',
+  '2308',
+  '2309',
+  '2310',
+  '2311',
+  '2312',
+  '2313',
+  '2314',
+  '2319',
   '3325',
   '3323',
   '3324',
@@ -376,6 +391,49 @@ describe('factory floorplan layout config', () => {
       y: 441,
       width: 112,
       height: 56,
+    })
+  })
+
+  it('按指定坐标显示切口机-2/3', () => {
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+
+    expectRect(renderedByCode.get('1204'), { x: 1063, y: 178, width: 20, height: 42 })
+    expectRect(renderedByCode.get('1205'), { x: 1095, y: 178, width: 20, height: 42 })
+  })
+
+  it('按指定坐标显示自动液压-1/8和CG涂装-2/5', () => {
+    const expected = [
+      ['2324', 'CG涂装-2', 1223, 36, 27, 60],
+      ['2325', 'CG涂装-3', 1223, 112, 27, 60],
+      ['2326', 'CG涂装-4', 1257, 36, 27, 60],
+      ['2327', 'CG涂装-5', 1257, 112, 27, 60],
+      ['2311', '自动液压-5', 1324, 40, 26, 51],
+      ['2312', '自动液压-6', 1357, 40, 26, 51],
+      ['2313', '自动液压-7', 1324, 106, 26, 51],
+      ['2314', '自动液压-8', 1357, 106, 26, 51],
+      ['2307', '自动液压-1', 1299, 208, 45, 28],
+      ['2308', '自动液压-2', 1360, 208, 45, 28],
+      ['2309', '自动液压-3', 1299, 243, 45, 28],
+      ['2310', '自动液压-4', 1360, 243, 45, 28],
+    ] as const
+    const renderedByCode = new Map(flattenDevices().map((device) => [device.code, device]))
+
+    expected.forEach(([code, name, x, y, width, height]) => {
+      expectRect(renderedByCode.get(code), { x, y, width, height })
+      expect(mapConfig.devices.find((item) => item.deviceCode === code)?.name).toBe(name)
+    })
+  })
+
+  it('按指定坐标显示SMT生产线-1', () => {
+    const device = mapConfig.devices.find((item) => item.deviceCode === '2319')
+
+    expect(device).toMatchObject({
+      id: '2319',
+      name: 'SMT生产线-1',
+      x: 1437,
+      y: 38,
+      width: 124,
+      height: 115,
     })
   })
 
