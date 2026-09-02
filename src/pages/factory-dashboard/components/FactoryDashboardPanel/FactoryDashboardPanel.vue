@@ -72,79 +72,50 @@ const hideInboundPlan = computed<boolean>(() => {
         <LoadingIcon />
       </view>
 
-      <template v-if="data.kind === 'department'">
-        <template v-if="!hideInboundPlan">
-          <DepartmentInboundPlanTrendCard
-            v-if="data.inboundPlanTrend !== null"
-            :title="data.inboundPlanTrend.title"
-            :subtitle="data.inboundPlanTrend.subtitle"
-            :compact="true"
-            tag=""
-            :table-rows="data.inboundPlanTrend.tableRows"
-            :table-columns="data.inboundPlanTrend.tableColumns"
-            :table-data="data.inboundPlanTrend.tableData"
-            :chart-options="data.inboundPlanTrend.chartOptions"
-            :chart-data="data.inboundPlanTrend.chartData"
-            :modal-table-rows="data.inboundPlanTrend.modalTableRows"
-            :modal-table-columns="data.inboundPlanTrend.modalTableColumns"
-            :modal-table-data="data.inboundPlanTrend.modalTableData"
-            :modal-chart-options="data.inboundPlanTrend.modalChartOptions"
-            :modal-chart-data="data.inboundPlanTrend.modalChartData"
-            @refresh="emit('refresh', 'inboundPlanTrend')"
-          />
-          <view v-else class="factory-dashboard-panel__loading-card">
-            <LoadingIcon />
-          </view>
-        </template>
-      </template>
-
-      <template v-else>
-        <template v-if="!hideInboundPlan">
-          <DepartmentInboundPlanTrendCard
-            v-if="data.inboundPlanTrend !== null"
-            :title="data.inboundPlanTrend.title"
-            :subtitle="data.inboundPlanTrend.subtitle"
-            :compact="true"
-            tag=""
-            :table-rows="data.inboundPlanTrend.tableRows"
-            :table-columns="data.inboundPlanTrend.tableColumns"
-            :table-data="data.inboundPlanTrend.tableData"
-            :chart-options="data.inboundPlanTrend.chartOptions"
-            :chart-data="data.inboundPlanTrend.chartData"
-            :modal-table-rows="data.inboundPlanTrend.modalTableRows"
-            :modal-table-columns="data.inboundPlanTrend.modalTableColumns"
-            :modal-table-data="data.inboundPlanTrend.modalTableData"
-            :modal-chart-options="data.inboundPlanTrend.modalChartOptions"
-            :modal-chart-data="data.inboundPlanTrend.modalChartData"
-            @refresh="emit('refresh', 'inboundPlanTrend')"
-          />
-          <view v-else class="factory-dashboard-panel__loading-card">
-            <LoadingIcon />
-          </view>
-        </template>
-
-        <ProcessProductionPlanTrendCard
-          v-if="data.productionPlanTrend !== null"
-          :title="data.productionPlanTrend.title"
-          :subtitle="data.productionPlanTrend.subtitle"
+      <template v-if="!hideInboundPlan">
+        <DepartmentInboundPlanTrendCard
+          v-if="data.inboundPlanTrend !== null"
+          :title="data.inboundPlanTrend.title"
+          :subtitle="data.inboundPlanTrend.subtitle"
           :compact="true"
           tag=""
-          :table-rows="data.productionPlanTrend.tableRows"
-          :table-columns="data.productionPlanTrend.tableColumns"
-          :table-data="data.productionPlanTrend.tableData"
-          :chart-options="data.productionPlanTrend.chartOptions"
-          :chart-data="data.productionPlanTrend.chartData"
-          :modal-table-rows="data.productionPlanTrend.modalTableRows"
-          :modal-table-columns="data.productionPlanTrend.modalTableColumns"
-          :modal-table-data="data.productionPlanTrend.modalTableData"
-          :modal-chart-options="data.productionPlanTrend.modalChartOptions"
-          :modal-chart-data="data.productionPlanTrend.modalChartData"
-          @refresh="emit('refresh', 'productionPlanTrend')"
+          :table-rows="data.inboundPlanTrend.tableRows"
+          :table-columns="data.inboundPlanTrend.tableColumns"
+          :table-data="data.inboundPlanTrend.tableData"
+          :chart-options="data.inboundPlanTrend.chartOptions"
+          :chart-data="data.inboundPlanTrend.chartData"
+          :modal-table-rows="data.inboundPlanTrend.modalTableRows"
+          :modal-table-columns="data.inboundPlanTrend.modalTableColumns"
+          :modal-table-data="data.inboundPlanTrend.modalTableData"
+          :modal-chart-options="data.inboundPlanTrend.modalChartOptions"
+          :modal-chart-data="data.inboundPlanTrend.modalChartData"
+          @refresh="emit('refresh', 'inboundPlanTrend')"
         />
         <view v-else class="factory-dashboard-panel__loading-card">
           <LoadingIcon />
         </view>
       </template>
+
+      <ProcessProductionPlanTrendCard
+        v-for="card in data.productionPlanTrends"
+        :key="card.id"
+        :title="card.title"
+        :subtitle="card.subtitle"
+        :compact="true"
+        tag="mock"
+        label-column-width="minmax(320px, 340px)"
+        :table-rows="card.tableRows"
+        :table-columns="card.tableColumns"
+        :table-data="card.tableData"
+        :chart-options="card.chartOptions"
+        :chart-data="card.chartData"
+        :modal-table-rows="card.modalTableRows"
+        :modal-table-columns="card.modalTableColumns"
+        :modal-table-data="card.modalTableData"
+        :modal-chart-options="card.modalChartOptions"
+        :modal-chart-data="card.modalChartData"
+        @refresh="emit('refresh', 'productionPlanTrend')"
+      />
     </view>
   </view>
 </template>

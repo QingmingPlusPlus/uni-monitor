@@ -22,7 +22,7 @@
 
 - 当前部门和工序右侧组件清单不包含不良金额、不良个数和 MH 卡片。
 - `GET /schedule/getRejects` 已有前端 API 类型，但当前后端返回空数组，且没有足够稳定的金额、个数、计划值和实绩字段映射。
-- MH 卡片目前没有对应的真实 loader 或经过确认的后端字段契约。
+- `department-mh-card` 目前没有对应的真实 loader 或经过确认的后端字段契约，仍保持未挂载。当前已展示的生产计划&实绩推移表虽包含“计划MH/实绩MH”行，但属于新卡片的固定 mock 指标，与该历史独立 MH 卡片无关。
 - 详细接口缺口见 `doc/department-api-gaps.md`，当前首页未展示项见 `doc/factory-dashboard-real-data-mapping.md`。
 
 ## 恢复接入前的要求

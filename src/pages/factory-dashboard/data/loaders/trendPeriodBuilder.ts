@@ -90,6 +90,13 @@ export function createTrendPeriods(
   const segmentGroups = resolveProcessSegments(department, processTypes)
   if (segmentGroups === null) return null
 
+  return createTrendPeriodsFromSegmentGroups(segmentGroups)
+}
+
+export function createTrendPeriodsFromSegmentGroups(
+  segmentGroups: readonly (readonly SegmentVO[])[],
+): TrendPeriods {
+
   const lastDayOfMonth = getLastDayOfCurrentMonth()
   const currentDay = Math.min(getCurrentDayOfMonth(), lastDayOfMonth)
   const monthLabel = `${getCurrentMonthNumber()}月`

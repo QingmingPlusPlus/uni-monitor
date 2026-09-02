@@ -9,13 +9,9 @@ import type {
   CssMapDepartmentValue,
   CssMapProcessValue,
 } from '../../../../components/css-map/css3dMapTypes'
-import type {
-  ScheduleMonthlyRecord,
-} from '../../../../api/schedule'
 import type { FactoryDashboardCard } from '../factoryDashboardTypes'
 import { calculateRate, sumBy } from './numberUtils'
-import { normalizeDeviceCode } from './factoryMapConfigCache'
-import { toApiDepartmentCode, toApiProcessLabel, toApiProcessType } from './cssMapValueMapping'
+import { toApiDepartmentCode } from './cssMapValueMapping'
 import {
   createTrendColumns,
   createTrendPeriods,
@@ -24,8 +20,7 @@ import {
   type TrendPeriod,
   type TrendPeriods,
 } from './trendPeriodBuilder'
-import { extractDayFromDate, getScheduleShiftSequence } from './attendanceShifts'
-import { extractLocalDateKey, getCurrentShiftCutoff, type CurrentShiftCutoff } from './dateTimeUtils'
+import { extractDayFromDate } from './attendanceShifts'
 
 export interface FlowDailyRow extends DailyProcessRow {
   readonly plan: number | null
@@ -39,21 +34,10 @@ export interface FlowPeriodValue {
   readonly rate: number | null
 }
 
-export interface ScheduleScope {
-  readonly department: CssMapDepartmentValue
-  readonly processTypes: readonly CssMapProcessValue[]
-  readonly deviceCodeMap: Readonly<Record<string, ReadonlySet<string>>>
-}
-
 const percentFormatter = (value: TableCellValue): string => {
   if (typeof value === 'number') return `${value.toFixed(1)}%`
   if (typeof value === 'string') return value
   return '-'
-}
-
-const percentAxisLabelFormatter = (value: unknown): string => {
-  const numericValue = Number(value)
-  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)}%` : ''
 }
 
 export function normalizeDeptCode(value: number | string | null | undefined): number | null {
@@ -85,77 +69,6 @@ export function filterRecordsForDepartment<T extends { readonly dept?: number | 
   }
 
   return records.filter((record) => recordMatchesDepartment(record, department))
-}
-
-export function recordMatchesProcess(
-  record: ScheduleMonthlyRecord,
-  processType: CssMapProcessValue,
-  scope: ScheduleScope,
-): boolean {
-  const codeSet = scope.deviceCodeMap[processType]
-  const normalizedCode = normalizeDeviceCode(record.shebei)
-
-  if (codeSet !== undefined && codeSet.size > 0 && normalizedCode) {
-    return codeSet.has(normalizedCode)
-  }
-
-  return (
-    normalizeDeptCode(record.dept) === Number(toApiDepartmentCode(scope.department)) &&
-    record.process === toApiProcessLabel(processType)
-  )
-}
-
-export function filterScheduleRecordsForScope(
-  records: readonly ScheduleMonthlyRecord[],
-  scope: ScheduleScope,
-): readonly (ScheduleMonthlyRecord & { readonly processType: CssMapProcessValue })[] {
-  const matched: (ScheduleMonthlyRecord & { readonly processType: CssMapProcessValue })[] = []
-
-  for (const record of records) {
-    if (normalizeDeptCode(record.dept) !== Number(toApiDepartmentCode(scope.department))) continue
-
-    const processType = scope.processTypes.find((item) => recordMatchesProcess(record, item, scope))
-    if (processType === undefined) continue
-    matched.push({ ...record, processType })
-  }
-
-  return matched
-}
-
-export function createDailyFlowRows(
-  processTypes: readonly CssMapProcessValue[],
-  planRecords: readonly (ScheduleMonthlyRecord & { readonly processType: CssMapProcessValue })[],
-  actualRecords: readonly (ScheduleMonthlyRecord & { readonly processType: CssMapProcessValue })[],
-): readonly FlowDailyRow[] {
-  const rowMap = new Map<
-    string,
-    { processType: CssMapProcessValue; day: number; plan: number | null; actual: number | null }
-  >()
-
-  function getRow(processType: CssMapProcessValue, day: number) {
-    const key = `${processType}:${day}`
-    const row = rowMap.get(key) ?? { processType, day, plan: null, actual: null }
-    rowMap.set(key, row)
-    return row
-  }
-
-  for (const record of planRecords) {
-    if (!processTypes.includes(record.processType)) continue
-    const day = extractDayFromScheduleRecord(record, 'workDate')
-    if (day === null) continue
-    const row = getRow(record.processType, day)
-    row.plan = (row.plan ?? 0) + (record.number ?? 0)
-  }
-
-  for (const record of actualRecords) {
-    if (!processTypes.includes(record.processType)) continue
-    const day = extractDayFromScheduleRecord(record, 'date')
-    if (day === null) continue
-    const row = getRow(record.processType, day)
-    row.actual = (row.actual ?? 0) + (record.number ?? 0)
-  }
-
-  return [...rowMap.values()]
 }
 
 export function createInboundDailyFlowRows(
@@ -254,41 +167,6 @@ export function cloneRowsWithPercent(
   )
 }
 
-import { processProductionPlanTrendChartOptions } from '../../../../components/process-production-plan-trend-card/processProductionPlanTrendMock'
-
-export function createProductionPlanTrendChartOptions(): ChartOptionConfig {
-  return {
-    ...processProductionPlanTrendChartOptions,
-    yAxis: [
-      processProductionPlanTrendChartOptions.yAxis,
-      {
-        type: 'value',
-        min: 0,
-        axisLabel: {
-          color: '#566579',
-          fontSize: 12,
-          formatter: percentAxisLabelFormatter,
-        },
-        splitLine: {
-          show: false,
-        },
-      },
-    ],
-    series: [
-      ...(processProductionPlanTrendChartOptions.series ?? []),
-      {
-        id: 'achievementRate',
-        name: '生产达成率',
-        type: 'line',
-        smooth: false,
-        symbol: 'circle',
-        symbolSize: 6,
-        yAxisIndex: 1,
-      },
-    ],
-  }
-}
-
 export function createFlowTrendCard(params: {
   readonly id: string
   readonly title: string
@@ -339,32 +217,4 @@ export function createFlowTrendCard(params: {
     modalChartOptions: params.chartOptions,
     modalChartData: chartDataFactory(modalChartPeriods, modalTableData, params.keys),
   }
-}
-
-export function isSchedulePlanAtOrBeforeShiftCutoff(
-  record: ScheduleMonthlyRecord,
-  cutoff: CurrentShiftCutoff = getCurrentShiftCutoff(),
-): boolean {
-  const dateStr = record.workDate ?? record.date
-  if (typeof dateStr !== 'string') return true
-
-  const parsed = extractLocalDateKey(dateStr)
-  if (parsed === null || parsed < cutoff.dateKey) return true
-  if (parsed > cutoff.dateKey) return false
-
-  const shiftSequence = getScheduleShiftSequence(record.banci)
-  const cutoffShiftSequence = getScheduleShiftSequence(cutoff.shift)
-  if (cutoffShiftSequence === null) return shiftSequence === null
-  return shiftSequence === null || shiftSequence <= cutoffShiftSequence
-}
-
-export function extractDayFromScheduleRecord(
-  record: ScheduleMonthlyRecord,
-  fallbackDateKey: 'date' | 'workDate',
-): number | null {
-  const dateStr = record[fallbackDateKey] ?? record.date ?? record.workDate
-  if (typeof dateStr !== 'string' || dateStr.trim() === '') return null
-
-  const day = extractDayFromDate(dateStr)
-  return Number.isFinite(day) ? day : null
 }

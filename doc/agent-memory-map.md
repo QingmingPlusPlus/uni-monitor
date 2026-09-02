@@ -19,7 +19,7 @@
 | `src/components/table-chart-card`、`TableChartCard`、推移表共用紧凑表格/展开弹窗 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | `openspec/specs/configurable-table-chart-card/spec.md` | - | 更新共用表格数值适配、滚动或图表行为说明及组件测试 | 生效 |
 | `src/components/attendance-trend-card`、`出勤率推移表`、`loadAttendanceTrendCard` | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新出勤率推移表聚合口径、列展示规则或组件测试 | 生效 |
 | `src/components/department-inbound-plan-trend-card`、`loadInboundPlanTrendCard`、`inboundTrendDisplay.ts`、入库固定月内七日分桶/截止当天/图表零值断线 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/shared-utilities.md` | `openspec/specs/inbound-trend-period-display/spec.md` | - | 更新入库周期、聚合、图表规则和对应测试 | 生效 |
-| `src/components/process-production-plan-trend-card`、`loadProductionPlanTrendCard`、推移卡片月级缓存与 `forceRefresh` 刷新 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新卡片刷新与缓存说明或生产计划推移口径 | 生效 |
+| `src/components/process-production-plan-trend-card`、`createProductionPlanTrendCard`、`createProductionPlanTrendCards`、`productionPlanTrends`、生产计划&实绩推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/department-api-gaps.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新六行指标、公式、维度装配、固定 mock 边界、刷新规则和接口缺口 | 生效 |
 
 ## 兜底策略
 

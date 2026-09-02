@@ -18,12 +18,12 @@ import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import type { ProcessCardId } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
+  createProductionPlanTrendCards,
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
   loadPersonnelDetailCard,
   loadProcessDashboardData,
-  loadProductionPlanTrendCard,
 } from '../factory-dashboard/data/factoryDashboardLoader'
 import {
   buildDepartmentUrl,
@@ -47,7 +47,12 @@ const selectedDepartment = computed<CssMapDepartmentValue>(() =>
   getCssMapDepartmentForProcess(selectedProcess.value, selectionConfig.value),
 )
 const fallbackDashboardData = computed(() =>
-  getProcessDashboardData(selectedProcess.value, selectionConfig.value, refreshedAt.value),
+  getProcessDashboardData(
+    selectedProcess.value,
+    selectionConfig.value,
+    refreshedAt.value,
+    monthSegmentVersion.value,
+  ),
 )
 const dashboardData = shallowRef(fallbackDashboardData.value)
 const alarmItems = computed(() =>
@@ -56,6 +61,7 @@ const alarmItems = computed(() =>
 
 async function reloadDashboardData(): Promise<void> {
   const fallback = fallbackDashboardData.value
+  dashboardData.value = fallback
   try {
     const data = await loadProcessDashboardData(
       selectedProcess.value,
@@ -213,11 +219,9 @@ async function refreshCard(cardId: string): Promise<void> {
     }
 
     if (cardId === 'productionPlanTrend') {
-      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes, {
-        forceRefresh: true,
-      })
-      if (productionPlanTrend !== null) {
-        dashboardData.value = { ...base, productionPlanTrend }
+      dashboardData.value = {
+        ...base,
+        productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
       }
     }
   } catch (error: unknown) {

@@ -10,7 +10,6 @@ import { createFactorySummaryData } from '../loaders/createFactorySummaryData'
 import { loadInboundPlanTrendCard } from '../loaders/loadInboundPlanTrendCard'
 import { loadPersonnelDetailCard } from '../loaders/loadPersonnelDetailCard'
 import { loadProductionActivityData } from '../loaders/loadProductionActivityData'
-import { loadProductionPlanTrendCard } from '../loaders/loadProductionPlanTrendCard'
 
 let processInflightPromise: Promise<ProcessDashboardData> | null = null
 let processInflightKey = ''
@@ -48,12 +47,11 @@ async function doLoadProcessDashboardData(
 ): Promise<ProcessDashboardData> {
   const processTypes = [processType] as const
 
-  const [activity, attendance, attendanceTrend, inboundPlanTrend, productionPlanTrend, personnelDetail] = await Promise.allSettled([
+  const [activity, attendance, attendanceTrend, inboundPlanTrend, personnelDetail] = await Promise.allSettled([
     loadProductionActivityData(department, processTypes, config),
     loadAttendanceCard(department, processTypes, config, refreshedAt),
     loadAttendanceTrendCard(department, processTypes),
     loadInboundPlanTrendCard(department, processTypes),
-    loadProductionPlanTrendCard(department, processTypes),
     loadPersonnelDetailCard(department, processTypes, config, refreshedAt),
   ])
 
@@ -61,8 +59,6 @@ async function doLoadProcessDashboardData(
   const resolvedAttendance = attendance.status === 'fulfilled' ? attendance.value : fallback.attendance
   const resolvedAttendanceTrend = attendanceTrend.status === 'fulfilled' ? attendanceTrend.value : fallback.attendanceTrend
   const resolvedInboundPlanTrend = inboundPlanTrend.status === 'fulfilled' ? inboundPlanTrend.value : fallback.inboundPlanTrend
-  const resolvedProductionPlanTrend = productionPlanTrend.status === 'fulfilled' ? productionPlanTrend.value : fallback.productionPlanTrend
-
   let summary = fallback.summary
   try {
     summary = await createFactorySummaryData({
@@ -83,7 +79,6 @@ async function doLoadProcessDashboardData(
     attendance: resolvedAttendance,
     attendanceTrend: resolvedAttendanceTrend,
     inboundPlanTrend: resolvedInboundPlanTrend,
-    productionPlanTrend: resolvedProductionPlanTrend,
     personnelDetail: personnelDetail.status === 'fulfilled' ? personnelDetail.value : fallback.personnelDetail,
   }
 }

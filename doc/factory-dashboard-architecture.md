@@ -30,7 +30,7 @@
 | 目录/组件 | 职责 |
 | --- | --- |
 | `FactoryDashboardView` | 组合顶部告警、左侧地图和右侧滚动面板；默认使用 Sprite 地图，收到回退事件后切换 CSS3D；管理 80vw × 80vh 地图展开层。 |
-| `FactoryDashboardPanel` | 按固定顺序装配汇总、稼动、人员出勤、人员明细和趋势卡片；制造 1 课及其前处理工序隐藏入库计划卡。 |
+| `FactoryDashboardPanel` | 按固定顺序装配汇总、稼动、人员出勤、人员明细和趋势卡片；制造 1 课及其前处理工序隐藏入库计划卡，随后按 `productionPlanTrends` 顺序展示每个所属工序的固定 mock 生产计划&实绩卡。 |
 | `FactoryAlertHeader` | 轮播当前维度的告警项；告警数据目前来自 `factoryAlarmMock.ts`。 |
 | `ProductionSummaryCard` | 展示计划、实绩、人员等汇总值。 |
 | `ProductionActivityCard` | 展示部门或工序下设备运行、异常和计划停止数量。 |
@@ -58,13 +58,13 @@
 - 单个 loader 成功时替换对应 fallback 字段；失败时仅该字段保留 fallback，其他卡片继续使用真实结果。
 - 信息汇总依赖已解析的稼动和出勤，并额外读取计划/实绩；汇总生成失败时保留 fallback 汇总。
 - 趋势字段为 `null` 时，`FactoryDashboardPanel` 显示 `LoadingIcon`。接口抛错但维度级 loader 有 fallback 时，通常会展示 fallback 卡片而不是空白。
-- 设备详情、告警和部分同步 fallback 仍是 mock。判断某个字段是否真实接入时，以 `doc/factory-dashboard-real-data-mapping.md` 为准，不以组件名称推断。
+- 设备详情、告警、`productionPlanTrends` 和部分同步 fallback 仍是 mock。生产计划&实绩卡由日/班次 mock 输入同步派生，维度级真实 loader 不请求或覆盖该字段。判断某个字段是否真实接入时，以 `doc/factory-dashboard-real-data-mapping.md` 为准，不以组件名称推断。
 
 ## 刷新与缓存边界
 
 - 页面筛选变化或刷新版本变化时重新调用维度级 loader；已完成的整页结果不缓存。
 - 页面上的刷新事件携带卡片 ID，只替换被刷新卡片的数据，不重置地图选择。
-- 入库与生产计划趋势存在按月 schedule 记录缓存；手动刷新必须传入 `forceRefresh: true` 使对应缓存失效。
+- 入库趋势存在按月 schedule 记录缓存；手动刷新必须传入 `forceRefresh: true` 使对应缓存失效。生产计划&实绩趋势不访问接口或月级缓存，刷新只重建当前维度的固定 mock 卡片数组。
 - 月分段配置单独保存在 `sessionStorage`，不属于整页看板缓存。
 - 地图设备配置和实时数据使用自己的加载、并发去重及 mock 开关，不能复用看板卡片缓存。
 

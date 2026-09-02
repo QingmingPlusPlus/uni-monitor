@@ -24,7 +24,7 @@
 | --- | --- | --- |
 | `GET /schedule/getRukuPlan` | 当前返回 `date`、`number`、`zhifan`、`dept`、`customer`，2026-07 有数据；其中部分记录 `dept` 缺失或为 `0`。 | 入库计划实绩推移表按有效 `dept` 过滤当前部门后聚合，未归属记录不计入部门口径。 |
 | `GET /schedule/getRukuShiji` | 新增入库实绩，返回 `date`、`shebei`、`number`、`zhifan`、`banci`、`dept`、`cusCode`、`custName`，2026-07 有数据。 | 入库计划实绩推移表按 `dept` 过滤当前部门，计算实绩、差值和达成率；信息汇总取当月全量合计，不按部门过滤。 |
-| `GET /schedule/getOutput` | 当前月接口已有记录，字段包含 `date`、`shebei`、`number`、`zhifan`、`process`、`banci`、`dept`。 | 生产计划实绩推移表继续按设备范围和部门/工序过滤。 |
+| `GET /schedule/getOutput` | 当前月接口已有记录，字段包含 `date`、`shebei`、`number`、`zhifan`、`process`、`banci`、`dept`。 | 当前仅供信息汇总的生产实际使用；生产计划&实绩推移表整卡使用固定 mock，不混用该接口。 |
 | `GET /schedule/getRejects` | 当前返回空数组，未再复现缺表 SQL 报错。 | 首页右侧已移除旧不良率卡片，暂不接入。 |
 
 ## 缺口与当前处理
@@ -38,11 +38,13 @@
 | 人员明细接口中的 `attendanceSituation`、`ability`、`shiftName` 是自由文本 | 人员明细及状态 | `attendanceSituation` 和 `attendanceStatus` 均原样显示；能力与班次仍按前端兜底规则处理。 |
 | `GET /schedule/getChangePoint` 当前返回空数组 | 地图变化点 | 地图不显示变化点标记；接口有数据后按 `device` 和 `type` 自动展示。 |
 | 月周配置接口部分 (部门,工序) 组合在 2026-06 返回空配置 | 所有推移表 | 前端按 `departmentId:processType` 复合键查找；未命中的组合回退到自然周分段，仍保持月/周/日汇总逻辑。 |
+| 缺少部门/工序级能力、提高基础数和直接出勤工时的稳定契约；`getWorkhours` 返回结构和适用维度尚未确认 | 生产计划&实绩推移表的 MH 与个数生产性 | 当前整卡使用明确标识的固定 mock；不猜测 `getWorkhours` 结构，也不与 `getPlan`/`getOutput` 混合。 |
 
 ## 建议后端扩展
 
 - `getRukuPlan` 和 `getRukuShiji` 增加 `processType` 或稳定设备范围字段，让工序维度可以严格按单工序过滤。
 - `getOutput` 保持与 `getPlan` 一致的部门、工序或设备编码可过滤字段。
+- 为生产计划&实绩推移表提供按部门、工序、生产日和班次可过滤的能力、提高基础数及直接出勤 MH 字段，并明确缺失值和班次归属规则；契约确认后再按现有日/班次输入模型替换固定 mock。
 - `getRejects` 明确不良金额、不良个数、计划值、实绩值和日期字段，便于未来恢复不良指标。
 - 人员出勤与人员明细接口补充稳定枚举或结构化字段，减少前端中文关键词映射。
 - 月周配置接口确保当前月份每个工序都返回分段配置；否则前端只能使用自然周兜底。

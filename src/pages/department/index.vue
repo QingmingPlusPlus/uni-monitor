@@ -15,6 +15,7 @@ import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSele
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import {
+  createProductionPlanTrendCards,
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadDepartmentDashboardData,
@@ -60,6 +61,7 @@ const alarmItems = computed(() =>
 
 async function reloadDashboardData(): Promise<void> {
   const fallback = fallbackDashboardData.value
+  dashboardData.value = fallback
   try {
     const data = await loadDepartmentDashboardData(
       selectedDepartment.value,
@@ -138,6 +140,7 @@ const DEPARTMENT_CARD_IDS: readonly DepartmentCardId[] = [
   'attendanceTrend',
   'inboundPlanTrend',
   'personnelDetail',
+  'productionPlanTrend',
 ]
 
 function isDepartmentCardId(value: unknown): value is DepartmentCardId {
@@ -189,6 +192,14 @@ async function refreshCard(cardId: string): Promise<void> {
     if (cardId === 'personnelDetail') {
       const personnelDetail = await loadPersonnelDetailCard(department, processTypes, config, refreshedAt)
       dashboardData.value = { ...base, personnelDetail }
+      return
+    }
+
+    if (cardId === 'productionPlanTrend') {
+      dashboardData.value = {
+        ...base,
+        productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
+      }
     }
   } catch (error: unknown) {
     handleCardRefreshError(cardId, error)

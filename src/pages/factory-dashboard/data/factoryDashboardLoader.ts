@@ -12,7 +12,8 @@ export {
   loadInboundPlanTrendCard,
 } from './loaders/loadInboundPlanTrendCard'
 export {
-  loadProductionPlanTrendCard,
+  createProductionPlanTrendCard,
+  createProductionPlanTrendCards,
 } from './loaders/loadProductionPlanTrendCard'
 export {
   loadProductionActivityData,

@@ -1,153 +1,245 @@
 import type {
-  ChartDataConfig,
   ChartOptionConfig,
-  TableColumnConfig,
-  TableData,
+  TableCellFormatter,
   TableRowConfig,
 } from "../table-chart-card/TableChartCard.types"
 
-export const processProductionPlanTrendRows = [
-  { key: "plan", label: "计划生产数" },
-  { key: "actual", label: "实绩生产数", tone: "success" },
-] as const satisfies readonly TableRowConfig[]
+export type ProductionTrendMockShift = "day" | "middle" | "night"
 
-export const processProductionPlanTrendColumns = [
-  { key: "month", label: "5月", width: "minmax(120px, 1fr)" },
-  { key: "week1", label: "1W" },
-  { key: "week2", label: "2W" },
-  { key: "week3", label: "3W" },
-  { key: "week4", label: "4W" },
-  { key: "day11", label: "11" },
-  { key: "day12", label: "12" },
-  { key: "day13", label: "13" },
-  { key: "day14", label: "14" },
-  { key: "day15", label: "15" },
-  { key: "day16", label: "16" },
-  { key: "day17", label: "17" },
-] as const satisfies readonly TableColumnConfig[]
+export interface ProductionTrendMockDaySeed {
+  readonly planCount: number
+  readonly actualCount: number
+  readonly actualDirectMh: number
+}
 
-export const processProductionPlanTrendTableData = {
-  plan: {
-    month: 216000,
-    week1: 49200,
-    week2: 50500,
-    week3: 51700,
-    week4: 53200,
-    day11: 6800,
-    day12: 6900,
-    day13: 7050,
-    day14: 7200,
-    day15: 7150,
-    day16: 7300,
-    day17: 7400,
-  },
-  actual: {
-    month: 215180,
-    week1: 48660,
-    week2: 51130,
-    week3: 51390,
-    week4: 54000,
-    day11: 6710,
-    day12: 7020,
-    day13: 6990,
-    day14: 7350,
-    day15: 7090,
-    day16: 7240,
-    day17: 7520,
-  },
-} as const satisfies TableData
+export const productionTrendMockDaySeeds = [
+  { planCount: 6800, actualCount: 6710, actualDirectMh: 63.5 },
+  { planCount: 6900, actualCount: 7020, actualDirectMh: 65.0 },
+  { planCount: 7050, actualCount: 6990, actualDirectMh: 64.0 },
+  { planCount: 7200, actualCount: 7350, actualDirectMh: 66.0 },
+  { planCount: 7150, actualCount: 7090, actualDirectMh: 64.5 },
+  { planCount: 7300, actualCount: 7240, actualDirectMh: 65.5 },
+  { planCount: 7400, actualCount: 7520, actualDirectMh: 67.0 },
+] as const satisfies readonly ProductionTrendMockDaySeed[]
+
+export const productionTrendMockShiftWeights = [
+  { shift: "day", weight: 0.4 },
+  { shift: "middle", weight: 0.35 },
+  { shift: "night", weight: 0.25 },
+] as const satisfies readonly {
+  readonly shift: ProductionTrendMockShift
+  readonly weight: number
+}[]
+
+export const productionTrendMockBaseCapacity = 6800
+export const productionTrendMockBaselineHeadcount = 64
+
+const integerFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+})
+
+export const productionTrendIntegerFormatter: TableCellFormatter = (value) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return integerFormatter.format(Math.round(value))
+  }
+
+  return typeof value === "string" ? value : "-"
+}
+
+export const productionTrendOneDecimalFormatter: TableCellFormatter = (value) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value.toFixed(1)
+  }
+
+  return typeof value === "string" ? value : "-"
+}
+
+export function createProductionPlanTrendRows(
+  quantityLabel: string,
+): readonly TableRowConfig[] {
+  return [
+    {
+      key: "planCount",
+      label: `计划${quantityLabel}`,
+      formatter: productionTrendIntegerFormatter,
+    },
+    {
+      key: "actualCount",
+      label: `实绩${quantityLabel}`,
+      formatter: productionTrendIntegerFormatter,
+      tone: "success",
+    },
+    {
+      key: "planMh",
+      label: "计划MH",
+      formatter: productionTrendOneDecimalFormatter,
+    },
+    {
+      key: "actualMh",
+      label: "实绩MH",
+      formatter: productionTrendOneDecimalFormatter,
+      tone: "success",
+    },
+    {
+      key: "planProductivity",
+      label: "计划个数生产性",
+      formatter: productionTrendOneDecimalFormatter,
+    },
+    {
+      key: "actualProductivity",
+      label: "实绩个数生产性",
+      formatter: productionTrendOneDecimalFormatter,
+      tone: "success",
+    },
+  ]
+}
 
 const palette = {
-  planProduction: "#4F81BD",
-  actualProduction: "#70AD47",
-  achievementRate: "#C0504D",
+  planCount: "#4F81BD",
+  actualCount: "#70AD47",
+  planProductivity: "#ED7D31",
+  actualProductivity: "#A64CA6",
   textSecondary: "#566579",
   rail: "#D8E1EB",
 } as const
 
-export const processProductionPlanTrendChartOptions: ChartOptionConfig = {
-  color: [palette.planProduction, palette.actualProduction, palette.achievementRate],
-  tooltip: {
-    trigger: "axis",
-    textStyle: {
-      fontSize: 14,
-    },
-  },
-  legend: {
-    bottom: 0,
-    left: "center",
-    itemWidth: 14,
-    itemHeight: 10,
-    textStyle: {
-      color: palette.textSecondary,
-      fontSize: 13,
-    },
-  },
-  grid: {
-    left: 52,
-    right: 52,
-    top: 28,
-    bottom: 56,
-  },
-  xAxis: {
-    type: "category",
-    axisTick: {
-      show: false,
-    },
-    axisLine: {
-      lineStyle: {
-        color: palette.rail,
-      },
-    },
-    axisLabel: {
-      color: palette.textSecondary,
-      fontSize: 12,
-    },
-  },
-  yAxis: {
-    type: "value",
-    min: 0,
-    axisLabel: {
-      color: palette.textSecondary,
-      fontSize: 12,
-    },
-    splitLine: {
-      lineStyle: {
-        color: palette.rail,
-        type: "dashed",
-      },
-    },
-  },
-  series: [
-    {
-      id: "plan",
-      name: "计划",
-      type: "line",
-      smooth: false,
-      symbol: "circle",
-      symbolSize: 6,
-    },
-    {
-      id: "actual",
-      name: "实绩",
-      type: "line",
-      smooth: false,
-      symbol: "circle",
-      symbolSize: 6,
-    },
-  ],
+function formatAxisOneDecimal(value: unknown): string {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? numericValue.toFixed(1) : ""
 }
 
-export const processProductionPlanTrendChartData: ChartDataConfig = {
-  xAxisData: ["11", "12", "13", "14", "15", "16", "17"],
-  series: [
-    {
-      id: "plan",
-      data: [6800, 6900, 7050, 7200, 7150, 7300, 7400],
+function formatCountTooltip(value: unknown): string {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)} 千个` : "-"
+}
+
+function formatProductivityTooltip(value: unknown): string {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? `${numericValue.toFixed(1)} 个/MH` : "-"
+}
+
+export function createProductionPlanTrendChartOptions(
+  chartQuantityLabel: string,
+): ChartOptionConfig {
+  return {
+    color: [
+      palette.planCount,
+      palette.actualCount,
+      palette.planProductivity,
+      palette.actualProductivity,
+    ],
+    tooltip: {
+      trigger: "axis",
+      textStyle: {
+        fontSize: 14,
+      },
     },
-    {
-      id: "actual",
-      data: [6710, 7020, 6990, 7350, 7090, 7240, 7520],
+    legend: {
+      type: "scroll",
+      bottom: 0,
+      left: "center",
+      itemWidth: 14,
+      itemHeight: 10,
+      textStyle: {
+        color: palette.textSecondary,
+        fontSize: 13,
+      },
     },
-  ],
+    grid: {
+      left: 64,
+      right: 72,
+      top: 38,
+      bottom: 58,
+    },
+    xAxis: {
+      type: "category",
+      axisTick: {
+        show: false,
+      },
+      axisLine: {
+        lineStyle: {
+          color: palette.rail,
+        },
+      },
+      axisLabel: {
+        color: palette.textSecondary,
+        fontSize: 12,
+      },
+    },
+    yAxis: [
+      {
+        type: "value",
+        min: 0,
+        name: "千个",
+        nameTextStyle: {
+          color: palette.textSecondary,
+          fontSize: 12,
+        },
+        axisLabel: {
+          color: palette.textSecondary,
+          fontSize: 12,
+          formatter: formatAxisOneDecimal,
+        },
+        splitLine: {
+          lineStyle: {
+            color: palette.rail,
+            type: "dashed",
+          },
+        },
+      },
+      {
+        type: "value",
+        min: 0,
+        name: "个/MH",
+        nameTextStyle: {
+          color: palette.textSecondary,
+          fontSize: 12,
+        },
+        axisLabel: {
+          color: palette.textSecondary,
+          fontSize: 12,
+          formatter: formatAxisOneDecimal,
+        },
+        splitLine: {
+          show: false,
+        },
+      },
+    ],
+    series: [
+      {
+        id: "planCount",
+        name: `计划${chartQuantityLabel}`,
+        type: "bar",
+        barWidth: 14,
+        tooltip: { valueFormatter: formatCountTooltip },
+      },
+      {
+        id: "actualCount",
+        name: `实绩${chartQuantityLabel}`,
+        type: "bar",
+        barWidth: 14,
+        tooltip: { valueFormatter: formatCountTooltip },
+      },
+      {
+        id: "planProductivity",
+        name: "计划个数生产性",
+        type: "line",
+        smooth: false,
+        symbol: "circle",
+        symbolSize: 6,
+        yAxisIndex: 1,
+        tooltip: { valueFormatter: formatProductivityTooltip },
+      },
+      {
+        id: "actualProductivity",
+        name: "实绩个数生产性",
+        type: "line",
+        smooth: false,
+        symbol: "circle",
+        symbolSize: 6,
+        yAxisIndex: 1,
+        tooltip: { valueFormatter: formatProductivityTooltip },
+      },
+    ],
+  }
 }
