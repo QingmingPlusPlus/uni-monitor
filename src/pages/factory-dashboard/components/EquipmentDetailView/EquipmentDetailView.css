@@ -57,8 +57,6 @@
   display: grid;
   min-height: 0;
   grid-template-areas:
-    "plan"
-    "downtime"
     "loss"
     "defect"
     "timeline"
@@ -70,14 +68,6 @@
 .equipment-detail__card {
   gap: var(--space-2);
   padding: var(--space-3);
-}
-
-.equipment-detail__card--plan {
-  grid-area: plan;
-}
-
-.equipment-detail__card--downtime {
-  grid-area: downtime;
 }
 
 .equipment-detail__card--loss {

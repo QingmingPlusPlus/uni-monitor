@@ -156,13 +156,46 @@ export interface EquipmentTimelineItem {
   readonly detail: string
 }
 
+export type EquipmentProductionPlanStatus = 'completed' | 'active' | 'upcoming'
+
+export interface EquipmentProductionPlanRow {
+  readonly id: string
+  readonly status: EquipmentProductionPlanStatus
+  readonly productionDate: string
+  readonly calendarDate: string
+  readonly shift: string
+  readonly time: string
+  readonly productNumber: string
+  readonly capacity: number
+  readonly planned: number
+  readonly actual: number | null
+  readonly accepted: number | null
+  readonly flow: number | null
+  readonly defects: number | null
+  readonly scrapped: number | null
+  readonly availabilityRate: number | null
+  readonly achievementRate: number | null
+  readonly acceptanceRate: number | null
+  readonly performanceRate: number | null
+  readonly result: 'win' | 'loss' | null
+  readonly stopReason: string
+  readonly stopStartedAt: string
+  readonly stopEndedAt: string
+  readonly stopDuration: string
+}
+
+export interface EquipmentProductionPlanData {
+  readonly title: string
+  readonly subtitle: string
+  readonly rows: readonly EquipmentProductionPlanRow[]
+}
+
 export interface EquipmentDetailData {
   readonly eyebrow: string
   readonly title: string
   readonly subtitle: string
   readonly kpis: readonly FactoryKpiItem[]
-  readonly currentPlan: readonly EquipmentDetailRow[]
-  readonly downtimePlan: readonly EquipmentDetailRow[]
+  readonly productionPlan: EquipmentProductionPlanData
   readonly lossReasons: readonly EquipmentDetailRow[]
   readonly defectReasons: readonly EquipmentDetailRow[]
   readonly timeline: readonly EquipmentTimelineItem[]

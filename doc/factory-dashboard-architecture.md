@@ -35,7 +35,8 @@
 | `ProductionSummaryCard` | 展示计划、实绩、人员等汇总值。 |
 | `ProductionActivityCard` | 展示部门或工序下设备运行、异常和计划停止数量。 |
 | `PersonnelAttendanceCard`、`PersonnelDetailCard` | 展示实时出勤聚合和人员明细，向页面上抛卡片刷新事件。 |
-| `EquipmentDetailView` | 展示设备 KPI、计划、损耗原因、时间轴和周期数据，并上抛返回事件。 |
+| `EquipmentDetailView` | 展示设备 KPI、生产计划实绩表、损耗原因、时间轴和周期数据，并上抛返回事件。 |
+| `EquipmentProductionPlanTable` | 设备维度专用横向表格；进行中计划固定展示，已完成和未开始计划可独立展开。 |
 | `FactoryKpiGrid` | 设备详情使用的通用 KPI 网格。 |
 | `DashboardExpandMockModal` | 为 `TableChartCard` 的 `use-mock-expand` 模式生成演示展开表格；真实趋势卡片使用自身完整 modal 数据。 |
 
@@ -49,7 +50,7 @@
 | `data/loaders/` | 负责 API 值转换、设备范围、班次与日期、卡片聚合、趋势周期、数值格式和月级 schedule 缓存。 |
 | `data/factoryDashboardMock.ts` | 创建部门/工序同步 fallback 结构，并复用各趋势 mock 生成器。 |
 | `data/factoryAlarmMock.ts` | 生成部门、工序和设备告警；当前没有真实告警接口。 |
-| `data/equipmentDetailMock.ts` | 根据设备 ID 稳定生成设备详情演示数据。 |
+| `data/equipmentDetailMock.ts` | 根据设备 ID 稳定生成设备详情和小时别生产计划实绩演示数据，并计算可动率、达成率、合格率、实力与胜负。 |
 | 其他 `*Mock.ts` | 为接口失败或未接入区域提供确定性的降级数据。 |
 
 ## 加载与降级

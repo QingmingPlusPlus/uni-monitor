@@ -1,5 +1,9 @@
 import type { CssMapDevice } from '../../../components/css-map/css3dMapTypes'
-import type { EquipmentDetailData, KpiTone } from './factoryDashboardTypes'
+import type {
+  EquipmentDetailData,
+  EquipmentProductionPlanRow,
+  KpiTone,
+} from './factoryDashboardTypes'
 
 const mockStatuses = {
   production: { label: '生产中', tone: 'success' },
@@ -54,6 +58,70 @@ function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`
 }
 
+function createPlanRow(
+  id: string,
+  status: EquipmentProductionPlanRow['status'],
+  time: string,
+  productNumber: string,
+  capacity: number,
+  planned: number,
+  actual: number | null,
+  accepted: number | null,
+  flow: number | null,
+  defects: number | null,
+  scrapped: number | null,
+  stopReason = '',
+  stopStartedAt = '',
+  stopEndedAt = '',
+  stopDuration = '',
+): EquipmentProductionPlanRow {
+  const rate = (numerator: number | null, denominator: number): number | null => {
+    if (numerator === null || denominator <= 0) return null
+
+    return numerator / denominator * 100
+  }
+
+  return {
+    id,
+    status,
+    productionDate: '260630',
+    calendarDate: '260630',
+    shift: '早班',
+    time,
+    productNumber,
+    capacity,
+    planned,
+    actual,
+    accepted,
+    flow,
+    defects,
+    scrapped,
+    availabilityRate: rate(actual, capacity),
+    achievementRate: rate(actual, planned),
+    acceptanceRate: actual === null ? null : rate(accepted, actual),
+    performanceRate: rate(planned, capacity),
+    result: actual === null ? null : actual >= planned ? 'win' : 'loss',
+    stopReason,
+    stopStartedAt,
+    stopEndedAt,
+    stopDuration,
+  }
+}
+
+function createProductionPlanRows(seed: number): readonly EquipmentProductionPlanRow[] {
+  const completedOffset = seed % 3
+
+  return [
+    createPlanRow('completed-0630', 'completed', '6:30', 'TT-123-JY', 240, 180, 182 + completedOffset, 181 + completedOffset, 179 + completedOffset, 1, 3, '01新开机', '6:30', '6:45', '0:15:45'),
+    createPlanRow('completed-0730', 'completed', '7:30', 'TT-123-JY', 240, 240, 240 + completedOffset, 240, 238, completedOffset, 2),
+    createPlanRow('completed-0830', 'completed', '8:30', 'TT-123-JY', 240, 240, 242, 242, 240, 0, 2),
+    createPlanRow('completed-0930', 'completed', '9:30', 'TT-123-JY', 240, 240, 241, 240, 238, 1, 3),
+    createPlanRow('active-1030', 'active', '10:30', 'TT-345-YR', 200, 100, 108, 106, 104, 2, 4, '02切替', '10:30', '10:50', '0:19:55'),
+    createPlanRow('upcoming-1130', 'upcoming', '11:30', 'TT-345-YR', 200, 200, null, null, null, null, null),
+    createPlanRow('upcoming-1230', 'upcoming', '12:30', 'TT-345-YR', 200, 200, null, null, null, null, null),
+  ]
+}
+
 export function getEquipmentDetailData(
   device: CssMapDevice | null,
   fallbackDeviceId = '',
@@ -88,19 +156,11 @@ export function getEquipmentDetailData(
       { label: '停止类型', value: stopType, note: '当前主因', tone: 'danger' },
       { label: '计划达成', value: formatPercent(88 + seed % 10), note: planName, tone: 'success' },
     ],
-    currentPlan: [
-      { label: '日期', value: '2026-06-30' },
-      { label: '班次', value: shiftName },
-      { label: '时间', value: '08:00-17:00' },
-      { label: '设备', value: deviceName },
-      { label: '计划', value: planName, tone: 'operation' },
-      { label: '负责人', value: ownerName },
-    ],
-    downtimePlan: [
-      { label: '已完成计划', value: `${2 + seed % 3} 项`, tone: 'success' },
-      { label: '进行中计划', value: '1 项', tone: 'operation' },
-      { label: '未开始计划', value: `${seed % 2} 项`, tone: 'warning' },
-    ],
+    productionPlan: {
+      title: '生产计划实绩',
+      subtitle: `早班 · ${planName} · 当前设备计划`,
+      rows: createProductionPlanRows(seed),
+    },
     lossReasons: [
       { label: '不良明细', value: `${defectCount} 件`, tone: 'danger' },
       { label: '设备等待', value: `${waitMinutes} 分钟`, tone: 'warning' },

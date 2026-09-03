@@ -6,6 +6,7 @@ import type {
 } from '../../data/factoryDashboardTypes'
 import FactoryAlertHeader from '../FactoryAlertHeader/FactoryAlertHeader.vue'
 import FactoryKpiGrid from '../FactoryKpiGrid/FactoryKpiGrid.vue'
+import EquipmentProductionPlanTable from '../../../../components/equipment-production-plan-table/EquipmentProductionPlanTable.vue'
 
 defineProps<{
   readonly data: EquipmentDetailData
@@ -38,35 +39,9 @@ function getRowToneClass(row: EquipmentDetailRow): string {
       <FactoryKpiGrid :items="data.kpis" />
     </view>
 
+    <EquipmentProductionPlanTable :data="data.productionPlan" />
+
     <view class="equipment-detail__grid">
-      <section class="equipment-detail__card equipment-detail__card--plan">
-        <text class="equipment-detail__card-title">当前设备计划</text>
-        <view class="equipment-detail__row-table">
-          <view
-            v-for="row in data.currentPlan"
-            :key="row.label"
-            class="equipment-detail__row"
-          >
-            <text>{{ row.label }}</text>
-            <text :class="getRowToneClass(row)">{{ row.value }}</text>
-          </view>
-        </view>
-      </section>
-
-      <section class="equipment-detail__card equipment-detail__card--downtime">
-        <text class="equipment-detail__card-title">停线计划展开</text>
-        <view class="equipment-detail__row-table">
-          <view
-            v-for="row in data.downtimePlan"
-            :key="row.label"
-            class="equipment-detail__row"
-          >
-            <text>{{ row.label }}</text>
-            <text :class="getRowToneClass(row)">{{ row.value }}</text>
-          </view>
-        </view>
-      </section>
-
       <section class="equipment-detail__card equipment-detail__card--loss">
         <text class="equipment-detail__card-title">损耗明细</text>
         <view class="equipment-detail__row-table">
