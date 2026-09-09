@@ -21,7 +21,7 @@
 | --- | --- |
 | `src/pages/department/index.vue` | 以 `departmentId` 为状态源；加载选择配置和当月分段；装配部门看板；支持卡片级刷新，并在本地时间每日 06:20 触发一次显示数据刷新。 |
 | `src/pages/process/index.vue` | 以 `processId` 为状态源；反查所属部门；装配单工序看板并处理工序卡片刷新。 |
-| `src/pages/equipment/index.vue` | 以 `deviceId` 为状态源，从地图设备或子设备中定位当前设备；详情主体仍使用 `equipmentDetailMock.ts`，并依据 `from` 返回部门或工序页。 |
+| `src/pages/equipment/index.vue` | 以 `deviceId` 为状态源，从地图设备或子设备中定位当前设备；先显示详情 mock 骨架，再由设备详情 loader 替换已接入的实时运行信息，并依据 `from` 返回部门或工序页。 |
 
 部门页和工序页都先创建同步 mock fallback，再异步加载真实数据。这样页面可以立即得到完整的数据结构，接口部分失败时也不会让整个看板失去渲染条件。
 
@@ -51,6 +51,7 @@
 | `data/factoryDashboardMock.ts` | 创建部门/工序同步 fallback 结构，并复用各趋势 mock 生成器。 |
 | `data/factoryAlarmMock.ts` | 生成部门、工序和设备告警；当前没有真实告警接口。 |
 | `data/equipmentDetailMock.ts` | 根据设备 ID 稳定生成设备详情和小时别生产计划实绩演示数据，并计算可动率、达成率、合格率、实力与胜负。 |
+| `data/loaders/loadEquipmentDetailData.ts` | 汇总设备实时状态、当月负荷、当日阻碍和暂停记录；仅覆盖可稳定映射的 KPI、停止时间轴和停机原因。 |
 | 其他 `*Mock.ts` | 为接口失败或未接入区域提供确定性的降级数据。 |
 
 ## 加载与降级

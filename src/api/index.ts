@@ -1,6 +1,7 @@
 export * from './attendance'
 export * from './basic'
 export * from './deviceRealtime'
+export * from './deviceAvailability'
 export * from './http'
 export * from './schedule'
 export * from './visualConfig'

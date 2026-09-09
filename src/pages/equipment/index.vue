@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type {
   CssMapDevice,
   CssMapDeviceChild,
@@ -16,6 +16,7 @@ import { loadCssMapData } from '../../components/css-map/css3dMapLiveData'
 import EquipmentDetailView from '../factory-dashboard/components/EquipmentDetailView/EquipmentDetailView.vue'
 import { getEquipmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import { getEquipmentDetailData } from '../factory-dashboard/data/equipmentDetailMock'
+import { loadEquipmentDetailData } from '../factory-dashboard/data/loaders/loadEquipmentDetailData'
 import {
   buildDepartmentUrl,
   buildProcessUrl,
@@ -33,6 +34,7 @@ const devices = ref<readonly CssMapDevice[]>([])
 const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 const loadError = ref('')
 let stopRouteQuerySync: (() => void) | null = null
+let detailLoadVersion = 0
 
 const activeDevice = computed<CssMapDevice | null>(() => {
   if (devices.value.length === 0) return null
@@ -47,9 +49,7 @@ const activeDevice = computed<CssMapDevice | null>(() => {
   return devices.value[0] ?? null
 })
 
-const detailData = computed(() =>
-  getEquipmentDetailData(activeDevice.value, requestedDeviceId.value),
-)
+const detailData = ref(getEquipmentDetailData(null))
 const alarmItems = computed(() =>
   getEquipmentAlarmItems(activeDevice.value, selectionConfig.value, requestedDeviceId.value),
 )
@@ -84,6 +84,18 @@ onBeforeUnmount(() => {
   stopRouteQuerySync?.()
   stopRouteQuerySync = null
 })
+
+watch(activeDevice, (device) => {
+  const version = ++detailLoadVersion
+  detailData.value = getEquipmentDetailData(device, requestedDeviceId.value)
+  loadEquipmentDetailData(device, requestedDeviceId.value)
+    .then((data) => {
+      if (version === detailLoadVersion) detailData.value = data
+    })
+    .catch((error: unknown) => {
+      console.warn('[Equipment] 设备详情实时数据加载失败', error)
+    })
+}, { immediate: true })
 
 function createDeviceFromChild(parent: CssMapDevice, child: CssMapDeviceChild): CssMapDevice {
   return {

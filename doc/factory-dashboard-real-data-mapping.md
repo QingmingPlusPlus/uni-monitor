@@ -30,6 +30,19 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 静态布局由 `scripts/generate_factory_map_layout.py` 从现场布局 Excel 生成：PDF 决定实际厂房比例，红框和编号决定 151 台现场标注设备的位置及拆分，设备主数据通过唯一 `deviceCode` 绑定实时接口。输出配置带 `source.layoutCoordinateSystem = "factory-floorplan-v1"`，重复生成不会再次缩放既有坐标。全量配置定义 209 个唯一设备 code；当前 `source.visibleDeviceCodes` 只允许 2026-08-09 点位 slices JSON 及后续同组排布中确认的 156 台设备进入地图渲染、实时接口请求和看板工序设备范围，其中 `1102`（干研磨生产线1）使用坐标 `(368, 286, 24, 16)`，滚喷粘接 `1113/1123` 使用坐标 `(414, 308, 40, 20)`、`(414, 337, 40, 20)`，CG粘接 `1114/1115` 使用坐标 `(471, 289, 24, 28)`、`(471, 331, 24, 28)`，CG连接 `1120/1119/1118/1117/1116`（显示名 CG连接7/6/5/4/3）使用坐标 `(352, 397, 39, 46)`、`(408, 398, 36, 46)`、`(408, 467, 35, 48)`、`(464, 423, 28, 33)`、`(464, 471, 28, 36)`，CG粘接-12（`1122`）使用坐标 `(533, 470, 70, 47)`，自动喷涂粘接-1/2/3（`1110/1111/1112`）使用坐标 `(233, 441, 112, 56)`、`(550, 293, 50, 34)`、`(550, 336, 50, 34)`；`WB-2`（`3101`）使用坐标 `(111, 639, 105, 52)`；手动粘接-5/6（`3103/3104`）使用坐标 `(75, 756, 18, 40)`、`(114, 756, 18, 40)`；CG粘接-8/9（`3111/3112`）使用坐标 `(160, 787, 35, 40)`、`(219, 787, 35, 40)`；自动喷涂粘接-4/5（`3106/3107`）使用坐标 `(272, 780, 26, 44)`、`(309, 780, 26, 44)`；CG粘接-13/14/10/11（`3115/3116/3113/3114`）统一使用 `72×48`，其中上排 `3116/3113` 使用 `(278, 596)`、`(356, 596)`，下排 `3115/3114` 使用 `(278, 647)`、`(356, 647)`；`1D05–1D12`、`1D16–1D23`、`1D24–1D31` 按加硫设备纵向布局规则显示，`2A01–2A13`、`2A14–2A18`、`2B01–2B12`、`2B13–2B21`、`2B22–2B24` 按横向布局规则显示，其他设备定义继续保留但不显示、不统计。详细生成规则和来源冲突见 `doc/factory-map-layout-generation.md`。
 
+## 设备详情
+
+设备页以地图设备的 `deviceCode` 发起独立请求；实时字段成功时只替换对应展示区域，任一接口失败则保留 `equipmentDetailMock.ts` 的该区域降级值。
+
+| 区域 | 接口 | 字段与处理 |
+| --- | --- | --- |
+| 状态、在岗人员、当前任务达成 | `GET /device/realtime/list` | 使用 `actualStatus`、`deviceParseType` 映射状态，`onlinePersonList` 计数；任务以第一条 `productionTaskList` 的 `actualCount / targetCount` 计算达成。 |
+| 当月负荷率 | `GET /schedule/getDeviceload` | 按 `devCode === deviceCode` 匹配 `fuhe`；0–1 值转为百分比。 |
+| 今日阻碍时间 | `GET /device/availability/day` | 使用 `obstructionHours` 并换算为分钟。 |
+| 最近暂停、停止时间轴、原因明细 | `GET /device/availability/pauseRecords` | 使用暂停原因、起止时间、分钟数和状态；按原因汇总时长，时间轴按开始时间排序。接口成功但没有记录时明确显示“暂无暂停记录”。 |
+
+生产计划实绩表、不良明细、设备人员周期和告警栏仍不接入，原因见 `doc/department-api-gaps.md` 与设备生产计划表 spec。
+
 | 地图信息 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
 | 设备工作状态 | `GET /device/realtime/list` | `actualStatus`、`deviceParseType`、`actualStatusName`、`deviceParseTypeName` | 以 `actualStatus` 为主状态：`normal` 显示计划停止，`running` 显示生产中；`pause_running`/`pause_not_running` 优先按 `deviceParseTypeName` 中文名称映射，避免接口返回枚举 ID 时误判，再回退 `deviceParseType`。`CUT` 显示切替，`CLEAN` 显示清扫，“用餐”/`TOOL_CHANGE`、`DEVICE_TOOL_CHANGE`、“休息”/`REST`、`DEVICE_REST` 显示计划停止，其余暂停原因显示异常停止。 |

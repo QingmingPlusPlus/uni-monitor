@@ -17,6 +17,7 @@
 | `attendance.ts` | 月度出勤、实时出勤、当日人员明细 | `GET /attendance/monthlyAttendanceSituation`、`GET /attendance/attendanceSituation`、`GET /attendance/attendanceDetailSituation` |
 | `basic.ts` | 按月查询部门与工序的周分段配置 | `GET /basic/month-segment/base-data` |
 | `deviceRealtime.ts` | 按设备、工厂、部门或工序查询设备实时状态、在线人员和生产任务 | `GET /device/realtime/list` |
+| `deviceAvailability.ts` | 按设备查询当日运行/阻碍时长与暂停记录 | `GET /device/availability/day`、`/device/availability/pauseRecords` |
 | `schedule.ts` | 工时、生产计划/实绩、设备负荷、入库计划/实绩、不良和 5M 变化点 | `GET /schedule/getWorkhours`、`getPlan`、`getOutput`、`getDeviceload`、`getRukuPlan`、`getRukuShiji`、`getRejects`、`getChangePoint` |
 | `dailyReport.ts` | 制造日报专用查询契约，服务端待交付 | `GET /daily-report/attendance`、`production`、`line-losses`、`quality`；详见 `doc/daily-report.md` |
 | `visualConfig.ts` | 保存可视化配置 Map、按 key 读取并解析配置值 | `POST /visual/saveMap`、`GET /visual/getValue` |
