@@ -7,6 +7,7 @@
 | `AGENTS.md`、`doc/agent-guide.md`、`doc/agent-memory-map.md`、`.agents/skills`、`.codex/skills`、`.opencode/skills`、`.qoder/skills` | `doc/agent-guide.md`、`doc/agent-memory-map.md` | `openspec/specs/governance/spec.md` | `cross-memory-routing` | 更新治理 spec、路由表或对应 skill | 生效 |
 | 仓库模块盘点、模块边界、新增顶层模块、`doc/project-modules.md` | `doc/project-modules.md`、`doc/agent-memory-map.md` | - | `cross-memory-routing` | 更新模块索引、对应专项 doc 和路由表 | 生效 |
 | `src/main.ts`、`src/App.vue`、`src/pages.json`、`src/manifest.json`、`src/uni.scss`、`package.json`、`vite.config.ts`、`tsconfig.json`、`vitest.config.ts`、应用入口/运行时/构建/测试配置 | `doc/application-runtime.md`、`DESIGN.md` | - | - | 更新运行时说明；涉及全局视觉时同步设计系统 | 生效 |
+| `src/pages/daily-report`、`src/api/dailyReport.ts`、制造日报、日报接口 | `doc/daily-report.md`、`doc/api-module.md` | `openspec/specs/manufacturing-daily-report/spec.md` | `cross-memory-routing` | 同步日报页面、契约、口径、接口缺口、测试与路由 | 生效（后端待交付） |
 | `src/api/http.ts`、`src/api/*`、接口域、`/api` 前缀、开发代理 | `doc/api-module.md`、`doc/factory-dashboard-real-data-mapping.md`、`doc/department-api-gaps.md` | - | - | 更新 API 模块、字段映射、接口缺口或代理说明 | 生效 |
 | `src/pages/factory-dashboard/components`、`src/pages/factory-dashboard/data`、`src/pages/factory-dashboard/utils`、看板装配/降级/卡片刷新/路由适配 | `doc/factory-dashboard-architecture.md`、`doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新看板架构、接口映射或维度说明 | 生效 |
 | `src/utils`、`src/components/LoadingIcon.vue`、月分段、跨工序周聚合、共享加载态 | `doc/shared-utilities.md`、`doc/factory-dashboard-real-data-mapping.md` | - | - | 更新共享工具说明、接口映射和相关测试 | 生效 |

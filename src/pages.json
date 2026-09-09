@@ -23,6 +23,14 @@
 				"navigationBarBackgroundColor": "#F2F5F8",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/daily-report/index",
+			"style": {
+				"navigationBarTitleText": "制造日报",
+				"navigationStyle": "custom",
+				"navigationBarBackgroundColor": "#F2F5F8"
+			}
 		}
 	],
 	"globalStyle": {

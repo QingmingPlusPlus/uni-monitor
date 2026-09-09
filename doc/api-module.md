@@ -18,7 +18,24 @@
 | `basic.ts` | 按月查询部门与工序的周分段配置 | `GET /basic/month-segment/base-data` |
 | `deviceRealtime.ts` | 按设备、工厂、部门或工序查询设备实时状态、在线人员和生产任务 | `GET /device/realtime/list` |
 | `schedule.ts` | 工时、生产计划/实绩、设备负荷、入库计划/实绩、不良和 5M 变化点 | `GET /schedule/getWorkhours`、`getPlan`、`getOutput`、`getDeviceload`、`getRukuPlan`、`getRukuShiji`、`getRejects`、`getChangePoint` |
+| `dailyReport.ts` | 制造日报专用查询契约，服务端待交付 | `GET /daily-report/attendance`、`production`、`line-losses`、`quality`；详见 `doc/daily-report.md` |
 | `visualConfig.ts` | 保存可视化配置 Map、按 key 读取并解析配置值 | `POST /visual/saveMap`、`GET /visual/getValue` |
+
+## Swagger 已发布但尚未接入访问层的能力
+
+以下端点已于 2026-09-09 从服务端 Swagger（`可视化自研接口 1.0`，OAS 3.0）核验。它们尚未在 `src/api/` 中封装，也没有页面调用；需要时应先按本页“新增或修改接口”流程补齐类型、函数和消费方，不能把 Swagger 示例中的 `additionalProp*` 当作稳定业务字段。
+
+| 域 | 端点 | Swagger 契约摘要 |
+| --- | --- | --- |
+| 考勤 | `GET /attendance/twoDayAttendancePerformance` | 制造日报出勤实绩；必填 `dataDate`、`reportDate`，可选 `department`、`processType`。返回班长名单 `monitorNames` 和按日期、班次汇总的在籍、实际出勤、出勤率及六类缺勤人数。 |
+| 考勤 | `GET /attendance/monthlyWorkhourSituation` | 必填 `month`，可选 `department`、`processType`；按日返回 `directPlanWorkhours`、`directActualWorkhours`、`directWorkhourRate`。 |
+| 设备 | `GET /device/device/timeLine` | `deviceCode`、`queryDate` 查询设备阶段时间轴；返回阶段起止时间、触发类型和可扩展 `extra` 字段。 |
+| 设备 | `GET /device/availability/year` | 按 `year` 统计设备每月 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
+| 设备 | `GET /device/availability/month` | 按 `month` 统计设备每日 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
+| 设备 | `GET /device/availability/day` | 按 `day` 统计当天设备 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
+| 设备 | `GET /device/availability/pauseRecords` | 按 `deviceCode` 查询暂停记录；`queryDate` 可选，未传时服务端默认前一天。返回暂停原因、起止时间、分钟数、状态及班次日期。 |
+
+Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDetailSituation` 返回字段为 `account`、`realName`（非旧文档中的 `workNo`、`name`）；`/device/realtime/list` 的 `deviceCodes` 为最多 50 个设备编码的逗号分隔列表；`/schedule/getWorkhours` 必填 `date`、`banci`，其数组元素结构在 Swagger 中仍为开放对象；`/schedule/getChangePoint` 无查询参数。
 
 ## 参数与返回值边界
 
@@ -28,11 +45,14 @@
 - API 科室使用字符串编号 `1` 至 `4`，API 工序使用 `preprocessing`、`sulfur_addition`、`post_processing`。
 - 页面枚举到 API 值的转换由 `src/pages/factory-dashboard/data/loaders/cssMapValueMapping.ts` 负责。
 - 月分段响应允许 `segments` 为 `null`；自然周回退由 `src/utils/monthSegment.ts` 处理。
+- `monthlyAttendanceSituation`、`monthlyWorkhourSituation` 的 `month` 为 Swagger 必填；`attendanceSituation` 与 `attendanceDetailSituation` 的 `date`、`department`、`processType` 在 Swagger 中均标为可选，页面仍应按自身查询语义显式传入。
+- `twoDayAttendancePerformance` 的 `dataDate` 和 `reportDate` 是必填日期；它与项目预定义的 `/daily-report/attendance` 不是同一端点或同一响应结构。
 
 ### 设备实时数据
 
 - `deviceCodes` 是逗号分隔的设备编码字符串；地图加载器会按每批 50 个编码拆分请求。
 - API 层保留后端实时状态原值，状态中文语义和优先级由 `src/components/css-map/deviceRealtimeStatus.ts` 映射。
+- 设备时间轴与可动/阻碍统计端点的过滤参数是 `departmentId`、`processType`、`deviceCode`；不要误用实时列表的 `deviceCodes` 或把 `obstructionHours` 直接解释为日报已去重的生产线阻碍时长。
 
 ### 计划与实绩
 

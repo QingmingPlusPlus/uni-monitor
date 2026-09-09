@@ -54,6 +54,8 @@ function formatAlarmText(alarm: FactoryAlarmItem): string {
 
     <text class="factory-alert-header__brand">Omni Monitor</text>
 
+    <slot name="actions" />
+
     <!-- TODO: 暂时屏蔽 mock 报警信息展示，待接入真实报警数据后恢复 -->
     <!--
     <view

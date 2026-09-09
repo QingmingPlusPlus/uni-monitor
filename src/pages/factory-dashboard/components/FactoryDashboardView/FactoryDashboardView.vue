@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { buildDailyReportUrl } from '../../../daily-report/reportRoutes'
+import { processOptions, yesterday } from '../../../daily-report/reportModel'
+import { toApiProcessType } from '../../data/loaders/cssMapValueMapping'
+import { navigateToFactoryUrl } from '../../utils/factoryRoutes'
+import type { ReportProcessType } from '../../../../api/dailyReport'
 import CssMapPanel from '../../../../components/css-map/index.vue'
 import SpriteCssMapPanel from '../../../../components/css-map/SpriteCssMapPanel.vue'
 import type {
@@ -14,7 +19,7 @@ import type {
 import FactoryAlertHeader from '../FactoryAlertHeader/FactoryAlertHeader.vue'
 import FactoryDashboardPanel from '../FactoryDashboardPanel/FactoryDashboardPanel.vue'
 
-defineProps<{
+const props = defineProps<{
   readonly data: FactoryDashboardData
   readonly alarms: readonly FactoryAlarmItem[]
   readonly selectionConfig: CssMapSelectionConfig
@@ -29,6 +34,16 @@ const emit = defineEmits<{
   openDevice: [payload: { readonly deviceId: string }]
   refreshDashboard: [cardId: string]
 }>()
+
+function openDailyReport(): void {
+  const processType = props.selectedProcess
+    ? toApiProcessType(props.selectedProcess) as ReportProcessType
+    : processOptions(props.selectedDepartment, props.selectionConfig)[0]?.value
+  if (!processType) return
+  navigateToFactoryUrl(buildDailyReportUrl({
+    departmentId: props.selectedDepartment, processType, date: yesterday(),
+  }, props.selectedProcess ? 'process' : 'department', props.selectedProcess ?? undefined))
+}
 
 const isMapExpanded = ref(false)
 type FactoryDashboardMapRenderer = 'sprite' | 'css3d'
@@ -52,7 +67,9 @@ function handleSpriteMapFallback(reason: string): void {
 
 <template>
   <view :class="['factory-dashboard-view', `factory-dashboard-view--${data.kind}`]">
-    <FactoryAlertHeader :alarms="alarms" />
+    <FactoryAlertHeader :alarms="alarms">
+      <template #actions><button class="factory-dashboard-view__daily-report" @click="openDailyReport">制造日报</button></template>
+    </FactoryAlertHeader>
 
     <view class="factory-dashboard-view__body">
       <view class="factory-dashboard-view__map">
@@ -148,6 +165,20 @@ function handleSpriteMapFallback(reason: string): void {
 </template>
 
 <style scoped>
+.factory-dashboard-view__daily-report {
+  margin: 0 0 0 auto;
+  padding: 8px 20px;
+  min-height: 44px;
+  border: 1px solid var(--um-color-operation);
+  border-radius: 8px;
+  background: var(--um-color-operation-soft);
+  color: var(--um-color-operation);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.factory-dashboard-view__daily-report::after { border: 0; }
+
 .factory-dashboard-view {
   display: flex;
   min-height: 100vh;

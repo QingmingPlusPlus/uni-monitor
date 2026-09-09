@@ -16,6 +16,7 @@
 | 业务趋势卡片 | `src/components/attendance-trend-card/`、`src/components/department-inbound-plan-trend-card/`、`src/components/process-production-plan-trend-card/` | 在共用卡片上封装出勤、入库、生产计划实绩三类展示 | 生效 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` |
 | 共享工具 | `src/utils/`、`src/components/LoadingIcon.vue` | 维护月分段缓存、跨工序周聚合和通用加载态 | 生效 | `doc/shared-utilities.md` |
 | 历史指标卡片 | `src/components/department-defect-amount-card/`、`src/components/department-defect-count-card/`、`src/components/department-mh-card/` | 保留不良金额、不良个数和 MH 的固定 mock 展示实现 | 保留，未挂载 | `doc/retained-dashboard-cards.md` |
+| 制造日报 | `src/pages/daily-report/`、`src/api/dailyReport.ts` | 独立只读日报、出勤/生产/损耗/品质分区及专用接口契约 | 前端生效，后端待交付 | `doc/daily-report.md` |
 | 设计系统 | `DESIGN.md`、`src/App.vue` | 规定大屏颜色、排版、间距、组件和交互基线 | 生效 | `DESIGN.md` |
 | 项目治理与记忆 | `AGENTS.md`、`doc/agent-guide.md`、`doc/agent-memory-map.md`、`.agents/skills/`、`openspec/` | 约束文档语言、三层记忆路由和 OpenSpec 工作流 | 生效 | `doc/agent-guide.md`、`doc/agent-memory-map.md` |
 

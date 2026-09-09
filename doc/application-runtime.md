@@ -1,6 +1,6 @@
 # 应用入口与运行时说明
 
-本模块负责启动 Uni Monitor、注册三个页面、注入全局设计变量，并配置本地开发、类型检查和测试环境。业务页面和接口映射不在本模块中实现。
+本模块负责启动 Uni Monitor、注册四个页面、注入全局设计变量，并配置本地开发、类型检查和测试环境。业务页面和接口映射不在本模块中实现。
 
 ## 主要入口
 
@@ -8,7 +8,7 @@
 | --- | --- |
 | `src/main.ts` | 通过 `createSSRApp(App)` 创建 Uni-app/Vue 3 应用实例；当前未注册全局插件或全局组件。 |
 | `src/App.vue` | 接收 `onLaunch`、`onShow`、`onHide` 生命周期，并在全局样式中定义颜色、间距和页面基础样式。 |
-| `src/pages.json` | 注册部门、工序、设备三个页面，统一使用自定义导航栏。 |
+| `src/pages.json` | 注册部门、工序、设备、制造日报四个页面，统一使用自定义导航栏。 |
 | `src/manifest.json` | 保存 Uni-app 应用标识、多端构建清单和平台能力配置。 |
 | `src/uni.scss` | Uni-app 样式入口；项目主要设计变量目前定义在 `src/App.vue`。 |
 | `vite.config.ts` | 启用 Uni-app Vite 插件，并配置开发环境 `/api` 反向代理。 |
@@ -22,6 +22,7 @@
 1. `pages/department/index`：默认入口，读取 `departmentId`。
 2. `pages/process/index`：读取 `processId`。
 3. `pages/equipment/index`：读取 `deviceId` 和返回来源 `from`。
+4. `pages/daily-report/index`：读取部门、工序族、数据日期和返回来源，详见 `doc/daily-report.md`。
 
 页面职责、query 规则和维度间跳转详见 `doc/factory-dimensions.md` 与 `doc/factory-dashboard-architecture.md`。
 

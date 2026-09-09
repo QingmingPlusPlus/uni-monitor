@@ -95,7 +95,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 | 列 | 接口 | 字段 | 当前处理 |
 | --- | --- | --- | --- |
-| 班次、工号、姓名、职务、工种 | `GET /attendance/attendanceDetailSituation` | `shiftName`、`workNo`、`name`、`positionName`、`workTypeName` | 直接展示或按空值兜底。 |
+| 班次、工号、姓名、职务、工种 | `GET /attendance/attendanceDetailSituation` | `shiftName`、`account`、`realName`、`positionName`、`workTypeName` | Swagger 已确认工号、姓名字段分别为 `account`、`realName`；直接展示或按空值兜底。 |
 | 出勤情况 | 同上 | `attendanceSituation` | 原样显示接口返回文本，不做关键词映射。 |
 | 出勤状态 | 同上 | `attendanceStatus` | 原样显示接口返回文本，不再做关键词映射。 |
 | 能力 | 同上 | `ability` | 映射为 A/B/C，缺失时默认 B。 |
@@ -153,3 +153,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 不良率金额、个数 | 未展示 | `GET /schedule/getRejects` 当前返回空数组，且本次页面结构已移除旧不良卡片。 |
 | 历史独立 MH 卡片 | 未挂载 | `department-mh-card` 仍是历史固定 mock 组件；生产计划&实绩推移表中的计划/实绩 MH 是新卡片内的固定 mock 指标，不代表旧卡片已重新接入。 |
 | 入库计划工序过滤 | 部分受限 | `getRukuPlan` 目前只有 `dept`，没有 `shebei` 或 `processType`，工序维度入库计划实绩按所属部门口径聚合。 |
+
+## 制造日报接口边界
+
+独立日报已定义四个 `/daily-report/*` 前端查询契约，后端实现与真实数据联调待交付。旧出勤和 schedule 接口仅作为候选底层来源，不自动回退接入；请假分类、权威数量细分、历史阻碍和模具品质维度仍需后端补齐。字段映射、现有接口复用分析及交付清单统一见 `doc/daily-report.md`。

@@ -98,3 +98,7 @@
 | `pages/department/index` | 部门 | `departmentId` | 告警栏 + 左侧 `css-map` + 右侧纵向组件栈 |
 | `pages/process/index` | 工序 | `processId` | 告警栏 + 左侧 `css-map` + 右侧纵向组件栈 |
 | `pages/equipment/index` | 设备 | `deviceId`、`from` | 带返回按钮的告警栏 + 单设备详情分析面板 |
+
+## 制造日报入口
+
+部门、工序看板顶部提供“制造日报”，进入独立 `/pages/daily-report/index` 并带入当前部门、工序族、昨日数据日期和返回来源。日报不使用实时看板的 loader、地图显示白名单或 mock 数据。详见 `doc/daily-report.md`。

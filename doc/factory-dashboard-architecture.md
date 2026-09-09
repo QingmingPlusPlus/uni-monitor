@@ -85,3 +85,7 @@
 - 单卡失败不得阻塞整个看板；为可选卡片明确约定 `null`、fallback 或错误态中的一种。
 - 新增真实字段映射时更新 `doc/factory-dashboard-real-data-mapping.md`；新增后端契约缺口时更新 `doc/department-api-gaps.md`。
 - 新增页面或 query 时使用路由工具创建 URL，并同步 `src/pages.json` 和 `doc/factory-dimensions.md`。
+
+## 制造日报入口
+
+部门、工序看板顶部提供“制造日报”，进入独立 `/pages/daily-report/index` 并带入当前部门、工序族、昨日数据日期和返回来源。日报不使用实时看板的 loader、地图显示白名单或 mock 数据。详见 `doc/daily-report.md`。
