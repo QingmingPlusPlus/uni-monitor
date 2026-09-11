@@ -22,6 +22,7 @@ import {
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
+  loadProductionPlanTrendCard,
   loadPersonnelDetailCard,
   loadProcessDashboardData,
 } from '../factory-dashboard/data/factoryDashboardLoader'
@@ -163,6 +164,7 @@ const PROCESS_CARD_IDS: readonly ProcessCardId[] = [
   'inboundPlanTrend',
   'personnelDetail',
   'productionPlanTrend',
+  'productivityTrend',
 ]
 
 function isProcessCardId(value: unknown): value is ProcessCardId {
@@ -219,6 +221,14 @@ async function refreshCard(cardId: string): Promise<void> {
     }
 
     if (cardId === 'productionPlanTrend') {
+      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes, {
+        forceRefresh: true,
+      })
+      dashboardData.value = { ...base, productionPlanTrend }
+      return
+    }
+
+    if (cardId === 'productivityTrend') {
       dashboardData.value = {
         ...base,
         productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),

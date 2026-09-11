@@ -334,7 +334,7 @@ export function createProductionPlanTrendCard(
 
   return {
     id: `production-plan-trend:${processType}`,
-    title: `${processLabel} 生产计划&实绩推移表`,
+    title: `${processLabel} 生产性推移表`,
     subtitle: '固定模拟数据，按月、周及当前周工作日汇总',
     tableRows,
     tableColumns: createTrendColumns(periods.inlinePeriods, false),

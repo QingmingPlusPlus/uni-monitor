@@ -278,6 +278,7 @@ export function getDepartmentDashboardData(
     attendance: createPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     attendanceTrend: createAttendanceTrendCardData(processTypes, segmentLookup),
     inboundPlanTrend: createDepartmentInboundPlanTrendCardData(processTypes, segmentLookup),
+    productionPlanTrend: null,
     productionPlanTrends: createProductionPlanTrendCards(value, processTypes, selectionConfig),
     personnelDetail: createPersonnelDetailData(refreshedAt),
     cards: [],
@@ -312,6 +313,7 @@ export function getProcessDashboardData(
     attendance: createProcessPersonnelAttendanceData(value, selectionConfig, refreshedAt),
     attendanceTrend: createAttendanceTrendCardData([value], segmentLookup),
     inboundPlanTrend: createDepartmentInboundPlanTrendCardData([value], segmentLookup),
+    productionPlanTrend: null,
     productionPlanTrends: createProductionPlanTrendCards(
       departmentValue ?? selectionConfig.defaults.department,
       [value],

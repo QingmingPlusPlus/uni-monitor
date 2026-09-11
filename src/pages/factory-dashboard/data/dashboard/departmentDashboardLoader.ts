@@ -10,6 +10,8 @@ import { loadInboundPlanTrendCard } from '../loaders/loadInboundPlanTrendCard'
 import { loadPersonnelDetailCard } from '../loaders/loadPersonnelDetailCard'
 import { loadProductionActivityData } from '../loaders/loadProductionActivityData'
 
+import { loadProductionPlanTrendCard } from '../loaders/loadProductionActualTrendCard'
+
 let inflightPromise: Promise<DepartmentDashboardData> | null = null
 let inflightKey = ''
 
@@ -53,12 +55,13 @@ async function doLoadDepartmentDashboardData(
 ): Promise<DepartmentDashboardData> {
   const processTypes = config.departmentProcessMap[department] ?? []
 
-  const [activity, attendance, attendanceTrend, inboundPlanTrend, personnelDetail] = await Promise.allSettled([
+  const [activity, attendance, attendanceTrend, inboundPlanTrend, personnelDetail, productionPlanTrend] = await Promise.allSettled([
     loadProductionActivityData(department, processTypes, config),
     loadAttendanceCard(department, processTypes, config, refreshedAt),
     loadAttendanceTrendCard(department, processTypes),
     loadInboundPlanTrendCard(department, processTypes),
     loadPersonnelDetailCard(department, processTypes, config, refreshedAt),
+    loadProductionPlanTrendCard(department, processTypes),
   ])
   const resolvedActivity = activity.status === 'fulfilled' ? activity.value : fallback.activity
   const resolvedAttendance = attendance.status === 'fulfilled' ? attendance.value : fallback.attendance
@@ -84,6 +87,7 @@ async function doLoadDepartmentDashboardData(
     attendance: resolvedAttendance,
     attendanceTrend: resolvedAttendanceTrend,
     inboundPlanTrend: resolvedInboundPlanTrend,
+    productionPlanTrend: productionPlanTrend.status === 'fulfilled' ? productionPlanTrend.value : fallback.productionPlanTrend,
     personnelDetail: personnelDetail.status === 'fulfilled' ? personnelDetail.value : fallback.personnelDetail,
   }
 }

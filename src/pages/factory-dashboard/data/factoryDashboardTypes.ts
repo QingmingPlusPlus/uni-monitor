@@ -46,10 +46,10 @@ export interface FactoryDashboardCard {
 export type FactoryDashboardKind = 'department' | 'process'
 
 /** 部门维度瀑布流卡片标识，用于按卡片粒度刷新。 */
-export type DepartmentCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend'
+export type DepartmentCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend' | 'productivityTrend'
 
 /** 工序维度瀑布流卡片标识，用于按卡片粒度刷新。 */
-export type ProcessCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend'
+export type ProcessCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend' | 'productivityTrend'
 
 export type PersonnelAttendanceShift = 'day' | 'middle' | 'night' | 'regular' | 'total'
 
@@ -123,6 +123,7 @@ interface FactoryDashboardBaseData {
   readonly cards: readonly FactoryDashboardCard[]
   readonly summary: FactorySummaryData
   readonly activity: ProductionActivityData
+  readonly productionPlanTrend: FactoryDashboardCard | null
   readonly productionPlanTrends: readonly FactoryDashboardCard[]
 }
 

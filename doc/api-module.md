@@ -2,6 +2,8 @@
 
 `src/api/` 是前端访问后端的薄封装层，负责统一请求实例、参数类型、响应类型和端点名称。业务过滤、聚合、缓存、降级和展示格式由地图加载器或看板 loader 处理，不应放入 API 文件。
 
+最新完整接口清单、参数、响应字段和实测依据见 [后端接口参考](api-reference.md)（2026-09-11，22 个 Swagger 端点）。本文描述前端封装状态，不代表所有 TypeScript 类型均已与后端一致。
+
 ## 公共约定
 
 - `src/api/http.ts` 创建唯一 Axios 实例，`baseURL` 固定为 `/api`。
@@ -24,7 +26,7 @@
 
 ## Swagger 已发布但尚未接入访问层的能力
 
-以下端点已于 2026-09-09 从服务端 Swagger（`可视化自研接口 1.0`，OAS 3.0）核验。它们尚未在 `src/api/` 中封装，也没有页面调用；需要时应先按本页“新增或修改接口”流程补齐类型、函数和消费方，不能把 Swagger 示例中的 `additionalProp*` 当作稳定业务字段。
+以下端点已于 2026-09-11 从服务端 Swagger（`可视化自研接口 1.0`，OAS 3.0）核验。它们尚未在 `src/api/` 中封装，也没有页面调用；需要时应先按本页“新增或修改接口”流程补齐类型、函数和消费方，不能把 Swagger 示例中的 `additionalProp*` 当作稳定业务字段。设备日统计与暂停记录已有访问层封装及设备页接入，不再列入本表。
 
 | 域 | 端点 | Swagger 契约摘要 |
 | --- | --- | --- |
@@ -33,8 +35,6 @@
 | 设备 | `GET /device/device/timeLine` | `deviceCode`、`queryDate` 查询设备阶段时间轴；返回阶段起止时间、触发类型和可扩展 `extra` 字段。 |
 | 设备 | `GET /device/availability/year` | 按 `year` 统计设备每月 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
 | 设备 | `GET /device/availability/month` | 按 `month` 统计设备每日 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
-| 设备 | `GET /device/availability/day` | 按 `day` 统计当天设备 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
-| 设备 | `GET /device/availability/pauseRecords` | 按 `deviceCode` 查询暂停记录；`queryDate` 可选，未传时服务端默认前一天。返回暂停原因、起止时间、分钟数、状态及班次日期。 |
 
 Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDetailSituation` 返回字段为 `account`、`realName`（非旧文档中的 `workNo`、`name`）；`/device/realtime/list` 的 `deviceCodes` 为最多 50 个设备编码的逗号分隔列表；`/schedule/getWorkhours` 必填 `date`、`banci`，其数组元素结构在 Swagger 中仍为开放对象；`/schedule/getChangePoint` 无查询参数。
 
@@ -60,6 +60,15 @@ Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDeta
 - `schedule.ts` 只描述后端当前可能返回的字段，不在此处补造部门、工序或设备归属。
 - 后端字段不稳定、缺失或为空时的现状记录在 `doc/department-api-gaps.md`。
 - 卡片字段来源、过滤与聚合口径记录在 `doc/factory-dashboard-real-data-mapping.md`。
+- 2026-09-11 实测：`getPlan` 含数值 `mh`，但含义、单位和算法未确认；`getWorkhours` 只有 `shebei: string`、`type: string`，不是工时数值接口。`getRukuPlan.dept` 可为 null。当前类型未覆盖这些差异，详情见 `doc/api-reference.md`。
+
+### 声明与运行时差异
+
+- Swagger 的 `positionId`、设备 `deviceId`、在线人员 `recordId/employeeId` 声明为 integer/int64，实测均为 string；当前前端字符串 ID 定义应保留。
+- 考勤明细 `ability`、`workHourList` 实测可为 null，当前前端类型尚未完整表达可空性。
+- 暂停记录的 Swagger 字段为 `pauseTypeName`、`operationStatus`，当前访问层的 `pauseReason/reason/status` 并非这次声明；设备详情适配需另行修正。
+- 成功码存在 `200` 与 `00000`；设备时长查询实测存在 HTTP 200 且 `success=false` 的业务失败，不能仅靠 Axios 是否抛错区分成功。
+- 文档 Basic 认证头不能直接用于业务查询；本次业务 GET 不带该头可访问，携带后出现 B0301 Token 解析失败。凭据不写入项目文档或代码。
 
 ### 可视化配置
 
