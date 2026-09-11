@@ -24,10 +24,6 @@ import {
   loadPersonnelDetailCard,
   loadProductionActivityData,
 } from './factoryDashboardLoader'
-import {
-  aggregateProductionTrendRows,
-  type ProductionTrendMockShiftRow,
-} from './loaders/loadProductionPlanTrendCard'
 import type {
   PersonnelAttendanceData,
   PersonnelAttendanceRow,
@@ -747,94 +743,14 @@ describe('createProductionPlanTrendCards', () => {
     ])
   })
 
-  it('按当前班次聚合月周值，当日计划展示全部班次且未来日为空', () => {
-    const card = createProductionPlanTrendCard('department2', 'vulcanization1')
-
-    if (card === null) {
-      throw new Error('expected production plan trend card')
-    }
-
-    expect(card.tableData.planCount.day2).toBe(27600)
-    expect(card.tableData.actualCount.day2).toBe(21060)
-    expect(card.tableData.planMh.day2).toBe(64.9)
-    expect(card.tableData.actualMh.day2).toBe(48.8)
-    expect(card.tableData.planProductivity.day2).toBe(425)
-    expect(card.tableData.actualProductivity.day2).toBe(432)
-    expect(card.tableData.planCount.week1).toBe(47900)
-    expect(card.tableData.planCount.month).toBe(47900)
-    expect(card.modalTableData?.planCount.day3).toBeNull()
-    expect(card.modalTableData?.actualCount.day3).toBeNull()
-  })
-
-  it('图表仅展示数量柱与生产性折线，数量换算为千个', () => {
-    const card = createProductionPlanTrendCard('department2', 'vulcanization1')
-    if (card === null) throw new Error('expected production plan trend card')
-
-    expect(card.chartOptions.series?.map((series) => [series.id, series.type, series.yAxisIndex ?? 0])).toEqual([
-      ['planCount', 'bar', 0],
-      ['actualCount', 'bar', 0],
-      ['planProductivity', 'line', 1],
-      ['actualProductivity', 'line', 1],
-    ])
-    expect((card.chartOptions.yAxis as readonly { readonly name?: string }[]).map((axis) => axis.name)).toEqual([
-      '千个',
-      '个/MH',
-    ])
-    expect(card.chartData.xAxisData?.[0]).toBe('1W')
-    expect(card.chartData.series?.[0]?.data?.[0]).toBe(47.9)
-    expect(card.chartData.series?.map((series) => series.id)).toEqual([
-      'planCount',
-      'actualCount',
-      'planProductivity',
-      'actualProductivity',
-    ])
-  })
-
-  it('生产性按周期合计后相除，零分母返回空值', () => {
-    const validRows: readonly ProductionTrendMockShiftRow[] = [
-      {
-        processType: 'pretreatment1',
-        day: 1,
-        dateKey: 20260701,
-        shift: 'day',
-        planCount: 100,
-        actualCount: 90,
-        capacity: 50,
-        baselineHeadcount: 10,
-        actualMh: 9,
-      },
-      {
-        processType: 'pretreatment1',
-        day: 2,
-        dateKey: 20260702,
-        shift: 'day',
-        planCount: 300,
-        actualCount: 240,
-        capacity: 100,
-        baselineHeadcount: 10,
-        actualMh: 16,
-      },
-    ]
-    const valid = aggregateProductionTrendRows(validRows)
-    const invalid = aggregateProductionTrendRows([
-      { ...validRows[0], capacity: 0, actualMh: 0 },
-    ])
-
-    expect(valid.planMh).toBe(50)
-    expect(valid.actualMh).toBe(25)
-    expect(valid.planProductivity).toBe(8)
-    expect(valid.actualProductivity).toBe(13.2)
-    expect(invalid.planMh).toBeNull()
-    expect(invalid.planProductivity).toBeNull()
-    expect(invalid.actualProductivity).toBeNull()
-  })
-
-  it('固定 mock 卡片不调用生产计划和生产实绩接口', () => {
-    createProductionPlanTrendCards('department4', ['vulcanization2', 'posttreatment2'])
-
+  it('未加载真实数据时保持六行空值，不生成模拟数量或MH', () => {
+    const card = createProductionPlanTrendCard('department2', 'vulcanization1')!
+    for (const row of Object.values(card.tableData)) expect(Object.values(row).every(value => value === null)).toBe(true)
+    expect(card.chartData.series?.every(series => series.data?.every(value => value === null))).toBe(true)
     expect(getSchedulePlanByMonth).not.toHaveBeenCalled()
     expect(getScheduleOutputByMonth).not.toHaveBeenCalled()
   })
+
 })
 
 describe('loadAttendanceTrendCard', () => {

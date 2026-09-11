@@ -124,7 +124,7 @@ const hideInboundPlan = computed<boolean>(() => {
         :title="card.title"
         :subtitle="card.subtitle"
         :compact="true"
-        tag="mock"
+        tag=""
         label-column-width="minmax(320px, 340px)"
         :table-rows="card.tableRows"
         :table-columns="card.tableColumns"

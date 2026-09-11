@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defaultCssMapSelectionConfig as config } from '../../../../components/css-map/css3dMapSelection'
 import { getDepartmentDashboardData, getProcessDashboardData } from '../factoryDashboardMock'
 import { createProductionPlanTrendCard } from '../loaders/loadProductionPlanTrendCard'
+import { loadProductivityTrendCards } from '../loaders/loadProductivityTrendCards'
 import { loadProductionPlanTrendCard } from '../loaders/loadProductionActualTrendCard'
 import { loadDepartmentDashboardData } from './departmentDashboardLoader'
 import { loadProcessDashboardData } from './processDashboardLoader'
 
+vi.mock('../loaders/loadProductivityTrendCards', () => ({ loadProductivityTrendCards: vi.fn() }))
 vi.mock('../loaders/loadProductionActualTrendCard', () => ({ loadProductionPlanTrendCard: vi.fn() }))
 vi.mock('../loaders/loadProductionActivityData', () => ({ loadProductionActivityData: vi.fn().mockRejectedValue(null) }))
 vi.mock('../loaders/loadAttendanceCard', () => ({ loadAttendanceCard: vi.fn().mockRejectedValue(null) }))
@@ -26,6 +28,8 @@ describe('真实计划实绩与生产性卡片装配', () => {
     const fallback = kind === 'department'
       ? getDepartmentDashboardData('department4', config, now, 0)
       : getProcessDashboardData('vulcanization2', config, now, 0)
+    const productivityCards = fallback.productionPlanTrends.map(card => ({ ...card, tableData: { ...card.tableData, planMh: { month: 12 } } }))
+    vi.mocked(loadProductivityTrendCards).mockResolvedValue(productivityCards)
     const result = fallback.kind === 'department'
       ? await loadDepartmentDashboardData('department4', config, now, 0, fallback)
       : await loadProcessDashboardData('vulcanization2', 'department4', config, now, 0, fallback)
@@ -33,7 +37,7 @@ describe('真实计划实绩与生产性卡片装配', () => {
     expect(loadProductionPlanTrendCard).toHaveBeenCalledWith('department4',
       kind === 'department' ? config.departmentProcessMap.department4 : ['vulcanization2'])
     expect(result.productionPlanTrend).toBe(realCard)
-    expect(result.productionPlanTrends).toBe(fallback.productionPlanTrends)
+    expect(result.productionPlanTrends).toBe(productivityCards)
     expect(result.productionPlanTrends).toHaveLength(kind === 'department' ? 2 : 1)
     expect(result.productionPlanTrends.every(card => card.title.endsWith('生产性推移表'))).toBe(true)
   })
@@ -42,6 +46,7 @@ describe('真实计划实绩与生产性卡片装配', () => {
     vi.mocked(loadProductionPlanTrendCard).mockRejectedValue(new Error('接口失败'))
     const now = new Date()
     const fallback = getDepartmentDashboardData('department4', config, now, 0)
+    vi.mocked(loadProductivityTrendCards).mockRejectedValue(new Error('接口失败'))
     const result = await loadDepartmentDashboardData('department4', config, now, 0, fallback)
     expect(result.productionPlanTrend).toBeNull()
     expect(result.productionPlanTrends).toBe(fallback.productionPlanTrends)

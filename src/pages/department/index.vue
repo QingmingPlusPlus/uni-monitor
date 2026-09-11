@@ -15,7 +15,7 @@ import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSele
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import {
-  createProductionPlanTrendCards,
+  loadProductivityTrendCards,
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadDepartmentDashboardData,
@@ -208,7 +208,7 @@ async function refreshCard(cardId: string): Promise<void> {
     if (cardId === 'productivityTrend') {
       dashboardData.value = {
         ...base,
-        productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
+        productionPlanTrends: await loadProductivityTrendCards(department, processTypes, config, { forceRefresh: true }),
       }
     }
   } catch (error: unknown) {

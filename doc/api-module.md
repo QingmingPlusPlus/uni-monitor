@@ -60,7 +60,7 @@ Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDeta
 - `schedule.ts` 只描述后端当前可能返回的字段，不在此处补造部门、工序或设备归属。
 - 后端字段不稳定、缺失或为空时的现状记录在 `doc/department-api-gaps.md`。
 - 卡片字段来源、过滤与聚合口径记录在 `doc/factory-dashboard-real-data-mapping.md`。
-- 2026-09-11 实测：`getPlan` 含数值 `mh`，但含义、单位和算法未确认；`getWorkhours` 只有 `shebei: string`、`type: string`，不是工时数值接口。`getRukuPlan.dept` 可为 null。当前类型未覆盖这些差异，详情见 `doc/api-reference.md`。
+- 2026-09-11 实测：`getPlan` 含数值 `mh`，用户已确认为计划 MH，前端已补充可选、可空类型并接入生产性推移表；`getWorkhours` 只有 `shebei: string`、`type: string`，不是工时数值接口。`getRukuPlan.dept` 可为 null。入库计划部门的可空类型仍待补齐，详情见 `doc/api-reference.md`。
 
 ### 声明与运行时差异
 

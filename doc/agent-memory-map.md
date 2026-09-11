@@ -22,7 +22,7 @@
 | `src/components/attendance-trend-card`、`出勤率推移表`、`loadAttendanceTrendCard` | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新出勤率推移表聚合口径、列展示规则或组件测试 | 生效 |
 | `src/components/department-inbound-plan-trend-card`、`loadInboundPlanTrendCard`、`inboundTrendDisplay.ts`、入库固定月内七日分桶/截止当天/图表零值断线 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/shared-utilities.md` | `openspec/specs/inbound-trend-period-display/spec.md` | - | 更新入库周期、聚合、图表规则和对应测试 | 生效 |
 | `src/pages/factory-dashboard/data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts`、`productionPlanTrend`、真实生产计划实绩推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/factory-dashboard-architecture.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新四行真实指标、接口过滤、月级缓存、独立刷新与双卡装配 | 生效 |
-| `src/components/process-production-plan-trend-card`、`createProductionPlanTrendCard`、`createProductionPlanTrendCards`、`productionPlanTrends`、生产性推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/department-api-gaps.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新六行指标、公式、维度装配、固定 mock 边界、刷新规则和接口缺口 | 生效 |
+| `src/components/process-production-plan-trend-card`、`createProductionPlanTrendCard`、`createProductionPlanTrendCards`、`loadProductivityTrendCards.ts`、`productionPlanTrends`、生产性推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/department-api-gaps.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新六行真实指标、计划 MH 聚合、实绩 MH 缺口、维度装配和刷新规则 | 生效 |
 
 ## 兜底策略
 

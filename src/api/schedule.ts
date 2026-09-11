@@ -15,6 +15,8 @@ export interface ScheduleMonthlyRecord {
   workDate?: string
   shebei?: string
   number: number
+  /** 该条生产计划的计划 MH；仅 getPlan 提供，缺失时不能按 0 处理。 */
+  mh?: number | null
   process?: string
   zhifan: string
   banci: string

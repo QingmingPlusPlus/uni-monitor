@@ -32,3 +32,4 @@ export {
 } from './dashboard/processDashboardLoader'
 
 export { loadProductionPlanTrendCard } from './loaders/loadProductionActualTrendCard'
+export { loadProductivityTrendCards } from './loaders/loadProductivityTrendCards'

@@ -20,11 +20,12 @@ export interface ScheduleTrendLoadOptions {
 }
 
 async function readScheduleRecords<T>(
-  loader: () => Promise<{ readonly data?: { readonly data?: T[] | null } }>,
+  loader: () => Promise<{ readonly data?: { readonly success?: boolean; readonly data?: T[] | null } }>,
   label: string,
 ): Promise<readonly T[]> {
   try {
     const response = await loader()
+    if (response.data?.success === false) return []
     const data = response.data?.data
     return Array.isArray(data) ? data : []
   } catch (error: unknown) {

@@ -18,7 +18,7 @@ import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import type { ProcessCardId } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
-  createProductionPlanTrendCards,
+  loadProductivityTrendCards,
   loadAttendanceCard,
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
@@ -231,7 +231,7 @@ async function refreshCard(cardId: string): Promise<void> {
     if (cardId === 'productivityTrend') {
       dashboardData.value = {
         ...base,
-        productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
+        productionPlanTrends: await loadProductivityTrendCards(department, processTypes, config, { forceRefresh: true }),
       }
     }
   } catch (error: unknown) {

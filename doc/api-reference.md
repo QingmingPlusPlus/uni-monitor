@@ -67,7 +67,7 @@ Swagger 对这 8 个接口统一使用 `ResponseDataListMapStringObject`，即 `
 
 | 接口 | 实测数组元素字段 | 含义与边界 |
 | --- | --- | --- |
-| `getPlan` | `date: string`、`shebei: string`、`number: number`、`process: string`、`zhifan: string`、`banci: string`、`dept: string`、`mh: number` | 推测依次为生产日期、设备编码、计划数量、工序名称、制番、班次、部门、MH 相关值。`mh` 单位、粒度与算法尚未确认，不直接作为计划 MH 使用。 |
+| `getPlan` | `date: string`、`shebei: string`、`number: number`、`process: string`、`zhifan: string`、`banci: string`、`dept: string`、`mh: number` | 推测依次为生产日期、设备编码、计划数量、工序名称、制番、班次、部门、计划 MH。2026-09-11 用户确认 `mh` 为该条记录的计划 MH，按周期直接求和，不再通过能力或提高基础数推算。 |
 | `getOutput` | `date: string`、`shebei: string`、`number: number`、`zhifan: string`、`process: string`、`banci: string`、`dept: string` | 推测 `number` 为生产实绩数量。7 月样本没有 `mh`。 |
 | `getRukuPlan` | `date: string`、`number: number`、`zhifan: string`、`dept: string 或 null`、`customer: string` | 推测为入库日期、计划数量、制番、部门、客户。未观察到 `shebei`、`banci`、`process` 或 `processType`；仍无法严格分配到工序。 |
 | `getRukuShiji` | `date: string`、`shebei: string`、`number: number`、`zhifan: string`、`banci: string`、`cusCode: string`、`dept: string`、`custName: string` | 推测 `number` 为入库实绩数量，`cusCode/custName` 为客户编码/名称；无明确工序字段。 |

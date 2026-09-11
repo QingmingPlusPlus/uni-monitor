@@ -2,7 +2,7 @@
 
 本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口已从单个 `factoryDashboardLoader.ts` 拆分为 `src/pages/factory-dashboard/data/loaders/`（卡片级 loader）和 `src/pages/factory-dashboard/data/dashboard/`（维度级请求装配）；`factoryDashboardLoader.ts` 保留为统一导出 barrel。地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
 
-后端字段的最新声明与实测类型见 [后端接口参考](api-reference.md)（2026-09-11）。本文描述消费方的现有映射，不等于服务端始终可用：本次 5M、设备暂停和时间轴查询失败，设备时长查询还出现 HTTP 200 的业务失败。暂停原因/状态的后端声明为 `pauseTypeName/operationStatus`，当前前端别名尚未对齐；生产计划新增的 `mh` 也尚未确认口径或接入。具体差异见 [接口缺口](department-api-gaps.md)。
+后端字段的最新声明与实测类型见 [后端接口参考](api-reference.md)（2026-09-11）。本文描述消费方的现有映射，不等于服务端始终可用：本次 5M、设备暂停和时间轴查询失败，设备时长查询还出现 HTTP 200 的业务失败。暂停原因/状态的后端声明为 `pauseTypeName/operationStatus`，当前前端别名尚未对齐；生产计划新增的 `mh` 已由用户确认为计划 MH 并接入生产性推移表。具体差异见 [接口缺口](department-api-gaps.md)。
 
 ## 公共过滤与时间
 
@@ -11,15 +11,15 @@
 | 当前部门 | `departmentId` query，例如 `department2` | 通过 `toApiDepartmentCode` 转为接口 `department=2`。 |
 | 当前工序 | `processId` query，例如 `vulcanization1` | 通过 `toApiProcessType` 转为接口工序：`pretreatment* -> preprocessing`，`vulcanization* -> sulfur_addition`，`posttreatment* -> post_processing`。实时人员出勤按转换后的 API 工序去重后请求；例如制造1课的 `pretreatment1`、`pretreatment2` 只请求并汇总一次 `preprocessing`，避免重复累加。 |
 | 工序设备范围 | `public/factory-map/devices.json` 的 `section`、`deviceCode`、`deviceCodes`、`children[].deviceCode` | 用于把设备级接口过滤到当前部门或工序。 |
-| 当前月 | 前端本地日期 `YYYY-MM` | 真实推移接口按月查询；生产性固定 mock 也按当前月生成。 |
-| 月周配置 | `GET /basic/month-segment/base-data` | 出勤率推移和生产性固定 mock 按接口周配置聚合日数据，配置缺失时回退自然周。sessionStorage 记录键为 `${departmentId}:${processType}` 复合键，查找时将 CssMap 值经 `toApiDepartmentCode`/`toApiProcessType` 转为接口格式后拼键读取。入库计划实绩推移不读取此配置，固定使用月内七日分桶。 |
+| 当前月 | 前端本地日期 `YYYY-MM` | 真实推移接口按月查询；生产性推移表也查询当前月。 |
+| 月周配置 | `GET /basic/month-segment/base-data` | 出勤率推移和生产性推移表 按接口周配置聚合日数据，配置缺失时回退自然周。sessionStorage 记录键为 `${departmentId}:${processType}` 复合键，查找时将 CssMap 值经 `toApiDepartmentCode`/`toApiProcessType` 转为接口格式后拼键读取。入库计划实绩推移不读取此配置，固定使用月内七日分桶。 |
 
 ## 卡片刷新与缓存
 
 - 部门维度和工序维度的整页看板数据不再写入或读取 `sessionStorage`；页面刷新、部门切换、工序切换或刷新版本变化时重新调用 loader 读取接口。仅保留同一请求仍在进行时的 Promise 去重，不复用已完成结果。
 - 生产线稼动使用的地图设备范围通过 `factoryMapConfigCache.ts` 读取 `devices.json`；请求禁用浏览器缓存，只复用仍在进行中的并发请求，完成后释放，下次页面刷新重新读取最新设备 JSON。
-- 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，键为当前月 `YYYY-MM`。`schedulePlanCache`/`scheduleOutputCache` 供生产计划实绩推移表和信息汇总读取 `getPlan`/`getOutput`，不作为生产性推移表的数据源。
-- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)` 清除当月缓存后重新请求接口。生产性推移卡片刷新只重建固定 mock，不调用生产计划、生产实绩或工时接口。
+- 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，键为当前月 `YYYY-MM`。`schedulePlanCache`/`scheduleOutputCache` 供生产计划实绩推移表和信息汇总读取 `getPlan`/`getOutput`，也供生产性推移表读取真实数量及计划 MH。
+- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)` 清除当月缓存后重新请求接口。生产性推移卡片刷新通过 `loadProductivityTrendCards(..., { forceRefresh: true })` 清除当月生产缓存并重新读取 getPlan/getOutput，不请求工时接口。
 - 新增基于月级 schedule 缓存的推移卡片时，需同时补充对应的 `invalidate*ScheduleRecords(month)` 并在 `refreshCard` 中传 `forceRefresh: true`，否则刷新按钮不生效。
 
 ## 左侧 css-map
@@ -155,26 +155,33 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 ## 生产性推移表
 
-当前整卡使用固定 mock，不混用 `getPlan`、`getOutput` 或未定义契约的工时数据。日/班次输入统一派生月、周、当前周工作日和展开态全月日期：七日计划/实绩数量序列循环至当月，前处理、加硫、后处理数量系数分别为 `1`、`4`、`2.5`；能力为 `6800 × 数量系数`，提高基础数固定 `64`，七日直接出勤 MH 为 `63.5 / 65.0 / 64.0 / 66.0 / 64.5 / 65.5 / 67.0`，各班次按 `40% / 35% / 25%` 拆分。
+入口为 `loadProductivityTrendCards.ts`；六行表由 `loadProductionPlanTrendCard.ts` 组装，格式和图表配置沿用 `processProductionPlanTrendMock.ts`（历史文件名，已移除 mock 种子）。同步 fallback 只生成空表，真实 loader 替换数据，标题不显示 mock。
 
-| 工序族 | 数量行 | 其余固定行 |
-| --- | --- | --- |
-| 前处理 | 计划粘接数、实绩粘接数 | 计划MH、实绩MH、计划个数生产性、实绩个数生产性 |
-| 加硫 | 计划加硫数、实绩加硫数 | 同上 |
-| 后处理 | 计划入库数（含待倒箱、端数等）、实绩入库数（含待倒箱、端数等） | 同上 |
+| 指标 | 数据来源与规则 |
+| --- | --- |
+| 计划粘接数 / 加硫数 / 入库数 | `getPlan.number` 按当前部门和工序汇总。 |
+| 实绩粘接数 / 加硫数 / 入库数 | `getOutput.number` 按相同范围汇总；空记录显示 `-`。 |
+| 计划 MH | 用户确认的 `getPlan.mh`，直接按记录求和。 |
+| 实绩 MH | 计算方式未定，所有周期显示 `-`。 |
+| 计划个数生产性 | 计划数量合计 ÷ 未舍入的计划 MH 合计；不平均日生产性。 |
+| 实绩个数生产性 | 依赖尚未确定的实绩 MH，所有周期显示 `-`。 |
 
-公式按周期先聚合输入再派生：`计划MH = Σ(计划数 ÷ 能力 × 提高基础数)`，`实绩MH = Σ直接出勤工时`，`计划个数生产性 = 计划数合计 ÷ 计划MH合计`，`实绩个数生产性 = 实绩数合计 ÷ 实绩MH合计`。分母为 `0`、缺失或非有限值时表格显示 `-`，图表点为 `null`。
+后处理两行保留“计划/实绩入库数（含待倒箱、端数等）”名称，用户已确认使用 getPlan/getOutput 的后处理数量，不调用 getRukuPlan/getRukuShiji。该口径与独立入库计划实绩卡片分开。
 
-显示规则：部门和工序维度均展示，部门按 `departmentProcessMap` 顺序为所属工序逐张生成，工序维度固定一张；卡片位于真实生产计划实绩推移表之后。标题旁显示“（mock）”。数量表格值为带千分位整数，MH 和生产性保留一位小数，首列宽度为 `320px–340px`。图表排除月列和 MH，以“千个”为左轴绘制计划/实绩数量分组柱，以“个/MH”为右轴绘制计划/实绩生产性折线，只有图表数量除以 `1000`。
+按部门筛选后，沿用真实生产计划实绩卡片的地图设备范围匹配工序；没有有效设备匹配条件时回退部门与工序名称。无归属记录不计入。只纳入当前月有效日期；日计划数量和 MH 包含当前生产日全天班次，月/周计划与实绩仅累计到当前生产班次。未来日期为空；00:00–06:29 归前一生产日晚班。周配置缺失时回退自然周。
 
-截止规则：日列计划包含当天全部班次；月/周计划只累计到当前生产班次。实绩和直接出勤 MH 也只累计到当前班次；未来日期为空。班次边界为早班 06:30、中班 14:30、晚班 22:30，00:00-06:29 归属前一生产日晚班。
+计划记录的 MH 任一缺失、null、负数或非有限值时，该周期计划 MH 与计划个数生产性显示 `-`，不以部分分母计算；真实零 MH 保留 0.0，但生产性分母为 0 时为空。空数组或请求失败均不补模拟值。生产接口返回 success=false 时不消费其 data。
+
+数量显示带千分位整数，MH 与生产性显示一位小数，首列宽度仍为 320px–340px。图表不展示月列或 MH；数量除以 1000 后使用左轴“千个”，生产性使用右轴“个/MH”，实绩生产性系列为空点。部门按所属工序依次生成卡片，工序维度仅一张。
+
+刷新事件 `productivityTrend` 强制重取两个生产接口，只替换生产性卡片数组；与独立四行卡片共享请求缓存但不互相替换显示数据。
 
 ## 未接入或空置字段
 
 | 项目 | 状态 | 说明 |
 | --- | --- | --- |
 | 不良率金额、个数 | 未展示 | `GET /schedule/getRejects` 当前返回空数组，且本次页面结构已移除旧不良卡片。 |
-| 历史独立 MH 卡片 | 未挂载 | `department-mh-card` 仍是历史固定 mock 组件；生产性推移表中的计划/实绩 MH 是新卡片内的固定 mock 指标，不代表旧卡片已重新接入。 |
+| 历史独立 MH 卡片 | 未挂载 | `department-mh-card` 仍是历史固定 mock 组件；生产性推移表中的计划 MH 来自真实 mh，实绩 MH 暂为空，不代表旧卡片已重新接入。 |
 | 入库计划工序过滤 | 部分受限 | `getRukuPlan` 目前只有 `dept`，没有 `shebei` 或 `processType`，工序维度入库计划实绩按所属部门口径聚合。 |
 
 ## 制造日报接口边界
