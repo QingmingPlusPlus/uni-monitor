@@ -5,6 +5,10 @@
 | 路径/模块 | 先读 doc | 先读 spec | 触发 skill | 改后同步 | 状态 |
 | --- | --- | --- | --- | --- | --- |
 | `AGENTS.md`、`doc/agent-guide.md`、`doc/agent-memory-map.md`、`.agents/skills`、`.codex/skills`、`.opencode/skills`、`.qoder/skills` | `doc/agent-guide.md`、`doc/agent-memory-map.md` | `openspec/specs/governance/spec.md` | `cross-memory-routing` | 更新治理 spec、路由表或对应 skill | 生效 |
+| `.agents/skills/openspec-propose`、创建 OpenSpec 变更提案 | `doc/agent-guide.md` | `openspec/specs/governance/spec.md` | `openspec-propose` | 仅在通用目录维护技能正文；入口变化时同步本表 | 生效 |
+| `.agents/skills/openspec-apply-change`、实施已有 OpenSpec 变更任务 | `doc/agent-guide.md` | `openspec/specs/governance/spec.md` | `openspec-apply-change` | 仅在通用目录维护技能正文；入口变化时同步本表 | 生效 |
+| `.agents/skills/openspec-explore`、OpenSpec 需求与方案探索 | `doc/agent-guide.md` | `openspec/specs/governance/spec.md` | `openspec-explore` | 仅在通用目录维护技能正文；入口变化时同步本表 | 生效 |
+| `.agents/skills/openspec-archive-change`、归档已完成的 OpenSpec 变更 | `doc/agent-guide.md` | `openspec/specs/governance/spec.md` | `openspec-archive-change` | 仅在通用目录维护技能正文；入口变化时同步本表 | 生效 |
 | 仓库模块盘点、模块边界、新增顶层模块、`doc/project-modules.md` | `doc/project-modules.md`、`doc/agent-memory-map.md` | - | `cross-memory-routing` | 更新模块索引、对应专项 doc 和路由表 | 生效 |
 | `src/main.ts`、`src/App.vue`、`src/pages.json`、`src/manifest.json`、`src/uni.scss`、`package.json`、`vite.config.ts`、`tsconfig.json`、`vitest.config.ts`、应用入口/运行时/构建/测试配置 | `doc/application-runtime.md`、`DESIGN.md` | - | - | 更新运行时说明；涉及全局视觉时同步设计系统 | 生效 |
 | `src/pages/daily-report`、`src/api/dailyReport.ts`、制造日报、日报接口 | `doc/daily-report.md`、`doc/api-module.md` | `openspec/specs/manufacturing-daily-report/spec.md` | `cross-memory-routing` | 同步日报页面、契约、口径、接口缺口、测试与路由 | 生效（后端待交付） |
@@ -21,7 +25,7 @@
 | `src/components/table-chart-card`、`TableChartCard`、推移表共用紧凑表格/展开弹窗 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md` | `openspec/specs/configurable-table-chart-card/spec.md` | - | 更新共用表格数值适配、滚动或图表行为说明及组件测试 | 生效 |
 | `src/components/attendance-trend-card`、`出勤率推移表`、`loadAttendanceTrendCard` | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md` | - | - | 更新出勤率推移表聚合口径、列展示规则或组件测试 | 生效 |
 | `src/components/department-inbound-plan-trend-card`、`loadInboundPlanTrendCard`、`inboundTrendDisplay.ts`、入库固定月内七日分桶/截止当天/图表零值断线 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/shared-utilities.md` | `openspec/specs/inbound-trend-period-display/spec.md` | - | 更新入库周期、聚合、图表规则和对应测试 | 生效 |
-| `src/pages/factory-dashboard/data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts`、`productionPlanTrend`、真实生产计划实绩推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/factory-dashboard-architecture.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新四行真实指标、接口过滤、月级缓存、独立刷新与双卡装配 | 生效 |
+| `src/pages/factory-dashboard/data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts`、`productionPlanTrend`、真实生产计划实绩推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/factory-dashboard-architecture.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新八行指标及质量占位原因、接口过滤、月级缓存、独立刷新与双卡装配 | 生效 |
 | `src/components/process-production-plan-trend-card`、`createProductionPlanTrendCard`、`createProductionPlanTrendCards`、`loadProductivityTrendCards.ts`、`productionPlanTrends`、生产性推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/department-api-gaps.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新六行真实指标、计划 MH 聚合、实绩 MH 缺口、维度装配和刷新规则 | 生效 |
 
 ## 兜底策略

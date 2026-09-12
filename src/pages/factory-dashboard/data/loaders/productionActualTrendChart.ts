@@ -1,15 +1,17 @@
 import type { ChartOptionConfig } from '../../../../components/table-chart-card/TableChartCard.types'
 
 const palette = {
-  planProduction: "#4F81BD",
-  actualProduction: "#70AD47",
-  achievementRate: "#C0504D",
+  planProduction: "#7030A0",
+  actualProduction: "#2F5597",
+  qualified: "#548235",
+  achievementRate: "#8EAADB",
+  qualifiedRate: "#C5E0B4",
   textSecondary: "#566579",
   rail: "#D8E1EB",
 } as const
 
 export const processProductionPlanTrendChartOptions: ChartOptionConfig = {
-  color: [palette.planProduction, palette.actualProduction, palette.achievementRate],
+  color: [palette.planProduction, palette.actualProduction, palette.qualified, palette.achievementRate, palette.qualifiedRate],
   tooltip: {
     trigger: "axis",
     textStyle: {
@@ -64,6 +66,7 @@ export const processProductionPlanTrendChartOptions: ChartOptionConfig = {
   series: [
     {
       id: "plan",
+      lineStyle: { type: 'dashed' },
       name: "计划",
       type: "line",
       smooth: false,
@@ -78,6 +81,7 @@ export const processProductionPlanTrendChartOptions: ChartOptionConfig = {
       symbol: "circle",
       symbolSize: 6,
     },
+    { id: 'qualified', name: '合格数', type: 'line', connectNulls: false },
   ],
 }
 

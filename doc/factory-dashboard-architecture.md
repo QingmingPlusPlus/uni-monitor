@@ -47,7 +47,7 @@
 | `data/factoryDashboardTypes.ts` | 定义三类看板数据、卡片 ID、KPI、告警、出勤、稼动和设备详情模型。 |
 | `data/factoryDashboardLoader.ts` | 统一导出页面允许调用的维度级与卡片级 loader，本身不保存业务实现。 |
 | `data/dashboard/` | 按部门或工序并发装配完整看板数据；只复用相同 key 的进行中 Promise，不缓存已完成整页结果。 |
-| `data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts` | 恢复的四行生产计划实绩真实卡片及独立图表配置；与 `loadProductionPlanTrendCard.ts` 中六行生产性空表/展示生成器分开。 |
+| `data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts` | 八行生产计划实绩真实卡片及独立图表配置；与 `loadProductionPlanTrendCard.ts` 中六行生产性空表/展示生成器分开。 |
 | `data/loaders/loadProductivityTrendCards.ts` | 获取真实生产计划/实绩，按部门、工序、日期和班次汇总数量及计划 MH；实绩 MH 未确定时保留空值。 |
 | `data/loaders/` | 负责 API 值转换、设备范围、班次与日期、卡片聚合、趋势周期、数值格式和月级 schedule 缓存。 |
 | `data/factoryDashboardMock.ts` | 创建部门/工序同步 fallback 结构，并复用各趋势 mock 生成器。 |

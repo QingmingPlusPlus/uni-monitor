@@ -278,13 +278,14 @@ export function createProductionPlanTrendChartOptions(): ChartOptionConfig {
       ...(processProductionPlanTrendChartOptions.series ?? []),
       {
         id: 'achievementRate',
-        name: '生产达成率',
+        name: '达成率',
         type: 'line',
         smooth: false,
         symbol: 'circle',
         symbolSize: 6,
         yAxisIndex: 1,
       },
+      { id: 'qualifiedRate', name: '合格率', type: 'line', yAxisIndex: 1, connectNulls: false },
     ],
   }
 }
