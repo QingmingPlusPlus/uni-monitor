@@ -14,7 +14,9 @@ export const absenceColumns: { key: AbsenceReason; label: string }[] = [
 ]
 
 export function processOptions(department: CssMapDepartmentValue, config: CssMapSelectionConfig) {
-  return [...new Set(config.departmentProcessMap[department].map(toApiProcessType))]
+  // 月计划实测制造2课含仕上检查；业务确认归后处理，日报不受地图工序范围限制。
+  const historicalProcesses = department === 'department2' ? ['post_processing'] : []
+  return [...new Set([...config.departmentProcessMap[department].map(toApiProcessType), ...historicalProcesses])]
     .filter((value): value is ReportProcessType => value in processLabels)
     .map(value => ({ value, label: processLabels[value] }))
 }
@@ -41,10 +43,10 @@ export function metricValue(metric: ReportMetric | null | undefined, requireComp
   if (!metric || metric.status === 'unavailable' || (requireComplete && metric.status !== 'complete')) return null
   return typeof metric.value === 'number' && Number.isFinite(metric.value) && metric.value >= 0 ? metric.value : null
 }
-export function formatMetric(metric: ReportMetric | null | undefined, hours = false): string {
+export function formatMetric(metric: ReportMetric | null | undefined, hours = false, digits = 0): string {
   const value = metricValue(metric)
   if (value === null) return '—'
-  return hours ? (value / 3600).toFixed(2) : value.toLocaleString('zh-CN', { maximumFractionDigits: 0 })
+  return hours ? (value / 3600).toFixed(2) : value.toLocaleString('zh-CN', { maximumFractionDigits: digits })
 }
 export function ratio(numerator: ReportMetric | null | undefined, denominator: ReportMetric | null | undefined): number | null {
   const n = metricValue(numerator, true)
@@ -56,10 +58,14 @@ export function percent(numerator: ReportMetric | null | undefined, denominator:
   return value === null ? '—' : `${(value * 100).toFixed(digits)}%`
 }
 export function attendanceRate(row: ReportAttendanceRow): string {
+  if (row.status === 'reported') {
+    const rate = metricValue(row.reportedAttendanceRate)
+    return rate === null ? '—' : `${rate.toFixed(1)}%`
+  }
   return row.status === 'complete' ? percent(row.actual, row.roster, 1) : '—'
 }
 export function attendanceIssues(row: ReportAttendanceRow): string[] {
-  if (row.status !== 'complete') return []
+  if (row.status !== 'complete' && row.status !== 'reported') return []
   const roster = metricValue(row.roster, true)
   const actual = metricValue(row.actual, true)
   const absent = metricValue(absenceTotal(row), true)
@@ -76,6 +82,7 @@ export function formatReportTimestamp(value: string, timeZone: string): string {
   } catch { return value }
 }
 export function absenceTotal(row: ReportAttendanceRow): ReportMetric | undefined {
+  if (row.status === 'reported') return row.absent
   if (row.status !== 'complete') return undefined
   if (metricValue(row.absent) !== null) return row.absent
   const roster = metricValue(row.roster, true)
@@ -85,15 +92,15 @@ export function absenceTotal(row: ReportAttendanceRow): ReportMetric | undefined
 }
 export function attendanceRows(rows: ReportAttendanceRow[], date: string): ReportAttendanceRow[] {
   return rows.filter(row => row.date === date || (row.date === offsetDate(date, 1) && row.isEarlyShift))
-    .sort((a, b) => a.date.localeCompare(b.date) || a.startAt.localeCompare(b.startAt) || a.id.localeCompare(b.id))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.startAt ?? '').localeCompare(b.startAt ?? '') || a.id.localeCompare(b.id))
 }
 export function rankLines(rows: ReportLineRow[]): ReportLineRow[] {
   return rows.filter(row => { const value = ratio(row.actual, row.plan); return value !== null && value < 0.9 })
     .sort((a, b) => ratio(a.actual, a.plan)! - ratio(b.actual, b.plan)! || a.id.localeCompare(b.id))
     .slice(0, 3)
 }
-export function rankQuality(rows: ReportQualityRow[], process: ReportProcessType): ReportQualityRow[] {
-  const dimension = process === 'sulfur_addition' ? 'mold' : 'production_number'
+export function rankQuality(rows: ReportQualityRow[], process: ReportProcessType, declaredDimension?: ReportQualityRow['dimension']): ReportQualityRow[] {
+  const dimension = declaredDimension ?? (process === 'sulfur_addition' ? 'mold' : 'production_number')
   return rows.filter(row => row.dimension === dimension && (ratio(row.defective, row.actual) ?? 0) > 0)
     .sort((a, b) => ratio(b.defective, b.actual)! - ratio(a.defective, a.actual)! || a.id.localeCompare(b.id))
     .slice(0, 3)

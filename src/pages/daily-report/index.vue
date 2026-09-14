@@ -2,7 +2,7 @@
 import './dailyReport.css'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
-import { getDailyAttendance, getDailyProduction, getDailyLineLosses, getDailyQuality } from '../../api/dailyReport'
+import { getDailyAttendance, getDailyProduction, getDailyLineLosses, getDailyQuality } from './reportApi'
 import type { AttendanceReport, ProductionReport, LineLossReport, QualityReport } from '../../api/dailyReport'
 import type { CssMapSelectionConfig } from '../../components/css-map/css3dMapTypes'
 import { defaultCssMapSelectionConfig } from '../../components/css-map/css3dMapSelection'

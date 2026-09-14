@@ -8,6 +8,7 @@ import { loadProcessDeviceCodeMap } from './factoryMapConfigCache'
 import { createProductionPlanTrendCard, type ProductionTrendPeriodValue } from './loadProductionPlanTrendCard'
 import { getRowsForPeriod } from './trendPeriodBuilder'
 import { invalidateProductionScheduleRecords, loadScheduleOutputRecords, loadSchedulePlanRecords, type ScheduleTrendLoadOptions } from './scheduleRecordCache'
+import { loadProductivityMhRows } from './productivityMhRecords'
 
 interface ProductivityRow extends ScheduleMonthlyRecord {
   readonly processType: CssMapProcessValue
@@ -29,17 +30,19 @@ function sumComplete(values: readonly (number | null | undefined)[]): number | n
 export function aggregateRealProductivity(
   plans: readonly ScheduleMonthlyRecord[],
   actuals: readonly ScheduleMonthlyRecord[],
+  actualMhValues: readonly (number | null | undefined)[] = [],
 ): ProductionTrendPeriodValue {
   const planCount = sumComplete(plans.map(row => row.number))
   const actualCount = sumComplete(actuals.map(row => row.number))
   const planMh = sumComplete(plans.map(row => row.mh))
+  const actualMh = sumComplete(actualMhValues)
   return {
     planCount,
     actualCount,
     planMh,
-    actualMh: null,
+    actualMh,
     planProductivity: planCount !== null && planMh !== null && planMh > 0 ? planCount / planMh : null,
-    actualProductivity: null,
+    actualProductivity: actualCount !== null && actualMh !== null && actualMh > 0 ? actualCount / actualMh : null,
   }
 }
 
@@ -52,11 +55,13 @@ export async function loadProductivityTrendCards(
   if (processTypes.length === 0) return []
   const month = getCurrentMonthParam()
   if (options.forceRefresh) invalidateProductionScheduleRecords(month)
-  const [deviceCodeMap, plans, actuals] = await Promise.all([
-    loadProcessDeviceCodeMap(), loadSchedulePlanRecords(month), loadScheduleOutputRecords(month),
+  const cutoff = getCurrentShiftCutoff()
+  const deviceMapRequest = loadProcessDeviceCodeMap()
+  const [deviceCodeMap, plans, actuals, mhRows] = await Promise.all([
+    deviceMapRequest, loadSchedulePlanRecords(month), loadScheduleOutputRecords(month),
+    deviceMapRequest.then(map => loadProductivityMhRows(month, department, processTypes, map, cutoff, options)),
   ])
   const scope = { department, processTypes, deviceCodeMap }
-  const cutoff = getCurrentShiftCutoff()
   const lastDay = new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0).getDate()
   const toRows = (records: readonly ScheduleMonthlyRecord[], isPlan: boolean): ProductivityRow[] =>
     filterScheduleRecordsForScope(records, scope).flatMap(record => {
@@ -76,7 +81,12 @@ export async function loadProductivityTrendCards(
     const card = createProductionPlanTrendCard(department, processType, config, (period, groups) => {
       const periodPlans = getRowsForPeriod(period.kind === 'day' ? planRows : aggregatePlanRows, [processType], groups, period)
       const periodActuals = getRowsForPeriod(actualRows, [processType], groups, period)
-      return aggregateRealProductivity(periodPlans, periodActuals)
+      const periodMh = getRowsForPeriod(mhRows, [processType], groups, period)
+      const coveredDays = new Set(periodMh.map(row => row.day))
+      const values = periodMh.map(row => row.netHours)
+      // 有产出而没有工时的日期使分母不完整，不能用其余日期的工时计算生产性。
+      if (periodActuals.some(row => !coveredDays.has(row.day))) values.push(null)
+      return aggregateRealProductivity(periodPlans, periodActuals, values)
     })
     return card ? [card] : []
   })

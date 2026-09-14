@@ -14,9 +14,9 @@ export function initialSection<T>(): SectionState<T> { return { status: 'idle', 
 
 /** 每个分区独立取消和递增版本，刷新同一筛选也不会被旧响应覆盖。 */
 export function createReportResource<Row>(
-  fetcher: (query: DailyReportQuery, signal: AbortSignal) => Promise<AxiosResponse<ApiResponse<ReportData<Row>>>>,
+  fetcher: (query: DailyReportQuery, signal: AbortSignal) => Promise<Pick<AxiosResponse<ApiResponse<ReportData<Row>>>, 'data'>>,
   publish: (state: SectionState<ReportData<Row>>) => void,
-  validateRows: (rows: Row[], query: DailyReportQuery) => boolean,
+  validateRows: (rows: Row[], query: DailyReportQuery, meta?: ReportData<Row>['meta']) => boolean,
 ) {
   let version = 0
   let controller: AbortController | undefined
@@ -39,7 +39,7 @@ export function createReportResource<Row>(
         const data = body.data
         const meta = data?.meta
         if (!meta || !validReportMeta(meta, query) ||
-          !Array.isArray(data.rows) || !validateRows(data.rows, query)) {
+          !Array.isArray(data.rows) || !validateRows(data.rows, query, meta)) {
           throw new Error('日报响应与查询范围或数据契约不一致')
         }
         const incomplete = meta.status === 'complete' && hasIncompleteRows(data.rows)
@@ -50,8 +50,9 @@ export function createReportResource<Row>(
         if (current !== version) return
         const status = axios.isAxiosError(error) ? error.response?.status : undefined
         const unavailable = status === 404 || status === 501
+        const timeout = axios.isAxiosError(error) && ['ECONNABORTED', 'ETIMEDOUT'].includes(error.code ?? '')
         publish({ status: unavailable ? 'unavailable' : 'error', data: null,
-          message: unavailable ? '数据未接入' : '数据加载失败或返回格式不符合日报要求，请重试' })
+          message: unavailable ? '数据未接入' : timeout ? '接口响应超时，请稍后重试' : '数据加载失败或返回格式不符合日报要求，请重试' })
       }
     },
     dispose() { version++; controller?.abort() },

@@ -34,7 +34,7 @@
 
 ### Requirement: 生产性指标使用真实生产接口
 
-系统 MUST 使用 getPlan.number、getOutput.number 作为各工序的计划与实绩数量，使用 getPlan.mh 作为该条记录的计划 MH。后处理也 MUST 采用这两个接口的后处理数量，保持既有入库数行名。系统 MUST NOT 再使用固定数量、能力、提高基础数或模拟 MH；标题 MUST NOT 显示 mock 标识。
+系统 MUST 使用 getPlan.number、getOutput.number 作为各工序的计划与实绩数量，使用 getPlan.mh 作为该条记录的计划 MH，使用 `/device/availability/month/daily-net` 的 `netHours` 作为实绩 MH。后处理也 MUST 采用这两个接口的后处理数量，保持既有入库数行名。系统 MUST NOT 再使用固定数量、能力、提高基础数或模拟 MH；标题 MUST NOT 显示 mock 标识。
 
 #### Scenario: 部门与工序范围保持一致
 
@@ -45,7 +45,7 @@
 
 ### Requirement: MH 与个数生产性按周期合计派生
 
-系统 MUST 按计划记录的 mh 直接求和，计划个数生产性 MUST 为计划数量合计除以未舍入的计划 MH 合计，MUST NOT 平均每日生产性。实绩 MH 计算方式尚未确定时，实绩 MH 与依赖该分母的实绩个数生产性 MUST 在所有周期显示 -，图表 MUST 使用 null，MUST NOT 以计划 MH 或其他未确认工时替代。
+系统 MUST 按计划记录的 mh 直接求和，计划个数生产性 MUST 为计划数量合计除以未舍入的计划 MH 合计，MUST NOT 平均每日生产性。实绩 MH MUST 累加当前周期各设备每日 netHours，实绩个数生产性 MUST 为实绩数量合计除以未舍入的实绩 MH 合计，MUST NOT 平均日生产性或以计划 MH 替代。净工时接口无班次字段，系统 MUST 使用服务端返回的每日累计值，MUST NOT 自行拆班或重新计算净工时。
 
 #### Scenario: 部分计划缺失 MH
 
@@ -60,9 +60,29 @@
 - **WHEN** 计划或实绩查询没有记录，或者发生 HTTP/业务失败
 - **THEN** 对应指标 MUST 显示 -，MUST NOT 用零或 mock 补齐
 
+### Requirement: 实绩 MH 与数量采用相同设备范围
+
+系统 MUST 为各卡片的地图设备编码分别请求 daily-net，参数 MUST 包含 month、departmentId、processType、deviceCode，MUST NOT 使用不受限的整部门工时。前处理1和前处理2 MUST 按各自设备拆分，即使它们转换后都为 preprocessing。地图范围缺失或明确空设备集合时 MUST 保持 MH 为空，MUST NOT 回退请求整个部门或工序族的工时，也不能把整个工序族工时复制到多张卡。
+
+#### Scenario: 多设备汇总分母不完整
+
+- **WHEN** 某设备缺少当天工时、同日重复或值为 null、非数值、负数或非有限值
+- **THEN** 当天 MH 与生产性 MUST 为空，包含该日的周期 MUST NOT 使用部分分母
+- **WHEN** 某个有实绩数量的日期没有对应 MH
+- **THEN** 包含该日的周期实绩 MH 与实绩生产性 MUST 为空
+- **WHEN** 所有设备均返回真实零 MH
+- **THEN** MH MUST 显示 0.0，生产性 MUST 为空
+
+#### Scenario: 净工时接口失败
+
+- **WHEN** 一个设备发生网络超时、业务失败或返回非数组
+- **THEN** 该工序实绩 MH 与实绩生产性 MUST 为空，其他工序、计划及实绩数量 MUST 可独立展示
+- **AND** 单次加载 MUST 限制最多六个设备请求并发，单请求 MUST 在 15 秒截止
+- **AND** 失败后 MUST 停止该工序尚未执行的请求，MUST NOT 缓存失败结果
+
 ### Requirement: 周期与班次截止沿用生产推移规则
 
-紧凑态 MUST 展示当月、接口周分段和当前周工作日；展开态 MUST 展示当月、全部周和当前月全部日期。月和周计划 MUST 只累计至当前生产班次，当前生产日的日列计划数量与计划 MH MUST 展示当天全部班次。实绩数量 MUST 只累计至当前生产班次，未来日期 MUST 为空。00:00-06:29 MUST 归属前一生产日晚班。
+紧凑态 MUST 展示当月、接口周分段和当前周工作日；展开态 MUST 展示当月、全部周和当前月全部日期。月和周计划 MUST 只累计至当前生产班次，当前生产日的日列计划数量与计划 MH MUST 展示当天全部班次。实绩数量 MUST 只累计至当前生产班次，未来日期 MUST 为空。00:00-06:29 MUST 归属前一生产日晚班。净工时 MUST 按有效 period 日期归属并截止当前生产日，MUST 排除其他月份、非法日期和未来日期；当前生产日内保留服务端最新的日累计值。
 
 #### Scenario: 当日计划与周累计使用不同截止范围
 
@@ -99,14 +119,14 @@
 
 ### Requirement: 真实接口加载与刷新
 
-系统 MUST 在同步加载和失败 fallback 中生成六行空表，MUST NOT 生成模拟数值。维度级 loader MUST 异步加载生产性卡片，多个工序 MUST 共享当月生产计划和实绩请求缓存。日期 MUST 限于当前月且通过有效性检查。
+系统 MUST 在同步加载和失败 fallback 中生成六行空表，MUST NOT 生成模拟数值。维度级 loader MUST 异步加载生产性卡片，多个工序 MUST 共享当月生产计划和实绩请求缓存。净工时缓存 MUST 以月份、部门、API 工序和设备为键；部门与工序维度 MUST 复用相同范围的请求，MUST NOT 串用其他设备或部门的结果。日期 MUST 限于当前月且通过有效性检查。
 
 #### Scenario: 手动刷新生产性卡片
 
 - **WHEN** 用户刷新生产性推移表
-- **THEN** 系统 MUST 清除当前月 getPlan/getOutput 缓存并重新请求
+- **THEN** 系统 MUST 清除当前月 getPlan/getOutput 及当前部门净工时缓存，并重新请求这些接口
 - **AND** 系统 MUST 仅替换生产性卡片数组
-- **AND** 系统 MUST NOT 调用尚未明确实绩 MH 算法的工时接口
+- **AND** 系统 MUST 重新获取卡片设备的 daily-net，MUST NOT 用 getWorkhours.type 或月度人员工时替代净工时
 
 ### Requirement: 真实计划实绩与生产性卡片独立并存
 
@@ -124,7 +144,7 @@
 - **THEN** 系统 MUST 清除当月计划和实绩缓存并重新请求两个接口，同时重取 getRejects
 - **AND** 系统 MUST 保留当前生产性卡片
 - **WHEN** 用户刷新生产性卡片
-- **THEN** 系统 MUST 重新读取 getPlan/getOutput 并替换当前维度生产性卡片，MUST NOT 替换独立八行卡片
+- **THEN** 系统 MUST 重新读取 getPlan/getOutput 和 daily-net 并替换当前维度生产性卡片，MUST NOT 替换独立八行卡片
 
 ### Requirement: 质量缺口与图表系列
 

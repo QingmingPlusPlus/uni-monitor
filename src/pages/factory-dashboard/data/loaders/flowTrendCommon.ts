@@ -65,18 +65,18 @@ export function normalizeDeptCode(value: number | string | null | undefined): nu
 }
 
 export function recordMatchesDepartment(
-  record: { readonly dept?: number | string },
+  record: { readonly dept?: number | string | null },
   department: CssMapDepartmentValue,
 ): boolean {
   return normalizeDeptCode(record.dept) === Number(toApiDepartmentCode(department))
 }
 
-export function hasScopedDepartment(record: { readonly dept?: number | string }): boolean {
+export function hasScopedDepartment(record: { readonly dept?: number | string | null }): boolean {
   const dept = normalizeDeptCode(record.dept)
   return typeof dept === 'number' && dept > 0
 }
 
-export function filterRecordsForDepartment<T extends { readonly dept?: number | string }>(
+export function filterRecordsForDepartment<T extends { readonly dept?: number | string | null }>(
   records: readonly T[],
   department: CssMapDepartmentValue,
 ): readonly T[] {

@@ -30,9 +30,11 @@ function asRecords<T>(response: { readonly data?: { readonly data?: T[] } }): re
   return Array.isArray(data) ? data : []
 }
 
-function normalizeLoadRate(value: number | undefined): number | null {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return null
-  return value <= 2 ? value * 100 : value
+function normalizeLoadRate(value: number | string | undefined): number | null {
+  if (value === undefined || (typeof value === 'string' && !value.trim())) return null
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) return null
+  return numeric <= 2 ? numeric * 100 : numeric
 }
 
 function formatMinutes(hours: number | undefined): string | null {
@@ -47,20 +49,26 @@ function formatTime(value: string | undefined): string {
 }
 
 function getPauseReason(record: DevicePauseRecord): string {
-  return record.pauseReason?.trim() || record.reason?.trim() || '未分类暂停'
+  return record.pauseTypeName?.trim() || '未分类暂停'
 }
 
 function getPauseStartTime(record: DevicePauseRecord): string | undefined {
-  return record.startTime ?? record.pauseStartTime
+  return record.startTime
 }
 
 function getPauseEndTime(record: DevicePauseRecord): string | undefined {
-  return record.endTime ?? record.pauseEndTime
+  return record.endTime ?? undefined
 }
 
 function getPauseMinutes(record: DevicePauseRecord): number | null {
-  const minutes = record.durationMinutes ?? record.minutes
+  const minutes = record.durationMinutes
   return typeof minutes === 'number' && Number.isFinite(minutes) ? minutes : null
+}
+
+function getPauseStatus(record: DevicePauseRecord): string {
+  if (record.operationStatus === 1) return '暂停中'
+  if (record.operationStatus === 2) return '已恢复'
+  return '暂停'
 }
 
 function createPauseTimeline(records: readonly DevicePauseRecord[]): readonly EquipmentTimelineItem[] {
@@ -72,7 +80,7 @@ function createPauseTimeline(records: readonly DevicePauseRecord[]): readonly Eq
     .map((record) => ({
       time: formatTime(getPauseStartTime(record)),
       title: getPauseReason(record),
-      detail: `${record.status?.trim() || '暂停'} · ${formatTime(getPauseStartTime(record))}–${formatTime(getPauseEndTime(record))} · ${getPauseMinutes(record) === null ? '时长未提供' : `${getPauseMinutes(record)} 分钟`}`,
+      detail: `${getPauseStatus(record)} · ${formatTime(getPauseStartTime(record))}–${formatTime(getPauseEndTime(record))} · ${getPauseMinutes(record) === null ? '时长未提供' : `${getPauseMinutes(record)} 分钟`}`,
     }))
 }
 
@@ -119,7 +127,7 @@ function createRealKpis(
     loadRate === null ? (loadLoaded ? unavailable('平均负荷率') : item('平均负荷率')) : { label: '平均负荷率', value: `${loadRate.toFixed(1)}%`, note: '当月负荷', tone: 'operation' },
     realtime === null ? (realtimeLoaded ? unavailable('在岗人员') : item('在岗人员')) : { label: '在岗人员', value: `${realtime.onlinePersonList.length} 人`, note: '实时在线人员', tone: 'neutral' },
     obstruction === null ? (availabilityLoaded ? unavailable('阻碍时间') : item('阻碍时间')) : { label: '阻碍时间', value: obstruction, note: '今日累计', tone: 'warning' },
-    latestPause === undefined ? (pauses === null ? item('停止类型') : { label: '停止类型', value: '无暂停', note: '当日暂无记录', tone: 'neutral' }) : { label: '停止类型', value: getPauseReason(latestPause), note: latestPause.status?.trim() || '最近暂停', tone: 'danger' },
+    latestPause === undefined ? (pauses === null ? item('停止类型') : { label: '停止类型', value: '无暂停', note: '当日暂无记录', tone: 'neutral' }) : { label: '停止类型', value: getPauseReason(latestPause), note: getPauseStatus(latestPause), tone: 'danger' },
     taskRate === null ? (realtimeLoaded ? unavailable('计划达成') : item('计划达成')) : { label: '计划达成', value: `${taskRate.toFixed(1)}%`, note: task?.productionNumber || '当前生产任务', tone: 'success' },
   ]
 }

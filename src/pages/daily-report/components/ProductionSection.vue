@@ -15,10 +15,10 @@ const columns = [
 
 <template>
   <ReportSection title="2. 生产实绩" subtitle="数量：个/日。合格、流动、不良、废弃分别按业务统计口径展示。" :status="state.status" :meta="state.data?.meta" :message="state.message" @retry="$emit('retry')">
-    <div v-if="!state.data?.rows.length" class="report-empty">所选日期暂无生产记录</div>
+    <div v-if="!state.data?.rows.length" class="report-empty">所选日期的可用数据源未返回匹配生产记录，请结合上方缺失说明核对</div>
     <div v-else class="report-table-scroll" tabindex="0" aria-label="生产实绩表，可横向滚动">
       <table class="report-table report-production-table">
-        <thead><tr><th>品种 / 作业类别</th><th v-for="column in columns" :key="column.key">{{ column.label }}</th><th>达成率</th><th>合格率</th></tr></thead>
+        <thead><tr><th>工序 / 作业类别</th><th v-for="column in columns" :key="column.key">{{ column.label }}</th><th>达成率</th><th>合格率</th></tr></thead>
         <tbody><tr v-for="row in state.data.rows" :key="row.id"><th>{{ row.name }}</th>
           <td v-for="column in columns" :key="column.key"><MetricValue :metric="row[column.key]" /></td>
           <td>{{ percent(row.actual, row.plan) }}</td><td>{{ percent(row.qualified, row.actual) }}</td>

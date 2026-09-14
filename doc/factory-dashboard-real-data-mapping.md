@@ -2,7 +2,7 @@
 
 本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口已从单个 `factoryDashboardLoader.ts` 拆分为 `src/pages/factory-dashboard/data/loaders/`（卡片级 loader）和 `src/pages/factory-dashboard/data/dashboard/`（维度级请求装配）；`factoryDashboardLoader.ts` 保留为统一导出 barrel。地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
 
-后端字段的最新声明与实测类型见 [后端接口参考](api-reference.md)（2026-09-11）。本文描述消费方的现有映射，不等于服务端始终可用：本次 5M、设备暂停和时间轴查询失败，设备时长查询还出现 HTTP 200 的业务失败。暂停原因/状态的后端声明为 `pauseTypeName/operationStatus`，当前前端别名尚未对齐；生产计划新增的 `mh` 已由用户确认为计划 MH 并接入生产性推移表。具体差异见 [接口缺口](department-api-gaps.md)。
+后端字段的最新声明与实测类型见 [后端接口参考](api-reference.md)（2026-09-14）。本文描述消费方映射，不等于服务端始终可用：5M 已按实测新字段接入，暂停原因/状态已对齐 `pauseTypeName/operationStatus`；实绩 MH 已接入 daily-net，最新实测请求仍超时，失败保持空值。具体差异见 [接口缺口](department-api-gaps.md)。
 
 ## 公共过滤与时间
 
@@ -19,7 +19,7 @@
 - 部门维度和工序维度的整页看板数据不再写入或读取 `sessionStorage`；页面刷新、部门切换、工序切换或刷新版本变化时重新调用 loader 读取接口。仅保留同一请求仍在进行时的 Promise 去重，不复用已完成结果。
 - 生产线稼动使用的地图设备范围通过 `factoryMapConfigCache.ts` 读取 `devices.json`；请求禁用浏览器缓存，只复用仍在进行中的并发请求，完成后释放，下次页面刷新重新读取最新设备 JSON。
 - 推移表卡片按月缓存接口记录：出勤率推移直接调用 `getMonthlyAttendanceSituation`（无月级缓存，每次刷新都会请求接口）；入库计划实绩推移使用 `scheduleRukuPlanCache`/`scheduleRukuShijiCache`，键为当前月 `YYYY-MM`。`schedulePlanCache`/`scheduleOutputCache` 供生产计划实绩推移表和信息汇总读取 `getPlan`/`getOutput`，也供生产性推移表读取真实数量及计划 MH。
-- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)` 清除当月缓存后重新请求接口。生产性推移卡片刷新通过 `loadProductivityTrendCards(..., { forceRefresh: true })` 清除当月生产缓存并重新读取 getPlan/getOutput，不请求工时接口。
+- 手动刷新按钮经 `FactoryDashboardPanel` → `refreshDashboard` 触发页面 `refreshCard(cardId)`。入库计划实绩推移卡片 MUST 以 `{ forceRefresh: true }` 调用对应 loader，由 `src/pages/factory-dashboard/data/loaders/scheduleRecordCache.ts` 中的 `invalidateInboundScheduleRecords(month)` 清除当月缓存后重新请求接口。生产性推移卡片刷新通过 `loadProductivityTrendCards(..., { forceRefresh: true })` 清除当月生产缓存及当前部门净工时缓存，重新读取 getPlan/getOutput 与各设备 daily-net。
 - 新增基于月级 schedule 缓存的推移卡片时，需同时补充对应的 `invalidate*ScheduleRecords(month)` 并在 `refreshCard` 中传 `forceRefresh: true`，否则刷新按钮不生效。
 
 ## 左侧 css-map
@@ -51,7 +51,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 负荷率 | `GET /schedule/getDeviceload` | `devCode`、`fuhe` | 按设备编码匹配；`fuhe` 视为 0-1 或百分比值，前端格式化为一位小数百分比。 |
 | 人员配置 | `GET /device/realtime/list` | `onlinePersonList` | 展示当前设备在线人员数量和人员信息。 |
 | 生产任务 | `GET /device/realtime/list` | `productionTaskList` | 作为地图设备实时信息补充。 |
-| 5M 变化点 | `GET /schedule/getChangePoint` | `device`、`type`、`change`、`varify`、`notes` | 按设备编码匹配；`type` 映射为人、机、料、法、环。当前接口返回空数组时不展示变化点。 |
+| 5M 变化点 | `GET /schedule/getChangePoint` | `device`、`type`、`changePointContent`、`notes` | 按设备编码匹配；`type` 映射为人、机、料、法、环。当前接口返回空数组时不展示变化点。 |
 
 地图渲染补充规则：带 `children` 的外层设备组不显示，每个子设备直接使用自身数据独立显示；子设备的 `x`、`y`、`width`、`height` 按外层设备内部 100×100 局部坐标换算到地图坐标，以自身实际位置和尺寸渲染。设备或子设备可用可选 `polygon` 数组描述自身局部坐标系内的多边形轮廓，子设备顶点会随子设备宽高一起换算；未配置时保持矩形。无 `children` 的单设备保持原布局。设备内部信息区按原始宽高选择纵向或横向结构，并根据名称、工况、负荷率、可见人员和可见 5M 数量估算所需宽度后进入稳定档位；设备占位宽于内容档位时，信息靠左且右侧留白，矩形设备的外框和点击区域覆盖完整占位，多边形设备则裁剪到配置轮廓。右侧 L 型设备可配置 `contentLayout: "right-l-shape"` 启用专用排列：名称与工况位于顶部横条，负荷率位于横条下半区左侧，人员和 5M 在其右侧分两行显示；右侧凸出竖条保持白色留白，不承载状态色、负荷率色或信息，五类原有内容均保留。该方向和档位不随地图缩放变化。人员配置继续显示班次扇形标记且不展示姓名；5M 显示带正向“人/机/料/法/环”glyph 的填充菱形，并固定使用人=紫、机=红、料=绿、法=近黑、环=黄配色；纵向最多六槽、横向最多五槽，超出部分以中性 `+N` 汇总。地图图例在负荷率、工况分组下方显示同一套 5M 菱形色样，空间不足时仅滚动图例自身。小设备名称可省略，放大后恢复完整显示。Sprite 与 CSS3D 回退使用同一颜色来源、菱形几何和布局规划规则。
 
@@ -162,9 +162,9 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 计划粘接数 / 加硫数 / 入库数 | `getPlan.number` 按当前部门和工序汇总。 |
 | 实绩粘接数 / 加硫数 / 入库数 | `getOutput.number` 按相同范围汇总；空记录显示 `-`。 |
 | 计划 MH | 用户确认的 `getPlan.mh`，直接按记录求和。 |
-| 实绩 MH | 计算方式未定，所有周期显示 `-`。 |
+| 实绩 MH | `GET /device/availability/month/daily-net` 的 `netHours`，按设备、日聚合到相同月/周/日周期；缺失或失败显示 `-`。 |
 | 计划个数生产性 | 计划数量合计 ÷ 未舍入的计划 MH 合计；不平均日生产性。 |
-| 实绩个数生产性 | 依赖尚未确定的实绩 MH，所有周期显示 `-`。 |
+| 实绩个数生产性 | 实绩数量合计 ÷ 未舍入的实绩 MH 合计，分母不完整或不大于零时显示 `-`。 |
 
 后处理两行保留“计划/实绩入库数（含待倒箱、端数等）”名称，用户已确认使用 getPlan/getOutput 的后处理数量，不调用 getRukuPlan/getRukuShiji。该口径与独立入库计划实绩卡片分开。
 
@@ -172,9 +172,9 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 计划记录的 MH 任一缺失、null、负数或非有限值时，该周期计划 MH 与计划个数生产性显示 `-`，不以部分分母计算；真实零 MH 保留 0.0，但生产性分母为 0 时为空。空数组或请求失败均不补模拟值。生产接口返回 success=false 时不消费其 data。
 
-数量显示带千分位整数，MH 与生产性显示一位小数，首列宽度仍为 320px–340px。图表不展示月列或 MH；数量除以 1000 后使用左轴“千个”，生产性使用右轴“个/MH”，实绩生产性系列为空点。部门按所属工序依次生成卡片，工序维度仅一张。
+数量显示带千分位整数，MH 与生产性显示一位小数，首列宽度仍为 320px–340px。图表不展示月列或 MH；数量除以 1000 后使用左轴“千个”，生产性使用右轴“个/MH”，实绩生产性使用真实计算结果，缺失数据保留空点。部门按所属工序依次生成卡片，工序维度仅一张。
 
-刷新事件 `productivityTrend` 强制重取两个生产接口，只替换生产性卡片数组；与独立八行卡片共享请求缓存但不互相替换显示数据。
+刷新事件 `productivityTrend` 强制重取两个生产接口和当前设备的净工时，只替换生产性卡片数组；与独立八行卡片共享请求缓存但不互相替换显示数据。
 
 ## 未接入或空置字段
 
@@ -186,10 +186,26 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 
 ## 制造日报接口边界
 
-独立日报已定义四个 `/daily-report/*` 前端查询契约，后端实现与真实数据联调待交付。旧出勤和 schedule 接口仅作为候选底层来源，不自动回退接入；请假分类、权威数量细分、历史阻碍和模具品质维度仍需后端补齐。字段映射、现有接口复用分析及交付清单统一见 `doc/daily-report.md`。
+独立日报已接入两日出勤、月计划/实绩/不良和设备 day/report；页面层 reportApi/reportSources/reportAdapters 装配真实显示模型，不再请求 `/daily-report/*`。日报按完整历史月记录的部门与工序归属统计，不使用地图白名单；前处理1/2合并，仕上检查和出货检查包装归后处理。设备、制番明细以实际维度显示，来源失败保留其他数据；缺失质量字段、班次状态和比例单位不推算。字段、测试与剩余缺口见 `doc/daily-report.md`。
 
 ### 八行生产计划实绩表与质量占位
 
 表格固定顺序为计划生产数、实绩生产数、合格数、不良数、其他、达成率、合格率、不良率。合格数、其他、合格率、不良率暂为 null，表格显示 `-`；原因见 `department-api-gaps.md` 的质量字段章节。不良数每次加载直接读取 getRejects（不使用月缓存），刷新卡片时同时重取；设备唯一归属、月份和班次截止后聚合，空数据/失败不补零，不影响计划与实绩。
 
 紧凑态和展开图表均固定展示计划（紫色虚线）、实绩（蓝色）、合格数（绿色）、达成率（浅蓝色）、合格率（浅绿色）；数量用左轴，百分比用右轴。保留五项图例，合格数/合格率用 null 空点，不绘制虚构曲线，不展示不良数、其他和不良率系列。
+
+## 2026-09-14 接口定义同步
+
+- 地图 5M 根据 device/type 关联，标题改用实测 changePointContent，再回退 notes/type；移除旧 change/varify 假定字段，mock 使用同一新结构。
+- 设备暂停记录改用 pauseTypeName/startTime/endTime/durationMinutes/operationStatus，状态 1 显示暂停中、2 显示已恢复；未恢复时允许结束时间缺省。
+- 负荷 fuhe 兼容数值和 Swagger 文字示例中的数值字符串；空字符串和非有限值不作为有效负荷。具体设备关联仍依赖历史 devCode，类型汇总的加硫负荷尚不能据此分摊。
+- 入库计划 dept、人员明细 ability/workHourList 已补充 null 类型；字段证据和本次超时情况见 api-reference.md。
+- daily-net 已接入生产性卡片，day/report 与两日出勤已接入日报；本次设备/出勤服务仍超时，页面展示失败提示与其他来源的真实数量。getShijiByDate 仍仅封装；完整模具品质与原因分布等待服务补齐。
+
+### 实绩 MH 设备范围与完整性
+
+`productivityMhRecords.ts` 负责净工时请求和日记录整理。每张卡按地图设备集合逐个传 month/departmentId/processType/deviceCode；前处理1、前处理2分别查询，避免共用 preprocessing 整体分母。地图范围缺失或明确空设备集合时，MH 均保持空值，不扩大到整个部门或工序族。
+
+每次加载最多六个设备请求并发，单请求超时15秒。任何设备网络/业务失败后，该工序 MH 为空并停止其余排队请求；其他工序和生产数量独立可用。成功响应按月份、部门、API工序、设备缓存；失败不缓存，刷新清除当前部门当月净工时和生产计划/实绩缓存。
+
+period 按 yyyy-MM-dd（也兼容带时间后缀的日期）解析，限于当前月有效日期并截止当前生产日；凌晨06:30前仍归前一生产日。接口无班次字段，保留服务端日累计，不按班次拆分或自行推导净工时公式。每个设备同日只允许一条值，重复、缺失、null、非数值、负数、非有限值均使该日MH为空；有实绩数量但没有对应工时的日期也不能使用部分分母。月/周按未舍入日合计计算，真实零 MH 显示0.0但生产性为空。

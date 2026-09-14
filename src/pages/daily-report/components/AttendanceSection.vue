@@ -8,14 +8,15 @@ import ReportSection from './ReportSection.vue'
 const props = defineProps<{ state: SectionState<AttendanceReport>; date: string }>()
 defineEmits<{ retry: [] }>()
 const rows = computed(() => attendanceRows(props.state.data?.rows ?? [], props.date))
-const statusLabels = { not_started: '未开始', in_progress: '统计中', complete: '已完成' }
+const statusLabels = { not_started: '未开始', in_progress: '统计中', complete: '已完成', reported: '状态未提供' }
 </script>
 
 <template>
   <ReportSection title="1. 出勤实绩" subtitle="在籍口径：当班直接排班人数，班长单列、不计入直接人员。包含数据日各班次及报告日早班。" :status="state.status" :meta="state.data?.meta" :message="state.message" @retry="$emit('retry')">
+    <div v-if="state.data?.monitorNames !== undefined" class="report-leaders"><strong>数据日出勤班长</strong><span>{{ state.data.monitorNames.join('、') || '未返回名单' }}</span><span class="report-muted">按日提供，未区分班次</span></div>
     <div v-if="!rows.length" class="report-empty">所选日期暂无出勤记录</div>
     <template v-else>
-      <div class="report-leaders">
+      <div v-if="state.data?.monitorNames === undefined" class="report-leaders">
         <strong>出勤班长</strong>
         <div v-for="row in rows" :key="row.id" class="report-leader">
           <span class="report-muted">{{ row.date }} · {{ row.shiftName }}</span>
@@ -32,8 +33,8 @@ const statusLabels = { not_started: '未开始', in_progress: '统计中', compl
             <td><MetricValue :metric="row.roster" /></td>
             <td><MetricValue :metric="row.actual" :suppressed="row.status === 'not_started'" /></td>
             <td>{{ attendanceRate(row) }}</td>
-            <td><MetricValue :metric="absenceTotal(row)" :suppressed="row.status !== 'complete'" /></td>
-            <td v-for="column in absenceColumns" :key="column.key"><MetricValue :metric="row.absence[column.key]" :suppressed="row.status !== 'complete'" /></td>
+            <td><MetricValue :metric="absenceTotal(row)" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
+            <td v-for="column in absenceColumns" :key="column.key"><MetricValue :metric="row.absence[column.key]" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
           </tr></tbody>
         </table>
       </div>

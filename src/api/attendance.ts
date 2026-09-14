@@ -74,9 +74,60 @@ export interface AttendanceDetailSituationVO {
   /** 出勤状态 */
   attendanceStatus: string
   /** 能力 */
-  ability: string
+  ability: string | null
   /** 工时列表（分为 定时 平日 休日 祝日(节假日)） */
-  workHourList: WorkHour[]
+  workHourList: WorkHour[] | null
+}
+
+/** 月度每日直接人员工时，单位为小时。 */
+export interface MonthlyWorkhourStatisticsVO {
+  statDate: string
+  directPlanWorkhours: number
+  directActualWorkhours: number
+  /** 工时达成率（%） */
+  directWorkhourRate: number
+}
+
+export interface TwoDayAttendancePerformanceParams {
+  dataDate: string
+  reportDate: string
+  department?: string
+  processType?: string
+}
+
+export interface TwoDayAttendancePerformanceRowVO {
+  statDate: string
+  reportDate: string
+  shiftType: string
+  shiftName: string
+  onRollCount: number
+  actualAttendanceCount: number
+  /** 出勤率（%） */
+  attendanceRate: number
+  absenceCount: number
+  annualLeaveCount: number
+  nursingLeaveCount: number
+  sickLeaveCount: number
+  personalLeaveCount: number
+  otherLeaveCount: number
+  absenteeismCount: number
+}
+
+export interface TwoDayAttendancePerformanceVO {
+  monitorNames: string[]
+  rows: TwoDayAttendancePerformanceRowVO[]
+}
+
+export type MonthlyWorkhourStatisticsResponse = ApiResponse<MonthlyWorkhourStatisticsVO[]>
+export type TwoDayAttendancePerformanceResponse = ApiResponse<TwoDayAttendancePerformanceVO>
+
+export function getMonthlyWorkhourSituation(params: AttendanceMonthlyParams) {
+  return http.get<MonthlyWorkhourStatisticsResponse>('/attendance/monthlyWorkhourSituation', { params })
+}
+
+/** 数据日期早/夜班及报告日期早班；日报通过页面适配层转换该原始契约。 */
+export function getTwoDayAttendancePerformance(params: TwoDayAttendancePerformanceParams) {
+  return http.get<TwoDayAttendancePerformanceResponse>('/attendance/twoDayAttendancePerformance', { params })
 }
 
 export type MonthlyAttendanceStatisticsResponse = ApiResponse<MonthlyAttendanceStatisticsVO[]>

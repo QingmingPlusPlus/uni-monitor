@@ -48,7 +48,8 @@
 | `data/factoryDashboardLoader.ts` | 统一导出页面允许调用的维度级与卡片级 loader，本身不保存业务实现。 |
 | `data/dashboard/` | 按部门或工序并发装配完整看板数据；只复用相同 key 的进行中 Promise，不缓存已完成整页结果。 |
 | `data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts` | 八行生产计划实绩真实卡片及独立图表配置；与 `loadProductionPlanTrendCard.ts` 中六行生产性空表/展示生成器分开。 |
-| `data/loaders/loadProductivityTrendCards.ts` | 获取真实生产计划/实绩，按部门、工序、日期和班次汇总数量及计划 MH；实绩 MH 未确定时保留空值。 |
+| `data/loaders/loadProductivityTrendCards.ts` | 获取真实生产计划/实绩，按部门、工序、日期和班次汇总数量及计划 MH；结合 daily-net 净工时补齐实绩 MH 和实绩生产性，缺失时保留空值。 |
+| `data/loaders/productivityMhRecords.ts` | 按设备读取 daily-net，限制并发、缓存和刷新，验证日工时完整性，隔离单工序失败。 |
 | `data/loaders/` | 负责 API 值转换、设备范围、班次与日期、卡片聚合、趋势周期、数值格式和月级 schedule 缓存。 |
 | `data/factoryDashboardMock.ts` | 创建部门/工序同步 fallback 结构，并复用各趋势 mock 生成器。 |
 | `data/factoryAlarmMock.ts` | 生成部门、工序和设备告警；当前没有真实告警接口。 |
@@ -62,13 +63,13 @@
 - 单个 loader 成功时替换对应 fallback 字段；失败时仅该字段保留 fallback，其他卡片继续使用真实结果。
 - 信息汇总依赖已解析的稼动和出勤，并额外读取计划/实绩；汇总生成失败时保留 fallback 汇总。
 - 趋势字段为 `null` 时，`FactoryDashboardPanel` 显示 `LoadingIcon`。接口抛错但维度级 loader 有 fallback 时，通常会展示 fallback 卡片而不是空白。
-- 设备详情、告警和部分同步 fallback 仍是 mock。`productionPlanTrends` 的同步 fallback 为空表，维度级 loader 调用 `loadProductivityTrendCards.ts` 读取真实数量和计划 MH，实绩 MH 及实绩生产性保持空值。判断某个字段是否真实接入时，以 `doc/factory-dashboard-real-data-mapping.md` 为准，不以组件名称推断。
+- 设备详情、告警和部分同步 fallback 仍是 mock。`productionPlanTrends` 的同步 fallback 为空表，维度级 loader 调用 `loadProductivityTrendCards.ts` 读取真实数量和计划 MH，通过 `productivityMhRecords.ts` 加载同设备范围的实绩 MH，计算实绩生产性；缺失或失败保持空值。判断某个字段是否真实接入时，以 `doc/factory-dashboard-real-data-mapping.md` 为准，不以组件名称推断。
 
 ## 刷新与缓存边界
 
 - 页面筛选变化或刷新版本变化时重新调用维度级 loader；已完成的整页结果不缓存。
 - 页面上的刷新事件携带卡片 ID，只替换被刷新卡片的数据，不重置地图选择。
-- 入库趋势和生产计划实绩趋势存在按月 schedule 记录缓存；手动刷新必须传入 `forceRefresh: true` 使对应缓存失效。生产性趋势也使用生产计划/实绩月缓存，刷新传入 `forceRefresh: true` 并只替换生产性数组。
+- 入库趋势和生产计划实绩趋势存在按月 schedule 记录缓存；手动刷新必须传入 `forceRefresh: true` 使对应缓存失效。生产性趋势也使用生产计划/实绩月缓存以及按月份、部门、工序、设备区分的净工时缓存，刷新全部相关来源时传入 `forceRefresh: true` 并只替换生产性数组。
 - 月分段配置单独保存在 `sessionStorage`，不属于整页看板缓存。
 - 地图设备配置和实时数据使用自己的加载、并发去重及 mock 开关，不能复用看板卡片缓存。
 

@@ -301,7 +301,7 @@ function createFiveMChange(record: ScheduleChangePointRecord, index: number): Cs
   return {
     id: `${record.device ?? 'scope'}-${record.type ?? 'change'}-${index}`,
     category: normalizeFiveMCategory(record.type),
-    label: record.change || record.varify || record.notes || record.type || '变化点',
+    label: record.changePointContent || record.notes || record.type || '变化点',
   }
 }
 
@@ -340,9 +340,11 @@ function average(values: readonly number[]): number | null {
   return values.reduce((total, value) => total + value, 0) / values.length
 }
 
-function normalizeLoadRate(value: number | null | undefined): number | null {
-  if (typeof value !== 'number' || Number.isNaN(value)) return null
-  return value <= 2 ? value * 100 : value
+function normalizeLoadRate(value: number | string | null | undefined): number | null {
+  if (value == null || (typeof value === 'string' && !value.trim())) return null
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) return null
+  return numeric <= 2 ? numeric * 100 : numeric
 }
 
 async function loadRealtimeItems(deviceCodes: readonly string[]): Promise<readonly DeviceRealtimeItem[]> {

@@ -22,6 +22,11 @@
 .daily-report .report-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .daily-report .report-muted { color: var(--um-color-text-secondary); font-size: 15px; }
 .daily-report .report-section-heading p { margin-top: 6px; }
+.daily-report .report-section-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.daily-report .report-section-actions .report-text-button { margin: 0; }
+.daily-report .report-device-table { min-width: 1200px; }
+.daily-report details { min-width: 140px; white-space: normal; }
+.daily-report summary { cursor: pointer; color: var(--um-color-operation); min-height: 32px; }
 .daily-report .report-badge { display: inline-block; flex-shrink: 0; font-size: 15px; padding: 4px 10px; border-radius: 5px; color: var(--um-color-text-secondary); background: var(--um-color-surface-subtle); }
 .daily-report .report-badge--complete { color: var(--um-color-success); }
 .daily-report .report-badge--partial { color: var(--um-color-text-primary); background: var(--um-color-changeover-soft); }

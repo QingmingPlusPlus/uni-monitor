@@ -1,137 +1,86 @@
 # 制造日报
 
-## 当前实现与边界
+## 当前实现与评估（2026-09-14）
 
-独立 H5 查询页面为 `src/pages/daily-report/index.vue`，路由 `/pages/daily-report/index`。部门、工序看板顶部提供“制造日报”入口。首版只做查询展示，不包含填报、审批、归档、导出或打印。历史查询反映后端当前结果，不是发布快照。
+独立 H5 页面为 `src/pages/daily-report/index.vue`，路由 `/pages/daily-report/index`，部门、工序看板顶部提供入口。页面只读查询，历史查询反映服务端当前数据，不包含填报、审批、归档、导出、打印或发布快照。
 
-前端已实现四个日报查询接口的类型、加载器、页面与测试；**仓库没有后端服务源码，`/daily-report/*` 四个服务端接口仍属于待交付依赖，尚未完成真实接口联调**。2026-09-09 的 Swagger 已发布不同契约的 `GET /attendance/twoDayAttendancePerformance`，可提供日报出勤实绩的部分原始统计，但不等同于本页面的 `/daily-report/attendance`，更不能据此视为四个分区已联调。不能因为前端存在 API 函数或 Swagger 有相似接口就认为日报后端已完整提供数据。
+**日报已改为调用现有真实接口，不再请求未发布的 `/daily-report/*`。现有字段可真实展示，但不能完整覆盖原设计。** 缺合格数、流动数、模具关联、不良现象、权威生产线归属及班次状态等；设备日报的比例单位也未明确。不得通过补零、减法、设备工时或其他看板演示数据填满这些字段。
 
-日报没有 mock 降级，也未接入未经验证的旧接口。测试数据只在 `reportFixtures.test-support.ts` 中，由测试导入，不进入页面或业务构建依赖。页面样式通过脚本导入 `dailyReport.css`，所有规则限定在 `.daily-report` 内，避免 Uni-app 页面样式隔离导致子组件失去样式。
-
-## 查询与页面
-
-URL query：
-
-| 参数 | 说明 |
-| --- | --- |
-| `departmentId` | 地图部门值 `department1` 至 `department4`，非法或缺失值使用配置默认部门。 |
-| `processType` | `preprocessing`、`sulfur_addition`、`post_processing`；只允许当前部门支持的工序族，无效值回退到该部门首个工序族。 |
-| `date` | `YYYY-MM-DD` 数据日；默认设备本地昨日，非法日期回退昨日并提示。报告日固定为次日。 |
-| `from` | `department` 或 `process`，默认前者。 |
-| `sourceProcessId` | 从工序看板进入时保留原始工序，例如 `pretreatment2`。若当前筛选仍匹配，返回该工序，否则返回所选工序族的首个工序。 |
-
-部门配置从已有选择配置加载，失败时使用内置配置并提示。工序族按 API 值去重，制造1课的前处理1、前处理2只查询一次。修改部门或工序后自动按当前筛选查询四个分区；切换部门时，若原工序不受支持，先回退到新部门的首个工序族，再发起一次查询。单独修改日期仍需点击“查询”生效；随后修改部门或工序时会一并提交当前日期。已加载日报始终显示自己的部门、工序、数据日期和报告日期。“刷新”读取已应用筛选；编辑条件未提交时禁止刷新，避免语义混淆。H5 查询替换当前 URL 历史项，刷新可恢复筛选。
-
-页面全宽纵向排列：出勤、生产数量、低达成率生产线、品质。出勤列出数据日全部有效班次以及次日早班；是否为早班由接口布尔字段决定，不解析中文班次名称。生产、品质统计完整生产日，跨午夜归属由后端决定。三列生产线卡在小于1280px时退化为单列；宽表在窄屏内滚动，字号不为塞满屏幕而缩小。
-
-出勤班长按班次展示，不计入直接人员。页面“在籍”是排班口径。未开始班次保留排班人数，隐藏实绩、比率、缺勤和分类值；统计中的班次可显示当前实绩，但不推算缺勤或出勤率。
-
-每个分区独立加载、重试、显示完整性及工厂时区下的更新时间与统计起止时间。新查询/刷新取消旧请求，并用版本号拦截不响应取消的旧结果；卸载时取消请求。已完成结果不缓存。单区失败不阻断其余区域。
-
-## API 契约
-
-访问层为 `src/api/dailyReport.ts`，统一 `/api` 前缀，四个接口均为 GET，超时15秒，可取消。后端需实现：
-
-| 端点 | 响应 data 类型 | 分组粒度 |
+| 分区 | 已接入来源 | 当前展示与缺口 |
 | --- | --- | --- |
-| `/daily-report/attendance` | `AttendanceReport` | 日期＋有效班次 |
-| `/daily-report/production` | `ProductionReport` | 作业类别（例如洗净、粘接） |
-| `/daily-report/line-losses` | `LineLossReport` | 生产线，低于90%的最低前三条 |
-| `/daily-report/quality` | `QualityReport` | 前处理/后处理按制番；加硫按模具，最高前三项 |
+| 出勤实绩 | `/attendance/twoDayAttendancePerformance` | 班次在籍、实绩、服务端出勤率、缺勤及六类原因；班长为数据日整体名单，不分配到班次。尚缺班次完成状态、起止时刻。本次实测超时，按历史非空响应与 Swagger 适配，页面可独立重试。 |
+| 生产实绩 | `/schedule/getPlan`、`getOutput`、`getRejects` | 工序合计计划、实绩；不良有明确分类和归属才统计，废弃按不良＋其他。合格、流动未提供。 |
+| 设备生产与阻碍 | 月计划/实绩＋`/device/availability/day/report` | 设备计划、实绩、达成率；设备源可用时补充总运转/生产/阻碍时间、次数、原因和原始比率。未包装成生产线；本次设备源超时，仍保留计划实绩。 |
+| 品质实绩 | 月实绩＋不良，月计划辅助确认设备归属 | 全工序按制番展示实绩和可确认不良；无法排行时保留明细。加硫暂不提供模具排行，不能把制番冒充模具。 |
 
-共同请求为 `date`、`department`（字符串 `1` 至 `4`）、`processType`。共同响应为 `ApiResponse<{meta, rows}>`：
+`2026-07` 月计划、实绩分别成功返回 1105、9 条；制造3课后处理 `2026-07-01` 已在真实页面显示数量和制番明细。`getRejects` 多月仍为空，不能因此宣称不良为零。两日出勤、设备日报同一历史日期查询超时，不宣称新设备字段已完成非空联调。详细请求依据见 [接口参考](api-reference.md)。
 
-```json
-{
-  "success": true,
-  "code": "0",
-  "message": "",
-  "data": {
-    "meta": {
-      "date": "2026-08-12",
-      "department": "1",
-      "processType": "preprocessing",
-      "reportDate": "2026-08-13",
-      "timeZone": "Asia/Shanghai",
-      "periodStart": "2026-08-12T06:30:00+08:00",
-      "periodEnd": "2026-08-13T06:30:00+08:00",
-      "updatedAt": "2026-08-13T09:00:00+08:00",
-      "status": "complete",
-      "notes": []
-    },
-    "rows": []
-  }
-}
-```
+## 查询与范围
 
-示例时间只用于解释格式，不意味着所有工厂、工序都按该班制。`timeZone` 必须为工厂 IANA 时区，时间戳必须带 UTC 偏移或 `Z`。出勤统计起止时间需要覆盖次日早班，与生产/品质范围可以不同。`rows: []` 表示已成功查询但无记录；`meta.status=unavailable` 表示数据未接入。`notes` 为业务口径或完整性说明。
-
-### 指标包装与状态
-
-所有数量、次数、时长字段统一为 `ReportMetric`：
-
-```json
-{ "value": 28, "status": "complete", "note": "当班直接人员，已排除班长" }
-```
-
-- `complete`：口径完整且值可用；真实零返回 `0`。
-- `partial`：值尚未完成，可以显示数值和“未完成”，但不参与比率。
-- `unavailable`：未接入，`value` 返回 `null`，显示 `— / 未接入`。
-- 口径不明确也应使用 `partial` 或 `unavailable`，不能把猜测标成完整。
-- `complete + null` 表示数值缺失，页面显示 `— / 缺失`。缺失字段也不会自动补零。
-- `note` 可选，单元格提供说明；需要显著提示的口径同时放入 `meta.notes`。
-- 前端发现缺少指标、未完成班次、原因未接入或缺勤校验不一致，会将分区“完整”标记降为“未完成”，避免错误地声称完整。
-
-### 各接口行字段
-
-| 类型 | 字段 |
+| URL 参数 | 说明 |
 | --- | --- |
-| `ReportAttendanceRow` | 唯一 `id`、生产归属日 `date`、`shiftCode`、`shiftName`、`isEarlyShift`、带偏移的 `startAt/endAt`、`status`（`not_started/in_progress/complete`）；`leaders` 为实际出勤班长 `{employeeId,name}[]`，`null` 未接入，`[]` 确认无人；指标为 `roster/actual/absent`；`absence` 包含 `annual/care/sick/personal/other/unexcused` 六个指标。 |
-| `ReportProductionRow` | 作业类别 `id/name`；`plan/actual/qualified/flowing/defective/scrapped` 六个指标。 |
-| `ReportLineRow` | 权威生产线 `id/name`；`plan/actual/availableSeconds/plannedStopSeconds/productionSeconds/lossSeconds`；`reasons` 包含 `{code,name,count,durationSeconds}`，全部原因为数组，未接入为 `null`。 |
-| `ReportQualityRow` | 排行主体 `id/name`；`dimension` 为 `production_number` 或 `mold`；`lines: {id,name}[]`、`productionNumbers: string[]`；`actual/qualified/defective`；`reasons: {code,name,count}[] | null`；可选 `reasonNote` 说明多重计数或分类边界。 |
+| `departmentId` | `department1` 至 `department4`；无效值使用选择配置默认部门。 |
+| `processType` | `preprocessing`、`sulfur_addition`、`post_processing`，限部门支持的工序族；无效值回退首个工序族。 |
+| `date` | `YYYY-MM-DD` 数据日，默认设备本地昨日；非法值回退并提示。报告日固定次日。 |
+| `from`、`sourceProcessId` | 保留部门/工序入口与返回目标；筛选不再匹配原工序时返回新工序族首项。 |
 
-后端先在完整业务范围聚合，再排名并返回前三条；前端额外校验阈值、排序和最多三条。完整原因列表按影响程度降序：生产按时长、品质按不良数，同值按原因码。页面默认前三项生产原因、前两项品质原因，支持展开全部。加硫必须先按模具聚合，对同一模具关联的全部制番计算总实绩和不良，不允许前端将截断后的制番榜再转成模具榜。
+修改部门或工序自动查询四区并更新 URL；单改日期通过“查询”提交。未提交条件不改变已显示日报标签，且禁止刷新；“刷新”重新读取已应用条件。选择配置失败时使用内置配置并提示。
 
-返回范围必须与请求一致。重复业务键、错误品质维度、越界出勤、非数组结构、非法时间或非数值指标都视为契约错误，分区提示重试。HTTP404/501及业务码 `NOT_CONNECTED/NOT_IMPLEMENTED` 显示“未接入”；网络、超时、其他HTTP/业务错误显示“加载失败”，不能误称无业务记录。
+日报读取完整月记录，按记录日期、部门和工序族过滤，**不读取地图设备显示白名单、不借用当前实时设备归属**。制造1课的前处理1、前处理2合并查询一次，区别于看板生产性卡片各自设备范围。
 
-## 计算口径
+工序归并：`前处理/前处理1/前处理2 → preprocessing`，`加硫 → sulfur_addition`，`后处理/仕上检查/出货检查包装 → post_processing`，同时接受 API 工序枚举。检查和包装归后处理由用户在本次任务中确认。未知工序或缺少部门的同日记录排除并提示，相关已知合计标为部分，不能参与比率与排行。
 
-| 指标 | 公式/限制 |
+制造2课月记录也包含仕上检查，因此日报额外提供该部门的后处理选项。此选项不修改地图工序配置；从工序看板返回时，若没有对应地图工序，返回部门看板。
+
+`getRejects` 未提供部门、工序时，仅通过该月计划/实绩中同一设备的唯一部门＋工序归属关联；冲突、未知归属不强行分配，显式字段不能被设备关联覆盖。未关联不良会提示并阻止不完整合计参与排名。日期归属使用服务端 `date/workDate`，不编造跨午夜起止时刻。
+
+## 模块与接口
+
+- `src/api/dailyReport.ts`：前端显示模型及五个原始请求薄封装，统一 `/api` 前缀、15秒超时、AbortSignal；这些类型不是服务端已发布的新契约。
+- `reportSources.ts`：原始来源成功/结构检查，以及进行中月请求去重。三区共享同月计划/实绩，不缓存已完成结果。单区取消不影响其他订阅者，最后一个取消才中断上游。
+- `reportAdapters.ts`：工序归并、历史范围过滤、指标完整性、生产/设备/制番聚合及源字段映射。
+- `reportApi.ts`：将真实来源装配为四区显示模型；部分来源失败保留其他可用字段，全部必要来源失败才使整区报错。
+- `reportResource.ts`、`reportValidation.ts`：四区独立状态、范围/结构校验、取消与版本保护；卸载不再发布结果。
+- `reportModel.ts`、各 Section：日期、比率、排名及显示。样式从脚本导入 `dailyReport.css`，限定 `.daily-report`。
+
+| 原始请求函数 | 参数 |
 | --- | --- |
-| 出勤率 | 完成班次的直接实绩出勤 ÷ 直接排班人数；班长不参与。 |
-| 缺勤总数 | 优先后端值；仅完成班次且人数完整、排班不少于出勤时允许排班−出勤。 |
-| 达成率 | 实绩÷计划。 |
-| 合格率、不良率 | 合格÷实绩、不良÷实绩。 |
-| 品质原因不良率 | 该现象数量÷同一排行主体实绩；不是该现象÷总不良。 |
-| 可动率 | 生产时间÷可运转时间；后者已扣计划停止，不再次扣除。 |
-| 阻碍占比 | 原因时长÷可运转时间。 |
+| `getReportAttendanceSource` | `dataDate`、次日 `reportDate`、`department`、`processType` |
+| `getReportPlanSource/getReportOutputSource/getReportRejectsSource` | `month=YYYY-MM` |
+| `getReportDeviceSource` | `day`、`departmentId`、`processType` |
 
-比率使用完整输入，分母必须大于零；先汇总数量/时间再计算，不平均百分比。人数、件数、次数显示千分位整数；时间接口用秒，页面转小时两位小数；出勤率和可动率一位小数，其余比率两位。数量独立取值，不能强制 `实绩=合格+不良`，不能以减法生成流动、废弃。
+原始响应必须 `success=true`，不能仅凭 HTTP200 或某一种成功码判断。数组结构异常、业务失败、超时分别由来源或分区提供中文提示。真实零保留0；空数组只表示未返回记录，无法证明某个设备/制番的数量为零。日报不导入 mock，测试样本只在测试文件中使用。
 
-生产排行只包含计划>0且达成率<90%的生产线；品质排行只包含实绩>0、不良>0的主体；并列按稳定 `id` 排序。不足三项不补造，无符合项显示说明。
+## 显示模型与口径
 
-缺勤分类按人、班次去重，六类应互斥并与缺勤总数对应；无法归类的数据标为不完整，不塞入“其他”。前端发现分类合计不一致会显示提示。阻碍时长由后端对生产线内设备事件进行重叠去重。生产线统计范围不使用地图显示白名单。
+`ReportMetric` 为 `{ value: number | null, status: complete | partial | unavailable, note? }`。缺失或无效数字显示 `— / 未提供`；有效部分值可查看但不参与比率。人数、数量、次数只接受非负有限整数，时间和原始比例接受非负有限数，不把数值字符串隐式当数值。
 
-## 现有接口复用与后端交付清单
+`ReportMeta` 保留查询范围、次日报告日、完整性与说明。现有源没有统计起止时间和数据更新时间，因此 `periodStart/periodEnd=null`，`timestampSource=retrieved`，`updatedAt` 仅表示实际读取时间。显示采用工厂时区 `Asia/Shanghai`；不能将读取时间标成服务端更新时间。当前各区均标“部分数据可用”。
 
-| 数据 | 现有来源 | 交付缺口 |
-| --- | --- | --- |
-| 排班、实绩出勤 | `/attendance/twoDayAttendancePerformance`、`/attendance/attendanceSituation` | Swagger 已确认前者接收数据日、报告日，并返回班长名单及早/夜班出勤、缺勤分类汇总；仍缺日报契约的稳定班次状态、时间范围、指标完整性和统一 `meta`，需单独映射并联调。后者可复用底层实时统计，仍需验证历史 `date` 生效、班次归属、完成状态。 |
-| 班长、请假分类 | `/attendance/attendanceDetailSituation` | 姓名/岗位/出勤为文本，需结构化角色与原因枚举、出勤判定、人数去重。 |
-| 生产计划与实绩 | `/schedule/getPlan`、`getOutput` | 月记录仅是候选来源，需确认日期、部门、工序归属、是否含不良和洗净/粘接作业类别。 |
-| 合格、流动、废弃 | 无稳定字段 | 独立数据源及口径。 |
-| 不良数量 | `/schedule/getRejects` | 仓库旧记录为空数组，本次未确认服务现状；缺原因、模具、完整关联维度。 |
-| 生产线排名 | 计划/实绩原始记录 | 权威生产线与设备关系、完整业务范围和聚合。 |
-| 阻碍次数/时长 | `/device/availability/day`、`/month`、`/year`、`/pauseRecords`、`/device/device/timeLine` | Swagger 已发布设备级总运转/阻碍时长、暂停记录和时间轴；仍缺生产线聚合、跨班次归属、重叠去重及日报原因分类，不能直接作为日报可动率或阻碍排行。 |
-| 品质排行 | 实绩及不良记录仅部分可用 | 制番/模具范围、合格数、原因分布、分子分母一致性。 |
+### 出勤
 
-月度出勤没有班次明细；设备负荷率不是可动率；`getWorkhours` 未明确结构且不是设备运转时间；5M变化点不是停机事件；设备详情和生产趋势演示卡不能作为日报数据源。
+`statDate/shiftType/shiftName` 对应日期与班次；按两日端点契约，报告日行属于报告日早班。没有稳定起止时间，不通过中文名称猜测时间；`status=reported` 显示“状态未提供”，`startAt/endAt=null`。
 
-后端上线前应以一个真实生产日核对考勤、生产计划/实绩、品质记录与现场日报，尤其是跨午夜、模具关联和重复停机。再分别接通四区，验证完整性状态和缺失字段。前端不因其他看板已经有相似卡片而视为联调完成。
+`onRollCount/actualAttendanceCount/absenceCount` 对应直接排班、出勤和服务端缺勤；`attendanceRate` 按文档百分数显示一位小数。六类原因依次来自 `annualLeaveCount/nursingLeaveCount/sickLeaveCount/personalLeaveCount/otherLeaveCount/absenteeismCount`，差异提示核对。状态未知时不做排班减出勤、不重新计算出勤率。`monitorNames` 每日只显示一次，名单不分班次、不加到直接人员人数。
+
+### 生产与品质
+
+生产按工序合计，计划和实绩分别求记录 `number` 之和；合格和流动没有独立来源，保留缺失。`getRejects.type` 为“不良”时进入不良，已声明的“不良/其它/其他”进入废弃总数；缺分类、未知分类、空记录均不猜测。不以实绩减不良生成合格数。
+
+品质按 `zhifan` 分组实绩和已确认不良，`meta.qualityDimension=production_number` 明示降级维度。无模具关联、无不良现象时明确提示。完整分子分母存在时计算达成率、不良率；计划或实绩分母须大于零。生产只排达成率低于90%的最低3台设备；品质只排实绩>0、不良>0的最高3项，并列按稳定编码。无法排名时仍显示真实明细，有排名时可切换查看全部。
+
+### 设备时间与原因
+
+`day/report` 必须匹配请求日期、部门和工序；重复设备统计不能重复合计。`totalRunHours/productionHours/obstructionHours` 转成显示模型秒，页面显示小时两位小数。`obstructionItems` 用 `pauseType/pauseTypeName/count/obstructionHours`，按时长排序，可展开全部原因。
+
+`totalRunHours` 不等同于扣计划停止后的可运转时间。`availabilityRate/ratio` 单位尚未取得非空验证，当前明确标“原始值”显示四位小数，不能擅自乘100或附百分号。不把设备事件合计成未经重叠去重的生产线时长。
+
+## 待后端补齐与验证
+
+恢复出勤和设备查询响应；核对真实非空设备字段、可动率/占比单位和分母、原因去重；补齐独立合格/流动数、不良分类与模具关联、权威生产线归属、班次状态与时间、源更新时间及完整性。`getShijiByDate` 标记未完成且实测为空，未接入日报；`getWorkhours` 为图形类型，也不是设备运转时间。
 
 ## 验证入口
 
-- `npm test -- src/pages/daily-report`：公式、日期、筛选去重、排名、结构与范围校验、分区错误、取消与旧响应保护。
-- `npm run type-check`、`npm test`、`npm run build:h5`：项目检查。
-- 浏览器使用隔离且显式标识的测试数据验证1920px、2K、窄屏、筛选提交、刷新恢复、原因展开和未接入状态；不得把测试服务地址写入业务配置。
+- `npm test -- src/pages/daily-report`：日期、筛选、公式、排名、契约校验、真实源映射、未知工序、空数据/失败、共享取消与旧响应保护。
+- `npm run type-check`、`npm run build:h5`：类型与 H5 构建。
+- 浏览器核对真实历史日期的数量、失败来源提示、明细切换和筛选恢复；宽屏及窄屏检查字号、局部横向滚动。测试数据不得进入业务配置。
