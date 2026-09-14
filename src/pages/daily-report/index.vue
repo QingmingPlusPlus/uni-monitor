@@ -84,9 +84,11 @@ onBeforeUnmount(() => {
 })
 function changeDepartment() {
   if (!options.value.some(option => option.value === draft.value.processType) && options.value[0]) draft.value.processType = options.value[0].value
+  queryReport()
 }
 function changeDate(event: { detail: { value: string } }) { draft.value.date = event.detail.value; dateError.value = '' }
 function queryReport() {
+  if (!ready.value || !options.value.length) return
   if (!isReportDate(draft.value.date)) { dateError.value = '请选择有效的数据日期'; return }
   applied.value = { ...draft.value }
   const url = buildDailyReportUrl(applied.value, from, sourceProcessId)
@@ -106,7 +108,7 @@ function backToDashboard() {
     <header class="report-header"><div><p class="report-eyebrow">减震制造部 · 现场管理</p><h1>制造日报</h1></div><button role="button" class="report-button" @click="backToDashboard">返回看板</button></header>
     <section class="report-filter" aria-label="日报查询条件">
       <label>部门<select v-model="draft.departmentId" :disabled="!ready" @change="changeDepartment"><option v-for="option in config.departmentOptions" :key="option.value" :value="option.value">{{ option.labelKey }}</option></select></label>
-      <label>工序<select v-model="draft.processType" :disabled="!ready || !options.length"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select></label>
+      <label>工序<select v-model="draft.processType" :disabled="!ready || !options.length" @change="queryReport"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select></label>
       <div class="report-date-control"><span>数据日期</span><picker mode="date" :value="draft.date" :disabled="!ready" @change="changeDate"><div class="report-date-picker" role="button" aria-label="选择数据日期">{{ draft.date }} <span aria-hidden="true">▾</span></div></picker></div>
       <button role="button" class="report-button report-button--primary" :disabled="!ready || !options.length" @click="queryReport">查询</button>
       <button role="button" class="report-button" :disabled="!ready || dirty || loading" @click="loadAll">{{ loading ? '刷新中' : '刷新' }}</button>
