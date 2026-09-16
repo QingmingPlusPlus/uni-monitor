@@ -1,3 +1,4 @@
+import { createEmptyChangePointData } from './loaders/loadChangePointCard'
 import type {
   ChartDataConfig,
   ChartOptionConfig,
@@ -269,6 +270,7 @@ export function getDepartmentDashboardData(
 
   return {
     kind: 'department',
+    changePoint: createEmptyChangePointData(refreshedAt),
     eyebrow: `部门维度 · 2026-06 · ${label}`,
     title: `${label} 展示计划`,
     subtitle: '部门口径汇总计划、实绩、人员配置与产能负荷。',
@@ -303,6 +305,7 @@ export function getProcessDashboardData(
 
   return {
     kind: 'process',
+    changePoint: createEmptyChangePointData(refreshedAt),
     eyebrow: `工序维度 · 2026-06 · ${label}`,
     title: `${label} 展示计划`,
     subtitle: '工序口径聚焦当前流程的人员、产出、计划与异常阻碍。',

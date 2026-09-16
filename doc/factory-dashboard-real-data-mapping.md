@@ -49,7 +49,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 | 负荷率 | `GET /schedule/getDeviceload` | `devCode`、`fuhe` | 按设备编码匹配；`fuhe` 视为 0-1 或百分比值，前端格式化为一位小数百分比。 |
 | 人员配置 | `GET /device/realtime/list` | `onlinePersonList` | 展示当前设备在线人员数量和人员信息。 |
 | 生产任务 | `GET /device/realtime/list` | `productionTaskList` | 作为地图设备实时信息补充。 |
-| 5M 变化点 | `GET /schedule/getChangePoint` | `device`、`type`、`change`、`varify`、`notes` | 按设备编码匹配；`type` 映射为人、机、料、法、环。当前接口返回空数组时不展示变化点。 |
+| 5M 变化点 | `GET /schedule/getChangePoint` | 最新描述含 `pid/date/device/type/changePointContent` 等；代码仍读取旧 `change/varify/notes` | 2026-09-16 契约要求 `dept/process/progress`，当前无参调用尚未适配。地图按设备编码匹配会排除 `device=null`；不能直接复用为完整统计。见 [分析](change-point-statistics.md)。 |
 
 地图渲染补充规则：带 `children` 的外层设备组不显示，每个子设备直接使用自身数据独立显示；子设备的 `x`、`y`、`width`、`height` 按外层设备内部 100×100 局部坐标换算到地图坐标，以自身实际位置和尺寸渲染。设备或子设备可用可选 `polygon` 数组描述自身局部坐标系内的多边形轮廓，子设备顶点会随子设备宽高一起换算；未配置时保持矩形。无 `children` 的单设备保持原布局。设备内部信息区按原始宽高选择纵向或横向结构，并根据名称、工况、负荷率、可见人员和可见 5M 数量估算所需宽度后进入稳定档位；设备占位宽于内容档位时，信息靠左且右侧留白，矩形设备的外框和点击区域覆盖完整占位，多边形设备则裁剪到配置轮廓。右侧 L 型设备可配置 `contentLayout: "right-l-shape"` 启用专用排列：名称与工况位于顶部横条，负荷率位于横条下半区左侧，人员和 5M 在其右侧分两行显示；右侧凸出竖条保持白色留白，不承载状态色、负荷率色或信息，五类原有内容均保留。该方向和档位不随地图缩放变化。人员配置继续显示班次扇形标记且不展示姓名；5M 显示带正向“人/机/料/法/环”glyph 的填充菱形，并固定使用人=紫、机=红、料=绿、法=近黑、环=黄配色；纵向最多六槽、横向最多五槽，超出部分以中性 `+N` 汇总。地图图例在负荷率、工况分组下方显示同一套 5M 菱形色样，空间不足时仅滚动图例自身。小设备名称可省略，放大后恢复完整显示。Sprite 与 CSS3D 回退使用同一颜色来源、菱形几何和布局规划规则。
 
@@ -170,3 +170,7 @@ H5 调试时可在浏览器控制台调用 `window.mapMock(true)` 切换为前�
 ## 制造日报接口边界
 
 独立日报已定义四个 `/daily-report/*` 前端查询契约，后端实现与真实数据联调待交付。旧出勤和 schedule 接口仅作为候选底层来源，不自动回退接入；请假分类、权威数量细分、历史阻碍和模具品质维度仍需后端补齐。字段映射、现有接口复用分析及交付清单统一见 `doc/daily-report.md`。
+
+## 变化点统计
+
+`loadChangePointCard` 每个所属工序仅调用一次 `getScheduleChangePoint({ dept, process, progress: '' })`，部门汇总所属工序、工序页仅查询当前工序。按范围及 `pid` 去重，`date/type` 生成当前月日计数；本周按 API 科室+工序读取配置（缺失回退自然周），部门配置不同时各工序只贡献各自本周记录，日期列取并集。饼图使用独立的全量 `allTotal`，包含接口返回的其他月份记录，不受周/月筛选影响。模具作为普通类别按实际记录计数，无记录为 0。失败不使用 mock，通过 `changePoint` 卡片 ID 单独刷新。完整口径见 [变化点统计](change-point-statistics.md)。

@@ -1,0 +1,2755 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "可视化自研接口",
+    "description": "",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://123.57.81.179:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "基础数据-月份段配置",
+      "description": "根据月份查询月份段基础数据"
+    },
+    {
+      "name": "考勤",
+      "description": "查询考勤相关记录"
+    },
+    {
+      "name": "可视化配置",
+      "description": "大屏/可视化前端 JSON 键值的保存与查询（表 visual_test_map）"
+    },
+    {
+      "name": "设备实时查询",
+      "description": "工作线的设备相关信息"
+    },
+    {
+      "name": "获取生产数据",
+      "description": "大屏/可视化前端 获取生产数据(实绩,计划,不良 等)"
+    }
+  ],
+  "paths": {
+    "/visual/saveMap": {
+      "post": {
+        "tags": [
+          "可视化配置"
+        ],
+        "summary": "保存 JSON 键值",
+        "description": "将 键值对数据放于body中进行传递。当前实现：saveMap，**持久化所有传递的键值对**；当有多个键值对数据时,将全部存储",
+        "operationId": "getMapAndResponseValue",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataBoolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/visual/getValue": {
+      "get": {
+        "tags": [
+          "可视化配置"
+        ],
+        "summary": "按键查询配置值",
+        "description": "按 key 查询 visual_test_map，取 create_time 最新一条记录的 value；无记录时 data 为 null。",
+        "operationId": "getValueByKey",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "description": "配置键名，与 saveMap 写入的键一致",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "demoKey"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getWorkhours": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当天工作时长类型",
+        "description": "根据日期和班次获取当天设备的工作时长类型(1:半圆形,0:扇形)<br>",
+        "operationId": "getWorkhours",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "日期",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-05-01"
+          },
+          {
+            "name": "banci",
+            "in": "query",
+            "description": "班次 (早或者夜)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "早"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getShijiByDate": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "根据日期和设备获取当天计划实绩信息(未完成)",
+        "description": "根据日期和设备获取当天计划实绩信息",
+        "operationId": "getShijiByDate",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "日期 '2026-09-11' 形式。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-09-11"
+          },
+          {
+            "name": "device",
+            "in": "query",
+            "description": "设备code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 1101
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getRukuShiji": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当月入库实绩数据",
+        "description": "根据月份信息获取当月入库实绩数据数据以json格式返回 示例：[{\"date\":\"2026-05-22\",\"number\":\"200\",\"zhifan\":\"TT-192-JL\",\"cusCode\":\"CT022\",\"cusName\":\"FTCF\"}]",
+        "operationId": "getRukuShijiByMonth",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "根据月份获取当月入库实绩数据, 以 JSON 对象字符串形式返回。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-07"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getRukuPlan": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当月入库计划数据",
+        "description": "根据月份信息获取当月入库计划数据数据以json格式返回 示例：[{\"date\":\"2026-05-22\",\"number\":\"200\",\"zhifan\":\"TT-192-JL\"}]",
+        "operationId": "getRukuPlanByMonth",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "根据月份获取当月入库计划数据, 以 JSON 对象字符串形式返回。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-06"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getRejects": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当月不良品数据",
+        "description": "根据月份信息获取当不良品数据<br>数据以json格式返回 示例：[{\"date\":\"2026-05-22\",\"banci\":\"早\",\"shebei\":\"3301\",\"number\":\"200\",\"zhifan\":\"TT-192-JL\",\"type\":\"不良\"}]<br>日报中 废弃数 = 不良+其它",
+        "operationId": "getRejectsByMonth",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "根据月份获取当月不良品数据, 以 JSON 对象字符串形式返回。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-05"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getPlan": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当月计划数据",
+        "description": "根据月份信息获取当月生产计划数据以json格式返回 示例：[{\"date\":\"2026-05-22\",\"banci\":\"早\",\"shebei\":\"3301\",\"number\":\"200\"}]",
+        "operationId": "getPlanByMonth",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "根据月份获取当月计划, 以 JSON 对象字符串形式返回。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-05"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getOutput": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当月实绩数据",
+        "description": "根据月份信息获取当月生产实绩数据以json格式返回 示例：[{\"date\":\"2026-05-22\",\"banci\":\"早\",\"shebei\":\"3301\",\"number\":\"200\"}]",
+        "operationId": "getOutputByMonth",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "根据月份获取当月实绩, 以 JSON 对象字符串形式返回。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-05"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getDeviceload": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取当月负荷数据",
+        "description": "根据月份信息获取当月负荷数据<br>数据以json格式返回 示例：[{\"devName\":\"CG粘接-1\",\"fuhe\":\"0.80217\"}]<br>负荷数据以小数形式推送,需前端转换为百分比形式（例：0.80217 -> 80.217%）<br>加硫设备没有具体的设备区分, 只有类型汇总 [{\"devName\":\"STI375（3台/人）\",\"fuhe\":\"0.92251\"}]",
+        "operationId": "getDeviceloadByMonth",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "根据月份获取当月负荷, 以 JSON 对象字符串形式返回。",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2026-05"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/getChangePoint": {
+      "get": {
+        "tags": [
+          "获取生产数据"
+        ],
+        "summary": "获取人机料法环数据",
+        "description": "获取现存的人机法料环数据<br>device字段为 **设备** 的根据code匹配设备<br>device字段是 **null** 的则为非设备关联数据<br>字段说明: <br>`pid`:变化点序号<br>`date`:开始日期<br>`factory`:工厂<br>`process`:工序<br>`device`:工作线code(只用于匹配不需要展示)<br>`type`:5M区分(人,机,法,料,环) 存在数据则显示相应旗帜标志<br>`changePointContent`:变化点内容<br>`potentialRisk`:潜在风险<br>`implMethod`:管理方法<br>`implResult`:实施结果<br>`respPerson`:责任者<br>`reviewer`:审核者<br>`notes`:备注",
+        "operationId": "getChangePoint",
+        "parameters": [
+          {
+            "name": "dept",
+            "in": "query",
+            "description": "科室 数据样式(一科:1,二科:2,三科:3,四科:4)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 4
+          },
+          {
+            "name": "process",
+            "in": "query",
+            "description": "工序 数据样式(前处理1、前处理2、加硫、后处理)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "后处理"
+          },
+          {
+            "name": "progress",
+            "in": "query",
+            "description": "进度 数据样式(已关闭:1,进行中:0, 所有:空值(null或empty))",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": 0
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/realtime/list": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "查询设备的信息和状态 、人员上岗人员信息和状态 、正在进行中的人任务信息",
+        "description": "返回 DeviceRealtimeVO。设备的信息和状态 、人员上岗人员信息和状态 、正在进行中的人任务信息",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "description": "设备编码，精确匹配单台设备",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "设备编码，精确匹配单台设备",
+              "example": 3301
+            },
+            "example": 3301
+          },
+          {
+            "name": "deviceCodes",
+            "in": "query",
+            "description": "设备编码列表，精确匹配多台，最多50个",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "设备编码列表，精确匹配多台，最多50个"
+            }
+          },
+          {
+            "name": "deviceCodeLike",
+            "in": "query",
+            "description": "设备编码模糊匹配（LIKE）",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "设备编码模糊匹配（LIKE）",
+              "example": "DEV"
+            },
+            "example": "DEV"
+          },
+          {
+            "name": "factoryId",
+            "in": "query",
+            "description": "工厂ID，可选筛选",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "工厂ID，可选筛选"
+            }
+          },
+          {
+            "name": "departmentId",
+            "in": "query",
+            "description": "部门ID，可选筛选",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "部门ID，可选筛选"
+            }
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "description": "工序类别，可选筛选",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "工序类别，可选筛选"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDeviceRealtimeVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/device/timeLine": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "设备时间轴",
+        "description": "根据设备查询设备的各个阶段",
+        "operationId": "timeLine",
+        "parameters": [
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "description": "设备编码",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "设备编码"
+            }
+          },
+          {
+            "name": "queryDate",
+            "in": "query",
+            "description": "查询日期 YYYY-MM-DD",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "查询日期 YYYY-MM-DD"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListTimeLineVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/availability/year": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "设备阻碍/运转时间按年统计",
+        "description": "按年统计每个设备每个月的阻碍时间和总运转时间",
+        "operationId": "availabilityYearStatistics",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "departmentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDeviceAvailabilityTimeStatisticsVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/availability/pauseRecords": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "设备暂停记录",
+        "description": "根据设备查询指定日期的暂停记录，不传日期默认前一天",
+        "operationId": "pauseRecords",
+        "parameters": [
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "description": "设备编码",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "设备编码"
+            }
+          },
+          {
+            "name": "queryDate",
+            "in": "query",
+            "description": "查询日期 YYYY-MM-DD，不传默认前一天",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "查询日期 YYYY-MM-DD，不传默认前一天"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDevicePauseRecordVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/availability/month": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "设备阻碍/运转时间按月统计",
+        "description": "按月统计每个设备每天的阻碍时间和总运转时间",
+        "operationId": "availabilityMonthStatistics",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "departmentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDeviceAvailabilityTimeStatisticsVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/availability/month/daily-net": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "实绩MH",
+        "description": "用于实绩MH",
+        "operationId": "availabilityMonthDailyNetStatistics",
+        "parameters": [
+          {
+            "name": "departmentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDeviceAvailabilityDailyNetVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/availability/day": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "设备阻碍/运转时间按日统计",
+        "description": "查询当天每个设备的阻碍时间和总运转时间",
+        "operationId": "availabilityDayStatistics",
+        "parameters": [
+          {
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "departmentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDeviceAvailabilityTimeStatisticsVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/device/availability/day/report": {
+      "get": {
+        "tags": [
+          "设备实时查询"
+        ],
+        "summary": "日报设备可动率",
+        "description": "用于日报中生产实绩",
+        "operationId": "availabilityDayReport",
+        "parameters": [
+          {
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "departmentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListDeviceAvailabilityDayReportVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/basic/month-segment/base-data": {
+      "get": {
+        "tags": [
+          "基础数据-月份段配置"
+        ],
+        "summary": "根据月份查询月份段基础数据",
+        "description": "返回设备表中的科室+工序组合，并合并 month_segment_config 在该月份下的分段配置",
+        "operationId": "getMonthSegmentBaseData",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "月份，格式 yyyy-MM",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+              "type": "string",
+              "description": "月份，格式 yyyy-MM",
+              "example": "2026-06"
+            },
+            "example": "2026-06"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMonthSegmentBaseVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendance/twoDayAttendancePerformance": {
+      "get": {
+        "tags": [
+          "考勤"
+        ],
+        "summary": "制造日报-出勤实绩",
+        "description": "返回数据日期班长出勤名单，以及数据日期早/夜和报告日期早班的直接人员出勤统计",
+        "operationId": "twoDayAttendancePerformance",
+        "parameters": [
+          {
+            "name": "department",
+            "in": "query",
+            "description": "科室 1-4",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 1-4",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "description": "工序 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "工序 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+              "example": "preprocessing"
+            },
+            "example": "preprocessing"
+          },
+          {
+            "name": "dataDate",
+            "in": "query",
+            "description": "数据日期，格式 yyyy-MM-dd",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0][1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "数据日期，格式 yyyy-MM-dd",
+              "example": "2026-08-12"
+            },
+            "example": "2026-08-12"
+          },
+          {
+            "name": "reportDate",
+            "in": "query",
+            "description": "报告日期，格式 yyyy-MM-dd",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0][1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "报告日期，格式 yyyy-MM-dd",
+              "example": "2026-08-13"
+            },
+            "example": "2026-08-13"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataTwoDayAttendancePerformanceVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendance/monthlyWorkhourSituation": {
+      "get": {
+        "tags": [
+          "考勤"
+        ],
+        "summary": "根据月份、科室、工序查询每日工时推移",
+        "description": "返回本月每天的直接计划工时、直接实际工时和工时达成率",
+        "operationId": "monthlyWorkhourSituation",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "月份，格式 yyyy-MM",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+              "type": "string",
+              "description": "月份，格式 yyyy-MM",
+              "example": "2026-06"
+            },
+            "example": "2026-06"
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "description": "科室 1-4",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 1-4",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "description": "工序 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "工序 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+              "example": "preprocessing"
+            },
+            "example": "preprocessing"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMonthlyWorkhourStatisticsVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendance/monthlyAttendanceSituation": {
+      "get": {
+        "tags": [
+          "考勤"
+        ],
+        "summary": "根据月份、科室、工序查询每日出勤概况",
+        "description": "返回本月每天的直接排班人数、间接排班人数、直接出勤人数和直接出勤率",
+        "operationId": "monthlyAttendanceSituation",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "description": "月份，格式 yyyy-MM",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+              "type": "string",
+              "description": "月份，格式 yyyy-MM",
+              "example": "2026-06"
+            },
+            "example": "2026-06"
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "description": "科室 1-4",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 1-4",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "description": "工序 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "工序 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+              "example": "preprocessing"
+            },
+            "example": "preprocessing"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListMonthlyAttendanceStatisticsVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendance/attendanceSituation": {
+      "get": {
+        "tags": [
+          "考勤"
+        ],
+        "summary": "根据科室及工序查询实时考勤状况",
+        "description": "返回考勤表中的科室+工序的实际排班数及实际出勤数",
+        "operationId": "getMonthSegmentBaseData_1",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "查询的日期 YYYY-MM-dd",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "查询的日期 YYYY-MM-dd",
+              "example": "2026-06-26"
+            },
+            "example": "2026-06-26"
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "description": "科室 1-4",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 1-4",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "description": "科室 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+              "example": "preprocessing"
+            },
+            "example": "preprocessing"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListCurrentAttendanceStatisticsVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendance/attendanceDetailSituation": {
+      "get": {
+        "tags": [
+          "考勤"
+        ],
+        "summary": "当日考勤详情状况",
+        "description": "返回当天的 班次 工号 姓名 职务 出勤状况 出勤状态 能力 工时列表（分为 定时 平日 休日 祝日(节假日)）",
+        "operationId": "attendanceDetailSituation",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "查询的日期 YYYY-MM-dd",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "查询的日期 YYYY-MM-dd",
+              "example": "2026-06-26"
+            },
+            "example": "2026-06-26"
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "description": "科室 1-4",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 1-4",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "processType",
+            "in": "query",
+            "description": "科室 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "科室 preprocessing:前处理 sulfur_addition:加硫 post_processing:后处理",
+              "example": "preprocessing"
+            },
+            "example": "preprocessing"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponseDataObject"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListAttendanceDetailSituationVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponseDataObject": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "exceptionClazz": {
+            "type": "string"
+          },
+          "exceptionTip": {
+            "type": "string"
+          },
+          "exceptionPlace": {
+            "type": "string"
+          }
+        }
+      },
+      "ResponseDataBoolean": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResponseDataString": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "ResponseDataListMapStringObject": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "DeviceRealtimeVO": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "description": "设备ID",
+            "format": "int64"
+          },
+          "deviceCode": {
+            "type": "string",
+            "description": "设备编码"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "设备名称"
+          },
+          "deviceType": {
+            "type": "string",
+            "description": "设备类型编码"
+          },
+          "deviceTypeName": {
+            "type": "string",
+            "description": "设备类型名称"
+          },
+          "factoryId": {
+            "type": "string",
+            "description": "工厂ID"
+          },
+          "departmentId": {
+            "type": "string",
+            "description": "部门ID"
+          },
+          "departmentName": {
+            "type": "string",
+            "description": "部门名称"
+          },
+          "processType": {
+            "type": "string",
+            "description": "工序类别编码"
+          },
+          "processTypeName": {
+            "type": "string",
+            "description": "工序类别名称"
+          },
+          "procedureName": {
+            "type": "string",
+            "description": "工序名称"
+          },
+          "scheduleMode": {
+            "type": "string",
+            "description": "调度模式"
+          },
+          "deviceStatus": {
+            "type": "string",
+            "description": "库表设备状态编码"
+          },
+          "deviceStatusName": {
+            "type": "string",
+            "description": "库表设备状态名称"
+          },
+          "actualStatus": {
+            "type": "string",
+            "description": "实际运行状态编码"
+          },
+          "actualStatusName": {
+            "type": "string",
+            "description": "实际运行状态名称"
+          },
+          "deviceParseType": {
+            "type": "string",
+            "description": "设备暂停类型ID"
+          },
+          "deviceParseTypeName": {
+            "type": "string",
+            "description": "设备暂停类型名称（如：待材料）"
+          },
+          "onlinePersonList": {
+            "type": "array",
+            "description": "在线人员列表",
+            "items": {
+              "$ref": "#/components/schemas/OnlinePerson"
+            }
+          },
+          "productionTaskList": {
+            "type": "array",
+            "description": "进行中生产任务列表",
+            "items": {
+              "$ref": "#/components/schemas/ProductionTask"
+            }
+          }
+        },
+        "description": "设备实时快照"
+      },
+      "OnlinePerson": {
+        "type": "object",
+        "properties": {
+          "recordId": {
+            "type": "integer",
+            "description": "上岗记录ID",
+            "format": "int64"
+          },
+          "employeeId": {
+            "type": "integer",
+            "description": "员工ID",
+            "format": "int64"
+          },
+          "employeeName": {
+            "type": "string",
+            "description": "员工姓名（sys_user.real_name）"
+          },
+          "employeeNumber": {
+            "type": "string",
+            "description": "员工账号（sys_user.account）"
+          },
+          "onlineTime": {
+            "type": "string",
+            "description": "上岗时间",
+            "format": "date-time"
+          },
+          "onlineStatus": {
+            "type": "integer",
+            "description": "上岗状态编码",
+            "format": "int32"
+          },
+          "onlineStatusName": {
+            "type": "string",
+            "description": "上岗状态名称"
+          },
+          "operationDeviceLevel": {
+            "type": "string",
+            "description": "操作设备等级编码"
+          },
+          "operationDeviceLevelName": {
+            "type": "string",
+            "description": "操作设备等级名称"
+          },
+          "employeePauseStatus": {
+            "type": "integer",
+            "description": "人员是否暂停：0否 1是",
+            "format": "int32"
+          },
+          "employeePauseStatusName": {
+            "type": "string",
+            "description": "人员暂停状态名称"
+          },
+          "employeePauseTypeName": {
+            "type": "string",
+            "description": "人员暂停类型名称"
+          },
+          "employeePauseStartTime": {
+            "type": "string",
+            "description": "人员暂停开始时间",
+            "format": "date-time"
+          }
+        },
+        "description": "设备在线人员"
+      },
+      "ProductionTask": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "实绩记录ID",
+            "format": "int64"
+          },
+          "planId": {
+            "type": "string",
+            "description": "计划ID"
+          },
+          "productionNumber": {
+            "type": "string",
+            "description": "产品制番"
+          },
+          "planStatus": {
+            "type": "integer",
+            "description": "计划状态编码",
+            "format": "int32"
+          },
+          "planStatusDesc": {
+            "type": "string",
+            "description": "计划状态名称"
+          },
+          "actualStartTime": {
+            "type": "string",
+            "description": "实绩开始时间",
+            "format": "date-time"
+          },
+          "targetCount": {
+            "type": "integer",
+            "description": "计划目标数量",
+            "format": "int32"
+          },
+          "actualCount": {
+            "type": "integer",
+            "description": "实际完成数量",
+            "format": "int32"
+          },
+          "completionRate": {
+            "type": "string",
+            "description": "完成率"
+          }
+        },
+        "description": "进行中生产任务"
+      },
+      "ResponseDataListDeviceRealtimeVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceRealtimeVO"
+            }
+          }
+        }
+      },
+      "Extra": {
+        "type": "object",
+        "properties": {
+          "filedKey": {
+            "type": "string"
+          },
+          "filedLabel": {
+            "type": "string"
+          },
+          "filedValue": {
+            "type": "object"
+          }
+        },
+        "description": "类型额外返回"
+      },
+      "ResponseDataListTimeLineVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimeLineVO"
+            }
+          }
+        }
+      },
+      "TimeLineVO": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "description": "设备主键",
+            "format": "int64"
+          },
+          "deviceCode": {
+            "type": "string",
+            "description": "设备编码"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "设备名称"
+          },
+          "departmentId": {
+            "type": "string",
+            "description": "科别"
+          },
+          "departmentName": {
+            "type": "string",
+            "description": "科别名称"
+          },
+          "processType": {
+            "type": "string",
+            "description": "工序类别编码"
+          },
+          "processTypeName": {
+            "type": "string",
+            "description": "工序类别名称"
+          },
+          "triggerTime": {
+            "type": "string",
+            "description": "触发时间",
+            "format": "date-time"
+          },
+          "triggerType": {
+            "type": "string",
+            "description": "触发类型 开始任务 结束任务 暂停任务 回复任务 人员上岗 人员下岗"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "开始时间",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "结束时间",
+            "format": "date-time"
+          },
+          "extra": {
+            "type": "array",
+            "description": "类型额外返回",
+            "items": {
+              "$ref": "#/components/schemas/Extra"
+            }
+          }
+        },
+        "description": "设备时间线"
+      },
+      "DeviceAvailabilityTimeStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deviceCode": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string"
+          },
+          "departmentId": {
+            "type": "string"
+          },
+          "departmentName": {
+            "type": "string"
+          },
+          "processType": {
+            "type": "string"
+          },
+          "processTypeName": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "totalRunHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "obstructionHours": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ResponseDataListDeviceAvailabilityTimeStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceAvailabilityTimeStatisticsVO"
+            }
+          }
+        }
+      },
+      "DevicePauseRecordVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "暂停记录ID",
+            "format": "int64"
+          },
+          "deviceId": {
+            "type": "integer",
+            "description": "设备ID",
+            "format": "int64"
+          },
+          "deviceCode": {
+            "type": "string",
+            "description": "设备编码"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "设备名称"
+          },
+          "pauseType": {
+            "type": "string",
+            "description": "暂停类型"
+          },
+          "pauseTypeName": {
+            "type": "string",
+            "description": "暂停类型名称"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "开始时间",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "结束时间",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "description": "时长（分钟）",
+            "format": "int32"
+          },
+          "operationStatus": {
+            "type": "integer",
+            "description": "状态 1-暂停中 2-已恢复",
+            "format": "int32"
+          },
+          "shiftDate": {
+            "type": "string",
+            "description": "班次日期"
+          }
+        },
+        "description": "设备暂停记录"
+      },
+      "ResponseDataListDevicePauseRecordVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DevicePauseRecordVO"
+            }
+          }
+        }
+      },
+      "DeviceAvailabilityDailyNetVO": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "string"
+          },
+          "netHours": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ResponseDataListDeviceAvailabilityDailyNetVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceAvailabilityDailyNetVO"
+            }
+          }
+        }
+      },
+      "DeviceAvailabilityDayReportVO": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deviceCode": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string"
+          },
+          "departmentId": {
+            "type": "string"
+          },
+          "departmentName": {
+            "type": "string"
+          },
+          "processType": {
+            "type": "string"
+          },
+          "processTypeName": {
+            "type": "string"
+          },
+          "day": {
+            "type": "string"
+          },
+          "totalRunHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "productionHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "obstructionHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "availabilityRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "obstructionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceObstructionItemVO"
+            }
+          }
+        }
+      },
+      "DeviceObstructionItemVO": {
+        "type": "object",
+        "properties": {
+          "pauseType": {
+            "type": "string"
+          },
+          "pauseTypeName": {
+            "type": "string"
+          },
+          "obstructionHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ratio": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ResponseDataListDeviceAvailabilityDayReportVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceAvailabilityDayReportVO"
+            }
+          }
+        }
+      },
+      "MonthSegmentBaseVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "配置ID，未配置时为空"
+          },
+          "departmentId": {
+            "type": "string",
+            "description": "科室ID"
+          },
+          "processType": {
+            "type": "string",
+            "description": "工序类别"
+          },
+          "segments": {
+            "type": "array",
+            "description": "分段列表，未配置时为 null",
+            "items": {
+              "$ref": "#/components/schemas/SegmentVO"
+            }
+          }
+        },
+        "description": "月份段基础数据"
+      },
+      "ResponseDataListMonthSegmentBaseVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthSegmentBaseVO"
+            }
+          }
+        }
+      },
+      "SegmentVO": {
+        "type": "object",
+        "properties": {
+          "segmentIndex": {
+            "type": "integer",
+            "description": "分段序号",
+            "format": "int32",
+            "example": 1
+          },
+          "startDay": {
+            "type": "integer",
+            "description": "起始日",
+            "format": "int32",
+            "example": 1
+          },
+          "endDay": {
+            "type": "integer",
+            "description": "结束日",
+            "format": "int32",
+            "example": 10
+          }
+        },
+        "description": "月份段分段信息"
+      },
+      "ResponseDataTwoDayAttendancePerformanceVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TwoDayAttendancePerformanceVO"
+          }
+        }
+      },
+      "TwoDayAttendancePerformanceRowVO": {
+        "type": "object",
+        "properties": {
+          "statDate": {
+            "type": "string",
+            "description": "统计日期，格式 yyyy-MM-dd"
+          },
+          "reportDate": {
+            "type": "string",
+            "description": "报告日期，格式 yyyy-MM-dd"
+          },
+          "shiftType": {
+            "type": "string",
+            "description": "班次编码"
+          },
+          "shiftName": {
+            "type": "string",
+            "description": "班次名称"
+          },
+          "onRollCount": {
+            "type": "number",
+            "description": "在籍人员"
+          },
+          "actualAttendanceCount": {
+            "type": "number",
+            "description": "实绩出勤"
+          },
+          "attendanceRate": {
+            "type": "number",
+            "description": "出勤率（%）"
+          },
+          "absenceCount": {
+            "type": "number",
+            "description": "缺勤"
+          },
+          "annualLeaveCount": {
+            "type": "number",
+            "description": "年假"
+          },
+          "nursingLeaveCount": {
+            "type": "number",
+            "description": "陪护"
+          },
+          "sickLeaveCount": {
+            "type": "number",
+            "description": "病假"
+          },
+          "personalLeaveCount": {
+            "type": "number",
+            "description": "事假"
+          },
+          "otherLeaveCount": {
+            "type": "number",
+            "description": "其他"
+          },
+          "absenteeismCount": {
+            "type": "number",
+            "description": "旷工"
+          }
+        },
+        "description": "出勤实绩统计行"
+      },
+      "TwoDayAttendancePerformanceVO": {
+        "type": "object",
+        "properties": {
+          "monitorNames": {
+            "type": "array",
+            "description": "出勤班长姓名列表",
+            "items": {
+              "type": "string",
+              "description": "出勤班长姓名列表"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "description": "直接人员出勤统计行",
+            "items": {
+              "$ref": "#/components/schemas/TwoDayAttendancePerformanceRowVO"
+            }
+          }
+        },
+        "description": "出勤实绩两日统计"
+      },
+      "MonthlyWorkhourStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "statDate": {
+            "type": "string",
+            "description": "日期，格式 yyyy-MM-dd"
+          },
+          "directPlanWorkhours": {
+            "type": "number",
+            "description": "直接计划工时（小时）"
+          },
+          "directActualWorkhours": {
+            "type": "number",
+            "description": "直接实际工时（小时）"
+          },
+          "directWorkhourRate": {
+            "type": "number",
+            "description": "工时达成率（%）"
+          }
+        },
+        "description": "月度每日工时推移统计"
+      },
+      "ResponseDataListMonthlyWorkhourStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlyWorkhourStatisticsVO"
+            }
+          }
+        }
+      },
+      "MonthlyAttendanceStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "statDate": {
+            "type": "string",
+            "description": "日期，格式 yyyy-MM-dd"
+          },
+          "directSchedulePersonCount": {
+            "type": "number",
+            "description": "直接计划出勤人数"
+          },
+          "indirectSchedulePersonCount": {
+            "type": "number",
+            "description": "间接排班人数"
+          },
+          "directAttendancePersonCount": {
+            "type": "number",
+            "description": "直接实际出勤人数"
+          },
+          "directAttendanceRate": {
+            "type": "number",
+            "description": "直接出勤率（%）"
+          }
+        },
+        "description": "月度每日出勤统计"
+      },
+      "ResponseDataListMonthlyAttendanceStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlyAttendanceStatisticsVO"
+            }
+          }
+        }
+      },
+      "CurrentAttendanceStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "shiftType": {
+            "type": "string",
+            "description": "班次"
+          },
+          "shiftTypeName": {
+            "type": "string",
+            "description": "班次名称"
+          },
+          "positionId": {
+            "type": "integer",
+            "description": "职务主键",
+            "format": "int64"
+          },
+          "positionName": {
+            "type": "string",
+            "description": "职务名称"
+          },
+          "schedulePersonCount": {
+            "type": "number",
+            "description": "排版人数（在籍人数）"
+          },
+          "actualAttendancePersonCount": {
+            "type": "number",
+            "description": "出勤人数"
+          },
+          "positionType": {
+            "type": "string",
+            "description": "职务类型 直接(direct)-间接(indirect)"
+          }
+        },
+        "description": "实时出勤情况数据"
+      },
+      "ResponseDataListCurrentAttendanceStatisticsVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CurrentAttendanceStatisticsVO"
+            }
+          }
+        }
+      },
+      "AttendanceDetailSituationVO": {
+        "type": "object",
+        "properties": {
+          "shiftName": {
+            "type": "string",
+            "description": "班次"
+          },
+          "account": {
+            "type": "string",
+            "description": "工号"
+          },
+          "realName": {
+            "type": "string",
+            "description": "姓名"
+          },
+          "positionName": {
+            "type": "string",
+            "description": "职务"
+          },
+          "workTypeName": {
+            "type": "string",
+            "description": "工种"
+          },
+          "attendanceSituation": {
+            "type": "string",
+            "description": "出勤情况"
+          },
+          "attendanceStatus": {
+            "type": "string",
+            "description": "出勤状态"
+          },
+          "ability": {
+            "type": "string",
+            "description": "能力"
+          },
+          "workHourList": {
+            "type": "array",
+            "description": "工时",
+            "items": {
+              "$ref": "#/components/schemas/WorkHour"
+            }
+          }
+        },
+        "description": "当日出勤明细及状态"
+      },
+      "ResponseDataListAttendanceDetailSituationVO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceDetailSituationVO"
+            }
+          }
+        }
+      },
+      "WorkHour": {
+        "type": "object",
+        "properties": {
+          "workHourType": {
+            "type": "string"
+          },
+          "workHour": {
+            "type": "string"
+          }
+        },
+        "description": "工时"
+      }
+    }
+  }
+}

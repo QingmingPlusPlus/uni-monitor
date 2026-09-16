@@ -20,6 +20,8 @@
 
 ## 近期已更新接口
 
+以下旧业务样本未在 2026-09-16 重验；最新 Swagger 契约核对见 [清单](swagger-contract-review.md)。`month/daily-net` 已发布 `period/netHours`，但尚未确认是直接人员出勤 MH；`day/report` 已提供设备可动率和原因数据，但未解决日报生产线聚合。`getShijiByDate` 标记未完成。现有 mock 边界不变。
+
 | 接口 | 最新字段/状态 | 前端处理 |
 | --- | --- | --- |
 | `GET /schedule/getRukuPlan` | 当前返回 `date`、`number`、`zhifan`、`dept`、`customer`，2026-07 有数据；其中部分记录 `dept` 缺失或为 `0`。 | 入库计划实绩推移表按有效 `dept` 过滤当前部门后聚合，未归属记录不计入部门口径。 |
@@ -36,7 +38,7 @@
 | 人员出勤接口没有稳定的 `teamLeader`、正式工、派遣工、临时工、顶岗、新人等独立结构化字段 | 人员出勤情况 | 前端按 `positionName` 中文关键词拆分；班长归入间接班长列，组长归入直接组长列，新人归入直接新人列。 |
 | 人员出勤接口缺少人员子类明细时的严格枚举 | 人员出勤情况 | 未匹配到的直接人员计入 `directRegular`；已匹配的新人从正式工兜底中排除；`间接+直接在籍` 由本行间接总在籍与直接在籍合计相加得出。 |
 | 人员明细接口中的 `attendanceSituation`、`ability`、`shiftName` 是自由文本 | 人员明细及状态 | `attendanceSituation` 和 `attendanceStatus` 均原样显示；能力与班次仍按前端兜底规则处理。 |
-| `GET /schedule/getChangePoint` 当前返回空数组 | 地图变化点 | 地图不显示变化点标记；接口有数据后按 `device` 和 `type` 自动展示。 |
+| `GET /schedule/getChangePoint` 新契约要求 `dept/process/progress`，代码仍无参数调用 | 地图变化点、拟新增统计卡 | 2026-09-16 业务查询因 Token 失败未取得样本，旧空数组结论不再代表当前状态；需适配新字段，统计需保留非设备关联记录。模具、历史完整性、关闭时间等缺口见 [分析](change-point-statistics.md)。 |
 | 月周配置接口部分 (部门,工序) 组合在 2026-06 返回空配置 | 所有推移表 | 前端按 `departmentId:processType` 复合键查找；未命中的组合回退到自然周分段，仍保持月/周/日汇总逻辑。 |
 | 缺少部门/工序级能力、提高基础数和直接出勤工时的稳定契约；`getWorkhours` 返回结构和适用维度尚未确认 | 生产计划&实绩推移表的 MH 与个数生产性 | 当前整卡使用明确标识的固定 mock；不猜测 `getWorkhours` 结构，也不与 `getPlan`/`getOutput` 混合。 |
 

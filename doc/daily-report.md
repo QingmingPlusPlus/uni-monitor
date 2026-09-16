@@ -115,6 +115,8 @@ URL query：
 
 ## 现有接口复用与后端交付清单
 
+2026-09-16 Swagger 补录：`/device/availability/day/report` 已提供设备可动率及阻碍原因，`/device/availability/month/daily-net` 提供 `period/netHours`；前者仍缺生产线聚合和比率口径，后者尚未确认直接人员工时定义。`/schedule/getShijiByDate` 标记未完成。`getRejects` 描述新增“废弃数=不良+其它”，但分类、去重和权威计数尚待确认，不能据此改写既有日报 spec。详见 [Swagger 核对](swagger-contract-review.md)，以上均未接入本日报。
+
 | 数据 | 现有来源 | 交付缺口 |
 | --- | --- | --- |
 | 排班、实绩出勤 | `/attendance/twoDayAttendancePerformance`、`/attendance/attendanceSituation` | Swagger 已确认前者接收数据日、报告日，并返回班长名单及早/夜班出勤、缺勤分类汇总；仍缺日报契约的稳定班次状态、时间范围、指标完整性和统一 `meta`，需单独映射并联调。后者可复用底层实时统计，仍需验证历史 `date` 生效、班次归属、完成状态。 |

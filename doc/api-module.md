@@ -24,7 +24,9 @@
 
 ## Swagger 已发布但尚未接入访问层的能力
 
-以下端点已于 2026-09-09 从服务端 Swagger（`可视化自研接口 1.0`，OAS 3.0）核验。它们尚未在 `src/api/` 中封装，也没有页面调用；需要时应先按本页“新增或修改接口”流程补齐类型、函数和消费方，不能把 Swagger 示例中的 `additionalProp*` 当作稳定业务字段。
+最新完整清单、契约快照和核对边界见 [2026-09-16 Swagger 核对](swagger-contract-review.md)；变化点参数、统计可行性及维度建议见 [变化点统计分析](change-point-statistics.md)。
+
+以下端点已于 2026-09-16 从服务端 Swagger（`可视化自研接口 1.0`，OAS 3.0）核验。它们尚未在 `src/api/` 中封装，也没有页面调用；需要时应先按本页“新增或修改接口”流程补齐类型、函数和消费方，不能把 Swagger 示例中的 `additionalProp*` 当作稳定业务字段。
 
 | 域 | 端点 | Swagger 契约摘要 |
 | --- | --- | --- |
@@ -33,10 +35,11 @@
 | 设备 | `GET /device/device/timeLine` | `deviceCode`、`queryDate` 查询设备阶段时间轴；返回阶段起止时间、触发类型和可扩展 `extra` 字段。 |
 | 设备 | `GET /device/availability/year` | 按 `year` 统计设备每月 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
 | 设备 | `GET /device/availability/month` | 按 `month` 统计设备每日 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
-| 设备 | `GET /device/availability/day` | 按 `day` 统计当天设备 `totalRunHours`、`obstructionHours`，可选按部门、工序、设备过滤。 |
-| 设备 | `GET /device/availability/pauseRecords` | 按 `deviceCode` 查询暂停记录；`queryDate` 可选，未传时服务端默认前一天。返回暂停原因、起止时间、分钟数、状态及班次日期。 |
+| 生产 | `GET /schedule/getShijiByDate` | 必填 `date`、`device`；标题标记“未完成”，数组项为开放对象，尚不能替代设备生产计划实绩 mock。 |
+| 设备 | `GET /device/availability/month/daily-net` | 可选 `departmentId/processType/month/deviceCode`，返回 `period/netHours`；名为实绩 MH，但人员工时口径和单位待确认。 |
+| 设备 | `GET /device/availability/day/report` | 可选 `day/departmentId/processType/deviceCode`，返回设备运转、生产、阻碍时长、可动率和原因明细；日报生产线聚合及比率口径待确认。 |
 
-Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDetailSituation` 返回字段为 `account`、`realName`（非旧文档中的 `workNo`、`name`）；`/device/realtime/list` 的 `deviceCodes` 为最多 50 个设备编码的逗号分隔列表；`/schedule/getWorkhours` 必填 `date`、`banci`，其数组元素结构在 Swagger 中仍为开放对象；`/schedule/getChangePoint` 无查询参数。
+Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDetailSituation` 返回字段为 `account`、`realName`（非旧文档中的 `workNo`、`name`）；`/device/realtime/list` 的 `deviceCodes` 为最多 50 个设备编码的逗号分隔列表；`/schedule/getWorkhours` 必填 `date`、`banci`，其数组元素结构在 Swagger 中仍为开放对象；`/schedule/getChangePoint` 现在必填 `dept`、中文 `process` 和 `progress`（`1` 关闭、`0` 进行中、空值全部）。变化点统计卡已传参接入，旧地图仍无参数调用；返回说明改为 `pid/date/factory/process/device/type/changePointContent/potentialRisk/implMethod/implResult/respPerson/reviewer/notes`，仅定义五类，不含模具。
 
 ## 参数与返回值边界
 
@@ -53,7 +56,7 @@ Swagger 还明确了以下已接入端点的契约：`/attendance/attendanceDeta
 
 - `deviceCodes` 是逗号分隔的设备编码字符串；地图加载器会按每批 50 个编码拆分请求。
 - API 层保留后端实时状态原值，状态中文语义和优先级由 `src/components/css-map/deviceRealtimeStatus.ts` 映射。
-- 设备时间轴与可动/阻碍统计端点的过滤参数是 `departmentId`、`processType`、`deviceCode`；不要误用实时列表的 `deviceCodes` 或把 `obstructionHours` 直接解释为日报已去重的生产线阻碍时长。
+- 设备时间轴与可动/阻碍统计端点的过滤参数是 `departmentId`、`processType`、`deviceCode`；可动性 `year/month/day` 还支持可选 `deviceId`。已封装的 `day/pauseRecords` 不属于上表未接入能力；`pauseRecords` 未传 `queryDate` 默认前一天。不要误用实时列表的 `deviceCodes` 或把 `obstructionHours` 直接解释为日报已去重的生产线阻碍时长。
 
 ### 计划与实绩
 

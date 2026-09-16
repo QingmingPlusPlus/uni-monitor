@@ -17,6 +17,7 @@ import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmM
 import {
   createProductionPlanTrendCards,
   loadAttendanceCard,
+  loadChangePointCard,
   loadAttendanceTrendCard,
   loadDepartmentDashboardData,
   loadInboundPlanTrendCard,
@@ -59,9 +60,15 @@ const alarmItems = computed(() =>
   getDepartmentAlarmItems(selectedDepartment.value, selectionConfig.value),
 )
 
+let dashboardRequestVersion = 0
+
 async function reloadDashboardData(): Promise<void> {
+  const requestVersion = ++dashboardRequestVersion
   const fallback = fallbackDashboardData.value
   dashboardData.value = fallback
+  void loadChangePointCard(selectedDepartment.value, selectionConfig.value.departmentProcessMap[selectedDepartment.value] ?? [], new Date()).then(changePoint => {
+    if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, changePoint }
+  })
   try {
     const data = await loadDepartmentDashboardData(
       selectedDepartment.value,
@@ -70,12 +77,12 @@ async function reloadDashboardData(): Promise<void> {
       monthSegmentVersion.value,
       fallback,
     )
-    dashboardData.value = data
+    if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...data, changePoint: dashboardData.value.changePoint }
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.warn(`[DepartmentDashboard] 数据加载失败: ${error.message}`)
     }
-    dashboardData.value = fallback
+    if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...fallback, changePoint: dashboardData.value.changePoint }
   }
 }
 
@@ -141,6 +148,7 @@ const DEPARTMENT_CARD_IDS: readonly DepartmentCardId[] = [
   'inboundPlanTrend',
   'personnelDetail',
   'productionPlanTrend',
+  'changePoint',
 ]
 
 function isDepartmentCardId(value: unknown): value is DepartmentCardId {
@@ -163,18 +171,27 @@ async function refreshCard(cardId: string): Promise<void> {
   const processTypes = config.departmentProcessMap[department] ?? []
   const refreshedAt = new Date()
   const base = dashboardData.value
+  const requestVersion = dashboardRequestVersion
 
   try {
+    if (cardId === 'changePoint') {
+      if (base.changePoint.status === 'loading') return
+      dashboardData.value = { ...dashboardData.value, changePoint: { ...base.changePoint, status: 'loading' } }
+      const changePoint = await loadChangePointCard(department, processTypes, refreshedAt)
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, changePoint }
+      return
+    }
+
     if (cardId === 'attendance') {
       const attendance = await loadAttendanceCard(department, processTypes, config, refreshedAt)
-      dashboardData.value = { ...base, attendance }
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, attendance }
       return
     }
 
     if (cardId === 'attendanceTrend') {
       const attendanceTrend = await loadAttendanceTrendCard(department, processTypes)
       if (attendanceTrend !== null) {
-        dashboardData.value = { ...base, attendanceTrend }
+        if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, attendanceTrend }
       }
       return
     }
@@ -184,20 +201,20 @@ async function refreshCard(cardId: string): Promise<void> {
         forceRefresh: true,
       })
       if (inboundPlanTrend !== null) {
-        dashboardData.value = { ...base, inboundPlanTrend }
+        if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, inboundPlanTrend }
       }
       return
     }
 
     if (cardId === 'personnelDetail') {
       const personnelDetail = await loadPersonnelDetailCard(department, processTypes, config, refreshedAt)
-      dashboardData.value = { ...base, personnelDetail }
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, personnelDetail }
       return
     }
 
     if (cardId === 'productionPlanTrend') {
       dashboardData.value = {
-        ...base,
+        ...dashboardData.value,
         productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
       }
     }

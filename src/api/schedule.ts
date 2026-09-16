@@ -57,6 +57,14 @@ export interface ScheduleRejectsRecord {
 }
 
 export interface ScheduleChangePointRecord {
+  pid?: string | number
+  factory?: string
+  changePointContent?: string
+  potentialRisk?: string
+  implMethod?: string
+  implResult?: string
+  respPerson?: string
+  reviewer?: string
   date?: string
   banci?: string
   dept?: number
@@ -122,6 +130,12 @@ export function getScheduleRejectsByMonth(month: string) {
   })
 }
 
-export function getScheduleChangePoint() {
-  return http.get<ScheduleChangePointResponse>('/schedule/getChangePoint')
+export interface ScheduleChangePointParams {
+  dept: string
+  process: string
+  progress: '' | '0' | '1'
+}
+
+export function getScheduleChangePoint(params?: ScheduleChangePointParams) {
+  return http.get<ScheduleChangePointResponse>('/schedule/getChangePoint', { params, timeout: 15000 })
 }

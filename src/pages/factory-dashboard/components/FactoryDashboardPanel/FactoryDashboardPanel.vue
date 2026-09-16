@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import ChangePointCard from '../../../../components/change-point-card/ChangePointCard.vue'
 import AttendanceTrendCard from '../../../../components/attendance-trend-card/AttendanceTrendCard.vue'
 import DepartmentInboundPlanTrendCard from '../../../../components/department-inbound-plan-trend-card/DepartmentInboundPlanTrendCard.vue'
 import LoadingIcon from '../../../../components/LoadingIcon.vue'
@@ -23,6 +24,12 @@ const props = defineProps<{
 const emit = defineEmits<{
   refresh: [cardId: string]
 }>()
+
+const changePointScope = computed(() => {
+  const firstRow = props.data.activity.rows[0]
+  if (!firstRow) return '当前范围'
+  return `${firstRow.departmentLabel} · ${props.data.kind === 'department' ? '部门全部工序' : firstRow.processLabel}`
+})
 
 /** 1 课不显示入库计划推移组件（部门维度或工序维度选中 1 课的工序时统一隐藏） */
 const hideInboundPlan = computed<boolean>(() => {
@@ -115,6 +122,11 @@ const hideInboundPlan = computed<boolean>(() => {
         :modal-chart-options="card.modalChartOptions"
         :modal-chart-data="card.modalChartData"
         @refresh="emit('refresh', 'productionPlanTrend')"
+      />
+      <ChangePointCard
+        :data="data.changePoint"
+        :scope="changePointScope"
+        @refresh="emit('refresh', 'changePoint')"
       />
     </view>
   </view>

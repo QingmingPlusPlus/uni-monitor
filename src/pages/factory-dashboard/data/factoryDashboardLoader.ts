@@ -30,3 +30,5 @@ export {
 export {
   loadProcessDashboardData,
 } from './dashboard/processDashboardLoader'
+
+export { loadChangePointCard } from './loaders/loadChangePointCard'

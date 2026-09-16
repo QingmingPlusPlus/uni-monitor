@@ -1,3 +1,4 @@
+import type { ChangePointData } from './loaders/loadChangePointCard'
 import type {
   ChartDataConfig,
   ChartOptionConfig,
@@ -46,10 +47,10 @@ export interface FactoryDashboardCard {
 export type FactoryDashboardKind = 'department' | 'process'
 
 /** 部门维度瀑布流卡片标识，用于按卡片粒度刷新。 */
-export type DepartmentCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend'
+export type DepartmentCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend' | 'changePoint'
 
 /** 工序维度瀑布流卡片标识，用于按卡片粒度刷新。 */
-export type ProcessCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend'
+export type ProcessCardId = 'attendance' | 'attendanceTrend' | 'inboundPlanTrend' | 'personnelDetail' | 'productionPlanTrend' | 'changePoint'
 
 export type PersonnelAttendanceShift = 'day' | 'middle' | 'night' | 'regular' | 'total'
 
@@ -116,6 +117,7 @@ export interface ProductionActivityData {
 }
 
 interface FactoryDashboardBaseData {
+  readonly changePoint: ChangePointData
   readonly eyebrow: string
   readonly title: string
   readonly subtitle: string

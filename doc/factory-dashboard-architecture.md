@@ -90,3 +90,7 @@
 ## 制造日报入口
 
 部门、工序看板顶部提供“制造日报”，进入独立 `/pages/daily-report/index` 并带入当前部门、工序族、昨日数据日期和返回来源。日报不使用实时看板的 loader、地图显示白名单或 mock 数据。详见 `doc/daily-report.md`。
+
+## 变化点组件
+
+`FactoryDashboardPanel` 在生产计划实绩之后挂载 `ChangePointCard`，`ChangePointContent` 复用 ECharts 渲染器绘制堆叠柱，并以饼图展示当前范围全部记录的分类占比；下方日表默认本周、展开整月，周配置复用月分段 session，缺失时自然周兜底。部门/工序页面独立并发加载 `changePoint`，不等待其他卡片接口；初始值是 loading 空结构，加载失败返回显式 error 数据，不沿用其他卡片的 mock 降级。页面卡片刷新使用 `changePoint` 标识并保留当前地图选择。详见 `doc/change-point-statistics.md`。
