@@ -18,11 +18,12 @@ import { getProcessAlarmItems } from '../factory-dashboard/data/factoryAlarmMock
 import { getProcessDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
 import type { ProcessCardId } from '../factory-dashboard/data/factoryDashboardTypes'
 import {
-  createProductionPlanTrendCards,
+  loadProductivityTrendCards,
   loadAttendanceCard,
   loadChangePointCard,
   loadAttendanceTrendCard,
   loadInboundPlanTrendCard,
+  loadProductionPlanTrendCard,
   loadPersonnelDetailCard,
   loadProcessDashboardData,
 } from '../factory-dashboard/data/factoryDashboardLoader'
@@ -171,6 +172,7 @@ const PROCESS_CARD_IDS: readonly ProcessCardId[] = [
   'personnelDetail',
   'productionPlanTrend',
   'changePoint',
+  'productivityTrend',
 ]
 
 function isProcessCardId(value: unknown): value is ProcessCardId {
@@ -236,10 +238,16 @@ async function refreshCard(cardId: string): Promise<void> {
     }
 
     if (cardId === 'productionPlanTrend') {
-      dashboardData.value = {
-        ...dashboardData.value,
-        productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
-      }
+      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes, {
+        forceRefresh: true,
+      })
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, productionPlanTrend }
+      return
+    }
+
+    if (cardId === 'productivityTrend') {
+      const productionPlanTrends = await loadProductivityTrendCards(department, processTypes, config, { forceRefresh: true })
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, productionPlanTrends }
     }
   } catch (error: unknown) {
     handleCardRefreshError(cardId, error)

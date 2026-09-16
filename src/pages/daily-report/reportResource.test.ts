@@ -58,6 +58,12 @@ describe('日报分区请求', () => {
     await resource.load(query)
     expect(statuses).toEqual(['loading', 'ready'])
   })
+  it('接口超时显示可重试错误，不误称无记录或未接入', async () => {
+    const states: SectionState<ProductionReport>[] = []
+    const resource = createReportResource(async () => { throw { isAxiosError: true, code: 'ECONNABORTED' } }, state => states.push(state), validProduction)
+    await resource.load(query)
+    expect(states.at(-1)).toMatchObject({ status: 'error', data: null, message: '接口响应超时，请稍后重试' })
+  })
   it('卸载后不会再发布数据，重试清空旧分区数据', async () => {
     const pending = deferred<ReturnType<typeof response>>()
     const states: string[] = []

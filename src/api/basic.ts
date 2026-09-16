@@ -17,7 +17,7 @@ export interface SegmentVO {
 
 export interface MonthSegmentBaseVO {
   /** 配置ID，未配置时为空 */
-  id?: string
+  id?: string | null
   /** 科室ID */
   departmentId: string
   /** 工序类别 */

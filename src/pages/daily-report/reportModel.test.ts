@@ -9,6 +9,7 @@ describe('日报筛选与日期', () => {
   it('同部门工序族去重，制造4课保留两个有效族', () => {
     expect(processOptions('department1', config)).toEqual([{ value: 'preprocessing', label: '前处理' }])
     expect(processOptions('department4', config).map(item => item.value)).toEqual(['sulfur_addition', 'post_processing'])
+    expect(processOptions('department2', config).map(item => item.value)).toEqual(['sulfur_addition', 'post_processing'])
   })
   it('校验真实日期并跨月、跨年与闰日', () => {
     expect(isReportDate('2026-02-29')).toBe(false)
@@ -24,6 +25,9 @@ describe('日报筛选与日期', () => {
     expect(resolveReportSelection(restored, config)).toEqual(selection)
     expect(reportBackProcess(selection, config, restored.sourceProcessId)).toBe('posttreatment2')
     expect(resolveReportSelection({ departmentId: 'department1', processType: 'sulfur_addition' }, config).processType).toBe('preprocessing')
+    const historical = resolveReportSelection({ departmentId: 'department2', processType: 'post_processing', date: '2026-07-01' }, config)
+    expect(historical.processType).toBe('post_processing')
+    expect(reportBackProcess(historical, config)).toBeUndefined()
   })
 })
 describe('日报计算与数据完整性', () => {

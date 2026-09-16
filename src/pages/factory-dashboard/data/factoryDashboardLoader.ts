@@ -32,3 +32,5 @@ export {
 } from './dashboard/processDashboardLoader'
 
 export { loadChangePointCard } from './loaders/loadChangePointCard'
+export { loadProductionPlanTrendCard } from './loaders/loadProductionActualTrendCard'
+export { loadProductivityTrendCards } from './loaders/loadProductivityTrendCards'

@@ -349,6 +349,30 @@ describe('loadCssMapData realtime status mapping', () => {
     ])
   })
 
+  it('使用实测 5M 内容并解析 Swagger 字符串负荷，非设备变化点不挂载到设备', async () => {
+    stubFactoryMapConfig([createMapDevice('line-a', 'D-01')])
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+    vi.mocked(getScheduleChangePoint).mockResolvedValue({
+      data: { success: true, code: '200', message: 'ok', data: [
+        { pid: 'test-1', device: 'D-01', type: '料', changePointContent: '测试材料切换', notes: '备注不是标题' },
+        { pid: 'test-2', device: null, type: '人', changePointContent: '非设备变化点' },
+      ] },
+    } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
+    vi.mocked(getScheduleDeviceLoadByMonth).mockResolvedValue({
+      data: { success: true, code: '200', message: 'ok', data: [
+        { devCode: 'D-01', devName: '测试设备', fuhe: '0.80217' },
+      ] },
+    } as Awaited<ReturnType<typeof getScheduleDeviceLoadByMonth>>)
+
+    const data = await loadCssMapData()
+
+    expect(data.devices[0]?.runtime.fiveMChanges).toEqual([
+      expect.objectContaining({ category: 'material', label: '测试材料切换' }),
+    ])
+    expect(data.devices[0]?.runtime.loadRate).toBeCloseTo(80.217)
+  })
+
   it('加载地图配置时绕过浏览器静态缓存', async () => {
     stubFactoryMapConfig([])
     stubEmptyRuntimeSideData()

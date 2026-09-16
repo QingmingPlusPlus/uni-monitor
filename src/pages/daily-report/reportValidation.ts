@@ -1,4 +1,4 @@
-import type { DailyReportQuery, ReportAttendanceRow, ReportLineRow, ReportProductionRow, ReportQualityRow, ReportMetric } from '../../api/dailyReport'
+import type { DailyReportQuery, ReportAttendanceRow, ReportLineRow, ReportProductionRow, ReportQualityRow, ReportMetric, ReportMeta } from '../../api/dailyReport'
 import { absenceColumns, attendanceIssues, metricValue, offsetDate } from './reportModel'
 
 type ObjectValue = Record<string, unknown>
@@ -19,14 +19,15 @@ function unique(rows: unknown[], key: string): boolean {
 }
 function reasons(value: unknown, keys: string[]): boolean {
   return value === null || (Array.isArray(value) && unique(value, 'code') && value.every(row =>
-    object(row) && text(row.code) && text(row.name) && metrics(row, keys)))
+    object(row) && text(row.code) && text(row.name) && metrics(row, keys) && metric(row.reportedRatio, false)))
 }
 export function validReportMeta(value: unknown, query: DailyReportQuery): boolean {
   if (!object(value) || value.date !== query.date || value.department !== query.department ||
     value.processType !== query.processType || value.reportDate !== offsetDate(query.date, 1) ||
     !['complete', 'partial', 'unavailable'].includes(String(value.status)) || !text(value.timeZone) ||
-    ![value.periodStart, value.periodEnd, value.updatedAt].every(timestamp) ||
-    Date.parse(String(value.periodEnd)) <= Date.parse(String(value.periodStart)) ||
+    !timestamp(value.updatedAt) ||
+    !((value.timestampSource === 'retrieved' && value.periodStart === null && value.periodEnd === null) ||
+      ([value.periodStart, value.periodEnd].every(timestamp) && Date.parse(String(value.periodEnd)) > Date.parse(String(value.periodStart)))) ||
     !Array.isArray(value.notes) || !value.notes.every(note => typeof note === 'string')) return false
   try { new Intl.DateTimeFormat('zh-CN', { timeZone: value.timeZone }); return true }
   catch { return false }
@@ -35,8 +36,10 @@ export function validAttendance(rows: ReportAttendanceRow[], query: DailyReportQ
   return unique(rows, 'id') && rows.every(row => object(row) && text(row.id) && text(row.shiftCode) && text(row.shiftName) &&
     typeof row.isEarlyShift === 'boolean' &&
     (row.date === query.date || (row.date === offsetDate(query.date, 1) && row.isEarlyShift)) &&
-    ['not_started', 'in_progress', 'complete'].includes(row.status) &&
-    timestamp(row.startAt) && timestamp(row.endAt) && Date.parse(row.endAt) > Date.parse(row.startAt) &&
+    ['not_started', 'in_progress', 'complete', 'reported'].includes(row.status) &&
+    ((row.status === 'reported' && row.startAt === null && row.endAt === null) ||
+      (timestamp(row.startAt) && timestamp(row.endAt) && Date.parse(row.endAt!) > Date.parse(row.startAt!))) &&
+    metric(row.reportedAttendanceRate, false) &&
     (row.leaders === null || (Array.isArray(row.leaders) && unique(row.leaders, 'employeeId') &&
       row.leaders.every(leader => object(leader) && text(leader.employeeId) && text(leader.name)))) &&
     metrics(row, ['roster', 'actual', 'absent']) && object(row.absence) &&
@@ -48,12 +51,13 @@ export function validProduction(rows: ReportProductionRow[]): boolean {
 }
 export function validLines(rows: ReportLineRow[]): boolean {
   return unique(rows, 'id') && rows.every(row => named(row) &&
-    metrics(row, ['plan', 'actual', 'availableSeconds', 'plannedStopSeconds', 'productionSeconds', 'lossSeconds']) &&
+    metrics(row, ['plan', 'actual', 'availableSeconds', 'plannedStopSeconds', 'productionSeconds', 'lossSeconds', 'totalRunSeconds']) &&
+    metric(row.reportedAvailabilityRate, false) &&
     reasons(row.reasons, ['count', 'durationSeconds']))
 }
-export function validQuality(rows: ReportQualityRow[], query: DailyReportQuery): boolean {
+export function validQuality(rows: ReportQualityRow[], query: DailyReportQuery, meta?: ReportMeta): boolean {
   return unique(rows, 'id') && rows.every(row => named(row) &&
-    row.dimension === (query.processType === 'sulfur_addition' ? 'mold' : 'production_number') &&
+    row.dimension === (meta?.qualityDimension ?? (query.processType === 'sulfur_addition' ? 'mold' : 'production_number')) &&
     Array.isArray(row.lines) && row.lines.every(named) && Array.isArray(row.productionNumbers) && row.productionNumbers.every(text) &&
     metrics(row, ['actual', 'qualified', 'defective']) && reasons(row.reasons, ['count']) &&
     (row.reasonNote === undefined || typeof row.reasonNote === 'string'))

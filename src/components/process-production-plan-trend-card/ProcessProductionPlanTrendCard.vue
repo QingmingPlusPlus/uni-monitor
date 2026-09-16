@@ -27,8 +27,8 @@ const props = withDefaults(
     readonly modalChartData?: ChartDataConfig
   }>(),
   {
-    subtitle: "固定模拟数据，按月、周及当前周工作日汇总",
-    tag: "mock",
+    subtitle: "按月、周及当前周工作日汇总",
+    tag: "",
     compact: false,
     labelColumnWidth: "",
     useMockExpand: false,

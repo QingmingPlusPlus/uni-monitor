@@ -15,12 +15,13 @@ import { loadCssMapSelectionConfig } from '../../components/css-map/css3dMapSele
 import FactoryDashboardView from '../factory-dashboard/components/FactoryDashboardView/FactoryDashboardView.vue'
 import { getDepartmentAlarmItems } from '../factory-dashboard/data/factoryAlarmMock'
 import {
-  createProductionPlanTrendCards,
+  loadProductivityTrendCards,
   loadAttendanceCard,
   loadChangePointCard,
   loadAttendanceTrendCard,
   loadDepartmentDashboardData,
   loadInboundPlanTrendCard,
+  loadProductionPlanTrendCard,
   loadPersonnelDetailCard,
 } from '../factory-dashboard/data/factoryDashboardLoader'
 import { getDepartmentDashboardData } from '../factory-dashboard/data/factoryDashboardMock'
@@ -149,6 +150,7 @@ const DEPARTMENT_CARD_IDS: readonly DepartmentCardId[] = [
   'personnelDetail',
   'productionPlanTrend',
   'changePoint',
+  'productivityTrend',
 ]
 
 function isDepartmentCardId(value: unknown): value is DepartmentCardId {
@@ -213,10 +215,16 @@ async function refreshCard(cardId: string): Promise<void> {
     }
 
     if (cardId === 'productionPlanTrend') {
-      dashboardData.value = {
-        ...dashboardData.value,
-        productionPlanTrends: createProductionPlanTrendCards(department, processTypes, config),
-      }
+      const productionPlanTrend = await loadProductionPlanTrendCard(department, processTypes, {
+        forceRefresh: true,
+      })
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, productionPlanTrend }
+      return
+    }
+
+    if (cardId === 'productivityTrend') {
+      const productionPlanTrends = await loadProductivityTrendCards(department, processTypes, config, { forceRefresh: true })
+      if (requestVersion === dashboardRequestVersion) dashboardData.value = { ...dashboardData.value, productionPlanTrends }
     }
   } catch (error: unknown) {
     handleCardRefreshError(cardId, error)

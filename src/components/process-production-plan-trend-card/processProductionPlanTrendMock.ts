@@ -4,36 +4,6 @@ import type {
   TableRowConfig,
 } from "../table-chart-card/TableChartCard.types"
 
-export type ProductionTrendMockShift = "day" | "middle" | "night"
-
-export interface ProductionTrendMockDaySeed {
-  readonly planCount: number
-  readonly actualCount: number
-  readonly actualDirectMh: number
-}
-
-export const productionTrendMockDaySeeds = [
-  { planCount: 6800, actualCount: 6710, actualDirectMh: 63.5 },
-  { planCount: 6900, actualCount: 7020, actualDirectMh: 65.0 },
-  { planCount: 7050, actualCount: 6990, actualDirectMh: 64.0 },
-  { planCount: 7200, actualCount: 7350, actualDirectMh: 66.0 },
-  { planCount: 7150, actualCount: 7090, actualDirectMh: 64.5 },
-  { planCount: 7300, actualCount: 7240, actualDirectMh: 65.5 },
-  { planCount: 7400, actualCount: 7520, actualDirectMh: 67.0 },
-] as const satisfies readonly ProductionTrendMockDaySeed[]
-
-export const productionTrendMockShiftWeights = [
-  { shift: "day", weight: 0.4 },
-  { shift: "middle", weight: 0.35 },
-  { shift: "night", weight: 0.25 },
-] as const satisfies readonly {
-  readonly shift: ProductionTrendMockShift
-  readonly weight: number
-}[]
-
-export const productionTrendMockBaseCapacity = 6800
-export const productionTrendMockBaselineHeadcount = 64
-
 const integerFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 })

@@ -104,12 +104,34 @@ const hideInboundPlan = computed<boolean>(() => {
       </template>
 
       <ProcessProductionPlanTrendCard
+        v-if="data.productionPlanTrend !== null"
+        :title="data.productionPlanTrend.title"
+        :subtitle="data.productionPlanTrend.subtitle"
+        :compact="true"
+        tag=""
+        :table-rows="data.productionPlanTrend.tableRows"
+        :table-columns="data.productionPlanTrend.tableColumns"
+        :table-data="data.productionPlanTrend.tableData"
+        :chart-options="data.productionPlanTrend.chartOptions"
+        :chart-data="data.productionPlanTrend.chartData"
+        :modal-table-rows="data.productionPlanTrend.modalTableRows"
+        :modal-table-columns="data.productionPlanTrend.modalTableColumns"
+        :modal-table-data="data.productionPlanTrend.modalTableData"
+        :modal-chart-options="data.productionPlanTrend.modalChartOptions"
+        :modal-chart-data="data.productionPlanTrend.modalChartData"
+        @refresh="emit('refresh', 'productionPlanTrend')"
+      />
+      <view v-else class="factory-dashboard-panel__loading-card">
+        <LoadingIcon />
+      </view>
+
+      <ProcessProductionPlanTrendCard
         v-for="card in data.productionPlanTrends"
         :key="card.id"
         :title="card.title"
         :subtitle="card.subtitle"
         :compact="true"
-        tag="mock"
+        tag=""
         label-column-width="minmax(320px, 340px)"
         :table-rows="card.tableRows"
         :table-columns="card.tableColumns"
@@ -121,7 +143,7 @@ const hideInboundPlan = computed<boolean>(() => {
         :modal-table-data="card.modalTableData"
         :modal-chart-options="card.modalChartOptions"
         :modal-chart-data="card.modalChartData"
-        @refresh="emit('refresh', 'productionPlanTrend')"
+        @refresh="emit('refresh', 'productivityTrend')"
       />
       <ChangePointCard
         :data="data.changePoint"

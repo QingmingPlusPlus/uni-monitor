@@ -288,8 +288,8 @@ export function createCssMapMockChangePointRecords(
       date: today,
       device: deviceCode,
       type,
-      change: `${type}变化`,
-      varify: '待确认',
+      changePointContent: `${type}变化`,
+      implResult: '待确认',
       notes: '地图mock数据',
     }]
 
@@ -299,8 +299,8 @@ export function createCssMapMockChangePointRecords(
         date: today,
         device: deviceCode,
         type: secondType,
-        change: `${secondType}变化`,
-        varify: '已确认',
+        changePointContent: `${secondType}变化`,
+        implResult: '已确认',
         notes: '地图mock数据',
       })
     }
