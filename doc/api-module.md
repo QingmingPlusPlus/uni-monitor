@@ -8,7 +8,8 @@
 
 - `src/api/http.ts` 创建唯一 Axios 实例，`baseURL` 固定为 `/api`。
 - 后端通用响应结构为 `ApiResponse<T>`：`success`、`code`、`message`、`data`。
-- 当前实例没有请求/响应拦截器、统一错误转换或自动重试；Axios 异常直接向调用方传播。
+- 当前实例通过 `requestScheduler.ts` 的 adapter 统一调度：全局最多 4 个传输，普通请求最多占 3 个位置，设备 `month/daily-net` 最多占 2 个位置，为变化点保留容量。前端排队不启动传输超时；开始传输后默认 15 秒超时，调用方可覆盖。
+- 排队中的 `AbortSignal` 取消会移除请求，成功或失败均释放位置；不自动重试，Axios 异常直接向调用方传播。
 - API 函数返回完整 Axios response，消费方通常通过 `response.data.data` 读取业务数据。
 - `src/api/index.ts` 是 barrel，可统一导入全部 API；现有业务代码也允许按域文件直接导入以减少依赖范围。
 

@@ -42,6 +42,8 @@ const selectedDepartment = ref<CssMapDepartmentValue>(defaultCssMapSelectionValu
 const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 const refreshedAt = ref(new Date())
 const monthSegmentVersion = ref(0)
+const dashboardReady = ref(false)
+let disposed = false
 const morningRefreshHour = 6
 const morningRefreshMinute = 20
 let stopRouteQuerySync: (() => void) | null = null
@@ -88,9 +90,9 @@ async function reloadDashboardData(): Promise<void> {
 }
 
 watch(
-  [selectedDepartment, selectionConfig, refreshedAt, monthSegmentVersion],
+  [dashboardReady, selectedDepartment, selectionConfig, refreshedAt, monthSegmentVersion],
   () => {
-    void reloadDashboardData()
+    if (dashboardReady.value) void reloadDashboardData()
   },
   { immediate: true },
 )
@@ -111,8 +113,8 @@ function handleSelectionLoadError(error: unknown): void {
   }
 }
 
-function loadSelectionConfig(forceRefresh: boolean): void {
-  loadCssMapSelectionConfig({ forceRefresh })
+function loadSelectionConfig(forceRefresh: boolean): Promise<void> {
+  return loadCssMapSelectionConfig({ forceRefresh })
     .then((config) => {
       selectionConfig.value = config
       refreshedAt.value = new Date()
@@ -130,17 +132,24 @@ function handleMonthSegmentLoadError(error: unknown): void {
   throw error
 }
 
-function loadMonthSegments(): void {
-  loadMonthSegmentConfig()
+function loadMonthSegments(): Promise<void> {
+  return loadMonthSegmentConfig()
     .then(() => {
       monthSegmentVersion.value += 1
     })
     .catch(handleMonthSegmentLoadError)
 }
 
-function refreshDashboard(): void {
-  loadSelectionConfig(true)
-  loadMonthSegments()
+let refreshPending: Promise<void> | null = null
+function refreshDashboard(forceRefresh = true): Promise<void> {
+  if (refreshPending) return refreshPending
+  dashboardReady.value = false
+  refreshPending = Promise.allSettled([loadSelectionConfig(forceRefresh), loadMonthSegments()])
+    .then(() => {
+      if (!disposed) dashboardReady.value = true
+    })
+    .finally(() => { refreshPending = null })
+  return refreshPending
 }
 
 const DEPARTMENT_CARD_IDS: readonly DepartmentCardId[] = [
@@ -276,6 +285,7 @@ function scheduleMorningRefresh(): void {
 }
 
 function refreshIfMorningWasMissed(): void {
+  if (!dashboardReady.value) return
   const now = new Date()
   const todayRefresh = createMorningRefreshDate(now)
   const todayKey = createRefreshKey(now)
@@ -294,14 +304,16 @@ onMounted(() => {
     syncRouteQuery(readCurrentFactoryRouteQuery())
   })
 
-  loadSelectionConfig(false)
-  loadMonthSegments()
-  refreshIfMorningWasMissed()
+  lastMorningRefreshKey = createRefreshKey(new Date())
+  void refreshDashboard(false)
+  scheduleMorningRefresh()
 })
 
 onShow(refreshIfMorningWasMissed)
 
 onBeforeUnmount(() => {
+  disposed = true
+  dashboardRequestVersion += 1
   stopRouteQuerySync?.()
   stopRouteQuerySync = null
   clearMorningRefreshTimer()

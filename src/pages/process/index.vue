@@ -43,6 +43,8 @@ const selectedProcess = ref<CssMapProcessValue>(defaultCssMapSelectionValues.pro
 const selectionConfig = ref<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
 const refreshedAt = ref(new Date())
 const monthSegmentVersion = ref(0)
+const dashboardReady = ref(false)
+let disposed = false
 let stopRouteQuerySync: (() => void) | null = null
 
 const selectedDepartment = computed<CssMapDepartmentValue>(() =>
@@ -89,9 +91,9 @@ async function reloadDashboardData(): Promise<void> {
 }
 
 watch(
-  [selectedProcess, selectedDepartment, selectionConfig, refreshedAt, monthSegmentVersion],
+  [dashboardReady, selectedProcess, selectedDepartment, selectionConfig, refreshedAt, monthSegmentVersion],
   () => {
-    void reloadDashboardData()
+    if (dashboardReady.value) void reloadDashboardData()
   },
   { immediate: true },
 )
@@ -115,8 +117,8 @@ function handleMonthSegmentLoadError(error: unknown): void {
   throw error
 }
 
-function loadMonthSegments(): void {
-  loadMonthSegmentConfig()
+function loadMonthSegments(): Promise<void> {
+  return loadMonthSegmentConfig()
     .then(() => {
       monthSegmentVersion.value += 1
     })
@@ -129,7 +131,7 @@ onMounted(() => {
     syncRouteQuery(readCurrentFactoryRouteQuery())
   })
 
-  loadCssMapSelectionConfig()
+  const selection = loadCssMapSelectionConfig()
     .then((config) => {
       selectionConfig.value = config
       syncRouteQuery(readCurrentFactoryRouteQuery(), config)
@@ -140,10 +142,14 @@ onMounted(() => {
       }
     })
 
-  loadMonthSegments()
+  void Promise.allSettled([selection, loadMonthSegments()]).then(() => {
+    if (!disposed) dashboardReady.value = true
+  })
 })
 
 onBeforeUnmount(() => {
+  disposed = true
+  dashboardRequestVersion += 1
   stopRouteQuerySync?.()
   stopRouteQuerySync = null
 })
