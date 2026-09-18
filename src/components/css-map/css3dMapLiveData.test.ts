@@ -350,7 +350,7 @@ describe('loadCssMapData realtime status mapping', () => {
   })
 
   it('使用实测 5M 内容并解析 Swagger 字符串负荷，非设备变化点不挂载到设备', async () => {
-    stubFactoryMapConfig([createMapDevice('line-a', 'D-01')])
+    stubFactoryMapConfig([{ ...createMapDevice('line-a', 'D-01'), section: 'posttreatment2' }])
     stubRealtimeList([])
     stubEmptyRuntimeSideData()
     vi.mocked(getScheduleChangePoint).mockResolvedValue({
@@ -371,6 +371,68 @@ describe('loadCssMapData realtime status mapping', () => {
       expect.objectContaining({ category: 'material', label: '测试材料切换' }),
     ])
     expect(data.devices[0]?.runtime.loadRate).toBeCloseTo(80.217)
+  })
+
+  it('仅请求 SMT3 时携带所属范围，实时接口超时仍保留七个变化点', async () => {
+    stubFactoryMapConfig([{ ...createMapDevice('SMT3', '3322'), section: 'posttreatment2' }])
+    stubEmptyRuntimeSideData()
+    vi.mocked(getDeviceRealtimeList).mockRejectedValueOnce(new Error('timeout'))
+    vi.mocked(getScheduleChangePoint).mockResolvedValueOnce({
+      data: { success: true, code: '200', message: 'ok', data:
+        ['人', '机', '料', '料', '料', '环', '环'].map((type, index) => ({
+          pid: `test-${index}`, device: '3322', type, changePointContent: '测试变化点',
+        })),
+      },
+    } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
+
+    const data = await loadCssMapData()
+
+    expect(getDeviceRealtimeList).toHaveBeenCalledTimes(1)
+    expect(getDeviceRealtimeList).toHaveBeenCalledWith({ deviceCodes: '3322' })
+    expect(getScheduleChangePoint).toHaveBeenCalledTimes(1)
+    expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '4', process: '后处理', progress: '' })
+    expect(data.devices[0].runtime.fiveMChanges.map(change => change.category))
+      .toEqual(['man', 'machine', 'material', 'material', 'material', 'environment', 'environment'])
+    expect(data.devices[0].runtime.status).toBeNull()
+  })
+
+  it('同工序多设备只请求一次，隐藏设备不产生额外工序请求', async () => {
+    stubFactoryMapConfig([
+      { ...createMapDevice('a', '3322'), section: 'posttreatment2' },
+      { ...createMapDevice('b', '3323'), section: 'posttreatment2' },
+      { ...createMapDevice('hidden', '1001'), section: 'pretreatment1' },
+    ], { visibleDeviceCodes: ['3322', '3323'] })
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+    await loadCssMapData()
+    expect(getScheduleChangePoint).toHaveBeenCalledTimes(1)
+    expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '4', process: '后处理', progress: '' })
+  })
+
+  it('前处理1和2分别请求，业务失败记录告警并保留其他工序的标记', async () => {
+    stubFactoryMapConfig([
+      { ...createMapDevice('a', '1001'), section: 'pretreatment1' },
+      { ...createMapDevice('b', '1002'), section: 'pretreatment2' },
+    ])
+    stubRealtimeList([])
+    stubEmptyRuntimeSideData()
+    vi.mocked(getScheduleChangePoint).mockImplementation(async params => ({
+      data: params.process === '前处理1'
+        ? { success: false, code: 'B0001', message: '业务失败', data: null }
+        : { success: true, code: '200', message: 'ok', data: [{ device: '1002', type: '机' }] },
+    } as Awaited<ReturnType<typeof getScheduleChangePoint>>))
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const data = await loadCssMapData()
+      expect(getScheduleChangePoint).toHaveBeenCalledTimes(2)
+      expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '1', process: '前处理1', progress: '' })
+      expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '1', process: '前处理2', progress: '' })
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('1/前处理1'))
+      expect(data.devices[0].runtime.fiveMChanges).toHaveLength(0)
+      expect(data.devices[1].runtime.fiveMChanges).toHaveLength(1)
+    } finally {
+      warn.mockRestore()
+    }
   })
 
   it('加载地图配置时绕过浏览器静态缓存', async () => {

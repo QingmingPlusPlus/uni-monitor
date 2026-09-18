@@ -158,6 +158,6 @@ export interface ScheduleChangePointParams {
   progress: '' | '0' | '1'
 }
 
-export function getScheduleChangePoint(params?: ScheduleChangePointParams) {
+export function getScheduleChangePoint(params: ScheduleChangePointParams) {
   return http.get<ScheduleChangePointResponse>('/schedule/getChangePoint', { params, timeout: 15000 })
 }
