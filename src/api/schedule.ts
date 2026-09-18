@@ -70,6 +70,9 @@ export interface ScheduleRejectsRecord {
 
 /** 2026-09-14 非空响应核验；device=null 的非设备关联情况来自 Swagger 说明。 */
 export interface ScheduleChangePointRecord {
+  /** 明细可选扩展字段；当前 Swagger 尚未确认，缺失时保留空值。 */
+  banci?: string | null
+  releaseDate?: string | null
   pid?: string | number
   date?: string
   factory?: string

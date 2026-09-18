@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getScheduleChangePoint } from '../../../../api/schedule'
 import { getProcessSegments } from '../../../../utils/monthSegment'
-import { aggregateChangePoints, createEmptyChangePointData, loadChangePointCard, resolveChangePointWeek } from './loadChangePointCard'
+import { aggregateChangePoints, filterChangePoints, createEmptyChangePointData, loadChangePointCard, resolveChangePointWeek } from './loadChangePointCard'
 vi.mock('../../../../api/schedule', () => ({ getScheduleChangePoint: vi.fn() }))
 vi.mock('../../../../utils/monthSegment', async importOriginal => ({
   ...await importOriginal<typeof import('../../../../utils/monthSegment')>(), getProcessSegments: vi.fn(),
@@ -64,12 +64,12 @@ describe('变化点统计', () => {
     }
     expect(() => aggregateChangePoints([{ scope: '1', all: [record, { ...record, date: '2026-08-01' }] }], now)).toThrow('冲突')
   })
-  it('每工序只查询全部记录，配置查找使用接口科室+工序枚举', async () => {
+  it('每工序查询全部及已关闭记录，配置查找使用接口科室+工序枚举', async () => {
     vi.stubGlobal('window', {})
     vi.mocked(getProcessSegments).mockReturnValue([{ segmentIndex: 3, startDay: 15, endDay: 21 }])
     vi.mocked(getScheduleChangePoint).mockResolvedValue(response([record]))
     const data = await loadChangePointCard('department1', ['pretreatment1', 'pretreatment2'], now)
-    expect(getScheduleChangePoint).toHaveBeenCalledTimes(2)
+    expect(getScheduleChangePoint).toHaveBeenCalledTimes(4)
     for (const process of ['前处理1', '前处理2']) expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '1', process, progress: '' })
     expect(getProcessSegments).toHaveBeenCalledWith('1', 'preprocessing')
     expect(data.weekDays).toEqual([15, 16, 17, 18, 19, 20, 21])
@@ -81,6 +81,40 @@ describe('变化点统计', () => {
     expect(data.status).toBe('error')
     expect(data.rows.every(row => row.total === null && row.allTotal === null)).toBe(true)
     await loadChangePointCard('department4', ['vulcanization2', 'posttreatment2'], now)
-    expect(getScheduleChangePoint).toHaveBeenCalledTimes(4)
+    expect(getScheduleChangePoint).toHaveBeenCalledTimes(8)
+  })
+})
+
+
+describe('变化点明细与筛选', () => {
+  it('跨工序同序号独立匹配状态，保留历史记录、文本及缺失字段', () => {
+    const data = aggregateChangePoints([
+      { scope: '1:前处理1', all: [{ ...record, banci: '早班', implMethod: '1.培训\n2.巡检' }], closed: [record] },
+      { scope: '1:前处理2', all: [{ ...record, date: '2026-08-12' }], closed: [] },
+    ], now)
+    expect(data.records).toHaveLength(2)
+    expect(data.records[0]).toMatchObject({ shift: '早', state: '已关闭', implMethod: '1.培训\n2.巡检' })
+    expect(data.records[1]).toMatchObject({ shift: '', state: '进行中', changeDate: '2026-08-12' })
+    expect(data.records[1].releaseDate).toBeUndefined()
+  })
+  it('日期两端包含、支持单边范围，班次与状态组合筛选和重置', () => {
+    const data = aggregateChangePoints([{ scope: '1', all: [
+      { ...record, banci: '早' },
+      { ...record, pid: 'b', date: '2026-09-02', banci: '夜班' },
+      { ...record, pid: 'c', date: '2026-09-03', banci: '早班' },
+    ], closed: [record] }], now)
+    const filters = { startDate: '', endDate: '', shift: '', state: '' }
+    expect(filterChangePoints(data.records, filters)).toHaveLength(3)
+    expect(filterChangePoints(data.records, { ...filters, startDate: '2026-09-02' })).toHaveLength(2)
+    expect(filterChangePoints(data.records, { ...filters, endDate: '2026-09-02' })).toHaveLength(2)
+    expect(filterChangePoints(data.records, { startDate: '2026-09-01', endDate: '2026-09-01', shift: '早', state: '已关闭' })).toHaveLength(1)
+    expect(filterChangePoints(data.records, { ...filters, shift: '晚', state: '进行中' }).map(row => row.pid)).toEqual(['b'])
+    expect(filterChangePoints(data.records, { ...filters, startDate: '2026-09-03', endDate: '2026-09-01' })).toEqual([])
+  })
+  it('已关闭查询失败时不将全部记录误报为进行中', async () => {
+    vi.mocked(getScheduleChangePoint).mockImplementation(async params => response([record], params?.progress !== '1'))
+    const data = await loadChangePointCard('department1', ['pretreatment1'], now)
+    expect(data.status).toBe('error')
+    expect(data.records).toEqual([])
   })
 })

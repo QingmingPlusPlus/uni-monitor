@@ -28,7 +28,7 @@
 | `src/components/department-inbound-plan-trend-card`、`loadInboundPlanTrendCard`、`inboundTrendDisplay.ts`、入库固定月内七日分桶/截止当天/图表零值断线 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/shared-utilities.md` | `openspec/specs/inbound-trend-period-display/spec.md` | - | 更新入库周期、聚合、图表规则和对应测试 | 生效 |
 | `src/pages/factory-dashboard/data/loaders/loadProductionActualTrendCard.ts`、`productionActualTrendChart.ts`、`productionPlanTrend`、真实生产计划实绩推移表 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/factory-dashboard-architecture.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新八行指标及质量占位原因、接口过滤、月级缓存、独立刷新与双卡装配 | 生效 |
 | `src/components/process-production-plan-trend-card`、`createProductionPlanTrendCard`、`createProductionPlanTrendCards`、`loadProductivityTrendCards.ts`、`productivityMhRecords.ts`、`productionPlanTrends`、生产性推移表、实绩 MH 设备汇总 | `doc/factory-dashboard-real-data-mapping.md`、`doc/factory-dimensions.md`、`doc/factory-dashboard-architecture.md`、`doc/department-api-gaps.md` | `openspec/specs/production-plan-actual-trend/spec.md` | - | 更新六行真实指标、MH 设备范围与完整性、净工时缓存、维度装配和刷新规则 | 生效 |
-| `src/components/change-point-card`、`loadChangePointCard`、部门/工序变化点组件、本周日期/全量类别饼图 | `doc/change-point-statistics.md`、`doc/factory-dashboard-architecture.md`、`doc/shared-utilities.md` | - | `cross-memory-routing` | 更新变化点统计口径、接口缺口与装配文档 | 生效 |
+| `src/components/change-point-card`、`loadChangePointCard`、部门/工序变化点明细表、日期/班次/状态筛选 | `doc/change-point-statistics.md`、`doc/factory-dashboard-architecture.md`、`doc/shared-utilities.md` | - | `cross-memory-routing` | 更新变化点明细、筛选、状态匹配、接口缺口与装配文档 | 生效 |
 
 ## 兜底策略
 

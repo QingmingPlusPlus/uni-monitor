@@ -1,85 +1,75 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import TableChartEchart from '../table-chart-card/TableChartEchart.vue'
-import type { ChartOptionConfig } from '../table-chart-card/TableChartCard.types'
-import type { ChangePointData } from '../../pages/factory-dashboard/data/loaders/loadChangePointCard'
-const props = withDefaults(defineProps<{ data: ChangePointData; expanded?: boolean }>(), { expanded: false })
-const displayDays = computed(() => props.expanded ? props.data.days : props.data.weekDays)
-const displayRows = computed(() => props.expanded ? props.data.rows : props.data.weekRows)
-const pieTotal = computed(() => props.data.rows.reduce((sum, row) => sum + (row.allTotal ?? 0), 0))
-const pieOption = computed<ChartOptionConfig>(() => ({
-  animation: false,
-  tooltip: { trigger: 'item', formatter: '{b}：{c} 件（{d}%）' },
-  series: [{
-    type: 'pie', radius: '62%', center: ['50%', '50%'], minAngle: 3,
-    label: { formatter: '{b}\n{d}%', fontSize: 15, color: '#53657A' },
-    labelLine: { length: 10, length2: 8 },
-    data: props.data.rows.filter(row => (row.allTotal ?? 0) > 0).map(row => ({
-      name: row.label, value: row.allTotal, itemStyle: { color: row.color },
-    })),
-  }],
-}))
-const chartOption = computed<ChartOptionConfig>(() => ({
-  animation: false,
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-  legend: { top: 0, itemWidth: 12, itemHeight: 12, textStyle: { fontSize: 15, color: '#53657A' } },
-  grid: { left: 40, right: 12, top: 65, bottom: 30 },
-  xAxis: { type: 'category', data: displayDays.value.map(String), axisTick: { show: false }, axisLabel: { fontSize: 15 } },
-  yAxis: { type: 'value', min: 0, minInterval: 1, axisLabel: { fontSize: 15 }, splitLine: { lineStyle: { color: '#D8E2EE' } } },
-  series: displayRows.value.map(row => ({
-    name: row.label, type: 'bar', stack: 'changes', barMaxWidth: 22,
-    itemStyle: { color: row.color }, data: row.days,
-  })),
-}))
+import { changePointCategories, filterChangePoints } from '../../pages/factory-dashboard/data/loaders/loadChangePointCard'
+import type { ChangePointData, ChangePointFilters } from '../../pages/factory-dashboard/data/loaders/loadChangePointCard'
+const props = defineProps<{ data: ChangePointData; filters: ChangePointFilters; expanded?: boolean }>()
+const emit = defineEmits<{ 'update:filters': [value: ChangePointFilters] }>()
+const rows = computed(() => filterChangePoints(props.data.records, props.filters))
+const shifts = computed(() => [...new Set(['早', '中', '晚', ...props.data.records.map(row => row.shift).filter(Boolean)])])
+const invalidDates = computed(() => props.filters.startDate && props.filters.endDate && props.filters.startDate > props.filters.endDate)
+function update(field: keyof ChangePointFilters, event: Event) {
+  emit('update:filters', { ...props.filters, [field]: (event.target as HTMLInputElement).value })
+}
+function updateDate(field: 'startDate' | 'endDate', event: { detail: { value: string } }) {
+  emit('update:filters', { ...props.filters, [field]: event.detail.value })
+}
+function reset() { emit('update:filters', { startDate: '', endDate: '', shift: '', state: '' }) }
+function color(type?: string) { return changePointCategories.find(category => category.type === type)?.color }
+function dateLabel(date?: string | null) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(date ?? '')
+  return match ? `${match[1].slice(2)}年${match[2]}月${match[3]}日` : date || '—'
+}
 </script>
 
 <template>
   <view class="change-point-content">
-    <view class="change-point-content__charts">
-      <view class="change-point-content__trend">
-        <text class="change-point-content__heading">变化点件数推移图</text>
-        <TableChartEchart class="change-point-content__chart" :option="chartOption" :update-options="{ notMerge: true }" />
-      </view>
-      <view class="change-point-content__disposal">
-        <text class="change-point-content__heading">变化点类别占比</text>
-        <text class="change-point-content__hint">当前范围全部数据 · 不限周/月</text>
-        <TableChartEchart v-if="pieTotal > 0" class="change-point-content__pie" :option="pieOption" :update-options="{ notMerge: true }" />
-        <view v-else class="change-point-content__empty">{{ data.status === 'ready' ? '暂无变化点数据' : '数据暂不可用' }}</view>
-      </view>
+    <view class="filters">
+      <view class="date-field"><text>日期</text><picker mode="date" :value="filters.startDate" :end="filters.endDate || undefined" @change="updateDate('startDate', $event)"><view class="date-picker" role="button" aria-label="变化开始日期">{{ filters.startDate || '开始日期' }} ▾</view></picker></view>
+      <view class="date-field"><text>至</text><picker mode="date" :value="filters.endDate" :start="filters.startDate || undefined" @change="updateDate('endDate', $event)"><view class="date-picker" role="button" aria-label="变化结束日期">{{ filters.endDate || '结束日期' }} ▾</view></picker></view>
+      <label>班次 <select aria-label="变化班次" :value="filters.shift" @change="update('shift', $event)"><option value="">全部班次</option><option v-for="shift in shifts" :key="shift" :value="shift">{{ shift }}</option></select></label>
+      <label>状态 <select aria-label="变化点状态" :value="filters.state" @change="update('state', $event)"><option value="">全部状态</option><option>进行中</option><option>已关闭</option><option>未知</option></select></label>
+      <button class="reset" @click="reset">重置</button>
+      <text class="count" role="status">共 {{ rows.length }} 条</text>
     </view>
-    <view class="change-point-content__scroll" tabindex="0" :aria-label="expanded ? '变化点全月每日件数，可横向滚动' : '变化点本周每日件数'">
-      <table class="change-point-content__table">
-        <thead><tr><th scope="col">日期</th><th scope="col">{{ expanded ? '月累计' : '周累计' }}</th><th v-for="day in displayDays" :key="day" scope="col">{{ day }}</th></tr></thead>
+    <view v-if="invalidDates" class="date-error" role="alert">开始日期不能晚于结束日期</view>
+    <view class="table-scroll" :class="{ expanded }" tabindex="0" aria-label="变化点明细表，可横向和纵向滚动">
+      <table>
+        <colgroup><col style="width:210px" /><col style="width:145px" /><col style="width:100px" /><col style="width:145px" /><col style="width:90px" /><col style="width:180px" /><col style="width:240px" /><col style="width:270px" /><col style="width:210px" /><col style="width:145px" /><col style="width:145px" /><col style="width:105px" /><col style="width:145px" /><col style="width:160px" /></colgroup>
+        <thead><tr><th v-for="heading in ['序号', '变化日期', '变化班次', '生产线', '5M分类', '变化点内容', '潜在风险', '管理方法', '实施结果', '责任者', '审核者', '状态', '解除日期', '备注']" :key="heading" scope="col">{{ heading }}</th></tr></thead>
         <tbody>
-          <tr v-for="row in displayRows" :key="row.label">
-            <th scope="row"><span class="change-point-content__dot" :style="{ background: row.color }" />{{ row.label }}</th>
-            <td class="change-point-content__total">{{ row.total ?? '—' }}</td>
-            <td v-for="(value, index) in row.days" :key="index">{{ value ?? '—' }}</td>
+          <tr v-for="row in rows" :key="row.key">
+            <th scope="row">{{ row.pid }}</th><td>{{ dateLabel(row.changeDate) }}</td><td>{{ row.shift || '—' }}</td><td>{{ row.device || '—' }}</td>
+            <td class="category" :style="{ backgroundColor: color(row.type) }">{{ row.type || '—' }}</td>
+            <td class="details">{{ row.changePointContent || '—' }}</td><td class="details">{{ row.potentialRisk || '—' }}</td><td class="details">{{ row.implMethod || '—' }}</td><td class="details">{{ row.implResult || '—' }}</td>
+            <td>{{ row.respPerson || '—' }}</td><td>{{ row.reviewer || '—' }}</td><td>{{ row.state }}</td><td>{{ dateLabel(row.releaseDate) }}</td><td class="details">{{ row.notes || '—' }}</td>
           </tr>
         </tbody>
       </table>
     </view>
-    <text class="change-point-content__hint">单位：件。{{ expanded ? '展示整月' : '展示本周' }}每日件数，未来日期与不可用数据为“—”；饼图统计当前范围的全部变化点。</text>
+    <view v-if="!rows.length" class="empty" role="status">{{ data.status === 'error' ? '变化点数据暂不可用，请刷新重试' : data.records.length ? '暂无符合筛选条件的变化点' : '暂无变化点数据' }}</view>
   </view>
 </template>
 
 <style scoped>
 .change-point-content { min-width: 0; }
-.change-point-content__charts { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr); gap: 20px; margin-bottom: 16px; }
-.change-point-content__trend, .change-point-content__disposal { min-width: 0; }
-.change-point-content__heading { display: block; font-size: 20px; font-weight: 700; margin-bottom: 12px; }
-.change-point-content__chart { height: 270px; width: 100%; }
-.change-point-content__hint { display: block; color: var(--um-color-text-secondary); font-size: 15px; line-height: 1.6; }
-.change-point-content__pie { height: 240px; width: 100%; }
-.change-point-content__empty { height: 240px; display: flex; align-items: center; justify-content: center; color: var(--um-color-text-secondary); font-size: 15px; }
-.change-point-content__scroll { overflow-x: auto; margin-bottom: 12px; border: 1px solid var(--um-color-border); border-radius: 8px; }
-.change-point-content__table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 17px; font-variant-numeric: tabular-nums; text-align: center; }
-.change-point-content__table th, .change-point-content__table td { min-width: 42px; height: 34px; padding: 3px 6px; border-right: 1px solid var(--um-color-border); border-bottom: 1px solid var(--um-color-border); white-space: nowrap; }
-.change-point-content__table thead th { background: var(--um-color-operation-soft); font-weight: 600; }
-.change-point-content__table tr > :first-child { position: sticky; left: 0; min-width: 76px; z-index: 1; background: var(--um-color-surface); }
-.change-point-content__table thead tr > :first-child { background: var(--um-color-operation-soft); }
-.change-point-content__table tbody tr:last-child > * { border-bottom: 0; }
-.change-point-content__total { font-weight: 700; background: var(--um-color-surface-subtle); }
-.change-point-content__dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
-@media (max-width: 700px) { .change-point-content__charts { grid-template-columns: 1fr; } }
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 15px; }
+.filters label, .date-field { display: flex; align-items: center; gap: 8px; }
+.date-picker, .filters select { box-sizing: border-box; height: 42px; min-width: 115px; padding: 0 10px; border: 1px solid var(--um-color-border); border-radius: 6px; color: var(--um-color-text-primary); background: var(--um-color-surface); font: inherit; }
+.date-picker { min-width: 156px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.filters .reset { width: auto; height: 42px; padding: 0 16px; margin: 0; font-size: 15px; line-height: 40px; border: 1px solid var(--um-color-border); border-radius: 6px; background: var(--um-color-surface); color: var(--um-color-operation); }
+.reset::after { border: 0; }
+.count { margin-left: auto; color: var(--um-color-text-secondary); }
+.date-error { color: var(--um-color-danger); margin-bottom: 12px; }
+.table-scroll { overflow: auto; max-height: 420px; border: 1px solid var(--um-color-border); }
+.table-scroll.expanded { max-height: 65vh; }
+table { width: 100%; min-width: 2290px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: 17px; line-height: 1.5; text-align: center; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 8px; border-right: 1px solid var(--um-color-border); border-bottom: 1px solid var(--um-color-border); vertical-align: top; overflow-wrap: anywhere; }
+thead th { position: sticky; top: 0; z-index: 2; background: var(--um-color-operation-soft); font-weight: 600; white-space: nowrap; }
+tr > :first-child { position: sticky; left: 0; z-index: 1; background: var(--um-color-surface); font-weight: 400; }
+thead tr > :first-child { z-index: 3; background: var(--um-color-operation-soft); font-weight: 600; }
+tr > :last-child { border-right: 0; }
+tbody tr:last-child > * { border-bottom: 0; }
+.details { text-align: left; white-space: pre-wrap; }
+.category { color: #fff; font-weight: 700; }
+.empty { padding: 40px 16px; text-align: center; color: var(--um-color-text-secondary); font-size: 16px; }
 </style>

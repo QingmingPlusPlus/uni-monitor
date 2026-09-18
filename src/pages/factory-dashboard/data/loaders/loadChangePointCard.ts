@@ -23,6 +23,7 @@ export interface ChangePointRow {
   readonly allTotal: number | null
 }
 export interface ChangePointData {
+  readonly records: readonly ChangePointDetail[]
   readonly month: string
   readonly days: readonly number[]
   readonly rows: readonly ChangePointRow[]
@@ -30,6 +31,21 @@ export interface ChangePointData {
   readonly weekRows: readonly ChangePointRow[]
   readonly status: 'loading' | 'ready' | 'error'
   readonly message: string
+}
+
+export interface ChangePointDetail extends ScheduleChangePointRecord {
+  readonly key: string
+  readonly changeDate: string
+  readonly shift: string
+  readonly state: '进行中' | '已关闭' | '未知'
+}
+
+export interface ChangePointFilters { startDate: string; endDate: string; shift: string; state: string }
+export function filterChangePoints(records: readonly ChangePointDetail[], filters: ChangePointFilters): readonly ChangePointDetail[] {
+  return records.filter(record => (!filters.startDate || record.changeDate >= filters.startDate)
+    && (!filters.endDate || record.changeDate <= filters.endDate)
+    && (!filters.shift || record.shift === filters.shift)
+    && (!filters.state || record.state === filters.state))
 }
 
 const processLabels: Record<CssMapProcessValue, string> = {
@@ -56,10 +72,11 @@ export function createEmptyChangePointData(now = new Date(), status: ChangePoint
   const emptyRows = (dates: readonly number[]) => changePointCategories.map(category => ({
     ...category, days: dates.map(() => null), total: null, allTotal: null,
   }))
-  return { month, days, weekDays, status, message, rows: emptyRows(days), weekRows: emptyRows(weekDays) }
+  return { records: [], month, days, weekDays, status, message, rows: emptyRows(days), weekRows: emptyRows(weekDays) }
 }
 
 export interface ChangePointSource {
+  readonly closed?: readonly ScheduleChangePointRecord[]
   readonly scope: string
   readonly all: readonly ScheduleChangePointRecord[]
   readonly weekDays?: readonly number[]
@@ -73,7 +90,9 @@ export function aggregateChangePoints(sources: readonly ChangePointSource[], now
   const weekCounts: (number | null)[][] = changePointCategories.map(() => weekDays.map(day => day <= now.getDate() ? 0 : null))
   const allCounts = changePointCategories.map(() => 0)
   const seen = new Map<string, string>()
+  const records: ChangePointDetail[] = []
   for (const source of sources) {
+    const closedIds = new Set(source.closed?.map(record => String(record.pid ?? '').trim()))
     const sourceWeek = source.weekDays ?? empty.weekDays
     for (const record of source.all) {
       const match = /^(\d{4})-(\d{2})-(\d{2})(?:$|[T\s])/.exec(record.date ?? '')
@@ -90,6 +109,10 @@ export function aggregateChangePoints(sources: readonly ChangePointSource[], now
         continue
       }
       seen.set(key, signature)
+      const rawShift = record.banci?.trim() ?? ''
+      const shift = ({ '早班': '早', '中班': '中', '晚班': '晚', '夜班': '晚', '夜': '晚' } as Record<string, string>)[rawShift] ?? rawShift
+      records.push({ ...record, key, changeDate: `${match[1]}-${match[2]}-${match[3]}`, shift,
+        state: source.closed ? (closedIds.has(pid) ? '已关闭' : '进行中') : '未知' })
       allCounts[index] += 1
       if (`${match[1]}-${match[2]}` !== empty.month || day > now.getDate()) continue
       counts[index][day - 1] = (counts[index][day - 1] ?? 0) + 1
@@ -104,7 +127,8 @@ export function aggregateChangePoints(sources: readonly ChangePointSource[], now
     total: values[index].reduce<number>((sum, count) => sum + (count ?? 0), 0),
     allTotal: allCounts[index],
   }))
-  return { ...empty, weekDays, status: 'ready', rows: rows(counts), weekRows: rows(weekCounts) }
+  records.sort((a, b) => b.changeDate.localeCompare(a.changeDate) || a.key.localeCompare(b.key))
+  return { ...empty, records, weekDays, status: 'ready', rows: rows(counts), weekRows: rows(weekCounts) }
 }
 
 export async function loadChangePointCard(department: CssMapDepartmentValue, processes: readonly CssMapProcessValue[], now = new Date()): Promise<ChangePointData> {
@@ -112,11 +136,14 @@ export async function loadChangePointCard(department: CssMapDepartmentValue, pro
     if (!processes.length) throw new Error('当前范围未配置工序')
     const dept = toApiDepartmentCode(department)
     const sources = await Promise.all([...new Set(processes)].map(async process => {
-      const response = await getScheduleChangePoint({ dept, process: processLabels[process], progress: '' })
-      if (!response.data.success || !Array.isArray(response.data.data)) throw new Error('变化点接口未返回有效数据')
+      const [response, closed] = await Promise.all([
+        getScheduleChangePoint({ dept, process: processLabels[process], progress: '' }),
+        getScheduleChangePoint({ dept, process: processLabels[process], progress: '1' }),
+      ])
+      if (![response, closed].every(result => result.data.success && Array.isArray(result.data.data))) throw new Error('变化点接口未返回有效数据')
       const segments = typeof window === 'undefined' ? null : getProcessSegments(dept, toApiProcessType(process))
       return {
-        scope: `${dept}:${processLabels[process]}`, all: response.data.data,
+        scope: `${dept}:${processLabels[process]}`, all: response.data.data, closed: closed.data.data,
         weekDays: resolveChangePointWeek(now, segments),
       }
     }))

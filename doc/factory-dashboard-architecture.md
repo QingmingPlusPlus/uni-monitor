@@ -97,6 +97,6 @@
 
 ## 变化点组件
 
-`FactoryDashboardPanel` 按生产计划实绩、所属工序生产性、变化点的顺序装配，在生产性卡片之后挂载 `ChangePointCard`，`ChangePointContent` 复用 ECharts 渲染器绘制堆叠柱，并以饼图展示当前范围全部记录的分类占比；下方日表默认本周、展开整月，周配置复用月分段 session，缺失时自然周兜底。部门/工序页面独立并发加载 `changePoint`，不等待其他卡片接口；初始值是 loading 空结构，加载失败返回显式 error 数据，不沿用其他卡片的 mock 降级。页面卡片刷新使用 `changePoint` 标识并保留当前地图选择。详见 `doc/change-point-statistics.md`。
+`FactoryDashboardPanel` 按生产计划实绩、所属工序生产性、变化点的顺序装配，在生产性卡片之后挂载 `ChangePointCard`，`ChangePointContent` 展示 14 列变化点明细，提供变化日期范围、班次、状态组合筛选；卡片和展开弹层共享筛选状态，切换维度重置。每工序读取全部及已关闭集合以匹配当前状态，班次与解除日期缺失时显示“—”。部门/工序页面独立并发加载 `changePoint`，不等待其他卡片接口；初始值是 loading 空结构，加载失败返回显式 error 数据，不沿用其他卡片的 mock 降级。页面卡片刷新使用 `changePoint` 标识并保留当前地图选择。详见 `doc/change-point-statistics.md`。
 
 三个区域分别使用 `productionPlanTrend`、`productivityTrend`、`changePoint` 刷新标识。异步刷新完成后仅合入对应字段，并校验页面请求版本，避免覆盖其他已完成卡片或切换维度后的新数据。
