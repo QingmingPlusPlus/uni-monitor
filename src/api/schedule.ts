@@ -70,6 +70,8 @@ export interface ScheduleRejectsRecord {
 
 /** 2026-09-14 非空响应核验；device=null 的非设备关联情况来自 Swagger 说明。 */
 export interface ScheduleChangePointRecord {
+  /** 2026-09-18 用户确认：0 为进行中；地图只展示该状态。 */
+  status?: number | string | null
   /** 明细可选扩展字段；当前 Swagger 尚未确认，缺失时保留空值。 */
   banci?: string | null
   /** 解除日期；空字符串表示不显示解除日期。 */
@@ -153,8 +155,9 @@ export function getScheduleRejectsByMonth(month: string) {
 }
 
 export interface ScheduleChangePointParams {
-  dept: string
-  process: string
+  /** 不传则不限制科室；与 process 均省略时查询全部范围。 */
+  dept?: string
+  process?: string
   progress: '' | '0' | '1'
 }
 

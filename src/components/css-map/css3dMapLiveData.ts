@@ -5,7 +5,6 @@ import type {
 import { getDeviceRealtimeList } from '../../api/deviceRealtime'
 import type {
   ScheduleChangePointRecord,
-  ScheduleChangePointParams,
   ScheduleDeviceLoadRecord,
 } from '../../api/schedule'
 import {
@@ -372,22 +371,17 @@ async function loadDeviceLoadRecords(): Promise<readonly ScheduleDeviceLoadRecor
   }
 }
 
-async function loadChangePointRecords(
-  scopes: readonly ScheduleChangePointParams[],
-): Promise<readonly ScheduleChangePointRecord[]> {
-  const results = await Promise.all(scopes.map(async (params) => {
-    try {
-      const response = await getScheduleChangePoint(params)
-      if (!response.data?.success || !Array.isArray(response.data.data)) {
-        throw new Error(response.data?.message || '变化点响应无效')
-      }
-      return response.data.data
-    } catch (error: unknown) {
-      console.warn(`[CssMap] 变化点接口失败 (${params.dept}/${params.process}): ${error instanceof Error ? error.message : String(error)}`)
-      return []
+async function loadChangePointRecords(): Promise<readonly ScheduleChangePointRecord[]> {
+  try {
+    const response = await getScheduleChangePoint({ progress: '' })
+    if (!response.data?.success || !Array.isArray(response.data.data)) {
+      throw new Error(response.data?.message || '变化点响应无效')
     }
-  }))
-  return results.flat()
+    return response.data.data
+  } catch (error: unknown) {
+    console.warn(`[CssMap] 全部变化点接口失败: ${error instanceof Error ? error.message : String(error)}`)
+    return []
+  }
 }
 
 interface RuntimeLookup {
@@ -412,6 +406,7 @@ function createChangeLookup(records: readonly ScheduleChangePointRecord[]): Map<
   const map = new Map<string, ScheduleChangePointRecord[]>()
 
   records.forEach((record) => {
+    if (record.status !== 0 && record.status !== '0') return
     const code = normalizeDeviceCode(record.device)
     if (!code) return
     const list = map.get(code) ?? []
@@ -424,7 +419,6 @@ function createChangeLookup(records: readonly ScheduleChangePointRecord[]): Map<
 
 async function loadRuntimeLookup(
   deviceCodes: readonly string[],
-  changePointScopes: readonly ScheduleChangePointParams[],
 ): Promise<RuntimeLookup> {
   if (isCssMapMockEnabled()) {
     return createRuntimeLookup(
@@ -437,7 +431,7 @@ async function loadRuntimeLookup(
   const [realtimeItems, loadRecords, changeRecords] = await Promise.all([
     loadRealtimeItems(deviceCodes),
     loadDeviceLoadRecords(),
-    loadChangePointRecords(changePointScopes),
+    loadChangePointRecords(),
   ])
 
   return createRuntimeLookup(realtimeItems, loadRecords, changeRecords)
@@ -483,26 +477,7 @@ async function createCssMapData(
   const runtimeCodes = mapConfig.devices
     .flatMap(collectDeviceRuntimeCodes)
     .filter((code) => isDeviceCodeVisible(code, visibleDeviceCodes))
-  // 按可见设备所属工序查询一次，避免逐设备请求；前处理1/2必须保留编号。
-  const processLabels = {
-    pretreatment1: '前处理1', pretreatment2: '前处理2',
-    vulcanization1: '加硫', vulcanization2: '加硫',
-    posttreatment1: '后处理', posttreatment2: '后处理',
-  }
-  const visibleProcesses = new Set(mapConfig.devices
-    .filter(device => collectDeviceRuntimeCodes(device).some(code => isDeviceCodeVisible(code, visibleDeviceCodes)))
-    .map(device => device.section))
-  const scopes = new Map<string, ScheduleChangePointParams>()
-  for (const [department, processes] of Object.entries(selectionConfig.departmentProcessMap)) {
-    for (const process of processes) {
-      if (!visibleProcesses.has(process)) continue
-      const params: ScheduleChangePointParams = {
-        dept: department.replace('department', ''), process: processLabels[process], progress: '',
-      }
-      scopes.set(`${params.dept}:${params.process}`, params)
-    }
-  }
-  const runtimeLookup = await loadRuntimeLookup([...new Set(runtimeCodes)], [...scopes.values()])
+  const runtimeLookup = await loadRuntimeLookup([...new Set(runtimeCodes)])
 
   return {
     size: {

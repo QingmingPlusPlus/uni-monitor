@@ -1,5 +1,7 @@
 # 后端接口参考
 
+> 2026-09-18 用户确认的新契约优先于旧 Swagger：查询参数仍名为 `dept`，`dept/process` 均可省略，不传则查询全部范围；`progress` 保持原约定。地图仅请求一次 `getScheduleChangePoint({ progress: '' })`，按 `device` 匹配设备，只显示 `status` 为数值 `0` 或字符串 `"0"` 的进行中记录；缺失、空值及其他状态不显示。后端同步情况尚未联调确认。
+
 核验日期：2026-09-14（保留 2026-09-11 的历史成功样本，分别注明来源日期）。来源：[Swagger UI](http://123.57.81.179:8080/swagger-ui/index.html)、[OpenAPI JSON](http://123.57.81.179:8080/v3/api-docs)（可视化自研接口 1.0，OAS 3.0）及下述只读请求。共 25 个端点，包含 24 个 GET 和 1 个 POST。前端访问层与接入状态见 [API 模块](api-module.md)，页面口径见 [字段映射](factory-dashboard-real-data-mapping.md)，未解决问题见 [接口缺口](department-api-gaps.md)。
 
 ## 2026-09-14 更新

@@ -285,6 +285,7 @@ export function createCssMapMockChangePointRecords(
 
     const type = mockFiveMTypes[seed % mockFiveMTypes.length]
     const records: ScheduleChangePointRecord[] = [{
+      status: 0,
       date: today,
       device: deviceCode,
       type,
@@ -296,6 +297,7 @@ export function createCssMapMockChangePointRecords(
     if (seed % 11 === 0) {
       const secondType = mockFiveMTypes[(seed + 2) % mockFiveMTypes.length]
       records.push({
+        status: 0,
         date: today,
         device: deviceCode,
         type: secondType,

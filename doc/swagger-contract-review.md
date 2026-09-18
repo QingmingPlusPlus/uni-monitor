@@ -1,5 +1,7 @@
 # Swagger 契约核对（2026-09-16）
 
+> 2026-09-18 用户确认的新契约优先于旧 Swagger：查询参数仍名为 `dept`，`dept/process` 均可省略，不传则查询全部范围；`progress` 保持原约定。地图仅请求一次 `getScheduleChangePoint({ progress: '' })`，按 `device` 匹配设备，只显示 `status` 为数值 `0` 或字符串 `"0"` 的进行中记录；缺失、空值及其他状态不显示。后端同步情况尚未联调确认。
+
 来源：[Swagger UI](http://123.57.81.179:8080/swagger-ui/index.html)，机器契约：`http://123.57.81.179:8080/v3/api-docs`。服务标题“可视化自研接口”，版本 `1.0`。完整契约保存在 [OpenAPI 快照](swagger/openapi-2026-09-16.json)，未保存认证信息或业务明细。
 
 本次核对全部 25 个操作。以下为当前契约清单，不是与旧 OpenAPI 文件的自动差异报告；“补录”表示此前文档未覆盖，不代表服务端上线日期。Swagger 可认证读取；变化点业务查询返回 `success=false`、`code=B0301`（TOKEN 解析失败），未验证真实记录、筛选行为和历史完整性。

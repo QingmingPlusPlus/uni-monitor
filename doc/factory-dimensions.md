@@ -47,7 +47,7 @@
 - 地图默认嵌入在部门/工序维度左侧，支持部门、工序选择和设备双击进入详情。
 - 左侧地图提供展开按钮，点击后打开 80vw × 80vh 弹窗，弹窗内展示放大的 `css-map`。
 - 地图弹窗内的部门选择、工序选择、清空工序和设备打开事件均不驱动页面路由切换，只用于弹窗内临时查看。
-- 地图实时数据由 `src/components/css-map/css3dMapLiveData.ts` 聚合：设备工作状态、负荷率、人员配置和 5M 变化点均优先使用真实接口。
+- 地图实时数据由 `src/components/css-map/css3dMapLiveData.ts` 聚合：设备工作状态、负荷率、人员配置和 5M 变化点均优先使用真实接口。变化点一次查询全部范围，仅显示 `status=0`（兼容字符串）的设备关联记录。
 - H5 浏览器中可通过控制台全局方法 `window.mapMock(true)`/`window.mapMock(false)` 切换地图运行态数据源：`true` 使用前端 mock 数据渲染当前地图组件，`false` 恢复真实接口数据；开关写入 `sessionStorage` 并通知已挂载地图重新加载。
 - H5 浏览器中可在手动平移、缩放到目标区域后调用 `window.mapCamera()`；函数会返回并在控制台打印当前渲染器、地图与视口尺寸、Three.js 相机位置、控制器 target、fov、aspect、near/far、相机距离，以及可复制给 `focusRect` 的 `focus.rect`。普通地图和展开地图同时存在时读取最后挂载实例，展开地图关闭后自动恢复普通地图。
 - 地图数据加载期间显示居中的圆形 loading spinner；加载失败时显示错误提示。

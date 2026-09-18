@@ -355,8 +355,8 @@ describe('loadCssMapData realtime status mapping', () => {
     stubEmptyRuntimeSideData()
     vi.mocked(getScheduleChangePoint).mockResolvedValue({
       data: { success: true, code: '200', message: 'ok', data: [
-        { pid: 'test-1', device: 'D-01', type: '料', changePointContent: '测试材料切换', notes: '备注不是标题' },
-        { pid: 'test-2', device: null, type: '人', changePointContent: '非设备变化点' },
+        { status: 0, pid: 'test-1', device: 'D-01', type: '料', changePointContent: '测试材料切换', notes: '备注不是标题' },
+        { status: 0, pid: 'test-2', device: null, type: '人', changePointContent: '非设备变化点' },
       ] },
     } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
     vi.mocked(getScheduleDeviceLoadByMonth).mockResolvedValue({
@@ -373,14 +373,14 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(data.devices[0]?.runtime.loadRate).toBeCloseTo(80.217)
   })
 
-  it('仅请求 SMT3 时携带所属范围，实时接口超时仍保留七个变化点', async () => {
+  it('查询全部变化点，实时接口超时仍保留 SMT3 的七个进行中标记', async () => {
     stubFactoryMapConfig([{ ...createMapDevice('SMT3', '3322'), section: 'posttreatment2' }])
     stubEmptyRuntimeSideData()
     vi.mocked(getDeviceRealtimeList).mockRejectedValueOnce(new Error('timeout'))
     vi.mocked(getScheduleChangePoint).mockResolvedValueOnce({
       data: { success: true, code: '200', message: 'ok', data:
         ['人', '机', '料', '料', '料', '环', '环'].map((type, index) => ({
-          pid: `test-${index}`, device: '3322', type, changePointContent: '测试变化点',
+          status: 0, pid: `test-${index}`, device: '3322', type, changePointContent: '测试变化点',
         })),
       },
     } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
@@ -390,7 +390,7 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(getDeviceRealtimeList).toHaveBeenCalledTimes(1)
     expect(getDeviceRealtimeList).toHaveBeenCalledWith({ deviceCodes: '3322' })
     expect(getScheduleChangePoint).toHaveBeenCalledTimes(1)
-    expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '4', process: '后处理', progress: '' })
+    expect(getScheduleChangePoint).toHaveBeenCalledWith({ progress: '' })
     expect(data.devices[0].runtime.fiveMChanges.map(change => change.category))
       .toEqual(['man', 'machine', 'material', 'material', 'material', 'environment', 'environment'])
     expect(data.devices[0].runtime.status).toBeNull()
@@ -406,30 +406,49 @@ describe('loadCssMapData realtime status mapping', () => {
     stubEmptyRuntimeSideData()
     await loadCssMapData()
     expect(getScheduleChangePoint).toHaveBeenCalledTimes(1)
-    expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '4', process: '后处理', progress: '' })
+    expect(getScheduleChangePoint).toHaveBeenCalledWith({ progress: '' })
   })
 
-  it('前处理1和2分别请求，业务失败记录告警并保留其他工序的标记', async () => {
+  it('跨工序一次查询全部，仅将数值或字符串 0 的记录关联到设备', async () => {
     stubFactoryMapConfig([
       { ...createMapDevice('a', '1001'), section: 'pretreatment1' },
       { ...createMapDevice('b', '1002'), section: 'pretreatment2' },
     ])
     stubRealtimeList([])
     stubEmptyRuntimeSideData()
-    vi.mocked(getScheduleChangePoint).mockImplementation(async params => ({
-      data: params.process === '前处理1'
-        ? { success: false, code: 'B0001', message: '业务失败', data: null }
-        : { success: true, code: '200', message: 'ok', data: [{ device: '1002', type: '机' }] },
-    } as Awaited<ReturnType<typeof getScheduleChangePoint>>))
+    vi.mocked(getScheduleChangePoint).mockResolvedValueOnce({
+      data: { success: true, data: [
+        ...[0, '0', 1, '1', null, undefined, '', 'unknown'].map((status, index) => ({
+          device: '1001', status, type: '机', changePointContent: `记录${index}`,
+        })),
+        { device: '1002', status: 0, type: '料' },
+        { device: null, status: 0, type: '人' },
+      ] },
+    } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
+    const data = await loadCssMapData()
+    expect(getScheduleChangePoint).toHaveBeenCalledTimes(1)
+    expect(getScheduleChangePoint).toHaveBeenCalledWith({ progress: '' })
+    expect(data.devices[0].runtime.fiveMChanges.map(change => change.label)).toEqual(['记录0', '记录1'])
+    expect(data.devices[1].runtime.fiveMChanges).toHaveLength(1)
+  })
+
+  it.each(['business', 'http'])('全部变化点请求失败（%s）时不影响地图设备加载', async kind => {
+    stubFactoryMapConfig([createMapDevice('a', '1001')])
+    stubRealtimeList([createRealtimeItem('1001', 'running')])
+    stubEmptyRuntimeSideData()
+    if (kind === 'http') {
+      vi.mocked(getScheduleChangePoint).mockRejectedValueOnce(new Error('timeout'))
+    } else {
+      vi.mocked(getScheduleChangePoint).mockResolvedValueOnce({
+        data: { success: false, message: '业务失败', data: null },
+      } as unknown as Awaited<ReturnType<typeof getScheduleChangePoint>>)
+    }
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {
       const data = await loadCssMapData()
-      expect(getScheduleChangePoint).toHaveBeenCalledTimes(2)
-      expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '1', process: '前处理1', progress: '' })
-      expect(getScheduleChangePoint).toHaveBeenCalledWith({ dept: '1', process: '前处理2', progress: '' })
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('1/前处理1'))
-      expect(data.devices[0].runtime.fiveMChanges).toHaveLength(0)
-      expect(data.devices[1].runtime.fiveMChanges).toHaveLength(1)
+      expect(data.devices[0].runtime.fiveMChanges).toEqual([])
+      expect(data.devices[0].runtime.status).toBe('production')
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('全部变化点接口失败'))
     } finally {
       warn.mockRestore()
     }
