@@ -36,7 +36,7 @@ const markerStyle = computed(() => ({
   box-sizing: border-box;
   color: var(--css-map-five-m-color);
   flex: 0 0 auto;
-  font-size: max(7px, calc(var(--css-map-node-font-size) * 0.72));
+  font-size: max(7px, calc(var(--css-map-five-m-marker-size, 18px) * 0.56));
   font-weight: 900;
   line-height: 1;
   isolation: isolate;

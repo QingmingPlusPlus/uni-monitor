@@ -89,13 +89,14 @@ describe('变化点统计', () => {
 describe('变化点明细与筛选', () => {
   it('跨工序同序号独立匹配状态，保留历史记录、文本及缺失字段', () => {
     const data = aggregateChangePoints([
-      { scope: '1:前处理1', all: [{ ...record, banci: '早班', implMethod: '1.培训\n2.巡检' }], closed: [record] },
+      { scope: '1:前处理1', all: [{ ...record, banci: '早班', endDate: '2026-09-18', implMethod: '1.培训\n2.巡检' }], closed: [record] },
       { scope: '1:前处理2', all: [{ ...record, date: '2026-08-12' }], closed: [] },
     ], now)
     expect(data.records).toHaveLength(2)
     expect(data.records[0]).toMatchObject({ shift: '早', state: '已关闭', implMethod: '1.培训\n2.巡检' })
     expect(data.records[1]).toMatchObject({ shift: '', state: '进行中', changeDate: '2026-08-12' })
-    expect(data.records[1].releaseDate).toBeUndefined()
+    expect(data.records[0].endDate).toBe('2026-09-18')
+    expect(data.records[1].endDate).toBeUndefined()
   })
   it('日期两端包含、支持单边范围，班次与状态组合筛选和重置', () => {
     const data = aggregateChangePoints([{ scope: '1', all: [

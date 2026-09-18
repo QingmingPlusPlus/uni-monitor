@@ -72,7 +72,8 @@ export interface ScheduleRejectsRecord {
 export interface ScheduleChangePointRecord {
   /** 明细可选扩展字段；当前 Swagger 尚未确认，缺失时保留空值。 */
   banci?: string | null
-  releaseDate?: string | null
+  /** 解除日期；空字符串表示不显示解除日期。 */
+  endDate?: string | null
   pid?: string | number
   date?: string
   factory?: string

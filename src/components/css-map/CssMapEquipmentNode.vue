@@ -172,7 +172,7 @@ const surfaceStyle = computed(() => {
     '--css-map-node-status-color': status.color,
     '--css-map-node-border-width': `${equipmentBorderWidth}px`,
     '--css-map-staff-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
-    '--css-map-five-m-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
+    '--css-map-five-m-marker-size': `${Math.max(11, Math.min(24, smallSide * 0.21))}px`,
     '--css-map-node-content-width': usesRightLShapeContent.value
       ? '100%'
       : `${contentPlan.value.contentWidthRatio * 100}%`,
@@ -242,7 +242,7 @@ const surfaceStyle = computed(() => {
 
           <div class="css-map-equipment-node__detail-row">
             <span class="css-map-equipment-node__detail-label">5M</span>
-            <div class="css-map-equipment-node__markers">
+            <div class="css-map-equipment-node__markers css-map-equipment-node__markers--five-m">
               <CssMapFiveMMarker
                 v-for="change in visibleFiveMItems"
                 :key="change.id"

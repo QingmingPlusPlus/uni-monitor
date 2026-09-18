@@ -41,7 +41,7 @@ function dateLabel(date?: string | null) {
             <th scope="row">{{ row.pid }}</th><td>{{ dateLabel(row.changeDate) }}</td><td>{{ row.shift || '—' }}</td><td>{{ row.device || '—' }}</td>
             <td class="category" :style="{ backgroundColor: color(row.type) }">{{ row.type || '—' }}</td>
             <td class="details">{{ row.changePointContent || '—' }}</td><td class="details">{{ row.potentialRisk || '—' }}</td><td class="details">{{ row.implMethod || '—' }}</td><td class="details">{{ row.implResult || '—' }}</td>
-            <td>{{ row.respPerson || '—' }}</td><td>{{ row.reviewer || '—' }}</td><td>{{ row.state }}</td><td>{{ dateLabel(row.releaseDate) }}</td><td class="details">{{ row.notes || '—' }}</td>
+            <td>{{ row.respPerson || '—' }}</td><td>{{ row.reviewer || '—' }}</td><td>{{ row.state }}</td><td>{{ row.endDate?.trim() ? dateLabel(row.endDate.trim()) : '' }}</td><td class="details">{{ row.notes || '—' }}</td>
           </tr>
         </tbody>
       </table>

@@ -45,6 +45,11 @@ const hideInboundPlan = computed<boolean>(() => {
   <view :class="['factory-dashboard-panel', `factory-dashboard-panel--${data.kind}`]">
     <view class="factory-dashboard-panel__stack">
       <ProductionSummaryCard :data="data.summary" />
+      <ChangePointCard
+        :data="data.changePoint"
+        :scope="changePointScope"
+        @refresh="emit('refresh', 'changePoint')"
+      />
       <ProductionActivityCard :data="data.activity" />
 
       <PersonnelAttendanceCard
@@ -144,11 +149,6 @@ const hideInboundPlan = computed<boolean>(() => {
         :modal-chart-options="card.modalChartOptions"
         :modal-chart-data="card.modalChartData"
         @refresh="emit('refresh', 'productivityTrend')"
-      />
-      <ChangePointCard
-        :data="data.changePoint"
-        :scope="changePointScope"
-        @refresh="emit('refresh', 'changePoint')"
       />
     </view>
   </view>

@@ -30,7 +30,7 @@
 | 目录/组件 | 职责 |
 | --- | --- |
 | `FactoryDashboardView` | 组合顶部告警、左侧地图和右侧滚动面板；默认使用 Sprite 地图，收到回退事件后切换 CSS3D；管理 80vw × 80vh 地图展开层。 |
-| `FactoryDashboardPanel` | 按固定顺序装配汇总、稼动、人员出勤、人员明细和趋势卡片；制造 1 课及其前处理工序隐藏入库计划卡，随后展示真实接口 `productionPlanTrend`，再按 `productionPlanTrends` 顺序展示每个所属工序的真实生产性卡。 |
+| `FactoryDashboardPanel` | 按固定顺序装配汇总、变化点、稼动、人员出勤、人员明细和趋势卡片；制造 1 课及其前处理工序隐藏入库计划卡，随后展示真实接口 `productionPlanTrend`，再按 `productionPlanTrends` 顺序展示每个所属工序的真实生产性卡。 |
 | `FactoryAlertHeader` | 轮播当前维度的告警项；告警数据目前来自 `factoryAlarmMock.ts`。 |
 | `ProductionSummaryCard` | 展示计划、实绩、人员等汇总值。 |
 | `ProductionActivityCard` | 展示部门或工序下设备运行、异常和计划停止数量。 |
@@ -97,6 +97,6 @@
 
 ## 变化点组件
 
-`FactoryDashboardPanel` 按生产计划实绩、所属工序生产性、变化点的顺序装配，在生产性卡片之后挂载 `ChangePointCard`，`ChangePointContent` 展示 14 列变化点明细，提供变化日期范围、班次、状态组合筛选；卡片和展开弹层共享筛选状态，切换维度重置。每工序读取全部及已关闭集合以匹配当前状态，班次与解除日期缺失时显示“—”。部门/工序页面独立并发加载 `changePoint`，不等待其他卡片接口；初始值是 loading 空结构，加载失败返回显式 error 数据，不沿用其他卡片的 mock 降级。页面卡片刷新使用 `changePoint` 标识并保留当前地图选择。详见 `doc/change-point-statistics.md`。
+`FactoryDashboardPanel` 在信息汇总之后、稼动之前挂载 `ChangePointCard`，`ChangePointContent` 展示 14 列变化点明细，提供变化日期范围、班次、状态组合筛选；卡片和展开弹层共享筛选状态，切换维度重置。每工序读取全部及已关闭集合以匹配当前状态，班次缺失时显示“—”；解除日期读取 `endDate`，空值留空。部门/工序页面独立并发加载 `changePoint`，不等待其他卡片接口；初始值是 loading 空结构，加载失败返回显式 error 数据，不沿用其他卡片的 mock 降级。页面卡片刷新使用 `changePoint` 标识并保留当前地图选择。详见 `doc/change-point-statistics.md`。
 
 三个区域分别使用 `productionPlanTrend`、`productivityTrend`、`changePoint` 刷新标识。异步刷新完成后仅合入对应字段，并校验页面请求版本，避免覆盖其他已完成卡片或切换维度后的新数据。

@@ -305,6 +305,11 @@
   gap: 3px;
 }
 
+.css-map-equipment-node--vertical .css-map-equipment-node__markers--five-m {
+  grid-template-columns: repeat(3, minmax(0, var(--css-map-five-m-marker-size, 24px)));
+  grid-auto-rows: minmax(0, var(--css-map-five-m-marker-size, 24px));
+}
+
 .css-map-equipment-node--vertical .css-map-equipment-node__rate {
   grid-area: rate;
   grid-template-columns: minmax(22px, 38%) minmax(0, 1fr);

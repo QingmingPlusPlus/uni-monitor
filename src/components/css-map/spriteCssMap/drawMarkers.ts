@@ -117,7 +117,7 @@ export function drawHorizontalMarkerRow(
   const labelWidth = clamp(rect.w * 0.22, 18, 34)
   const gap = clamp(rect.h * 0.1, 2, 5)
   const markerAreaWidth = Math.max(0, rect.w - labelWidth - gap)
-  const maximumMarkerSize = type === 'staff' ? 18 : 19
+  const maximumMarkerSize = type === 'staff' ? 18 : 25
   const minimumMarkerSize = 7
   const fixedPlan = planCssMapMarkerSlots(itemCount, 'horizontal')
   const geometricCapacity = Math.max(
@@ -211,7 +211,7 @@ export function drawVerticalMarkerGrid(
   const rows = slots.occupiedSlots === 0
     ? 0
     : Math.ceil(slots.occupiedSlots / columns)
-  const maximumMarkerSize = type === 'staff' ? 15 : 16
+  const maximumMarkerSize = type === 'staff' ? 15 : 21
   const markerSize = slots.occupiedSlots > 0
     ? Math.floor(clamp(
         Math.min(
