@@ -57,13 +57,24 @@
 
 `ReportMetric` 为 `{ value: number | null, status: complete | partial | unavailable, note? }`。缺失或无效数字显示 `— / 未提供`；有效部分值可查看但不参与比率。人数、生产数量、次数只接受非负安全整数，时间和原始比例接受非负有限数。缺勤六类统计保留非负有限小数，页面最多两位小数；不擅自解释成人数或天数。仅schedule数量按Swagger示例显式兼容十进制字符串（可带零小数部分）；空字符串、null、十六进制、非整数及超安全整数不能变成有效数量。
 
-`ReportMeta` 保留查询范围、次日报告日、完整性与说明。现有源没有统计起止时间和数据更新时间，因此 `periodStart/periodEnd=null`，`timestampSource=retrieved`，`updatedAt` 仅表示实际读取时间。显示采用工厂时区 `Asia/Shanghai`；不能将读取时间标成服务端更新时间。当前各区均标“部分数据可用”。
+`ReportMeta` 保留查询范围、次日报告日、完整性与说明。现有源没有统计起止时间和数据更新时间，因此 `periodStart/periodEnd=null`，`timestampSource=retrieved`，`updatedAt` 仅表示实际读取时间。显示采用工厂时区 `Asia/Shanghai`；不能将读取时间标成服务端更新时间。各区显示模型均保留完整性；出勤区按参考图隐藏状态徽标、说明和时间元信息。
 
 ### 出勤
 
-`statDate/shiftType/shiftName` 对应日期与班次；按两日端点契约，报告日行属于报告日早班。没有稳定起止时间，不通过中文名称猜测时间；`status=reported` 显示“状态未提供”，`startAt/endAt=null`。
+`statDate/shiftType/shiftName` 对应日期与班次；按两日端点契约，报告日行属于报告日早班。没有稳定起止时间，不通过中文名称猜测时间；`status=reported`、`startAt/endAt=null` 保留在显示模型中，页面不显示状态或起止时间。
 
-`onRollCount/actualAttendanceCount/absenceCount` 对应直接排班、出勤和服务端缺勤；`attendanceRate` 按文档百分数显示一位小数。六类原因依次来自 `annualLeaveCount/nursingLeaveCount/sickLeaveCount/personalLeaveCount/otherLeaveCount/absenteeismCount`，保留小数并提示合计差异。状态未知时不做排班减出勤、不重新计算出勤率。`monitorNames` 每日只显示一次，名单不分班次、不加到直接人员人数；名单缺失不影响有效出勤行。日期/班次异常及重复班次排除并提示，保留其他有效班次，全部无效则报错。
+`onRollCount/actualAttendanceCount/absenceCount` 对应直接排班、出勤和服务端缺勤；`attendanceRate` 按文档百分数显示一位小数。六类原因依次来自 `annualLeaveCount/nursingLeaveCount/sickLeaveCount/personalLeaveCount/otherLeaveCount/absenteeismCount`，保留小数；按用户要求，出勤区域不显示出勤超排班或缺勤分类差异的黄色说明条，差异校验仍用于完整性判定。状态未知时不做排班减出勤、不重新计算出勤率。`monitorNames` 每日只显示一次，名单不分班次、不加到直接人员人数；名单缺失不影响有效出勤行。日期/班次异常及重复班次排除并保留内部说明，展示其他有效班次，全部无效则报错。
+
+
+#### 出勤区域参考图展示（2026-09-20）
+
+正常加载后仅显示 `1. 出勤实绩`、`1-1. 出勤班长`、`1-2. 直接人员出勤` 和表格。移除图外的口径说明、读取时间、时区、统计范围、状态徽标、重新读取按钮、班次状态、异常说明及“未提供”附注；请求失败时仍提供错误与重试，不能将失败包装成正常空表。
+
+表格以“班次”为组合表头，包含日期、星期、班次；同日日期/星期合并单元格。日期显示 `YY年MM月DD日`，星期由日期计算。视觉复用日报共用ReportSection卡片、report-table表格样式和MetricValue数值组件；标题、字号、间距、圆角、表头、边框及颜色使用项目设计变量，取消原型的硬编码灰底标题和黑色网格。表格全宽对齐，数据日主统计区使用surface、报告日使用operation-soft、正数缺勤使用danger色；出勤率不根据图片中的单个红色示例猜测告警阈值。六类原因的真实0按图留白，非零含小数正常显示；未知/无效数值保留“—”，不与真实0混淆。MetricValue新增可选plain（不显示附注）及blankZero（真实零留白），默认行为不变；班长名单为空时保留标题、姓名区留白；不复制图片中的示例姓名。
+
+本次对制造3课后处理重新读取：2026-09-19的 `monitorNames=[]`、3条rows，各统计字段均存在且有数值；2026-07-01的monitorNames有1人、3条rows。图中所需业务字段已全部有来源，无必须新增的字段：班长monitorNames，日期statDate，班次shiftName/shiftType，在籍onRollCount，实绩actualAttendanceCount，出勤率attendanceRate，缺勤absenceCount，分类annualLeaveCount/nursingLeaveCount/sickLeaveCount/personalLeaveCount/otherLeaveCount/absenteeismCount。
+
+未显示原因必须区分：当前班长空白是接口返回空数组；分类空白是明确返回0后按图隐藏，不是字段缺失；班次状态/起止时刻、名单班次归属、源更新时间和完整性标记确实没有字段，但不属于参考图要求。分类小数单位和出勤率标红阈值属于待确认口径，不是假装缺了某个已有业务列。
 
 ### 生产与品质
 
@@ -94,7 +105,7 @@
 
 ## 验证入口
 
-2026-09-20验证：日报29项、全仓库282项测试通过，类型检查和H5构建通过。真实代理页面制造3课后处理（2026-07-01）四区加载成功：计划49,858、实绩13,542、达成率27.16%，制番明细与出勤分类1.5可见；制造1课前处理（2026-09-19）也加载四区，正确显示分类0.5、出勤统计差异、所选日无匹配计划、9月实绩/不良为空及设备时长全零提示，浏览器未捕获error日志。
+2026-09-20验证：日报29项、全仓库282项测试通过，类型检查和H5构建通过。真实代理页面制造3课后处理（2026-07-01）四区加载成功：计划49,858、实绩13,542、达成率27.16%，制番明细与出勤分类1.5可见；制造1课前处理（2026-09-19）也加载四区，修复时已验证分类0.5、出勤统计差异、所选日无匹配计划、9月实绩/不良为空及设备时长全零提示，浏览器未捕获error日志。
 
 - `npm test -- src/pages/daily-report`：日期、筛选、公式、排名、契约校验、真实源映射、未知工序、空数据/失败、共享取消与旧响应保护。
 - `npm run type-check`、`npm run build:h5`：类型与 H5 构建。

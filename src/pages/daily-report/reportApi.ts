@@ -12,7 +12,7 @@ export async function getDailyAttendance(query: DailyReportQuery, signal?: Abort
   const data = result.data?.data
   if (result.data?.success !== true || !data || !Array.isArray(data.rows)) throw new Error('出勤数据不可用')
   const notes = ['出勤为服务端统计值；未提供班次完成状态和起止时刻，不推算缺勤。', '班长名单属于数据日整体，不分配到单个班次。',
-    '缺勤分类保留接口小数原值，折算单位尚未明确；分类与缺勤总数不一致时提示核对。']
+    '缺勤分类保留接口小数原值，折算单位尚未明确。']
   const monitorNames = Array.isArray(data.monitorNames) && data.monitorNames.every(name => typeof name === 'string') ? data.monitorNames : undefined
   if (!monitorNames) notes.push('班长名单未提供或格式异常；直接人员出勤仍正常展示。')
   const candidates = data.rows.filter(row => row && [query.date, offsetDate(query.date, 1)].includes(row.statDate) && row.reportDate === offsetDate(query.date, 1) &&

@@ -1,43 +1,45 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { AttendanceReport } from '../../../api/dailyReport'
+import type { AttendanceReport, ReportAttendanceRow } from '../../../api/dailyReport'
 import type { SectionState } from '../reportResource'
-import { absenceColumns, absenceTotal, attendanceIssues, attendanceRate, attendanceRows, weekday } from '../reportModel'
-import MetricValue from './MetricValue.vue'
+import { absenceColumns, absenceTotal, attendanceRate, attendanceRows, metricValue, weekday } from '../reportModel'
 import ReportSection from './ReportSection.vue'
+import MetricValue from './MetricValue.vue'
 const props = defineProps<{ state: SectionState<AttendanceReport>; date: string }>()
 defineEmits<{ retry: [] }>()
-const rows = computed(() => attendanceRows(props.state.data?.rows ?? [], props.date))
-const statusLabels = { not_started: '未开始', in_progress: '统计中', complete: '已完成', reported: '状态未提供' }
+const groups = computed(() => {
+  const grouped = new Map<string, ReportAttendanceRow[]>()
+  for (const row of attendanceRows(props.state.data?.rows ?? [], props.date)) {
+    const group = grouped.get(row.date) ?? []
+    group.push(row)
+    grouped.set(row.date, group)
+  }
+  return [...grouped].map(([date, rows]) => ({ date, rows }))
+})
+const leaders = computed(() => props.state.data?.monitorNames ?? [])
+function dateLabel(date: string) { return `${date.slice(2, 4)}年${date.slice(5, 7)}月${date.slice(8, 10)}日` }
 </script>
 
 <template>
-  <ReportSection title="1. 出勤实绩" subtitle="在籍口径：当班直接排班人数，班长单列、不计入直接人员。包含数据日各班次及报告日早班。" :status="state.status" :meta="state.data?.meta" :message="state.message" @retry="$emit('retry')">
-    <div v-if="state.data?.monitorNames !== undefined" class="report-leaders"><strong>数据日出勤班长</strong><span>{{ state.data.monitorNames.join('、') || '未返回名单' }}</span><span class="report-muted">按日提供，未区分班次</span></div>
-    <div v-if="!rows.length" class="report-empty">所选日期暂无出勤记录</div>
-    <template v-else>
-      <div v-if="state.data?.monitorNames === undefined" class="report-leaders">
-        <strong>出勤班长</strong>
-        <div v-for="row in rows" :key="row.id" class="report-leader">
-          <span class="report-muted">{{ row.date }} · {{ row.shiftName }}</span>
-          <strong>{{ row.status === 'not_started' ? '未开始' : row.leaders === null ? '— 未接入' : row.leaders.map(leader => leader.name).join('、') || '无' }}</strong>
-        </div>
-      </div>
-      <template v-for="row in rows" :key="`${row.id}-issues`"><p v-for="issue in attendanceIssues(row)" :key="issue" class="report-warning">{{ row.date }} {{ row.shiftName }}：{{ issue }}</p></template>
-      <div class="report-table-scroll" tabindex="0" aria-label="直接人员出勤表，可横向滚动">
-        <table class="report-table report-attendance-table">
-          <thead><tr><th>日期</th><th>星期</th><th>班次</th><th>在籍人员</th><th>实绩出勤</th><th>出勤率</th><th>缺勤</th><th v-for="column in absenceColumns" :key="column.key">{{ column.label }}</th></tr></thead>
-          <tbody><tr v-for="row in rows" :key="row.id">
-            <th>{{ row.date }}</th><td>{{ weekday(row.date) }}</td>
-            <td>{{ row.shiftName }}<small class="report-cell-note">{{ statusLabels[row.status] }}</small></td>
-            <td><MetricValue :metric="row.roster" /></td>
-            <td><MetricValue :metric="row.actual" :suppressed="row.status === 'not_started'" /></td>
-            <td>{{ attendanceRate(row) }}</td>
-            <td><MetricValue :metric="absenceTotal(row)" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
-            <td v-for="column in absenceColumns" :key="column.key"><MetricValue :metric="row.absence[column.key]" :digits="2" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
-          </tr></tbody>
-        </table>
-      </div>
-    </template>
+  <ReportSection class="report-attendance-section" title="1. 出勤实绩" :status="state.status" :message="state.message" @retry="$emit('retry')">
+    <div class="attendance-leaders"><h3>1-1. 出勤班长</h3><strong v-for="(name, index) in leaders" :key="`${index}:${name}`" class="attendance-leader-name">{{ name }}</strong></div>
+    <h3 class="attendance-subtitle">1-2. 直接人员出勤</h3>
+    <div class="report-table-scroll attendance-table-wrap" tabindex="0" aria-label="直接人员出勤表，可横向滚动">
+      <table class="report-table report-attendance-table">
+        <thead><tr><th colspan="3" scope="colgroup">班次</th><th scope="col">在籍人员</th><th scope="col">实绩出勤</th><th scope="col">出勤率</th><th scope="col">缺勤</th><th v-for="column in absenceColumns" :key="column.key" scope="col">{{ column.label }}</th></tr></thead>
+        <tbody v-for="group in groups" :key="group.date">
+          <tr v-for="(row, index) in group.rows" :key="row.id" :class="{ 'attendance-next-day': group.date !== date }">
+            <th v-if="index === 0" :rowspan="group.rows.length" scope="rowgroup" class="attendance-date attendance-main">{{ dateLabel(group.date) }}</th>
+            <td v-if="index === 0" :rowspan="group.rows.length" class="attendance-weekday attendance-main">周{{ weekday(group.date) }}</td>
+            <th scope="row" class="attendance-shift attendance-main">{{ row.shiftName }}</th>
+            <td class="attendance-main"><MetricValue :metric="row.roster" plain /></td>
+            <td class="attendance-main"><MetricValue :metric="row.actual" :suppressed="row.status === 'not_started'" plain /></td>
+            <td class="attendance-main">{{ attendanceRate(row) }}</td>
+            <td class="attendance-main" :class="{ 'attendance-absent': (metricValue(absenceTotal(row)) ?? 0) > 0 }"><MetricValue :metric="absenceTotal(row)" :suppressed="row.status !== 'complete' && row.status !== 'reported'" plain /></td>
+            <td v-for="column in absenceColumns" :key="column.key"><MetricValue :metric="row.absence[column.key]" :digits="2" :suppressed="row.status !== 'complete' && row.status !== 'reported'" plain blank-zero /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ReportSection>
 </template>

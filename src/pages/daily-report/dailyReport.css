@@ -40,7 +40,23 @@
 .daily-report .report-table th:first-child { text-align: left; }
 .daily-report .report-table tbody th { font-weight: 600; }
 .daily-report .report-table tbody tr:last-child > * { border-bottom: 0; }
-.daily-report .report-attendance-table { min-width: 1160px; }
+.daily-report .attendance-leaders { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); padding: var(--space-3); margin-bottom: var(--space-5); border-radius: 8px; background: var(--um-color-surface-subtle); }
+.daily-report .attendance-leaders h3 { font-size: 17px; font-weight: 600; color: var(--um-color-text-secondary); }
+.daily-report .attendance-leader-name { font-size: 20px; font-weight: 700; color: var(--um-color-text-primary); }
+.daily-report .attendance-subtitle { margin-bottom: var(--space-3); font-size: 17px; font-weight: 600; }
+.daily-report .attendance-table-wrap { border: 1px solid var(--um-color-border); border-radius: 8px; }
+.daily-report .report-attendance-table { min-width: 960px; }
+.daily-report .report-attendance-table th, .daily-report .report-attendance-table td { padding: 14px 10px; text-align: center; border-right: 1px solid var(--um-color-border); }
+.daily-report .report-attendance-table th:last-child, .daily-report .report-attendance-table td:last-child { border-right: 0; }
+.daily-report .report-attendance-table th:first-child { text-align: center; }
+.daily-report .report-attendance-table .attendance-date { min-width: 154px; border-right: 0; padding-right: 4px; }
+.daily-report .report-attendance-table .attendance-weekday { border-right: 0; padding-left: 4px; padding-right: 4px; color: var(--um-color-text-secondary); }
+.daily-report .report-attendance-table .attendance-shift { padding-left: 4px; }
+.daily-report .report-attendance-table .attendance-main { background: var(--um-color-surface); }
+.daily-report .report-attendance-table .attendance-next-day .attendance-main { background: var(--um-color-operation-soft); }
+.daily-report .report-attendance-table tbody + tbody { border-top: 1px solid var(--um-color-border); }
+.daily-report .report-attendance-table .attendance-absent { color: var(--um-color-danger); font-weight: 700; }
+@media (max-width: 767px) { .daily-report .attendance-leaders { padding: 12px; gap: 12px 20px; } }
 .daily-report .report-production-table { min-width: 1040px; }
 .daily-report .report-cell-note, .daily-report .report-metric small { display: block; font-size: 15px; font-weight: 400; color: var(--um-color-text-secondary); }
 .daily-report .report-leaders { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; padding-bottom: 20px; }
