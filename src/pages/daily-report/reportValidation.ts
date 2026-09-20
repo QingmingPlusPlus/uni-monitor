@@ -43,7 +43,7 @@ export function validAttendance(rows: ReportAttendanceRow[], query: DailyReportQ
     (row.leaders === null || (Array.isArray(row.leaders) && unique(row.leaders, 'employeeId') &&
       row.leaders.every(leader => object(leader) && text(leader.employeeId) && text(leader.name)))) &&
     metrics(row, ['roster', 'actual', 'absent']) && object(row.absence) &&
-    absenceColumns.every(column => metric(row.absence[column.key])))
+    absenceColumns.every(column => metric(row.absence[column.key], false)))
 }
 export function validProduction(rows: ReportProductionRow[]): boolean {
   return unique(rows, 'id') && rows.every(row => named(row) &&

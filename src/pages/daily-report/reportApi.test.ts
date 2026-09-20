@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getReportAttendanceSource, getReportPlanSource, getReportOutputSource, getReportRejectsSource, getReportDeviceSource, type DailyReportQuery } from '../../api/dailyReport'
 import { getDailyAttendance, getDailyProduction, getDailyQuality, getDailyLineLosses } from './reportApi'
 import { validAttendance, validLines, validProduction, validQuality, validReportMeta } from './reportValidation'
-import { absenceTotal, attendanceRate, metricValue, rankQuality } from './reportModel'
+import { absenceTotal, attendanceIssues, attendanceRate, formatMetric, metricValue, percent, rankLines, rankQuality } from './reportModel'
 
 vi.mock('../../api/dailyReport', () => ({ getReportAttendanceSource: vi.fn(), getReportPlanSource: vi.fn(), getReportOutputSource: vi.fn(), getReportRejectsSource: vi.fn(), getReportDeviceSource: vi.fn() }))
 const query: DailyReportQuery = { date: '2026-07-01', department: '4', processType: 'sulfur_addition' }
@@ -118,6 +118,77 @@ describe('日报真实接口适配', () => {
     expect((await getDailyLineLosses(query)).data.data.rows[0].actual.value).toBe(80)
     vi.mocked(getReportOutputSource).mockRejectedValue(new Error('timeout'))
     await expect(getDailyProduction(query)).rejects.toThrow()
+  })
+
+  it('按 Swagger 接受十进制数量字符串，空值与非法值不变成零，部分数值保留但不排名', async () => {
+    stubSource(getReportPlanSource, [row({ number: '100' }), row({ number: ' 20.0 ' })])
+    stubSource(getReportOutputSource, [row({ number: '80' }), row({ number: '' }), row({ number: null }), row({ number: '0x10' }), row({ number: '1.5' })])
+    const report = (await getDailyProduction(query)).data.data
+    expect(report.rows[0].plan).toMatchObject({ value: 120, status: 'complete' })
+    expect(report.rows[0].actual).toMatchObject({ value: 80, status: 'partial' })
+    expect(percent(report.rows[0].actual, report.rows[0].plan)).toBe('—')
+    expect(rankLines((await getDailyLineLosses(query)).data.data.rows)).toEqual([])
+    expect(report.meta.notes.join('')).toContain('部分数量缺失或无效')
+    stubSource(getReportOutputSource, [row({ number: '9007199254740993' })])
+    expect((await getDailyProduction(query)).data.data.rows[0].actual.value).toBeNull()
+  })
+
+  it('单条格式异常不拖垮整个月来源，日期不明也不会生成完整合计', async () => {
+    stubSource(getReportPlanSource, [row(), null])
+    stubSource(getReportOutputSource, [row({ number: 80 }), row({ date: undefined })])
+    const report = (await getDailyProduction(query)).data.data
+    expect(report.rows[0].plan).toMatchObject({ value: 100, status: 'partial' })
+    expect(report.rows[0].actual).toMatchObject({ value: 80, status: 'partial' })
+    expect(report.meta.notes.join('')).toContain('记录格式异常')
+    expect(report.meta.notes.join('')).toContain('日期缺失或无效')
+    stubSource(getReportPlanSource, [null])
+    expect((await getDailyProduction(query)).data.data.rows[0].plan.value).toBeNull()
+  })
+
+  it('不良分类不全及缺制番时保留已知数量，避免错误的品质排行', async () => {
+    stubSource(getReportRejectsSource, [row({ number: 2, type: '不良' }), row({ number: 3, type: '未知' })])
+    const production = (await getDailyProduction(query)).data.data.rows[0]
+    expect(production.defective).toMatchObject({ value: 2, status: 'partial' })
+    expect(production.scrapped).toMatchObject({ value: 2, status: 'partial' })
+    stubSource(getReportRejectsSource, [row({ number: 2, type: '不良' })])
+    stubSource(getReportOutputSource, [row({ number: 80 }), row({ number: 20, zhifan: '' })])
+    const quality = (await getDailyQuality(query)).data.data
+    expect(quality.rows[0].actual).toMatchObject({ value: 80, status: 'partial' })
+    expect(rankQuality(quality.rows, query.processType, quality.meta.qualityDimension)).toEqual([])
+    expect(quality.meta.notes.join('')).toContain('缺少制番')
+  })
+
+  it('出勤小数分类不会丢失或四舍五入，名单缺失不影响有效班次', async () => {
+    stubSource(getReportAttendanceSource as unknown as typeof getReportPlanSource, { monitorNames: null, rows: [
+      { statDate: query.date, reportDate: '2026-07-02', shiftType: 'three_early', shiftName: '早班', onRollCount: 40, actualAttendanceCount: 37,
+        attendanceRate: 92.5, absenceCount: 3, annualLeaveCount: 1, nursingLeaveCount: 0, sickLeaveCount: 1, personalLeaveCount: 0, otherLeaveCount: 1.5, absenteeismCount: 0 },
+      { statDate: '2026-06-30', reportDate: '2026-07-02', shiftType: 'three_night', shiftName: '夜班' },
+    ] })
+    const report = (await getDailyAttendance(query)).data.data
+    expect(report.rows).toHaveLength(1)
+    expect(report.rows[0].absence.other).toMatchObject({ value: 1.5, status: 'complete' })
+    expect(formatMetric(report.rows[0].absence.other, false, 2)).toBe('1.5')
+    expect(attendanceIssues(report.rows[0])).toContain('缺勤分类合计与缺勤总数不一致，请核对')
+    expect(validAttendance(report.rows, query)).toBe(true)
+    expect(report.monitorNames).toBeUndefined()
+    expect(report.meta.notes.join('')).toContain('班长名单未提供')
+    expect(report.meta.notes.join('')).toContain('部分出勤记录')
+  })
+
+  it('空月份和设备全零明确提示，重复设备时长不被重复统计', async () => {
+    stubSource(getReportOutputSource, [])
+    const production = (await getDailyProduction(query)).data.data
+    expect(production.meta.notes.join('')).toContain('2026-07 月生产实绩接口未返回记录')
+    expect(production.rows[0].actual.value).toBeNull()
+    const device = { deviceCode: 'A', day: query.date, departmentId: '4', processType: 'sulfur_addition', totalRunHours: 0, productionHours: 0, obstructionHours: 0, obstructionItems: [] }
+    vi.mocked(getReportDeviceSource).mockResolvedValue(response([device]) as Awaited<ReturnType<typeof getReportDeviceSource>>)
+    const zeros = (await getDailyLineLosses(query)).data.data
+    expect(zeros.rows[0].totalRunSeconds?.value).toBe(0)
+    expect(zeros.meta.notes.join('')).toContain('全部返回 0')
+    vi.mocked(getReportDeviceSource).mockResolvedValue(response([device, device]) as Awaited<ReturnType<typeof getReportDeviceSource>>)
+    const duplicates = (await getDailyLineLosses(query)).data.data
+    expect(duplicates.rows[0].totalRunSeconds?.value).toBeNull()
+    expect(duplicates.meta.notes.join('')).toContain('重复设备')
   })
 
   it('单区取消不影响共享来源的另一分区，全部取消才中断上游', async () => {

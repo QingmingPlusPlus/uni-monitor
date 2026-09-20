@@ -105,6 +105,7 @@ export interface TwoDayAttendancePerformanceRowVO {
   /** 出勤率（%） */
   attendanceRate: number
   absenceCount: number
+  /** 分类统计实测可为 0.5、1.5 等小数；折算单位尚待后端确认，不取整。 */
   annualLeaveCount: number
   nursingLeaveCount: number
   sickLeaveCount: number

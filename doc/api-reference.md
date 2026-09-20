@@ -1,8 +1,16 @@
 # 后端接口参考
 
-> 2026-09-18 用户确认的新契约优先于旧 Swagger：查询参数仍名为 `dept`，`dept/process` 均可省略，不传则查询全部范围；`progress` 保持原约定。地图仅请求一次 `getScheduleChangePoint({ progress: '' })`，按 `device` 匹配设备，只显示 `status` 为数值 `0` 或字符串 `"0"` 的进行中记录；缺失、空值及其他状态不显示。后端同步情况尚未联调确认。
+> 2026-09-20 实测 `getChangePoint?progress=` 在省略 `dept/process/beginDate/endDate/banci` 时成功返回2条记录；Swagger仍把六个参数全部标为必填，声明与运行时不一致。地图保持用户确认的全范围查询及 `status=0` 筛选。新日期/班次参数仅核对声明，尚未验证筛选行为。
 
-核验日期：2026-09-14（保留 2026-09-11 的历史成功样本，分别注明来源日期）。来源：[Swagger UI](http://123.57.81.179:8080/swagger-ui/index.html)、[OpenAPI JSON](http://123.57.81.179:8080/v3/api-docs)（可视化自研接口 1.0，OAS 3.0）及下述只读请求。共 25 个端点，包含 24 个 GET 和 1 个 POST。前端访问层与接入状态见 [API 模块](api-module.md)，页面口径见 [字段映射](factory-dashboard-real-data-mapping.md)，未解决问题见 [接口缺口](department-api-gaps.md)。
+核验日期：2026-09-20（保留9月11日、14日的历史结果，未重测的接口不推断当前可用性）。来源：[Swagger UI](http://123.57.81.179:8080/swagger-ui/index.html)、[OpenAPI JSON](http://123.57.81.179:8080/v3/api-docs)（可视化自研接口 1.0，OAS 3.0）及下述只读请求。共25个端点，包含24个GET和1个POST。前端访问层与接入状态见 [API 模块](api-module.md)，页面口径见 [字段映射](factory-dashboard-real-data-mapping.md)，未解决问题见 [接口缺口](department-api-gaps.md)。
+
+## 2026-09-20 更新
+
+- 实时契约与仓库已有 [9月20日快照](swagger/openapi-2026-09-20.json) 内容一致，保留原文件；与9月16日快照比较，只有 `getChangePoint` 操作发生变化，端点数量及components schemas未变。
+- `getChangePoint` 新增查询 `beginDate/endDate/banci`，描述补齐返回 `banci/endDate/status`；省略范围参数的查询成功，不能把Swagger required当成已验证的运行时要求。
+- 两日出勤和设备 `day/report` 已恢复成功，不再沿用9月14日超时结论。两日出勤分类出现小数0.5、1.5，前端改为保留原值；存在在籍0但实绩29、分类合计与缺勤总数不一致等数据质量问题。
+- `day/report.deviceId` 实测为string；三个设备样本有35/59/56条记录，但时间、可动率全0，`obstructionItems`全空。不能据此确认采集完整性、非零比率尺度或阻碍项运行时结构。
+- 9月生产实绩仍空；7月实绩9条，5月2条；不良5/7/9月均空。独立合格数、流动数、模具关联、不良现象、班次状态、源更新时间等仍未提供。完整缺口见 [制造日报](daily-report.md)。
 
 ## 2026-09-14 更新
 
@@ -60,7 +68,7 @@ Swagger 的 HTTP 500 响应允许字符串或错误对象。2026-09-11 还观察
 | GET `/schedule/getRukuShiji` | `month` 必填 | 入库实绩数组 |
 | GET `/schedule/getRejects` | `month` 必填 | 开放对象数组，非空结构待验证 |
 | GET `/schedule/getWorkhours` | `date`、`banci` 必填；班次声明为 `早` 或 `夜` | 设备工时类型数组 |
-| GET `/schedule/getChangePoint` | 无 | 变化点数组，2026-09-14 已成功核验 |
+| GET `/schedule/getChangePoint` | Swagger将 `dept/process/beginDate/endDate/banci/progress` 均标为必填；本次仅传 `progress=` 也成功 | 变化点数组，返回描述补齐班次、解除日期、状态 |
 | GET `/device/realtime/list` | `deviceCode`、`deviceCodes`、`deviceCodeLike`、`factoryId`、`departmentId`、`processType` 可选 | 设备实时快照数组 |
 | GET `/device/device/timeLine` | `deviceCode`、`queryDate` 可选 | 设备时间轴数组（声明） |
 | GET `/device/availability/year` | `year`、`departmentId`、`processType`、`deviceCode`、`deviceId` 可选 | 月度设备时长数组（声明） |
@@ -68,7 +76,7 @@ Swagger 的 HTTP 500 响应允许字符串或错误对象。2026-09-11 还观察
 | GET `/device/availability/day` | `day`、`departmentId`、`processType`、`deviceCode`、`deviceId` 可选 | 当日设备时长数组（声明） |
 | GET `/device/availability/pauseRecords` | `deviceCode`、`queryDate` 可选；日期未传默认前一天（声明） | 暂停记录数组（声明） |
 | GET `/device/availability/month/daily-net` | `month`、`departmentId`、`processType`、`deviceCode` 可选 | 每日净工时数组（声明） |
-| GET `/device/availability/day/report` | `day`、`departmentId`、`processType`、`deviceCode` 可选 | 日报设备可动率数组（声明） |
+| GET `/device/availability/day/report` | `day`、`departmentId`、`processType`、`deviceCode` 可选 | 日报设备可动率数组（9月20日非空设备列表已验证） |
 | GET `/visual/getValue` | `key` 必填 | string（声明），本次为 null |
 | POST `/visual/saveMap` | JSON body 键值 Map，见下文 | boolean（声明，未执行写入） |
 
@@ -94,7 +102,7 @@ Swagger 对这 9 个接口统一使用 `ResponseDataListMapStringObject`，即 `
 
 ## 考勤字段
 
-下表的非空记录及 JSON 类型来自 2026-09-11；2026-09-14 重查超时。统计含义和百分比单位来自 Swagger。
+两日出勤在2026-09-20重验成功，分类统计可为小数；其他考勤端点下表类型仍来自2026-09-11（9月14日重查超时）。统计含义和百分比单位来自Swagger。
 
 | data 元素/对象 | 字段与类型 | 说明 |
 | --- | --- | --- |
@@ -103,7 +111,7 @@ Swagger 对这 9 个接口统一使用 `ResponseDataListMapStringObject`，即 `
 | 实时考勤 | `shiftType`、`shiftTypeName`、`positionId`、`positionName`、`positionType: string`；`schedulePersonCount`、`actualAttendancePersonCount: number` | `positionId` 声明 integer/int64，实测 string。`positionType` 声明 direct/indirect。 |
 | 人员明细 | `shiftName`、`account`、`realName`、`positionName`、`workTypeName`、`attendanceSituation`、`attendanceStatus: string`；`ability: string 或 null`；`workHourList: WorkHour[] 或 null` | 6 月非空样本中 `ability` 部分为 null；`workHourList` 全部为 null，数组元素仅声明，尚未实测。工号/姓名为 `account/realName`。 |
 | `WorkHour`（仅声明） | `workHourType: string`、`workHour: string` | 工时数值声明为字符串，不能仅按名称改为 number。 |
-| 两日出勤 data | `monitorNames: string[]`（元素仅声明，历史样本空）；`rows: TwoDayAttendancePerformanceRow[]` | 班长名单和直接人员统计行；日报已在页面层适配为显示模型，名单按日展示，未知班次完成状态不补造。 |
+| 两日出勤 data | `monitorNames: string[]`（9月20日页面非空名单已验证，未保存姓名）；`rows: TwoDayAttendancePerformanceRow[]` | 班长名单和直接人员统计行；日报已在页面层适配为显示模型，名单按日展示，未知班次完成状态不补造。 |
 | 两日出勤 row | `statDate`、`reportDate`、`shiftType`、`shiftName: string`；以下均为 number：`onRollCount`、`actualAttendanceCount`、`attendanceRate`、`absenceCount`、`annualLeaveCount`、`nursingLeaveCount`、`sickLeaveCount`、`personalLeaveCount`、`otherLeaveCount`、`absenteeismCount` | 在籍、实绩出勤、出勤率（%）、缺勤及年假/陪护/病假/事假/其他/旷工。 |
 
 两日出勤 2026-09-11 返回 3 行，不据此固定所有请求的班次数量、日期分组方式或报告日截取规则。月度接口有 30 行只表示返回了日期记录，不代表每天已有有效实绩。
@@ -148,20 +156,38 @@ Swagger 对这 9 个接口统一使用 `ResponseDataListMapStringObject`，即 `
 
 2026-09-14 已修正 `src/api/deviceAvailability.ts` 及设备详情适配：使用 `pauseTypeName/operationStatus/startTime/endTime/durationMinutes`，移除旧别名。新历史设备 ID 类型兼容 `string | number`，不是已确认服务端返回字符串；时间轴与暂停记录 `endTime` 允许 null 属于防御性兼容，非本次非空实测。
 
-## 新增设备统计字段（2026-09-14，仅声明）
+## 设备日报与净工时字段（2026-09-20）
 
 | 对象 | 字段与声明类型 | 边界 |
 | --- | --- | --- |
 | 每日净工时 | `period: string`、`netHours: number/double` | Swagger 仅标记“实绩MH”；日期格式、班次归属、汇总范围尚未实测，不自行推导公式。 |
-| 日报设备可动率 | `deviceId: integer/int64`；`deviceCode/deviceName/departmentId/departmentName/processType/processTypeName/day: string`；`totalRunHours/productionHours/obstructionHours/availabilityRate: number/double`；`obstructionItems: DeviceObstructionItem[]` | 尚未取得业务响应；可动率单位及分母不明确。 |
+| 日报设备可动率 | `deviceId` 声明integer/int64、实测string；`deviceCode/deviceName/departmentId/departmentName/processType/processTypeName/day: string`；`totalRunHours/productionHours/obstructionHours/availabilityRate: number`；`obstructionItems: DeviceObstructionItem[]` | 本次返回非空设备列表，但数值全0、原因数组全空；可动率单位及分母不明确。 |
 | 阻碍项 | `pauseType/pauseTypeName: string`；`obstructionHours/ratio: number/double`；`count: integer/int32` | ratio 单位及事件去重口径待确认。 |
 
-按用户确认的卡片设备范围，daily-net 已接入部门与工序生产性卡片：netHours 直接作为实绩 MH，不自行推导公式；period 按有效日期并截止生产日处理。最新 month=2026-09、departmentId=4、processType=sulfur_addition 查询仍在25秒超时，尚无非空实测，页面按失败保留空值。day/report 已通过日报适配层接入设备维度展示；原始比例不换算百分比，设备源失败仍显示计划实绩。前端不再请求未发布的 `/daily-report/*`。
+按用户确认的卡片设备范围，daily-net 已接入部门与工序生产性卡片：netHours 直接作为实绩 MH，不自行推导公式；period 按有效日期并截止生产日处理。9月14日 month=2026-09、departmentId=4、processType=sulfur_addition 查询25秒超时（9月20日未重测），尚无非空实测，页面按失败保留空值。day/report 已通过日报适配层接入设备维度展示；原始比例不换算百分比，设备源失败仍显示计划实绩。前端不再请求未发布的 `/daily-report/*`。
 
 ## 可视化配置
 
-- `GET /visual/getValue?key=demoKey` 本次成功返回 `data=null`；非空字符串内容尚未验证。前端的 `parseVisualConfigValue` 会尝试解析字符串，失败则保留原字符串。
+- `GET /visual/getValue?key=demoKey` 在9月14日成功返回 `data=null`；非空字符串内容尚未验证。前端的 `parseVisualConfigValue` 会尝试解析字符串，失败则保留原字符串。
 - `POST /visual/saveMap` 的文字声明是持久化 body 中所有键值对，返回 `ApiResponse<boolean>`；但 OpenAPI 未定义 `requestBody`，没有可验证的键值 schema。项目封装为 `Record<string, unknown>`。本次未调用该写入接口，不能把前端封装当成实测契约。
+
+## 2026-09-20 只读核验记录
+
+以下业务GET均未携带文档认证头，均HTTP200、success=true。仅保留数量、字段和聚合异常，不保存人员姓名、制番明细或凭据。文档认证成功不代表业务接口使用相同认证方式。
+
+| 端点 | 参数 | 结果 |
+| --- | --- | --- |
+| `getPlan` | month=2026-09 / 2026-07 | 5775 / 1105条；number为JSON数值，字段集沿用历史记录 |
+| `getOutput` | month=2026-09 / 2026-07 / 2026-05 | 0 / 9 / 2条；7月的8条在7月1日、1条在7月22日，均制造3课后处理（含出货检查包装） |
+| `getRejects` | month=2026-09 / 2026-07 / 2026-05 | 均0条，不能认定不良为零 |
+| `twoDayAttendancePerformance` | dataDate=2026-09-19，reportDate=2026-09-20，department=1，processType=preprocessing | 3行；9月19日夜班在籍0、实绩29；次日早班缺勤7，分类合计7.5（其他0.5） |
+| `twoDayAttendancePerformance` | dataDate=2026-07-01，reportDate=2026-07-02，department=3，processType=post_processing | 3行；次日早班缺勤3，分类合计3.5（其他1.5） |
+| `day/report` | day=2026-09-19，departmentId=1，processType=preprocessing | 35台设备 |
+| `day/report` | day=2026-07-01，departmentId=3，processType=post_processing | 59台设备 |
+| `day/report` | day=2026-09-18，departmentId=4，processType=sulfur_addition | 56台设备 |
+| `getChangePoint` | 仅progress=空字符串 | 2条；实际含banci/endDate/status。未在本次验证日期/班次/状态筛选效果 |
+
+三个 `day/report` 样本的totalRunHours、productionHours、obstructionHours、availabilityRate全部为0，obstructionItems全部为空。设备字段形态已验证，非零时间/原因与统计完整性未验证。出勤和设备成功码为 `00000`，schedule为 `200`。未调用POST保存接口；未重测的其他业务GET保留历史证据。
 
 ## 2026-09-11 历史只读核验记录
 

@@ -10,21 +10,32 @@ export async function getDailyAttendance(query: DailyReportQuery, signal?: Abort
   const result = await getReportAttendanceSource({ dataDate: query.date, reportDate: offsetDate(query.date, 1),
     department: query.department, processType: query.processType }, signal)
   const data = result.data?.data
-  if (result.data?.success !== true || !data || !Array.isArray(data.rows) || !Array.isArray(data.monitorNames) || !data.monitorNames.every(name => typeof name === 'string')) throw new Error('出勤数据不可用')
-  const rows: ReportAttendanceRow[] = data.rows.map(row => {
-    if (!row || ![query.date, offsetDate(query.date, 1)].includes(row.statDate) || row.reportDate !== offsetDate(query.date, 1) ||
-      typeof row.shiftType !== 'string' || !row.shiftType || typeof row.shiftName !== 'string' || !row.shiftName) throw new Error('出勤数据日期或班次无效')
+  if (result.data?.success !== true || !data || !Array.isArray(data.rows)) throw new Error('出勤数据不可用')
+  const notes = ['出勤为服务端统计值；未提供班次完成状态和起止时刻，不推算缺勤。', '班长名单属于数据日整体，不分配到单个班次。',
+    '缺勤分类保留接口小数原值，折算单位尚未明确；分类与缺勤总数不一致时提示核对。']
+  const monitorNames = Array.isArray(data.monitorNames) && data.monitorNames.every(name => typeof name === 'string') ? data.monitorNames : undefined
+  if (!monitorNames) notes.push('班长名单未提供或格式异常；直接人员出勤仍正常展示。')
+  const candidates = data.rows.filter(row => row && [query.date, offsetDate(query.date, 1)].includes(row.statDate) && row.reportDate === offsetDate(query.date, 1) &&
+    typeof row.shiftType === 'string' && !!row.shiftType.trim() && typeof row.shiftName === 'string' && !!row.shiftName.trim())
+  const counts = new Map<string, number>()
+  for (const row of candidates) {
+    const id = `${row.statDate}:${row.shiftType}`
+    counts.set(id, (counts.get(id) ?? 0) + 1)
+  }
+  const unique = candidates.filter(row => counts.get(`${row.statDate}:${row.shiftType}`) === 1)
+  if (unique.length < data.rows.length) notes.push('部分出勤记录日期、班次无效或班次重复，已排除；有效班次仍可查看。')
+  if (data.rows.length && !unique.length) throw new Error('出勤数据日期或班次无效')
+  const rows: ReportAttendanceRow[] = unique.map(row => {
     return { id: `${row.statDate}:${row.shiftType}`, date: row.statDate, shiftCode: row.shiftType, shiftName: row.shiftName,
       // 两日出勤端点明确只返回报告日早班；不通过中文班次名称推测时刻。
       isEarlyShift: row.statDate === offsetDate(query.date, 1), startAt: null, endAt: null, status: 'reported', leaders: null,
       roster: sourceMetric(row.onRollCount), actual: sourceMetric(row.actualAttendanceCount), absent: sourceMetric(row.absenceCount),
       reportedAttendanceRate: sourceMetric(row.attendanceRate, false), absence: {
-        annual: sourceMetric(row.annualLeaveCount), care: sourceMetric(row.nursingLeaveCount), sick: sourceMetric(row.sickLeaveCount),
-        personal: sourceMetric(row.personalLeaveCount), other: sourceMetric(row.otherLeaveCount), unexcused: sourceMetric(row.absenteeismCount),
+        annual: sourceMetric(row.annualLeaveCount, false), care: sourceMetric(row.nursingLeaveCount, false), sick: sourceMetric(row.sickLeaveCount, false),
+        personal: sourceMetric(row.personalLeaveCount, false), other: sourceMetric(row.otherLeaveCount, false), unexcused: sourceMetric(row.absenteeismCount, false),
       } }
   })
-  const report: AttendanceReport = { meta: sourceMeta(query, ['出勤为服务端统计值；未提供班次完成状态和起止时刻，不推算缺勤。', '班长名单属于数据日整体，不分配到单个班次。']),
-    rows, monitorNames: data.monitorNames }
+  const report: AttendanceReport = { meta: sourceMeta(query, notes), rows, monitorNames }
   return response(report)
 }
 
@@ -40,15 +51,17 @@ export async function getDailyLineLosses(query: DailyReportQuery, signal?: Abort
   const [sources, devices] = await Promise.all([reportScheduleSources(query, signal, false), reportDeviceSource(query, signal)])
   if ([sources[0], sources[1], devices].every(source => source.records === null)) throw new Error('设备生产数据源均不可用')
   const context = scheduleContext(query, sources)
+  const rows = lineRows(query, context, devices)
   return response({ meta: { ...sourceMeta(query, [...context.notes, devices.note, '当前按设备展示，未合并为生产线；范围不受地图显示设备限制。',
     '可动率及阻碍占比未说明单位，展示原始数值，不换算百分比；总运转时间不等同于已扣计划停止的可运转时间。']), lineDimension: 'device' as const },
-    rows: lineRows(query, context, devices) })
+    rows })
 }
 
 export async function getDailyQuality(query: DailyReportQuery, signal?: AbortSignal) {
   const sources = await reportScheduleSources(query, signal)
   if (sources[1].records === null && sources[2].records === null) throw new Error('品质数据源均不可用')
   const context = scheduleContext(query, sources)
+  const rows = qualityRows(context)
   return response({ meta: { ...sourceMeta(query, [...context.notes, '当前按制番展示实绩和可确认归属的不良；未提供模具关联、合格数和不良现象。',
-    '没有不良记录不视为不良数为零；缺少完整分子分母时只展示明细，不参与排行。']), qualityDimension: 'production_number' as const }, rows: qualityRows(context) })
+    '没有不良记录不视为不良数为零；缺少完整分子分母时只展示明细，不参与排行。']), qualityDimension: 'production_number' as const }, rows })
 }

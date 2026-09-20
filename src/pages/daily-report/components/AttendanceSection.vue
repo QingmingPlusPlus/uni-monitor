@@ -34,7 +34,7 @@ const statusLabels = { not_started: '未开始', in_progress: '统计中', compl
             <td><MetricValue :metric="row.actual" :suppressed="row.status === 'not_started'" /></td>
             <td>{{ attendanceRate(row) }}</td>
             <td><MetricValue :metric="absenceTotal(row)" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
-            <td v-for="column in absenceColumns" :key="column.key"><MetricValue :metric="row.absence[column.key]" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
+            <td v-for="column in absenceColumns" :key="column.key"><MetricValue :metric="row.absence[column.key]" :digits="2" :suppressed="row.status !== 'complete' && row.status !== 'reported'" /></td>
           </tr></tbody>
         </table>
       </div>

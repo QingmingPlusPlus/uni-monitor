@@ -72,7 +72,7 @@ export function attendanceIssues(row: ReportAttendanceRow): string[] {
   const counts = absenceColumns.map(column => metricValue(row.absence[column.key], true))
   const issues: string[] = []
   if (roster !== null && actual !== null && actual > roster) issues.push('出勤人数超过排班人数，请核对统计口径')
-  if (absent !== null && counts.every(value => value !== null) && counts.reduce<number>((sum, value) => sum + value!, 0) !== absent) issues.push('缺勤分类合计与缺勤总数不一致，请核对')
+  if (absent !== null && counts.every(value => value !== null) && Math.abs(counts.reduce<number>((sum, value) => sum + value!, 0) - absent) > 1e-9) issues.push('缺勤分类合计与缺勤总数不一致，请核对')
   return issues
 }
 

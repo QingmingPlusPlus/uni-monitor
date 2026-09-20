@@ -2,7 +2,7 @@
 
 本文档记录部门维度和工序维度首页各组件使用的真实接口、字段来源和无法匹配的字段。实现入口已从单个 `factoryDashboardLoader.ts` 拆分为 `src/pages/factory-dashboard/data/loaders/`（卡片级 loader）和 `src/pages/factory-dashboard/data/dashboard/`（维度级请求装配）；`factoryDashboardLoader.ts` 保留为统一导出 barrel。地图实时数据入口在 `src/components/css-map/css3dMapLiveData.ts`。
 
-后端字段的最新声明与实测类型见 [后端接口参考](api-reference.md)（2026-09-14）。本文描述消费方映射，不等于服务端始终可用：5M 已按实测新字段接入，暂停原因/状态已对齐 `pauseTypeName/operationStatus`；实绩 MH 已接入 daily-net，最新实测请求仍超时，失败保持空值。具体差异见 [接口缺口](department-api-gaps.md)。
+后端字段的最新声明与实测类型见 [后端接口参考](api-reference.md)（2026-09-20）。日报两日出勤和day/report已恢复，设备样本时间全零，详见 [制造日报](daily-report.md)；本次未重测的看板端点仍保留历史状态。本文描述消费方映射，不等于服务端始终可用：5M 已按实测新字段接入，暂停原因/状态已对齐 `pauseTypeName/operationStatus`；实绩 MH 已接入 daily-net，最新实测请求仍超时，失败保持空值。具体差异见 [接口缺口](department-api-gaps.md)。
 
 ## 公共过滤与时间
 

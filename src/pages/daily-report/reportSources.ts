@@ -30,10 +30,14 @@ function sharedSource(
     created.promise = Promise.resolve().then(async () => {
       try {
         const response = await fetcher(controller.signal)
-        if (response.data?.success !== true || !Array.isArray(response.data.data) || !response.data.data.every(object)) {
+        if (response.data?.success !== true || !Array.isArray(response.data.data)) {
           return { records: null, note: `${label}暂不可用或数据格式异常，请重试。` }
         }
-        return { records: response.data.data, note: '' }
+        const records = response.data.data.filter(object)
+        const invalidCount = response.data.data.length - records.length
+        if (invalidCount && !records.length) return { records: null, note: `${label}记录格式异常，请重试。` }
+        return { records, incompleteScope: invalidCount > 0,
+          note: invalidCount ? `${label}有 ${invalidCount} 条记录格式异常，已保留有效记录；合计仅供核对。` : '' }
       } catch (error) {
         const timeout = isAxiosError(error) && ['ECONNABORTED', 'ETIMEDOUT'].includes(error.code ?? '')
         return { records: null, note: `${label}读取${timeout ? '超时' : '失败'}，请重试。` }
