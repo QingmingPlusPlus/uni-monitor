@@ -27,5 +27,6 @@ const labels = { complete: '数据完整', partial: '部分数据可用', unavai
       <button role="button" class="report-button" @click="$emit('retry')">重试</button>
     </div>
     <slot v-else />
+    <slot name="after" />
   </section>
 </template>

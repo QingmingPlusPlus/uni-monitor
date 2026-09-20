@@ -273,3 +273,9 @@ Swagger 对这 9 个接口统一使用 `ResponseDataListMapStringObject`，即 `
 - 两日出勤（dataDate=2026-07-01、reportDate=2026-07-02、department=1、processType=preprocessing）和 day/report（day=2026-07-01、departmentId=1、processType=preprocessing）追加查询20秒超时。不能用适配器测试样本代替成功非空实测。
 - 本地真实代理页面以制造3课、后处理、2026-07-01 查询，生产、设备数量和制番明细可显示；设备时长缺失单独提示。getRejects 的7月查询仍为空，品质保留实绩，未伪造不良数或模具排行。
 - 现有源没有日报 meta。读取时间与未知起止时刻由页面显示模型明确区分；完整接入评估见 [制造日报](daily-report.md)。
+
+## 生产实绩参考图专项复核（2026-09-20）
+
+再次核对在线Swagger及真实GET后，生产相关契约与现有快照一致。`getPlan`9月5775条/7月1105条，`getOutput`9月0条/7月9条，`getRejects`两月均0条。制造3课（departmentId=3）后处理2026-07-01的`day/report`返回59条：时间全0、availabilityRate全0、obstructionItems全空；同范围2026-09-19本次请求超时，不能记录为空数组。业务请求无需沿用Swagger文档的Basic凭据。
+
+参考图所需独立合格/流动数量、洗净/粘接分类、计划停止时间、权威生产线映射仍未声明；比例字段存在，但availabilityRate及ratio单位和分母不明。页面与逐项缺口见[制造日报](daily-report.md#生产实绩参考图实现与接口复核2026-09-20)。

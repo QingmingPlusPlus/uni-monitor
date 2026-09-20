@@ -57,7 +57,31 @@
 .daily-report .report-attendance-table tbody + tbody { border-top: 1px solid var(--um-color-border); }
 .daily-report .report-attendance-table .attendance-absent { color: var(--um-color-danger); font-weight: 700; }
 @media (max-width: 767px) { .daily-report .attendance-leaders { padding: 12px; gap: 12px 20px; } }
-.daily-report .report-production-table { min-width: 1040px; }
+.daily-report .report-production-table { min-width: 920px; }
+.daily-report .production-table-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-bottom: 12px; }
+.daily-report .production-table-wrap { border: 1px solid var(--um-color-border); border-radius: 8px; }
+.daily-report .production-header-note { display: block; color: var(--um-color-danger); font-size: 15px; font-weight: 400; }
+.daily-report .production-section .report-production-table th, .daily-report .production-section .report-production-table td { text-align: center; padding: 12px 10px; }
+.daily-report .production-source-details { margin-top: 12px; font-size: 15px; color: var(--um-color-text-secondary); }
+.daily-report .production-source-details p { margin-top: 8px; }
+.daily-report .report-section.production-lines { border: 0; border-radius: 0; padding: 0; margin: 24px 0 0; }
+.daily-report .production-lines .report-section-heading { margin-bottom: 12px; }
+.daily-report .production-lines h2 { font-size: 18px; color: var(--um-color-danger); }
+.daily-report .production-ranking-list { display: grid; gap: 24px; }
+.daily-report .production-line-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); border: 1px solid var(--um-color-border); border-radius: 8px; overflow: hidden; }
+.daily-report .production-rank-number { padding: 14px 10px; background: var(--um-color-surface-subtle); border-right: 1px solid var(--um-color-border); }
+.daily-report .production-line-tables { display: grid; grid-template-columns: 3fr 2fr; min-width: 920px; align-items: start; }
+.daily-report .production-line-metrics { table-layout: fixed; border-right: 1px solid var(--um-color-border); }
+.daily-report .production-line-tables .report-table th, .daily-report .production-line-tables .report-table td { padding: 12px 6px; text-align: center; border-right: 1px solid var(--um-color-border); }
+.daily-report .production-line-tables .report-table th:last-child, .daily-report .production-line-tables .report-table td:last-child { border-right: 0; }
+.daily-report .production-line-tables .production-label-row { background: var(--um-color-surface-subtle); color: var(--um-color-text-secondary); font-size: 15px; }
+.daily-report .production-line-tables .production-value-row { font-size: 20px; font-weight: 700; }
+.daily-report .production-line-metrics th { white-space: normal; overflow-wrap: anywhere; }
+.daily-report .production-highlight-cell, .daily-report .production-alert-cell { background: var(--um-color-changeover-soft); }
+.daily-report .production-alert-cell { color: var(--um-color-danger); }
+.daily-report .production-line-reasons th:first-child { white-space: normal; overflow-wrap: anywhere; text-align: left; min-width: 100px; }
+.daily-report .production-section .production-empty-cell { text-align: center; padding: 24px 12px; color: var(--um-color-text-secondary); font-size: 15px; white-space: normal; }
+.daily-report .production-expand { grid-column: 2; margin-left: 12px; }
 .daily-report .report-cell-note, .daily-report .report-metric small { display: block; font-size: 15px; font-weight: 400; color: var(--um-color-text-secondary); }
 .daily-report .report-leaders { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; padding-bottom: 20px; }
 .daily-report .report-leader { display: flex; flex-direction: column; gap: 4px; padding-left: 20px; border-left: 2px solid var(--um-color-border); }

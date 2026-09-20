@@ -53,7 +53,7 @@ export async function getDailyLineLosses(query: DailyReportQuery, signal?: Abort
   const context = scheduleContext(query, sources)
   const rows = lineRows(query, context, devices)
   return response({ meta: { ...sourceMeta(query, [...context.notes, devices.note, '当前按设备展示，未合并为生产线；范围不受地图显示设备限制。',
-    '可动率及阻碍占比未说明单位，展示原始数值，不换算百分比；总运转时间不等同于已扣计划停止的可运转时间。']), lineDimension: 'device' as const },
+    '可动率及阻碍占比未说明单位，百分比列暂显示“—”；总运转时间不等同于已扣计划停止的可运转时间。']), lineDimension: 'device' as const },
     rows })
 }
 

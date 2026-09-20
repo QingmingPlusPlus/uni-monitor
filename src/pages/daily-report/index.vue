@@ -15,7 +15,6 @@ import { createReportResource, initialSection } from './reportResource'
 import { validAttendance, validProduction, validLines, validQuality } from './reportValidation'
 import AttendanceSection from './components/AttendanceSection.vue'
 import ProductionSection from './components/ProductionSection.vue'
-import LineLossSection from './components/LineLossSection.vue'
 import QualitySection from './components/QualitySection.vue'
 
 const config = shallowRef<CssMapSelectionConfig>(defaultCssMapSelectionConfig)
@@ -115,10 +114,9 @@ function backToDashboard() {
       <span v-if="dirty" class="report-muted">条件已更改，点击查询后生效</span>
     </section>
     <p v-if="dateError || configWarning" class="report-warning" role="status">{{ dateError || configWarning }}</p>
-    <div class="report-overview" aria-live="polite"><div><strong>{{ departmentLabel }} · {{ processLabels[applied.processType] }}</strong><span>数据日期 {{ applied.date }}</span><span>报告日期 {{ reportDate }}</span></div><span>{{ loading ? '正在更新' : `已加载 ${loadedCount}/4 个分区` }} · 各区统计范围与更新时间见下方</span></div>
+    <div class="report-overview" aria-live="polite"><div><strong>{{ departmentLabel }} · {{ processLabels[applied.processType] }}</strong><span>数据日期 {{ applied.date }}</span><span>报告日期 {{ reportDate }}</span></div><span>{{ loading ? '正在更新' : `已加载 ${loadedCount}/4 项数据` }} · 数据说明见下方</span></div>
     <AttendanceSection :state="attendance" :date="applied.date" @retry="retry('attendance')" />
-    <ProductionSection :state="production" @retry="retry('production')" />
-    <LineLossSection :state="lines" @retry="retry('lines')" />
+    <ProductionSection :state="production" :lines="lines" @retry="retry('production')" @retry-lines="retry('lines')" />
     <QualitySection :state="quality" :process="applied.processType" @retry="retry('quality')" />
     <footer class="report-footer">历史日报展示当前查询结果。未完成或缺失的输入不参与比率计算；“—”表示暂无有效数值。</footer>
   </main>
