@@ -62,8 +62,6 @@
 .daily-report .production-table-wrap { border: 1px solid var(--um-color-border); border-radius: 8px; }
 .daily-report .production-section .report-production-table th, .daily-report .production-section .report-production-table td { text-align: center; padding: 12px 10px; }
 .daily-report .report-section.production-lines { border: 0; border-radius: 0; padding: 0; margin: 24px 0 0; }
-.daily-report .production-lines .report-section-heading { margin-bottom: 12px; }
-.daily-report .production-lines h2 { font-size: 18px; color: var(--um-color-danger); }
 .daily-report .production-ranking-list { display: grid; gap: 24px; }
 .daily-report .production-line-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); border: 1px solid var(--um-color-border); border-radius: 8px; overflow: hidden; }
 .daily-report .production-rank-number { padding: 14px 10px; background: var(--um-color-surface-subtle); border-right: 1px solid var(--um-color-border); }

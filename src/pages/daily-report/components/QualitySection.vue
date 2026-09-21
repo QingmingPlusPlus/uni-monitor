@@ -9,7 +9,7 @@ const props = defineProps<{ state: SectionState<QualityReport>; process: ReportP
 defineEmits<{ retry: [] }>()
 const dimension = computed(() => props.state.data?.meta.qualityDimension ?? (props.process === 'sulfur_addition' ? 'mold' : 'production_number'))
 const rankedRows = computed(() => rankQuality(props.state.data?.rows ?? [], props.process, dimension.value))
-// 缺少不良分子时保留已知实绩，但不赋予虚假的排行名次。
+// 全零或缺完整排行输入时保留明细，不生成名次。
 const rows = computed(() => rankedRows.value.length ? rankedRows.value : props.state.data?.rows ?? [])
 const reasonRows = (row: QualityReport['rows'][number]) => [row.reasons?.[0], row.reasons?.[1]]
 </script>

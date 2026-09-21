@@ -19,7 +19,7 @@ const columns = [
     <div class="production-table-heading"><span class="report-muted">单位：数量＝个/日</span></div>
     <div class="report-table-scroll production-table-wrap" tabindex="0" aria-label="生产实绩表，可横向滚动">
       <table class="report-table report-production-table">
-        <thead><tr><th>品种</th><th v-for="column in columns" :key="column.key">{{ column.label }}</th><th>达成率</th><th>合格率</th></tr></thead>
+        <thead><tr><th>制番</th><th v-for="column in columns" :key="column.key">{{ column.label }}</th><th>达成率</th><th>合格率</th></tr></thead>
         <tbody><tr v-for="row in state.data?.rows ?? []" :key="row.id"><th>{{ row.name }}</th>
           <td v-for="column in columns" :key="column.key"><MetricValue :metric="row[column.key]" plain /></td>
           <td>{{ percent(row.actual, row.plan) }}</td><td>{{ percent(row.qualified, row.actual) }}</td>

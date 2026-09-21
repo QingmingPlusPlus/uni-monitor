@@ -61,7 +61,7 @@ export interface ScheduleContext {
 }
 
 /** 日报按全部月记录的部门和工序过滤，不读取地图显示白名单或实时设备归属。 */
-export function scheduleContext(query: DailyReportQuery, sources: ReportSource[]): ScheduleContext {
+export function scheduleContext(query: DailyReportQuery, sources: ReportSource[], emptyRejectsAreZero = false): ScheduleContext {
   const [rawPlans, rawActuals, rejectSource] = sources
   const key = `${query.department}:${query.processType}`
   const inScope = (record: ApiRecord) => dateOf(record) === query.date && scopeOf(record) === key
@@ -104,8 +104,9 @@ export function scheduleContext(query: DailyReportQuery, sources: ReportSource[]
   const summaries: [ReportSource, ApiRecord[], string][] = [[planSource, plans, '生产计划'], [actualSource, actuals, '生产实绩'], [rejectSource, rejects, '不良记录']]
   summaries.forEach(([source, rows, label]) => {
     if (source.records === null) return
-    if (!source.records.length) notes.push(`${query.date.slice(0, 7)} 月${label}接口未返回记录；不代表数量为零。`)
-    else if (!rows.length) notes.push(`${label}有月记录，但未找到所选日期、部门和工序的匹配记录。`)
+    const emptyNote = label === '不良记录' && emptyRejectsAreZero && !incompleteRejectScope ? '按生产口径记为零。' : '不代表数量为零。'
+    if (!source.records.length) notes.push(`${query.date.slice(0, 7)} 月${label}接口未返回记录；${emptyNote}`)
+    else if (!rows.length) notes.push(`${label}有月记录，但未找到所选日期、部门和工序的匹配记录；${emptyNote}`)
     if (rows.some(record => scheduleQuantity(record.number).value === null)) notes.push(`${label}部分数量缺失或无效，只展示有效部分，不参与比率与排行。`)
   })
   if ([rawPlans, rawActuals].some(source => source.records?.some(record => !dateOf(record) && (!text(record.dept) || text(record.dept) === query.department)))) notes.push('部分生产记录日期缺失或无效，无法确认数据日；已知合计标为部分。')
@@ -115,44 +116,64 @@ export function scheduleContext(query: DailyReportQuery, sources: ReportSource[]
     rejects, planSource, actualSource, rejectSource, notes, incompleteRejectScope }
 }
 
-export function rejectMetrics(records: ApiRecord[], context: ScheduleContext) {
-  const classified = records.filter(record => ['不良', '其它', '其他'].includes(text(record.type)))
-  if (!classified.length) {
-    const missing = missingMetric(context.rejectSource.note || '不良分类没有记录或未明确，不能推断为零')
-    return { defective: missing, scrapped: missing }
+/** 生产与品质共用已确认的数量公式及不良空数据规则。 */
+function productionQuantities(plans: ApiRecord[], actuals: ApiRecord[], rejects: ApiRecord[], context: ScheduleContext) {
+  const rejectSource = { ...context.rejectSource, incompleteScope: context.incompleteRejectScope }
+  const rejectSum = (records: ApiRecord[], source = rejectSource): ReportMetric => {
+    if (!records.length && source.records !== null && !source.incompleteScope) return sourceMetric(0)
+    return sum(records, source)
   }
-  const defects = classified.filter(record => text(record.type) === '不良')
-  const defective = sum(defects, context.rejectSource)
-  const scrapped = sum(classified, context.rejectSource)
-  if (context.incompleteRejectScope || classified.length !== records.length) {
-    for (const metric of [defective, scrapped]) if (metric.value !== null) {
-      metric.status = 'partial'
-      metric.note = '部分不良记录归属或分类未确认，只展示已确认部分，不参与比率与排行'
+  const classifiedSource = { ...rejectSource, incompleteScope: rejectSource.incompleteScope || rejects.some(record => !text(record.type)) }
+  const defective = rejectSum(rejects.filter(record => text(record.type) === '不良'), classifiedSource)
+  const other = rejectSum(rejects.filter(record => text(record.type) && text(record.type) !== '不良'), classifiedSource)
+  const scrapped = rejectSum(rejects)
+  const flowing = sum(actuals, context.actualSource)
+  const add = (left: ReportMetric, right: ReportMetric): ReportMetric => {
+    if (left.value === null || right.value === null) return missingMetric('计算来源缺失或无效')
+    const result = sourceMetric(left.value + right.value)
+    if (result.value !== null && (left.status !== 'complete' || right.status !== 'complete')) {
+      result.status = 'partial'
+      result.note = '计算来源不完整，仅展示已确认部分，不参与比率与排行'
     }
+    return result
   }
-  return { defective, scrapped }
+  return { plan: sum(plans, context.planSource), flowing, defective, scrapped,
+    actual: add(flowing, scrapped), qualified: add(flowing, other) }
 }
 
-export function productionRows(query: DailyReportQuery, context: ScheduleContext): ReportProductionRow[] {
-  if (![context.plans, context.actuals, context.rejects].some(rows => rows.length)) return []
-  return [{ id: query.processType, name: `${processLabels[query.processType]}合计`,
-    plan: sum(context.plans, context.planSource), actual: sum(context.actuals, context.actualSource),
-    qualified: missingMetric('未提供权威合格数'), flowing: missingMetric('未提供流动数'), ...rejectMetrics(context.rejects, context) }]
+function productionDimensionContext(context: ScheduleContext, field: 'zhifan' | 'shebei'): ScheduleContext {
+  const missing = (records: ApiRecord[]) => records.some(record => !text(record[field]))
+  if ([context.plans, context.actuals, context.rejects].some(missing)) {
+    context.notes.push(`部分生产记录缺少${field === 'zhifan' ? '制番' : '设备编码'}，无法计入对应明细；相关合计不参与比率与排行。`)
+  }
+  return { ...context,
+    planSource: { ...context.planSource, incompleteScope: context.planSource.incompleteScope || missing(context.plans) },
+    actualSource: { ...context.actualSource, incompleteScope: context.actualSource.incompleteScope || missing(context.actuals) },
+    incompleteRejectScope: context.incompleteRejectScope || missing(context.rejects) }
 }
 
-export function qualityRows(context: ScheduleContext): ReportQualityRow[] {
-  const actualSource = { ...context.actualSource, incompleteScope: context.actualSource.incompleteScope || context.actuals.some(record => !text(record.zhifan)) }
-  const rejectContext = { ...context, incompleteRejectScope: context.incompleteRejectScope || context.rejects.some(record => !text(record.zhifan)) }
-  if (context.actuals.some(record => !text(record.zhifan)) || context.rejects.some(record => !text(record.zhifan))) context.notes.push('部分记录缺少制番，无法计入制番明细；相关合计不参与排行。')
+export function productionRows(context: ScheduleContext): ReportProductionRow[] {
+  const scoped = productionDimensionContext(context, 'zhifan')
+  const numbers = new Set([...context.plans, ...context.actuals, ...context.rejects].map(record => text(record.zhifan)).filter(Boolean))
+  return [...numbers].sort().map(number => ({ id: number, name: number,
+    ...productionQuantities(context.plans.filter(record => text(record.zhifan) === number),
+      context.actuals.filter(record => text(record.zhifan) === number),
+      context.rejects.filter(record => text(record.zhifan) === number), scoped) }))
+}
+
+export function qualityRows(query: DailyReportQuery, context: ScheduleContext, devices: ReportSource): ReportQualityRow[] {
+  const scoped = productionDimensionContext({ ...context, plans: [] }, 'zhifan')
+  const deviceRecords = scopedDeviceRecords(query, devices, context.notes)
   const numbers = new Set([...context.actuals, ...context.rejects].map(record => text(record.zhifan)).filter(Boolean))
   return [...numbers].sort().map(number => {
     const actuals = context.actuals.filter(record => text(record.zhifan) === number)
     const rejects = context.rejects.filter(record => text(record.zhifan) === number)
     const codes = new Set([...actuals, ...rejects].map(record => deviceCode(record.shebei)).filter(Boolean))
+    const quantities = productionQuantities([], actuals, rejects, scoped)
     return { id: number, name: number, dimension: 'production_number', productionNumbers: [number],
-      lines: [...codes].sort().map(code => ({ id: code, name: code })), actual: sum(actuals, actualSource),
-      qualified: missingMetric('未提供权威合格数'), defective: rejectMetrics(rejects, rejectContext).defective,
-      reasons: null, reasonNote: '当前数据没有不良现象和模具关联；按制番展示，不换算为模具排行。' }
+      lines: [...codes].sort().map(code => ({ id: code, name: text(deviceRecords.get(code)?.deviceName) || code })),
+      actual: quantities.actual, qualified: quantities.qualified, defective: quantities.defective,
+      reasons: null, reasonNote: '当前接口未提供不良现象和模具关联；按制番展示，现象明细保留缺失。' }
   })
 }
 
@@ -171,7 +192,8 @@ function obstructionReasons(value: unknown): ReportLossReason[] | null {
   return [...rows.values()].sort((a, b) => (metricValue(b.durationSeconds) ?? -1) - (metricValue(a.durationSeconds) ?? -1) || a.code.localeCompare(b.code))
 }
 
-export function lineRows(query: DailyReportQuery, context: ScheduleContext, devices: ReportSource): ReportLineRow[] {
+/** 名称及时间均只关联本次查询范围内的唯一设备记录。 */
+function scopedDeviceRecords(query: DailyReportQuery, devices: ReportSource, notes: string[]) {
   const deviceRecords = new Map<string, ApiRecord | null>()
   let excluded = 0
   for (const record of devices.records ?? []) {
@@ -180,18 +202,26 @@ export function lineRows(query: DailyReportQuery, context: ScheduleContext, devi
     if (code) deviceRecords.set(code, deviceRecords.has(code) ? null : record)
     else excluded++
   }
-  if (excluded) context.notes.push(`设备时长源有 ${excluded} 条记录的日期、归属或设备编码不匹配，已排除。`)
-  if ([...deviceRecords.values()].some(record => record === null)) context.notes.push('设备时长源存在重复设备，相关时长保留缺失，避免重复合计。')
+  if (excluded) notes.push(`设备时长源有 ${excluded} 条记录的日期、归属或设备编码不匹配，已排除。`)
+  if ([...deviceRecords.values()].some(record => record === null)) notes.push('设备时长源存在重复设备，相关时长保留缺失，避免重复合计。')
+  return deviceRecords
+}
+
+export function lineRows(query: DailyReportQuery, context: ScheduleContext, devices: ReportSource): ReportLineRow[] {
+  const scoped = productionDimensionContext(context, 'shebei')
+  const deviceRecords = scopedDeviceRecords(query, devices, context.notes)
   const matched = [...deviceRecords.values()].filter((record): record is ApiRecord => record !== null)
   if (matched.length && matched.every(record => record.totalRunHours === 0 && record.productionHours === 0 && record.obstructionHours === 0)) context.notes.push('本次匹配设备的总运转、生产和阻碍时间全部返回 0，按原值展示；是否已采集完整需后端确认。')
   if (devices.records !== null && !deviceRecords.size) context.notes.push('设备时长源未返回匹配记录；保留已有计划和实绩。')
-  const codes = new Set([...context.plans, ...context.actuals].map(record => deviceCode(record.shebei)).filter(Boolean))
+  const codes = new Set([...context.plans, ...context.actuals, ...context.rejects].map(record => deviceCode(record.shebei)).filter(Boolean))
   for (const code of deviceRecords.keys()) codes.add(code)
   return [...codes].sort().map(code => {
     const record = deviceRecords.get(code)
+    const quantities = productionQuantities(context.plans.filter(row => deviceCode(row.shebei) === code),
+      context.actuals.filter(row => deviceCode(row.shebei) === code),
+      context.rejects.filter(row => deviceCode(row.shebei) === code), scoped)
     return { id: code, name: text(record?.deviceName) || code,
-      plan: sum(context.plans.filter(row => deviceCode(row.shebei) === code), context.planSource),
-      actual: sum(context.actuals.filter(row => deviceCode(row.shebei) === code), context.actualSource),
+      plan: quantities.plan, actual: quantities.actual,
       availableSeconds: missingMetric('未明确已扣除计划停止的可运转时间'), plannedStopSeconds: missingMetric('未提供计划停止时间'),
       totalRunSeconds: sourceMetric(record?.totalRunHours, false, 3600),
       productionSeconds: sourceMetric(record?.productionHours, false, 3600), lossSeconds: sourceMetric(record?.obstructionHours, false, 3600),

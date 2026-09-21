@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ReportLineRow } from '../../../api/dailyReport'
-import { percent } from '../reportModel'
+import { percent, formatReportedRatio } from '../reportModel'
 import MetricValue from './MetricValue.vue'
-defineProps<{ row: ReportLineRow; rank: number; deviceMode: boolean }>()
+defineProps<{ row: ReportLineRow; rank: number }>()
 const times = [
-  { key: 'totalRunSeconds', label: '总运转时间' }, { key: 'plannedStopSeconds', label: '计划停止时间' },
+  { key: 'totalRunSeconds', label: '总运转时间' },
   { key: 'productionSeconds', label: '生产时间' }, { key: 'lossSeconds', label: '阻碍时间' },
 ] as const
 </script>
@@ -15,17 +15,17 @@ const times = [
     <div class="report-table-scroll" tabindex="0" :aria-label="`${row.name}生产与阻碍明细`">
       <div class="production-line-tables">
         <table class="report-table production-line-metrics">
-          <colgroup><col v-for="n in 10" :key="n" /></colgroup>
+          <colgroup><col v-for="n in 4" :key="n" /></colgroup>
           <tbody>
-            <tr class="production-label-row"><th colspan="4">{{ deviceMode ? '设备' : '生产线' }}</th><th colspan="2">计划数</th><th colspan="2">实绩数</th><th colspan="2">达成率</th></tr>
-            <tr class="production-value-row"><th colspan="4">{{ row.name }}</th><td colspan="2"><MetricValue :metric="row.plan" plain /></td><td colspan="2"><MetricValue :metric="row.actual" plain /></td><td colspan="2" class="production-alert-cell">{{ percent(row.actual, row.plan, 1) }}</td></tr>
-            <tr class="production-label-row"><th v-for="time in times" :key="time.key" colspan="2">{{ time.label }}</th><th colspan="2">可动率</th></tr>
-            <tr><td v-for="time in times" :key="time.key" colspan="2" :class="{ 'production-highlight-cell': time.key === 'lossSeconds' }"><MetricValue :metric="row[time.key]" hours plain /></td><td colspan="2" class="production-highlight-cell">{{ deviceMode ? '—' : percent(row.productionSeconds, row.availableSeconds, 1) }}</td></tr>
+            <tr class="production-label-row"><th>生产线</th><th>计划数</th><th>实绩数</th><th>达成率</th></tr>
+            <tr class="production-value-row"><th>{{ row.name }}</th><td><MetricValue :metric="row.plan" plain /></td><td><MetricValue :metric="row.actual" plain /></td><td class="production-alert-cell">{{ percent(row.actual, row.plan, 1) }}</td></tr>
+            <tr class="production-label-row"><th v-for="time in times" :key="time.key">{{ time.label }}</th><th>可动率</th></tr>
+            <tr><td v-for="time in times" :key="time.key" :class="{ 'production-highlight-cell': time.key === 'lossSeconds' }"><MetricValue :metric="row[time.key]" hours plain /></td><td class="production-highlight-cell">{{ formatReportedRatio(row.reportedAvailabilityRate) }}</td></tr>
           </tbody>
         </table>
         <table class="report-table production-line-reasons">
           <thead><tr><th>阻碍项目</th><th>阻碍时间</th><th>次数</th><th>占比</th></tr></thead>
-          <tbody><tr v-for="(reason, index) in row.reasons?.slice(0, 3) ?? []" :key="reason.code"><th>{{ index + 1 }}. {{ reason.name }}</th><td><MetricValue :metric="reason.durationSeconds" hours plain /></td><td><MetricValue :metric="reason.count" plain /></td><td>{{ deviceMode ? '—' : percent(reason.durationSeconds, row.availableSeconds) }}</td></tr>
+          <tbody><tr v-for="(reason, index) in row.reasons?.slice(0, 3) ?? []" :key="reason.code"><th>{{ index + 1 }}. {{ reason.name }}</th><td><MetricValue :metric="reason.durationSeconds" hours plain /></td><td><MetricValue :metric="reason.count" plain /></td><td>{{ formatReportedRatio(reason.reportedRatio) }}</td></tr>
             <tr v-if="!row.reasons?.length"><td colspan="4" class="production-empty-cell">—</td></tr>
           </tbody>
         </table>

@@ -42,26 +42,29 @@ export async function getDailyAttendance(query: DailyReportQuery, signal?: Abort
 export async function getDailyProduction(query: DailyReportQuery, signal?: AbortSignal) {
   const sources = await reportScheduleSources(query, signal)
   if (sources.every(source => source.records === null)) throw new Error('生产数据源均不可用')
-  const context = scheduleContext(query, sources)
-  return response({ meta: sourceMeta(query, [...context.notes, '按记录日期、部门和已确认工序合计；尚未提供统一的洗净/粘接子作业分类、合格数和流动数。',
-    '废弃数按已声明的不良与其他分类相加；没有记录或分类不明时保留缺失。']), rows: productionRows(query, context) })
+  const context = scheduleContext(query, sources, true)
+  const rows = productionRows(context)
+  return response({ meta: sourceMeta(query, [...context.notes, '按记录日期、部门和工序筛选后按制番合计；流动数取实绩接口，实绩数为流动加废弃，合格数为流动加非不良。',
+    '废弃数包含不良接口全部类型；不良来源成功且范围完整时，无记录按零处理。']), rows })
 }
 
 export async function getDailyLineLosses(query: DailyReportQuery, signal?: AbortSignal) {
-  const [sources, devices] = await Promise.all([reportScheduleSources(query, signal, false), reportDeviceSource(query, signal)])
-  if ([sources[0], sources[1], devices].every(source => source.records === null)) throw new Error('设备生产数据源均不可用')
-  const context = scheduleContext(query, sources)
+  const [sources, devices] = await Promise.all([reportScheduleSources(query, signal), reportDeviceSource(query, signal)])
+  if ([...sources, devices].every(source => source.records === null)) throw new Error('产线生产数据源均不可用')
+  const context = scheduleContext(query, sources, true)
   const rows = lineRows(query, context, devices)
-  return response({ meta: { ...sourceMeta(query, [...context.notes, devices.note, '当前按设备展示，未合并为生产线；范围不受地图显示设备限制。',
-    '可动率及阻碍占比未说明单位，百分比列暂显示“—”；总运转时间不等同于已扣计划停止的可运转时间。']), lineDimension: 'device' as const },
+  return response({ meta: { ...sourceMeta(query, [...context.notes, devices.note, '设备即产线，按设备编码统计，实绩数包含废弃；范围不受地图显示设备限制。',
+    '可动率及阻碍占比直接显示接口原值；计划停止时间暂不展示。']), lineDimension: 'line' as const },
     rows })
 }
 
 export async function getDailyQuality(query: DailyReportQuery, signal?: AbortSignal) {
-  const sources = await reportScheduleSources(query, signal)
+  const [sources, devices] = await Promise.all([reportScheduleSources(query, signal), reportDeviceSource(query, signal)])
   if (sources[1].records === null && sources[2].records === null) throw new Error('品质数据源均不可用')
-  const context = scheduleContext(query, sources)
-  const rows = qualityRows(context)
-  return response({ meta: { ...sourceMeta(query, [...context.notes, '当前按制番展示实绩和可确认归属的不良；未提供模具关联、合格数和不良现象。',
-    '没有不良记录不视为不良数为零；缺少完整分子分母时只展示明细，不参与排行。']), qualityDimension: 'production_number' as const }, rows })
+  const context = scheduleContext(query, sources, true)
+  const rows = qualityRows(query, context, devices)
+  return response({ meta: { ...sourceMeta(query, [...context.notes,
+    devices.note ? `产线名称来源不可用，使用设备编码：${devices.note}` : '',
+    '品质与生产使用相同数量公式：实绩包含全部废弃，合格包含明确非不良；不良成功且范围完整时无记录按零。',
+    '设备即产线，名称缺失回退编码；按制番展示，未提供模具关联及不良现象明细。']), qualityDimension: 'production_number' as const }, rows })
 }

@@ -48,6 +48,11 @@ export function formatMetric(metric: ReportMetric | null | undefined, hours = fa
   if (value === null) return '—'
   return hours ? (value / 3600).toFixed(2) : value.toLocaleString('zh-CN', { maximumFractionDigits: digits })
 }
+/** 生产日报的服务端比例按原始数值展示，不换算、取整或追加百分号。 */
+export function formatReportedRatio(metric: ReportMetric | null | undefined): string {
+  const value = metricValue(metric)
+  return value === null ? '—' : String(value)
+}
 export function ratio(numerator: ReportMetric | null | undefined, denominator: ReportMetric | null | undefined): number | null {
   const n = metricValue(numerator, true)
   const d = metricValue(denominator, true)

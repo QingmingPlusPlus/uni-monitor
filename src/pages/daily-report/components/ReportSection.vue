@@ -3,15 +3,15 @@ import type { ReportMeta } from '../../../api/dailyReport'
 import type { SectionStatus } from '../reportResource'
 import LoadingIcon from '../../../components/LoadingIcon.vue'
 import { formatReportTimestamp } from '../reportModel'
-defineProps<{ title: string; subtitle?: string; status: SectionStatus; meta?: ReportMeta; message?: string }>()
+defineProps<{ title?: string; subtitle?: string; status: SectionStatus; meta?: ReportMeta; message?: string }>()
 defineEmits<{ retry: [] }>()
 const labels = { complete: '数据完整', partial: '部分数据可用', unavailable: '数据未接入' }
 </script>
 
 <template>
   <section class="report-section" :aria-busy="status === 'loading'">
-    <div class="report-section-heading">
-      <div><h2>{{ title }}</h2><p v-if="subtitle" class="report-muted">{{ subtitle }}</p></div>
+    <div v-if="title || subtitle || meta" class="report-section-heading">
+      <div v-if="title || subtitle"><h2 v-if="title">{{ title }}</h2><p v-if="subtitle" class="report-muted">{{ subtitle }}</p></div>
       <div v-if="meta" class="report-section-actions"><span class="report-badge" :class="`report-badge--${meta.status}`">{{ labels[meta.status] }}</span><button role="button" v-if="status === 'ready' && meta.status === 'partial'" class="report-text-button" @click="$emit('retry')">重新读取</button></div>
     </div>
     <div v-if="meta" class="report-meta">
