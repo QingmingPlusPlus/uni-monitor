@@ -86,9 +86,9 @@ export function drawSpriteCssMapDeviceCard(
     drawRightLShapeCard(context, options, contentRect, colorPlan)
   )
   if (!usedRightLShapeLayout && contentPlan.orientation === 'vertical') {
-    drawVerticalCard(context, options, informationRect, colorPlan)
+    drawVerticalCard(context, options, informationRect, colorPlan, contentRect.x + contentRect.w)
   } else if (!usedRightLShapeLayout) {
-    drawHorizontalCard(context, options, informationRect, colorPlan)
+    drawHorizontalCard(context, options, informationRect, colorPlan, contentRect.x + contentRect.w)
   }
   context.restore()
 

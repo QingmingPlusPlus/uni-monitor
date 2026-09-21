@@ -1,6 +1,6 @@
 import { drawVerticalHeader } from './drawHeader'
 import { drawVerticalLoadRate } from './drawLoadRate'
-import { drawVerticalMarkerGrid } from './drawMarkers'
+import { drawFiveMRowBackground, drawVerticalMarkerGrid } from './drawMarkers'
 import type { DrawRect, SpriteCssMapDeviceCardDrawOptions, SpriteCssMapDeviceColorPlan } from './types'
 
 export function drawVerticalCard(
@@ -8,6 +8,7 @@ export function drawVerticalCard(
   options: SpriteCssMapDeviceCardDrawOptions,
   rect: DrawRect,
   colorPlan: SpriteCssMapDeviceColorPlan,
+  surfaceRight: number,
 ): void {
   const nameHeight = rect.h * 0.24
   const statusHeight = rect.h * 0.15
@@ -47,6 +48,12 @@ export function drawVerticalCard(
 
   drawVerticalHeader(context, options, nameRect, statusRect, colorPlan)
   drawVerticalMarkerGrid(context, options, staffRect, 'staff')
+  drawFiveMRowBackground(context, options, {
+    x: rect.x,
+    y: fiveMRect.y,
+    w: Math.max(0, surfaceRight - rect.x),
+    h: fiveMRect.h,
+  })
   drawVerticalMarkerGrid(context, options, fiveMRect, 'fiveM')
   drawVerticalLoadRate(context, options.device, loadRect, colorPlan)
 

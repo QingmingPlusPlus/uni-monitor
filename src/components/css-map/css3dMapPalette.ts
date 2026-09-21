@@ -1,6 +1,7 @@
 import type {
   CssMapDeviceStatus,
   CssMapFiveMCategory,
+  CssMapFiveMChange,
   CssMapStaffCategory,
   CssMapStaffShift,
 } from './css3dMapTypes'
@@ -129,6 +130,26 @@ export function getCssMapStaffShiftAngle(shift: CssMapStaffShift) {
 
 export function getCssMapFiveMVisualStyle(category: CssMapFiveMCategory): CssMapFiveMVisualStyle {
   return cssMapFiveMVisualPalette[category]
+}
+
+// 按记录中首次出现的类别生成等宽色带，重复类别不增加色带数量。
+export function getCssMapFiveMRowColors(changes: readonly CssMapFiveMChange[]): string[] {
+  return [...new Set(changes.map((change) => change.category))].map((category) => {
+    const fill = getCssMapFiveMVisualStyle(category).fill
+    const [red, green, blue] = [1, 3, 5].map((offset) => parseInt(fill.slice(offset, offset + 2), 16))
+    return `rgba(${red}, ${green}, ${blue}, 0.28)`
+  })
+}
+
+export function getCssMapFiveMRowBackground(changes: readonly CssMapFiveMChange[]): string {
+  const colors = getCssMapFiveMRowColors(changes)
+  if (colors.length === 0) return 'transparent'
+  if (colors.length === 1) return colors[0]
+
+  const stops = colors.map((color, index) => (
+    `${color} ${index * 100 / colors.length}% ${(index + 1) * 100 / colors.length}%`
+  ))
+  return `linear-gradient(to right, ${stops.join(', ')})`
 }
 
 export function getCssMapFiveMGlyph(category: CssMapFiveMCategory) {

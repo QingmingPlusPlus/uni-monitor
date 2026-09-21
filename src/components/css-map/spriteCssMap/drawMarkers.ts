@@ -2,7 +2,31 @@ import { clamp, createFont } from './canvasText'
 import { drawSpriteCssMapFiveMMarker } from '../spriteCssMapFiveMMarker'
 import { drawSpriteCssMapStaffMarker } from '../spriteCssMapStaffMarker'
 import { planCssMapMarkerSlots } from '../cssMapDeviceContentLayout'
+import { getCssMapFiveMRowColors } from '../css3dMapPalette'
 import type { DrawRect, RenderableMarkerSlots, SpriteCssMapDeviceCardDrawOptions } from './types'
+
+export function drawFiveMRowBackground(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  rect: DrawRect,
+): void {
+  if (getMarkerItemCount(options, 'fiveM') === 0) return
+
+  context.save()
+  const colors = getCssMapFiveMRowColors(options.device.runtime.fiveMChanges)
+  if (colors.length === 1) {
+    context.fillStyle = colors[0]
+  } else {
+    const gradient = context.createLinearGradient(rect.x, rect.y, rect.x + rect.w, rect.y)
+    colors.forEach((color, index) => {
+      gradient.addColorStop(index / colors.length, color)
+      gradient.addColorStop((index + 1) / colors.length, color)
+    })
+    context.fillStyle = gradient
+  }
+  context.fillRect(rect.x, rect.y, rect.w, rect.h)
+  context.restore()
+}
 
 export function drawMarkerOverflowText(
   context: CanvasRenderingContext2D,
@@ -117,7 +141,7 @@ export function drawHorizontalMarkerRow(
   const labelWidth = clamp(rect.w * 0.22, 18, 34)
   const gap = clamp(rect.h * 0.1, 2, 5)
   const markerAreaWidth = Math.max(0, rect.w - labelWidth - gap)
-  const maximumMarkerSize = type === 'staff' ? 18 : 25
+  const maximumMarkerSize = type === 'staff' ? 18 : 42
   const minimumMarkerSize = 7
   const fixedPlan = planCssMapMarkerSlots(itemCount, 'horizontal')
   const geometricCapacity = Math.max(
@@ -132,7 +156,7 @@ export function drawHorizontalMarkerRow(
     ? Math.floor(clamp(
         (markerAreaWidth - Math.max(0, slots.occupiedSlots - 1) * gap) / slots.occupiedSlots,
         5,
-        Math.min(maximumMarkerSize, Math.max(5, rect.h - 5)),
+        Math.min(maximumMarkerSize, Math.max(5, rect.h - (type === 'staff' ? 5 : 2))),
       ))
     : minimumMarkerSize
 
@@ -207,11 +231,11 @@ export function drawVerticalMarkerGrid(
     itemCount,
     Math.min(fixedPlan.capacity, geometricColumns * geometricRows),
   )
-  const columns = Math.min(3, Math.max(1, slots.occupiedSlots))
+  const columns = Math.max(1, Math.min(geometricColumns, slots.occupiedSlots))
   const rows = slots.occupiedSlots === 0
     ? 0
     : Math.ceil(slots.occupiedSlots / columns)
-  const maximumMarkerSize = type === 'staff' ? 15 : 21
+  const maximumMarkerSize = type === 'staff' ? 15 : 32
   const markerSize = slots.occupiedSlots > 0
     ? Math.floor(clamp(
         Math.min(

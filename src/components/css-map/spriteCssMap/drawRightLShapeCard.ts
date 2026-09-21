@@ -2,7 +2,7 @@ import { getCssMapRightLShapeMetrics } from '../cssMapDeviceShape'
 import { planCssMapRightLShapeContent } from '../cssMapDeviceContentLayout'
 import { drawHorizontalHeader } from './drawHeader'
 import { drawLoadRate } from './drawLoadRate'
-import { drawHorizontalMarkerRow } from './drawMarkers'
+import { drawFiveMRowBackground, drawHorizontalMarkerRow } from './drawMarkers'
 import { clamp } from './canvasText'
 import type { DrawRect, SpriteCssMapDeviceCardDrawOptions, SpriteCssMapDeviceColorPlan } from './types'
 
@@ -42,6 +42,12 @@ export function drawRightLShapeCard(
     w: loadRateWidth,
     h: bodyHeight,
   }, colorPlan)
+  drawFiveMRowBackground(context, options, {
+    x: detailsX,
+    y: headerBottom + detailRowHeight,
+    w: detailsWidth,
+    h: detailRowHeight,
+  })
   drawHorizontalMarkerRow(context, options, {
     x: detailsX + inset,
     y: headerBottom + 1,

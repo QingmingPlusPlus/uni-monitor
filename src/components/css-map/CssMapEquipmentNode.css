@@ -209,12 +209,54 @@
   white-space: nowrap;
 }
 
+/* 背景独立占据 5M 网格行，跨过信息区留白，不改变标记布局和裁剪。 */
+.css-map-equipment-node--has-five-m .css-map-equipment-node__content {
+  overflow: visible;
+}
+
+.css-map-equipment-node__detail-row--five-m {
+  position: relative;
+  grid-area: 2 / 1;
+}
+
+.css-map-equipment-node--has-five-m .css-map-equipment-node__details::before {
+  content: '';
+  grid-area: 2 / 1;
+  min-width: 0;
+  min-height: 0;
+  margin: -1px calc(-4px - var(--css-map-node-content-remainder, 0px)) -3px -4px;
+  background: var(--css-map-five-m-row-background);
+  pointer-events: none;
+}
+
+.css-map-equipment-node--vertical.css-map-equipment-node--has-five-m
+  .css-map-equipment-node__details::before {
+  margin: 0 calc(0px - var(--css-map-node-content-remainder, 0px)) 0 0;
+}
+
+.css-map-equipment-node--right-l-shape.css-map-equipment-node--has-five-m
+  .css-map-equipment-node__details::before {
+  margin: 0;
+}
+
 .css-map-equipment-node__markers {
   display: flex;
   overflow: hidden;
   min-width: 0;
   align-items: center;
   gap: 3px;
+}
+
+.css-map-equipment-node__markers--five-m {
+  container-type: size;
+  flex: 1 1 0;
+  height: 100%;
+  min-height: 0;
+  --css-map-five-m-marker-size: max(1px, min(
+    var(--css-map-five-m-marker-limit),
+    calc((100cqw - (var(--css-map-five-m-columns) - 1) * 3px) / var(--css-map-five-m-columns)),
+    calc((100cqh - (var(--css-map-five-m-rows) - 1) * 3px) / var(--css-map-five-m-rows))
+  ));
 }
 
 .css-map-equipment-node__empty,
@@ -306,8 +348,9 @@
 }
 
 .css-map-equipment-node--vertical .css-map-equipment-node__markers--five-m {
-  grid-template-columns: repeat(3, minmax(0, var(--css-map-five-m-marker-size, 24px)));
-  grid-auto-rows: minmax(0, var(--css-map-five-m-marker-size, 24px));
+  grid-template-columns: repeat(var(--css-map-five-m-columns), max-content);
+  grid-template-rows: repeat(var(--css-map-five-m-rows), minmax(0, 1fr));
+  grid-auto-rows: auto;
 }
 
 .css-map-equipment-node--vertical .css-map-equipment-node__rate {

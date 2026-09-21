@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import CssMapFiveMMarker from './CssMapFiveMMarker.vue'
 import CssMapStaffMarker from './CssMapStaffMarker.vue'
 import {
+  getCssMapFiveMRowBackground,
   getCssMapLoadRateBackground,
   getCssMapTitleStyle,
 } from './css3dMapPalette'
@@ -172,10 +173,17 @@ const surfaceStyle = computed(() => {
     '--css-map-node-status-color': status.color,
     '--css-map-node-border-width': `${equipmentBorderWidth}px`,
     '--css-map-staff-marker-size': `${Math.max(9, Math.min(18, smallSide * 0.16))}px`,
-    '--css-map-five-m-marker-size': `${Math.max(11, Math.min(24, smallSide * 0.21))}px`,
+    '--css-map-five-m-marker-limit': contentPlan.value.orientation === 'vertical' ? '32px' : '42px',
+    '--css-map-five-m-columns': Math.max(1, fiveMSlotPlan.value.columns),
+    '--css-map-five-m-rows': Math.max(1, fiveMSlotPlan.value.rows),
     '--css-map-node-content-width': usesRightLShapeContent.value
       ? '100%'
       : `${contentPlan.value.contentWidthRatio * 100}%`,
+    '--css-map-five-m-row-background': getCssMapFiveMRowBackground(fiveMItems.value),
+    '--css-map-node-content-remainder': `${Math.max(
+      0,
+      width - equipmentBorderWidth * 2 - contentPlan.value.contentWidth,
+    )}px`,
     '--css-map-right-l-bar-height': `${rightLBarHeight * 100}%`,
     '--css-map-right-l-header-height': `${(rightLContent?.headerHeightRatio ?? 1) * 100}%`,
     '--css-map-right-l-load-width': `${(rightLContent?.loadRateWidthRatio ?? 0) * 100}%`,
@@ -196,6 +204,7 @@ const surfaceStyle = computed(() => {
       'css-map-equipment-node--wide': contentPlan.isWide,
       'css-map-equipment-node--polygon': Boolean(polygonPoints),
       'css-map-equipment-node--right-l-shape': usesRightLShapeContent,
+      'css-map-equipment-node--has-five-m': hasFiveMChanges,
     }"
     :style="surfaceStyle"
     :data-device-id="device.id"
@@ -240,7 +249,7 @@ const surfaceStyle = computed(() => {
             </div>
           </div>
 
-          <div class="css-map-equipment-node__detail-row">
+          <div class="css-map-equipment-node__detail-row css-map-equipment-node__detail-row--five-m">
             <span class="css-map-equipment-node__detail-label">5M</span>
             <div class="css-map-equipment-node__markers css-map-equipment-node__markers--five-m">
               <CssMapFiveMMarker

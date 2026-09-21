@@ -152,7 +152,7 @@ function estimateMarkerRowWidth(
     : slotCount
   const labelWidth = estimateCssMapTextWidth(label, 7)
   const markerSize = label === '5M'
-    ? (orientation === 'vertical' ? 18 : 21)
+    ? (orientation === 'vertical' ? 26 : 32)
     : (orientation === 'vertical' ? 14 : 16)
   const markerGap = 3
   const markersWidth = columnCount > 0

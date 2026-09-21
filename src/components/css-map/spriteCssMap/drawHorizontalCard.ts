@@ -1,6 +1,6 @@
 import { drawHorizontalHeader } from './drawHeader'
 import { drawLoadRate } from './drawLoadRate'
-import { drawHorizontalMarkerRow } from './drawMarkers'
+import { drawFiveMRowBackground, drawHorizontalMarkerRow } from './drawMarkers'
 import { clamp } from './canvasText'
 import type { DrawRect, SpriteCssMapDeviceCardDrawOptions, SpriteCssMapDeviceColorPlan } from './types'
 
@@ -9,6 +9,7 @@ function drawWideBody(
   options: SpriteCssMapDeviceCardDrawOptions,
   rect: DrawRect,
   colorPlan: SpriteCssMapDeviceColorPlan,
+  surfaceRight: number,
 ): void {
   const rateWidth = clamp(rect.w * 0.31, 26, 96)
   const detailX = rect.x + rateWidth
@@ -30,6 +31,13 @@ function drawWideBody(
   context.stroke()
   context.restore()
 
+  drawFiveMRowBackground(context, options, {
+    x: detailX,
+    y: rect.y + rowHeight,
+    w: Math.max(0, surfaceRight - detailX),
+    h: rowHeight,
+  })
+
   drawHorizontalMarkerRow(context, options, {
     x: detailX + 5,
     y: rect.y + 2,
@@ -49,6 +57,7 @@ export function drawHorizontalCard(
   options: SpriteCssMapDeviceCardDrawOptions,
   rect: DrawRect,
   colorPlan: SpriteCssMapDeviceColorPlan,
+  surfaceRight: number,
 ): void {
   const headerHeight = Math.min(clamp(rect.h * 0.36, 22, 52), rect.h * 0.62)
   const headerRect: DrawRect = {
@@ -65,5 +74,5 @@ export function drawHorizontalCard(
   }
 
   drawHorizontalHeader(context, options, headerRect, colorPlan)
-  drawWideBody(context, options, bodyRect, colorPlan)
+  drawWideBody(context, options, bodyRect, colorPlan, surfaceRight)
 }
