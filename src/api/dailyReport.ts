@@ -3,6 +3,7 @@ import type { ApiResponse } from './http'
 import type { ApiRecord } from './http'
 import type { TwoDayAttendancePerformanceParams, TwoDayAttendancePerformanceResponse } from './attendance'
 import type { DeviceAvailabilityDayReportParams, DeviceAvailabilityDayReportResponse } from './deviceAvailability'
+import type { ScheduleRejectsParams } from './schedule'
 
 /** 日报展示模型，由页面适配已发布接口；不代表服务端存在 /daily-report/*。 */
 export type ReportProcessType = 'preprocessing' | 'sulfur_addition' | 'post_processing'
@@ -126,6 +127,6 @@ export function getReportPlanSource(month: string, signal?: AbortSignal) {
 export function getReportOutputSource(month: string, signal?: AbortSignal) {
   return http.get<ApiResponse<ApiRecord[]>>('/schedule/getOutput', { params: { month }, signal, timeout: 15000 })
 }
-export function getReportRejectsSource(month: string, signal?: AbortSignal) {
-  return http.get<ApiResponse<ApiRecord[]>>('/schedule/getRejects', { params: { month }, signal, timeout: 15000 })
+export function getReportRejectsSource(params: ScheduleRejectsParams, signal?: AbortSignal) {
+  return http.get<ApiResponse<ApiRecord[]>>('/schedule/getRejects', { params, signal, timeout: 15000 })
 }

@@ -105,8 +105,9 @@ export function scheduleContext(query: DailyReportQuery, sources: ReportSource[]
   summaries.forEach(([source, rows, label]) => {
     if (source.records === null) return
     const emptyNote = label === '不良记录' && emptyRejectsAreZero && !incompleteRejectScope ? '按生产口径记为零。' : '不代表数量为零。'
-    if (!source.records.length) notes.push(`${query.date.slice(0, 7)} 月${label}接口未返回记录；${emptyNote}`)
-    else if (!rows.length) notes.push(`${label}有月记录，但未找到所选日期、部门和工序的匹配记录；${emptyNote}`)
+    const period = label === '不良记录' ? query.date : `${query.date.slice(0, 7)} 月`
+    if (!source.records.length) notes.push(`${period}${label}接口未返回记录；${emptyNote}`)
+    else if (!rows.length) notes.push(`${label}接口有记录，但未找到所选日期、部门和工序的匹配记录；${emptyNote}`)
     if (rows.some(record => scheduleQuantity(record.number).value === null)) notes.push(`${label}部分数量缺失或无效，只展示有效部分，不参与比率与排行。`)
   })
   if ([rawPlans, rawActuals].some(source => source.records?.some(record => !dateOf(record) && (!text(record.dept) || text(record.dept) === query.department)))) notes.push('部分生产记录日期缺失或无效，无法确认数据日；已知合计标为部分。')
@@ -161,6 +162,21 @@ export function productionRows(context: ScheduleContext): ReportProductionRow[] 
       context.rejects.filter(record => text(record.zhifan) === number), scoped) }))
 }
 
+/** 同制番、同现象跨设备和班次合计；其它类型不进入品质现象。 */
+function qualityReasons(rejects: ApiRecord[], context: ScheduleContext): Pick<ReportQualityRow, 'reasons' | 'reasonNote'> {
+  if (context.rejectSource.records === null) return { reasons: null, reasonNote: context.rejectSource.note }
+  const defective = rejects.filter(record => text(record.type) === '不良')
+  const nameOf = (record: ApiRecord) => typeof record.yuanyin === 'string' ? record.yuanyin.trim() : ''
+  const incomplete = context.incompleteRejectScope || rejects.some(record => !text(record.type)) || defective.some(record => !nameOf(record))
+  const source = { ...context.rejectSource, incompleteScope: incomplete }
+  const names = [...new Set(defective.map(nameOf).filter(Boolean))]
+  const reasons = names.map(name => ({ code: name, name,
+    count: sum(defective.filter(record => nameOf(record) === name), source) }))
+    .sort((a, b) => (metricValue(b.count) ?? -1) - (metricValue(a.count) ?? -1) || a.code.localeCompare(b.code))
+  return { reasons: reasons.length || !incomplete ? reasons : null,
+    reasonNote: incomplete ? '部分不良记录的现象、类型或归属缺失，仅展示已确认现象小计，不计算现象不良率。' : undefined }
+}
+
 export function qualityRows(query: DailyReportQuery, context: ScheduleContext, devices: ReportSource): ReportQualityRow[] {
   const scoped = productionDimensionContext({ ...context, plans: [] }, 'zhifan')
   const deviceRecords = scopedDeviceRecords(query, devices, context.notes)
@@ -173,7 +189,7 @@ export function qualityRows(query: DailyReportQuery, context: ScheduleContext, d
     return { id: number, name: number, dimension: 'production_number', productionNumbers: [number],
       lines: [...codes].sort().map(code => ({ id: code, name: text(deviceRecords.get(code)?.deviceName) || code })),
       actual: quantities.actual, qualified: quantities.qualified, defective: quantities.defective,
-      reasons: null, reasonNote: '当前接口未提供不良现象和模具关联；按制番展示，现象明细保留缺失。' }
+      ...qualityReasons(rejects, scoped) }
   })
 }
 

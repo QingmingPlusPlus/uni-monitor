@@ -66,5 +66,5 @@ export async function getDailyQuality(query: DailyReportQuery, signal?: AbortSig
   return response({ meta: { ...sourceMeta(query, [...context.notes,
     devices.note ? `产线名称来源不可用，使用设备编码：${devices.note}` : '',
     '品质与生产使用相同数量公式：实绩包含全部废弃，合格包含明确非不良；不良成功且范围完整时无记录按零。',
-    '设备即产线，名称缺失回退编码；按制番展示，未提供模具关联及不良现象明细。']), qualityDimension: 'production_number' as const }, rows })
+    '设备即产线，名称缺失回退编码；未提供模具关联，按制番展示。现象取type为不良的yuanyin，同名现象合计number。']), qualityDimension: 'production_number' as const }, rows })
 }

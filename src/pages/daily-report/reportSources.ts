@@ -74,7 +74,7 @@ export function reportScheduleSources(query: DailyReportQuery, signal?: AbortSig
   return Promise.all([
     sharedSource(`plan:${month}`, '生产计划', abort => getReportPlanSource(month, abort), signal),
     sharedSource(`output:${month}`, '生产实绩', abort => getReportOutputSource(month, abort), signal),
-    includeRejects ? sharedSource(`rejects:${month}`, '不良记录', abort => getReportRejectsSource(month, abort), signal)
+    includeRejects ? sharedSource(`rejects:${month}:${query.date}`, '不良记录', abort => getReportRejectsSource({ month, date: query.date }, abort), signal)
       : Promise.resolve({ records: null, note: '' } as ReportSource),
   ])
 }

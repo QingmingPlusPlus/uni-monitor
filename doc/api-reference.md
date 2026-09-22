@@ -1,5 +1,11 @@
 # 后端接口参考
 
+## 2026-09-22 日报不良字段与日期查询
+
+根据用户转述的后端确认，`getRejects` 的month必填，新增可选date（YYYY-MM-DD），省略date查询整月；`yuanyin`为现象名称、`number`为对应数量，仅type=不良计入不良分子和现象。前端日报已传month+date，并按日期隔离共享请求；通用月封装保持只传month的兼容行为。数量兼容number/string，日报显式校验十进制非负安全整数。
+
+本次使用文档认证读取在线Swagger成功，getRejects仍只声明month，文字示例尚无yuanyin；新增字段与参数的依据是用户提供的后端说明。业务只读GET `month=2026-09`、`month=2026-09&date=2026-09-21`、`month=2026-07&date=2026-07-01` 均success=true、data=[]。已确认带date请求可成功，但非空字段和日期筛选效果尚无样本验证，不将空数据当作字段缺失。下文旧日期记录为历史核验结果。
+
 > 2026-09-20 实测 `getChangePoint?progress=` 在省略 `dept/process/beginDate/endDate/banci` 时成功返回2条记录；Swagger仍把六个参数全部标为必填，声明与运行时不一致。地图保持用户确认的全范围查询及 `status=0` 筛选。新日期/班次参数仅核对声明，尚未验证筛选行为。
 
 核验日期：2026-09-20（保留9月11日、14日的历史结果，未重测的接口不推断当前可用性）。来源：[Swagger UI](http://123.57.81.179:8080/swagger-ui/index.html)、[OpenAPI JSON](http://123.57.81.179:8080/v3/api-docs)（可视化自研接口 1.0，OAS 3.0）及下述只读请求。共25个端点，包含24个GET和1个POST。前端访问层与接入状态见 [API 模块](api-module.md)，页面口径见 [字段映射](factory-dashboard-real-data-mapping.md)，未解决问题见 [接口缺口](department-api-gaps.md)。
@@ -72,7 +78,7 @@ Swagger 的 HTTP 500 响应允许字符串或错误对象。2026-09-11 还观察
 | GET `/schedule/getDeviceload` | `month` 必填 | 开放对象数组，非空结构待验证 |
 | GET `/schedule/getRukuPlan` | `month` 必填 | 入库计划数组 |
 | GET `/schedule/getRukuShiji` | `month` 必填 | 入库实绩数组 |
-| GET `/schedule/getRejects` | `month` 必填 | 开放对象数组，非空结构待验证 |
+| GET `/schedule/getRejects` | `month` 必填；`date` 可选（2026-09-22后端说明，Swagger尚未补录） | 开放对象数组，yuanyin为现象、number为数量，非空结构待验证 |
 | GET `/schedule/getWorkhours` | `date`、`banci` 必填；班次声明为 `早` 或 `夜` | 设备工时类型数组 |
 | GET `/schedule/getChangePoint` | Swagger将 `dept/process/beginDate/endDate/banci/progress` 均标为必填；本次仅传 `progress=` 也成功 | 变化点数组，返回描述补齐班次、解除日期、状态 |
 | GET `/device/realtime/list` | `deviceCode`、`deviceCodes`、`deviceCodeLike`、`factoryId`、`departmentId`、`processType` 可选 | 设备实时快照数组 |

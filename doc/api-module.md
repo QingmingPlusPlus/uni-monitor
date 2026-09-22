@@ -1,5 +1,7 @@
 # API 访问层说明
 
+2026-09-22：`ScheduleRejectsParams`补充可选date且month必填，`ScheduleRejectsRecord`补充yuanyin并允许number为数值字符串；`getScheduleRejectsByMonth(month, date?)`兼容原月查询。日报`getReportRejectsSource(params, signal)`传month+date，生产/产线/品质同日共用不良请求，不同日期隔离；现象只取type=不良并按yuanyin合计number。生产推移表保留原有仅接受number的运行时规则，日报在专用适配层兼容字符串。在线Swagger尚未补录新字段，核验边界见[接口参考](api-reference.md)。
+
 `src/api/` 是前端访问后端的薄封装层，负责统一请求实例、参数类型、响应类型和端点名称。业务过滤、聚合、缓存、降级和展示格式由地图加载器或看板 loader 处理，不应放入 API 文件。
 
 最新完整接口清单、参数、响应字段和实测依据见 [后端接口参考](api-reference.md)（2026-09-20，25 个 Swagger 端点）。访问层已覆盖全部已发布端点；文档区分本次实测、历史实测、Swagger 声明与兼容类型，空数据/超时接口不宣称已完成非空验证。
@@ -22,7 +24,7 @@
 | `deviceRealtime.ts` | 按设备、工厂、部门或工序查询设备实时状态、在线人员、生产任务及历史时间轴 | `GET /device/realtime/list`、`GET /device/device/timeLine` |
 | `deviceAvailability.ts` | 设备日/月/年时长、暂停记录、每日净工时、日报可动率 | `GET /device/availability/day`、`month`、`year`、`pauseRecords`、`month/daily-net`、`day/report` |
 | `schedule.ts` | 工时、生产计划/实绩、设备负荷、入库计划/实绩、不良和 5M 变化点 | `GET /schedule/getWorkhours`、`getPlan`、`getOutput`、`getDeviceload`、`getRukuPlan`、`getRukuShiji`、`getRejects`、`getChangePoint`、`getShijiByDate` |
-| `dailyReport.ts` | 日报显示模型与可取消的15秒原始请求 | 两日出勤、月计划/实绩/不良、设备 `day/report`；页面层 `reportApi/reportAdapters/reportSources` 适配四区，不请求 `/daily-report/*`；详见 `doc/daily-report.md` |
+| `dailyReport.ts` | 日报显示模型与可取消的15秒原始请求 | 两日出勤、月计划/实绩、日不良、设备 `day/report`；页面层 `reportApi/reportAdapters/reportSources` 适配四区，不请求 `/daily-report/*`；详见 `doc/daily-report.md` |
 | `visualConfig.ts` | 保存可视化配置 Map、按 key 读取并解析配置值 | `POST /visual/saveMap`、`GET /visual/getValue` |
 
 ## 已封装但尚未接入页面的能力
@@ -40,7 +42,7 @@
 
 `getDeviceAvailabilityDailyNet` 已接入部门与工序生产性卡片：按各卡片设备范围查询 period/netHours，单请求超时15秒，字段及聚合规则见字段映射。其他未接入页面的能力仍按上表区分。
 
-两日出勤和设备 `day/report` 已通过日报专用可取消封装接入页面；月计划、实绩和不良共享进行中的请求，不使用已完成缓存。出勤日名单、未知班次状态、生产区按制番汇总、设备即产线，比例直接显示原值；品质区共用生产数量公式，现象字段保持缺失。2026-09-20出勤/设备查询已恢复：缺勤分类出现小数，已保留显示；设备时长全零、阻碍原因全空，采集完整性仍待确认。日报隔离异常记录，保留有效小计但不参与比率与排行。
+两日出勤和设备 `day/report` 已通过日报专用可取消封装接入页面；月计划、实绩和不良共享进行中的请求，不使用已完成缓存。出勤日名单、未知班次状态、生产区按制番汇总、设备即产线，比例直接显示原值；品质区共用生产数量公式，现象取type=不良的yuanyin/number。2026-09-20出勤/设备查询已恢复：缺勤分类出现小数，已保留显示；设备时长全零、阻碍原因全空，采集完整性仍待确认。日报隔离异常记录，保留有效小计但不参与比率与排行。
 
 最新契约快照见 [2026-09-20 Swagger 核对](swagger-contract-review.md)，其中接入状态以当前代码及本文为准。变化点统计卡通过 `dept/process/progress` 查询，保留非设备关联记录；按 2026-09-18 用户确认，`dept/process` 改为可选，不传查询全部；地图省略这两个参数，显式传入 `progress=` 一次查询全部，再按设备编码关联，仅显示 `status=0`（兼容字符串）。2026-09-20仅传progress=查询成功；Swagger虽新增beginDate/endDate/banci并将六个参数标为必填，实际仍可省略范围参数，新筛选参数仅声明未验证。统计口径见 [变化点统计](change-point-statistics.md)。
 

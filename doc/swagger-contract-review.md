@@ -1,5 +1,7 @@
 # Swagger 契约核对（2026-09-20）
 
+2026-09-22补充核对：在线文档认证成功，`getRejects`仍只声明必填month，描述仍为date/banci/shebei/number/zhifan/type示例；未声明date查询参数或yuanyin字段。前端按用户提供的后端说明接入可选date和yuanyin，不伪改9月20日快照。带month+date业务GET成功但为空，非空字段及日期过滤效果仍未实测，详见[接口参考](api-reference.md)。
+
 > 本次实测 `getChangePoint?progress=` 成功返回2条，省略部门、工序、日期和班次参数被服务端接受，与Swagger的required标记不一致。地图保持用户确认的全范围查询及 `status=0` 筛选；新增日期/班次参数的筛选效果未在本次验证。
 
 来源：[Swagger UI](http://123.57.81.179:8080/swagger-ui/index.html)，机器契约：`http://123.57.81.179:8080/v3/api-docs`。服务标题“可视化自研接口”，版本 `1.0`。实时契约与仓库已有 [OpenAPI 快照](swagger/openapi-2026-09-20.json) 一致，保留原文件；未保存认证信息或业务明细。

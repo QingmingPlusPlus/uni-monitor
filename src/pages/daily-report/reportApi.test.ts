@@ -8,7 +8,7 @@ vi.mock('../../api/dailyReport', () => ({ getReportAttendanceSource: vi.fn(), ge
 const query: DailyReportQuery = { date: '2026-07-01', department: '4', processType: 'sulfur_addition' }
 const row = (values = {}) => ({ date: query.date, dept: '4', process: '加硫', shebei: 'A', zhifan: 'TEST', banci: '早', number: 100, ...values })
 const response = (data: unknown, success = true) => ({ data: { success, code: success ? '00000' : 'B0001', message: '', data } })
-function stubSource(mock: typeof getReportPlanSource, data: unknown, success = true) {
+function stubSource(mock: typeof getReportPlanSource | typeof getReportRejectsSource, data: unknown, success = true) {
   vi.mocked(mock).mockResolvedValue(response(data, success) as Awaited<ReturnType<typeof mock>>)
 }
 
@@ -34,6 +34,7 @@ describe('日报真实接口适配', () => {
     expect(getReportRejectsSource).toHaveBeenCalledTimes(1)
     expect(getReportDeviceSource).toHaveBeenCalledTimes(1)
     expect(getReportPlanSource).toHaveBeenCalledWith('2026-07', expect.any(AbortSignal))
+    expect(getReportRejectsSource).toHaveBeenCalledWith({ month: '2026-07', date: query.date }, expect.any(AbortSignal))
     const quality = qualityResponse.data.data
     expect(quality.meta.qualityDimension).toBe('production_number')
     expect(quality.rows[0].dimension).toBe('production_number')
@@ -181,7 +182,83 @@ describe('日报真实接口适配', () => {
     expect(percent(report.rows[0].defective, report.rows[0].actual)).toBe('5.00%')
     const zero = report.rows.find(item => item.id === 'ZERO')!
     expect(percent(zero.defective, zero.actual)).toBe('0.00%')
-    expect(report.rows.every(item => item.reasons === null)).toBe(true)
+    expect(report.rows.filter(item => item.id !== 'ZERO').every(item => item.reasons === null)).toBe(true)
+    expect(zero.reasons).toEqual([])
+  })
+
+  it('现象按yuanyin跨设备班次合计，排除其它及范围外记录，比例使用主体实绩', async () => {
+    stubSource(getReportOutputSource, [row({ number: 80 })])
+    stubSource(getReportRejectsSource, [
+      row({ type: '不良', yuanyin: ' 划伤 ', number: '3' }),
+      row({ type: '不良', yuanyin: '划伤', number: '2.0', shebei: 'B', banci: '夜' }),
+      row({ type: '不良', yuanyin: '缺料', number: 4 }),
+      row({ type: '不良', yuanyin: '变形', number: 1 }),
+      row({ type: '其它', yuanyin: '划伤', number: 10 }),
+      row({ type: '不良', yuanyin: '范围外', number: 999, date: '2026-07-02' }),
+      row({ type: '不良', yuanyin: '范围外', number: 999, dept: '2' }),
+      row({ type: '不良', yuanyin: '范围外', number: 999, process: '后处理' }),
+    ])
+    const [quality, production] = await Promise.all([getDailyQuality(query), getDailyProduction(query)])
+    const value = quality.data.data.rows[0]
+    expect(value).toMatchObject({ actual: { value: 100 }, qualified: { value: 90 }, defective: { value: 10 } })
+    expect(value.reasons).toEqual([
+      { code: '划伤', name: '划伤', count: { value: 5, status: 'complete' } },
+      { code: '缺料', name: '缺料', count: { value: 4, status: 'complete' } },
+      { code: '变形', name: '变形', count: { value: 1, status: 'complete' } },
+    ])
+    expect(percent(value.reasons![0].count, value.actual)).toBe('5.00%')
+    expect(production.data.data.rows[0].scrapped.value).toBe(20)
+    expect(validQuality(quality.data.data.rows, query, quality.data.data.meta)).toBe(true)
+  })
+
+  it('缺失现象不伪造名称或摊分数量，已知现象保留部分小计', async () => {
+    stubSource(getReportRejectsSource, [row({ type: '不良', yuanyin: '划伤', number: 3 }),
+      row({ type: '不良', yuanyin: ' ', number: 2 })])
+    const value = (await getDailyQuality(query)).data.data.rows[0]
+    expect(value.defective).toMatchObject({ value: 5, status: 'complete' })
+    expect(value.reasons).toEqual([{ code: '划伤', name: '划伤', count: {
+      value: 3, status: 'partial', note: expect.any(String),
+    } }])
+    expect(percent(value.reasons![0].count, value.actual)).toBe('—')
+    expect(value.reasonNote).toContain('现象')
+  })
+
+  it('现象非法数量不转零，空源无现象，失败不生成现象', async () => {
+    stubSource(getReportRejectsSource, [row({ type: '不良', yuanyin: '划伤', number: '' }),
+      row({ type: '不良', yuanyin: '划伤', number: 2 }), row({ type: '不良', yuanyin: '缺料', number: null })])
+    const value = (await getDailyQuality(query)).data.data.rows[0]
+    expect(value.reasons![0].count).toMatchObject({ value: 2, status: 'partial' })
+    expect(value.reasons![1].count.value).toBeNull()
+    expect(rankQuality([value], query.processType, 'production_number')).toEqual([])
+    stubSource(getReportRejectsSource, [])
+    expect((await getDailyQuality(query)).data.data.rows[0].reasons).toEqual([])
+    stubSource(getReportRejectsSource, [], false)
+    expect((await getDailyQuality(query)).data.data.rows[0].reasons).toBeNull()
+  })
+
+  it('同月不同日期只共享月计划实绩，不共享日不良，取消一天不影响另一天', async () => {
+    const next = { ...query, date: '2026-07-02' }
+    const completions = new Map<string, () => void>()
+    const signals = new Map<string, AbortSignal>()
+    vi.mocked(getReportRejectsSource).mockImplementation((params, signal) => new Promise(resolve => {
+      signals.set(params.date!, signal!)
+      completions.set(params.date!, () => resolve(response([row({ date: params.date, type: '不良', yuanyin: '划伤', number: 2 })]) as Awaited<ReturnType<typeof getReportRejectsSource>>))
+    }))
+    const controller = new AbortController()
+    const first = getDailyProduction(query, controller.signal)
+    const canceled = expect(first).rejects.toMatchObject({ name: 'CanceledError' })
+    const second = getDailyQuality(next)
+    await Promise.resolve()
+    expect(getReportPlanSource).toHaveBeenCalledTimes(1)
+    expect(getReportOutputSource).toHaveBeenCalledTimes(1)
+    expect(getReportRejectsSource).toHaveBeenCalledTimes(2)
+    controller.abort()
+    expect(signals.get(query.date)!.aborted).toBe(true)
+    expect(signals.get(next.date)!.aborted).toBe(false)
+    completions.get(query.date)!()
+    completions.get(next.date)!()
+    await canceled
+    expect((await second).data.data.rows[0].reasons![0].count.value).toBe(2)
   })
 
   it('品质关联范围内的产线名称，名称来源异常不影响数量', async () => {

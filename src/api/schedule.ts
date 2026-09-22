@@ -5,6 +5,11 @@ export interface ScheduleMonthParams {
   month: string
 }
 
+export interface ScheduleRejectsParams extends ScheduleMonthParams {
+  /** 可选数据日 YYYY-MM-DD；省略时查询整月，month 始终必填。 */
+  date?: string
+}
+
 export interface ScheduleWorkhoursParams {
   date: string
   banci: string
@@ -62,10 +67,12 @@ export interface ScheduleRejectsRecord {
   date: string
   banci: string
   shebei: string
-  number: number
+  number: number | string
   zhifan: string
-  /** Swagger 文字示例为“不良”；枚举和非空响应尚待验证。 */
+  /** 仅“不良”计入不良数量及现象；其他明确类型仍计入废弃。 */
   type?: string
+  /** 后端确认的不良现象名称；缺失时不得用 type 替代。 */
+  yuanyin?: string | null
 }
 
 /** 2026-09-14 非空响应核验；device=null 的非设备关联情况来自 Swagger 说明。 */
@@ -148,9 +155,9 @@ export function getScheduleRukuShijiByMonth(month: string) {
   })
 }
 
-export function getScheduleRejectsByMonth(month: string) {
+export function getScheduleRejectsByMonth(month: string, date?: string) {
   return http.get<ScheduleRejectsResponse>('/schedule/getRejects', {
-    params: { month } satisfies ScheduleMonthParams,
+    params: { month, ...(date ? { date } : {}) } satisfies ScheduleRejectsParams,
   })
 }
 

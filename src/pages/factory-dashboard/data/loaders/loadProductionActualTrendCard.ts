@@ -67,7 +67,10 @@ export async function loadProductionPlanTrendCard(
   if (periods === null) return null
   const rejects = rejectsResponse?.data?.success === false ? [] : rejectsResponse?.data?.data
   const rejectedRows = (Array.isArray(rejects) ? rejects : []).flatMap(record => {
-    if (!validRecord(record) || !isSchedulePlanAtOrBeforeShiftCutoff(record, cutoff)) return []
+    // 此推移表保持原有数值口径；日报的字符串数量转换由其专用适配层处理。
+    if (typeof record.number !== 'number') return []
+    const numericRecord = { ...record, number: record.number }
+    if (!validRecord(numericRecord) || !isSchedulePlanAtOrBeforeShiftCutoff(numericRecord, cutoff)) return []
     const matches = processTypes.filter(process => deviceCodeMap[process]?.has(normalizeDeviceCode(record.shebei)))
     if (matches.length !== 1) return []
     return [{ processType: matches[0]!, day: extractLocalDateKey(record.date)! % 100, rejected: record.number }]
