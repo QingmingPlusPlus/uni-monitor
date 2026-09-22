@@ -87,6 +87,8 @@ export interface ScheduleChangePointRecord {
   date?: string
   factory?: string
   process?: string
+  /** 2026-09-22 实测：设备关联使用编码，device 为设备名称。 */
+  deviceCode?: string | null
   device?: string | null
   type?: string
   changePointContent?: string

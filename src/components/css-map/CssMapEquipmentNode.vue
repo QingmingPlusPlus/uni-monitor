@@ -4,6 +4,7 @@ import CssMapFiveMMarker from './CssMapFiveMMarker.vue'
 import CssMapStaffMarker from './CssMapStaffMarker.vue'
 import {
   getCssMapFiveMRowBackground,
+  getCssMapFiveMCellBackground,
   getCssMapLoadRateBackground,
   getCssMapTitleStyle,
 } from './css3dMapPalette'
@@ -252,14 +253,17 @@ const surfaceStyle = computed(() => {
           <div class="css-map-equipment-node__detail-row css-map-equipment-node__detail-row--five-m">
             <span class="css-map-equipment-node__detail-label">5M</span>
             <div class="css-map-equipment-node__markers css-map-equipment-node__markers--five-m">
-              <CssMapFiveMMarker
+              <span
                 v-for="change in visibleFiveMItems"
                 :key="change.id"
-                :change="change"
-              />
+                class="css-map-equipment-node__five-m-cell"
+                :style="{ '--five-m-cell-background': getCssMapFiveMCellBackground(change.category) }"
+              >
+                <CssMapFiveMMarker :change="change" />
+              </span>
               <span
                 v-if="fiveMSlotPlan.overflowCount > 0"
-                class="css-map-equipment-node__overflow"
+                class="css-map-equipment-node__overflow css-map-equipment-node__five-m-cell"
               >
                 +{{ fiveMSlotPlan.overflowCount }}
               </span>

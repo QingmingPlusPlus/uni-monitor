@@ -2,7 +2,7 @@ import { clamp, createFont } from './canvasText'
 import { drawSpriteCssMapFiveMMarker } from '../spriteCssMapFiveMMarker'
 import { drawSpriteCssMapStaffMarker } from '../spriteCssMapStaffMarker'
 import { planCssMapMarkerSlots } from '../cssMapDeviceContentLayout'
-import { getCssMapFiveMRowColors } from '../css3dMapPalette'
+import { cssMapFiveMNeutralBackground, getCssMapFiveMCellBackground, getCssMapFiveMRowBackground } from '../css3dMapPalette'
 import type { DrawRect, RenderableMarkerSlots, SpriteCssMapDeviceCardDrawOptions } from './types'
 
 export function drawFiveMRowBackground(
@@ -13,17 +13,7 @@ export function drawFiveMRowBackground(
   if (getMarkerItemCount(options, 'fiveM') === 0) return
 
   context.save()
-  const colors = getCssMapFiveMRowColors(options.device.runtime.fiveMChanges)
-  if (colors.length === 1) {
-    context.fillStyle = colors[0]
-  } else {
-    const gradient = context.createLinearGradient(rect.x, rect.y, rect.x + rect.w, rect.y)
-    colors.forEach((color, index) => {
-      gradient.addColorStop(index / colors.length, color)
-      gradient.addColorStop((index + 1) / colors.length, color)
-    })
-    context.fillStyle = gradient
-  }
+  context.fillStyle = getCssMapFiveMRowBackground(options.device.runtime.fiveMChanges)
   context.fillRect(rect.x, rect.y, rect.w, rect.h)
   context.restore()
 }
@@ -136,12 +126,16 @@ export function drawHorizontalMarkerRow(
   rect: DrawRect,
   type: 'staff' | 'fiveM',
 ): void {
+  if (type === 'fiveM') {
+    drawFiveMCells(context, options, rect, 'horizontal')
+    return
+  }
   const itemCount = getMarkerItemCount(options, type)
   const label = type === 'staff' ? '人员' : '5M'
   const labelWidth = clamp(rect.w * 0.22, 18, 34)
   const gap = clamp(rect.h * 0.1, 2, 5)
   const markerAreaWidth = Math.max(0, rect.w - labelWidth - gap)
-  const maximumMarkerSize = type === 'staff' ? 18 : 42
+  const maximumMarkerSize = 18
   const minimumMarkerSize = 7
   const fixedPlan = planCssMapMarkerSlots(itemCount, 'horizontal')
   const geometricCapacity = Math.max(
@@ -156,7 +150,7 @@ export function drawHorizontalMarkerRow(
     ? Math.floor(clamp(
         (markerAreaWidth - Math.max(0, slots.occupiedSlots - 1) * gap) / slots.occupiedSlots,
         5,
-        Math.min(maximumMarkerSize, Math.max(5, rect.h - (type === 'staff' ? 5 : 2))),
+        Math.min(maximumMarkerSize, Math.max(5, rect.h - 5)),
       ))
     : minimumMarkerSize
 
@@ -211,6 +205,10 @@ export function drawVerticalMarkerGrid(
   rect: DrawRect,
   type: 'staff' | 'fiveM',
 ): void {
+  if (type === 'fiveM') {
+    drawFiveMCells(context, options, rect, 'vertical')
+    return
+  }
   const itemCount = getMarkerItemCount(options, type)
   const label = type === 'staff' ? '人员' : '5M'
   const labelWidth = clamp(rect.w * 0.28, 16, 30)
@@ -235,7 +233,7 @@ export function drawVerticalMarkerGrid(
   const rows = slots.occupiedSlots === 0
     ? 0
     : Math.ceil(slots.occupiedSlots / columns)
-  const maximumMarkerSize = type === 'staff' ? 15 : 32
+  const maximumMarkerSize = 15
   const markerSize = slots.occupiedSlots > 0
     ? Math.floor(clamp(
         Math.min(
@@ -296,6 +294,51 @@ export function drawVerticalMarkerGrid(
         markerSize,
       )
     }
+  }
+  context.restore()
+}
+
+// 图标与背景共用同一个槽位矩形，换行和重复类别都不会错位。
+function drawFiveMCells(
+  context: CanvasRenderingContext2D,
+  options: SpriteCssMapDeviceCardDrawOptions,
+  rect: DrawRect,
+  orientation: 'horizontal' | 'vertical',
+): void {
+  const count = getMarkerItemCount(options, 'fiveM')
+  const labelWidth = clamp(rect.w * 0.22, 16, 30)
+  const area = { x: rect.x + labelWidth, y: rect.y, w: Math.max(0, rect.w - labelWidth), h: rect.h }
+  context.save()
+  drawMarkerLabel(context, '5M', { ...rect, w: labelWidth }, clamp(rect.h * 0.2, 7, 11))
+  if (!count) {
+    drawEmptyMarkerValue(context, area, 9)
+    context.restore()
+    return
+  }
+  const plan = planCssMapMarkerSlots(count, orientation)
+  const columns = Math.max(1, plan.columns)
+  const rows = Math.max(1, plan.rows)
+  const cellWidth = area.w / columns
+  const cellHeight = area.h / rows
+  const size = Math.max(0, Math.min(orientation === 'vertical' ? 32 : 42, cellWidth - 4, cellHeight - 4))
+  const slots = plan.visibleMarkerCount + (plan.overflowCount > 0 ? 1 : 0)
+  for (let index = 0; index < slots; index++) {
+    const x = area.x + index % columns * cellWidth
+    const y = area.y + Math.floor(index / columns) * cellHeight
+    const overflow = index >= plan.visibleMarkerCount
+    context.fillStyle = overflow ? cssMapFiveMNeutralBackground
+      : getCssMapFiveMCellBackground(options.device.runtime.fiveMChanges[index].category)
+    // 白底隔离整行高亮，避免半透明类别色叠加变色。
+    const color = context.fillStyle
+    context.fillStyle = '#ffffff'
+    context.fillRect(x, y, cellWidth, cellHeight)
+    context.fillStyle = color
+    context.fillRect(x, y, cellWidth, cellHeight)
+    if (size <= 0) continue
+    const markerX = x + (cellWidth - size) / 2
+    const markerY = y + (cellHeight - size) / 2
+    if (overflow) drawMarkerOverflowText(context, `+${plan.overflowCount}`, markerX, markerY, size)
+    else drawMarkerItem(context, options, 'fiveM', index, markerX, markerY, size)
   }
   context.restore()
 }

@@ -484,3 +484,25 @@
   background: transparent;
   font-size: max(8px, var(--css-map-node-load-size));
 }
+
+/* 色块与图标使用同一网格槽位，不再按去重类别绘制独立条带。 */
+.css-map-equipment-node .css-map-equipment-node__markers--five-m {
+  display: grid;
+  grid-template-columns: repeat(var(--css-map-five-m-columns), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--css-map-five-m-rows), minmax(0, 1fr));
+  gap: 0;
+  align-items: stretch;
+}
+.css-map-equipment-node__five-m-cell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  background: linear-gradient(var(--five-m-cell-background, rgba(148, 163, 184, 0.16)), var(--five-m-cell-background, rgba(148, 163, 184, 0.16))), #fff;
+}
+.css-map-equipment-node--has-five-m .css-map-equipment-node__detail-row--five-m {
+  margin-right: calc(0px - var(--css-map-node-content-remainder, 0px));
+}
+.css-map-equipment-node--right-l-shape .css-map-equipment-node__detail-row--five-m {
+  margin-right: 0;
+}

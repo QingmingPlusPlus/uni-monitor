@@ -355,7 +355,7 @@ describe('loadCssMapData realtime status mapping', () => {
     stubEmptyRuntimeSideData()
     vi.mocked(getScheduleChangePoint).mockResolvedValue({
       data: { success: true, code: '200', message: 'ok', data: [
-        { status: 0, pid: 'test-1', device: 'D-01', type: '料', changePointContent: '测试材料切换', notes: '备注不是标题' },
+        { status: 0, pid: 'test-1', deviceCode: ' d-01 ', device: '测试设备', type: '料', changePointContent: '测试材料切换', notes: '备注不是标题' },
         { status: 0, pid: 'test-2', device: null, type: '人', changePointContent: '非设备变化点' },
       ] },
     } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
@@ -373,14 +373,14 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(data.devices[0]?.runtime.loadRate).toBeCloseTo(80.217)
   })
 
-  it('查询全部变化点，实时接口超时仍保留 SMT3 的七个进行中标记', async () => {
+  it('按 deviceCode 关联 SMT3，设备名称不同且实时接口超时仍保留六个进行中标记', async () => {
     stubFactoryMapConfig([{ ...createMapDevice('SMT3', '3322'), section: 'posttreatment2' }])
     stubEmptyRuntimeSideData()
     vi.mocked(getDeviceRealtimeList).mockRejectedValueOnce(new Error('timeout'))
     vi.mocked(getScheduleChangePoint).mockResolvedValueOnce({
       data: { success: true, code: '200', message: 'ok', data:
         ['人', '机', '料', '料', '料', '环', '环'].map((type, index) => ({
-          status: 0, pid: `test-${index}`, device: '3322', type, changePointContent: '测试变化点',
+          status: index === 2 ? 1 : 0, pid: `test-${index}`, deviceCode: '3322', device: 'SMT生产线-3', type, changePointContent: '测试变化点',
         })),
       },
     } as Awaited<ReturnType<typeof getScheduleChangePoint>>)
@@ -392,7 +392,7 @@ describe('loadCssMapData realtime status mapping', () => {
     expect(getScheduleChangePoint).toHaveBeenCalledTimes(1)
     expect(getScheduleChangePoint).toHaveBeenCalledWith({ progress: '' })
     expect(data.devices[0].runtime.fiveMChanges.map(change => change.category))
-      .toEqual(['man', 'machine', 'material', 'material', 'material', 'environment', 'environment'])
+      .toEqual(['man', 'machine', 'material', 'material', 'environment', 'environment'])
     expect(data.devices[0].runtime.status).toBeNull()
   })
 
@@ -419,9 +419,13 @@ describe('loadCssMapData realtime status mapping', () => {
     vi.mocked(getScheduleChangePoint).mockResolvedValueOnce({
       data: { success: true, data: [
         ...[0, '0', 1, '1', null, undefined, '', 'unknown'].map((status, index) => ({
-          device: '1001', status, type: '机', changePointContent: `记录${index}`,
+          deviceCode: '1001', device: '测试设备1', status, type: '机', changePointContent: `记录${index}`,
         })),
-        { device: '1002', status: 0, type: '料' },
+        { deviceCode: '1002', device: '1001', status: 0, type: '料' },
+        { device: '1001', status: 0, type: '人' },
+        { deviceCode: null, device: '1001', status: 0, type: '人' },
+        { deviceCode: '', device: '1001', status: 0, type: '人' },
+        { deviceCode: 'unknown', device: '1001', status: 0, type: '人' },
         { device: null, status: 0, type: '人' },
       ] },
     } as Awaited<ReturnType<typeof getScheduleChangePoint>>)

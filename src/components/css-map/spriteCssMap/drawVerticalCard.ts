@@ -54,7 +54,7 @@ export function drawVerticalCard(
     w: Math.max(0, surfaceRight - rect.x),
     h: fiveMRect.h,
   })
-  drawVerticalMarkerGrid(context, options, fiveMRect, 'fiveM')
+  drawVerticalMarkerGrid(context, options, { ...fiveMRect, w: Math.max(0, surfaceRight - fiveMRect.x) }, 'fiveM')
   drawVerticalLoadRate(context, options.device, loadRect, colorPlan)
 
   context.save()

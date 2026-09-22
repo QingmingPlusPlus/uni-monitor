@@ -299,7 +299,7 @@ function normalizeFiveMCategory(value: string | null | undefined): CssMapFiveMCa
 
 function createFiveMChange(record: ScheduleChangePointRecord, index: number): CssMapDeviceRuntime['fiveMChanges'][number] {
   return {
-    id: `${record.device ?? 'scope'}-${record.type ?? 'change'}-${index}`,
+    id: `${record.deviceCode ?? 'scope'}-${record.type ?? 'change'}-${index}`,
     category: normalizeFiveMCategory(record.type),
     label: record.changePointContent || record.notes || record.type || '变化点',
   }
@@ -407,7 +407,7 @@ function createChangeLookup(records: readonly ScheduleChangePointRecord[]): Map<
 
   records.forEach((record) => {
     if (record.status !== 0 && record.status !== '0') return
-    const code = normalizeDeviceCode(record.device)
+    const code = normalizeDeviceCode(record.deviceCode)
     if (!code) return
     const list = map.get(code) ?? []
     list.push(record)

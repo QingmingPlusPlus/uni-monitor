@@ -47,8 +47,8 @@ function drawWideBody(
   drawHorizontalMarkerRow(context, options, {
     x: detailX + 5,
     y: rect.y + rowHeight,
-    w: Math.max(1, rect.w - rateWidth - 9),
-    h: Math.max(1, rowHeight - 3),
+    w: Math.max(1, surfaceRight - detailX - 5),
+    h: rowHeight,
   }, 'fiveM')
 }
 

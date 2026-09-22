@@ -1,5 +1,7 @@
 # 后端接口参考
 
+2026-09-22 追加非空实测：`GET /schedule/getChangePoint?progress=` 成功返回 9 条。`deviceCode` 为设备编码，`device` 为设备名称；地图使用 `deviceCode` 关联并保留 `status=0` 筛选，不按名称回退。编码 3322 有 7 条，其中进行中 6 条、已关闭 1 条；此数量仅为本次样本，不是固定业务规则。
+
 ## 2026-09-22 日报不良字段与日期查询
 
 根据用户转述的后端确认，`getRejects` 的month必填，新增可选date（YYYY-MM-DD），省略date查询整月；`yuanyin`为现象名称、`number`为对应数量，仅type=不良计入不良分子和现象。前端日报已传month+date，并按日期隔离共享请求；通用月封装保持只传month的兼容行为。数量兼容number/string，日报显式校验十进制非负安全整数。

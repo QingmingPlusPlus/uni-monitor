@@ -287,7 +287,7 @@ export function createCssMapMockChangePointRecords(
     const records: ScheduleChangePointRecord[] = [{
       status: 0,
       date: today,
-      device: deviceCode,
+      deviceCode,
       type,
       changePointContent: `${type}变化`,
       implResult: '待确认',
@@ -299,7 +299,7 @@ export function createCssMapMockChangePointRecords(
       records.push({
         status: 0,
         date: today,
-        device: deviceCode,
+        deviceCode,
         type: secondType,
         changePointContent: `${secondType}变化`,
         implResult: '已确认',
