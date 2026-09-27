@@ -1,0 +1,53 @@
+/* PC 以 1920×1080 为设计基准，保持地图与数据面板各占一半。 */
+.pc-factory-dashboard.factory-dashboard-view {
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 20px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  gap: 16px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.pc-factory-dashboard.factory-dashboard-view :deep(.factory-alert-header) {
+  flex-shrink: 0;
+}
+
+.pc-factory-dashboard.factory-dashboard-view :deep(.factory-dashboard-view__body) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.pc-factory-dashboard.factory-dashboard-view :deep(.css-map-panel) {
+  min-height: 0;
+}
+
+.pc-factory-dashboard.factory-dashboard-view :deep(.factory-dashboard-view__panel-scroll) {
+  height: 100%;
+}
+
+@media (max-width: 1023px) {
+  .pc-factory-dashboard.factory-dashboard-view {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .pc-factory-dashboard.factory-dashboard-view :deep(.factory-dashboard-view__body) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .pc-factory-dashboard.factory-dashboard-view :deep(.factory-dashboard-view__map) {
+    height: 60vh;
+    min-height: 460px;
+  }
+
+  .pc-factory-dashboard.factory-dashboard-view :deep(.factory-dashboard-view__panel-scroll) {
+    height: auto;
+  }
+}

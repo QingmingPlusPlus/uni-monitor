@@ -2,6 +2,12 @@
 
 本项目是一个工厂可视化看板，用于在 2K 触摸大屏上集中呈现工厂运行状态。整体信息架构围绕三个维度展开：**部门**、**工序**、**设备**。
 
+## PC 端部门与工序
+
+PC 部门入口为 `pages-pc/department/index?departmentId=department1`，工序入口为 `pages-pc/process/index?processId=pretreatment1`。两页复用以下大屏维度的地图、告警、业务卡片、数据口径、刷新和展开交互，仅隐藏制造日报按钮，并采用 1920×1080 的 PC 布局（16px 页面边距与分区间距、左右各半、右侧独立滚动）。浏览器高度变化时填满可用视口，小于 1024px 改为单列。
+
+部门/工序选择和清空工序均保持 `pages-pc` 路径；地图打开设备进入 `pages-pc/equipment/index`，该设备页仍为待开发占位。
+
 ## 三个维度
 
 ### 1. 部门维度（Department）

@@ -9,7 +9,7 @@
 | `src/main.ts` | 通过 `createSSRApp(App)` 创建 Uni-app/Vue 3 应用实例；当前未注册全局插件或全局组件。 |
 | `src/App.vue` | 接收 `onLaunch`、`onShow`、`onHide` 生命周期，并在全局样式中定义颜色、间距和页面基础样式。 |
 | `src/pages.json` | 通过 `PC` 条件编译注册大屏四个页面或 PC 三个页面，统一使用自定义导航栏。 |
-| `src/pages-pc/` | PC 部门、工序、设备独立页面；当前仅显示对应维度的占位文字。 |
+| `src/pages-pc/` | PC 部门、工序、设备独立页面；部门、工序复用大屏组件与数据，设备保留占位文字。 |
 | `package.json` | 定义基于 H5 的 `screen`、`pc` 自定义构建目标和独立输出目录。 |
 | `src/manifest.json` | 保存 Uni-app 应用标识、多端构建清单和平台能力配置。 |
 | `src/uni.scss` | Uni-app 样式入口；项目主要设计变量目前定义在 `src/App.vue`。 |
@@ -32,11 +32,13 @@ PC 构建仅注册以下独立页面，部门页为默认入口：
 
 | 页面 | H5 hash 地址 | 当前内容 |
 | --- | --- | --- |
-| `src/pages-pc/department/index.vue` | `/#/pages-pc/department/index` | PC端 · 部门维度（待开发） |
-| `src/pages-pc/process/index.vue` | `/#/pages-pc/process/index` | PC端 · 工序维度（待开发） |
+| `src/pages-pc/department/index.vue` | `/#/pages-pc/department/index` | 部门地图与业务卡片，读取 `departmentId` |
+| `src/pages-pc/process/index.vue` | `/#/pages-pc/process/index` | 工序地图与业务卡片，读取 `processId` |
 | `src/pages-pc/equipment/index.vue` | `/#/pages-pc/equipment/index` | PC端 · 设备维度（待开发） |
 
-PC 页面当前没有导航、业务组件和接口请求，可直接访问上述地址查看各维度。制造日报目前仅属于大屏端。
+PC 部门、工序页复用 `FactoryDashboardView`、地图和全部业务卡片，通过共用 composable 加载真实数据、同步 query 并刷新卡片。制造日报按钮不显示，日报页面仍仅属于大屏端。PC 设备页暂为占位；地图打开设备时进入该 PC 地址。
+
+PC 布局样式由 `src/pages-pc/factory-dashboard.css` 独立维护，以 1920×1080 为设计基准：页面边距与分区间距均为 16px，顶部告警栏，左右等宽地图与卡片面板，高度跟随浏览器可用视口，右侧独立滚动。小于 1024px 时退化为单列。
 
 ## 双端构建与共享边界
 
@@ -44,8 +46,8 @@ PC 页面当前没有导航、业务组件和接口请求，可直接访问上�
 - `package.json` 的 `uni-app.scripts` 将 `screen` 和 `pc` 都映射到 `h5`，分别启用 `SCREEN`、`PC` 条件编译标记。
 - `src/pages.json` 用 `#ifndef PC` 保留原大屏页面，用 `#ifdef PC` 注册 PC 页面。原 `dev:h5`、`build:h5` 仍默认使用大屏页面。
 - 构建产物分别写入 `dist/build/screen/` 和 `dist/build/pc/`，可以独立部署，依次打包不会覆盖另一端产物。未被页面引用的业务代码不会因存在于源码目录而自动成为页面入口；`static/` 等静态资源仍按 Uni-app 的资源复制规则处理。
-- 两套系统使用同一套后端 API 和现有 `src/api/` 客户端，不创建 PC 专用 API 副本。PC 接入业务时直接复用现有接口封装；当前占位页不发起业务请求。
-- 当前 `factoryRoutes.ts`、`reportRoutes.ts` 仍服务大屏。后续 PC 接入地图和业务卡片时，需要适配页面跳转地址，不能直接复用写死大屏路径的导航逻辑。
+- 两套系统使用同一套后端 API 和现有 `src/api/` 客户端，不创建 PC 专用 API 副本。PC 接入业务时直接复用现有接口封装；部门、工序页已通过共享 loader 查询业务接口。
+- `factoryRoutes.ts` 的 URL 构造函数支持 `terminal` 参数，默认 `screen`，PC composable 显式传入 `pc`，所有维度跳转均保留当前端；`reportRoutes.ts` 仍仅服务大屏。
 - 长期边界和验收要求见 `openspec/specs/dual-terminal-build/spec.md`。
 
 ## 全局样式

@@ -3,18 +3,24 @@ import type {
   CssMapProcessValue,
 } from '../../../components/css-map/css3dMapTypes'
 
+export type FactoryTerminal = 'screen' | 'pc'
+
+function pageRoot(terminal: FactoryTerminal): string {
+  return terminal === 'pc' ? '/pages-pc' : '/pages'
+}
+
 export type FactoryRouteSource = 'department' | 'process'
 
-export function buildDepartmentUrl(departmentId: CssMapDepartmentValue): string {
-  return `/pages/department/index?departmentId=${encodeURIComponent(departmentId)}`
+export function buildDepartmentUrl(departmentId: CssMapDepartmentValue, terminal: FactoryTerminal = 'screen'): string {
+  return `${pageRoot(terminal)}/department/index?departmentId=${encodeURIComponent(departmentId)}`
 }
 
-export function buildProcessUrl(processId: CssMapProcessValue): string {
-  return `/pages/process/index?processId=${encodeURIComponent(processId)}`
+export function buildProcessUrl(processId: CssMapProcessValue, terminal: FactoryTerminal = 'screen'): string {
+  return `${pageRoot(terminal)}/process/index?processId=${encodeURIComponent(processId)}`
 }
 
-export function buildEquipmentUrl(deviceId: string, from: FactoryRouteSource): string {
-  return `/pages/equipment/index?deviceId=${encodeURIComponent(deviceId)}&from=${from}`
+export function buildEquipmentUrl(deviceId: string, from: FactoryRouteSource, terminal: FactoryTerminal = 'screen'): string {
+  return `${pageRoot(terminal)}/equipment/index?deviceId=${encodeURIComponent(deviceId)}&from=${from}`
 }
 
 function isBrowserRouteRuntime(): boolean {

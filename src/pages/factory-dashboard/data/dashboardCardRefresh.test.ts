@@ -4,10 +4,11 @@ import { describe, expect, it, vi } from 'vitest'
 
 // 执行页面的实际刷新函数，使用可控 Promise 重现接口乱序返回。
 function setup(kind: 'department' | 'process') {
-  const source = readFileSync(new URL(`../../${kind}/index.vue`, import.meta.url), 'utf8')
-  const start = source.indexOf('async function refreshCard(')
-  const end = source.indexOf('\nfunction ', start + 1)
-  const script = source.slice(start, end < 0 ? source.indexOf('</script>', start) : end)
+  const source = readFileSync(new URL(`../composables/use${kind[0].toUpperCase() + kind.slice(1)}Dashboard.ts`, import.meta.url), 'utf8')
+  const parsed = ts.createSourceFile('dashboard.ts', source, ts.ScriptTarget.Latest, true)
+  const setup = parsed.statements.find(ts.isFunctionDeclaration)!
+  const refresh = setup.body!.statements.find(s => ts.isFunctionDeclaration(s) && s.name?.text === 'refreshCard')!
+  const script = refresh.getText(parsed)
   const dashboardData = { value: { changePoint: { status: 'ready' }, productionPlanTrend: { id: 'old' }, productionPlanTrends: [{ id: 'old-productivity' }] } }
   const loaders = {
     loadProductionPlanTrendCard: vi.fn(),

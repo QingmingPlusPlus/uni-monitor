@@ -25,6 +25,12 @@
 
 部门页和工序页都先创建同步 mock fallback，待路由、选择配置和月分段初始化完成（失败则使用既有回退）后，只发起一次目标维度的真实数据加载。初始化期间不请求默认一科，配置完成不再重复触发整页请求。部门定时刷新合并配置更新；首次进入页面不额外执行“错过晨间刷新”的重复加载。页面卸载后使旧请求版本失效。这样页面可以立即得到完整的数据结构，接口部分失败时也不会让整个看板失去渲染条件。
 
+## 两端共用页面逻辑
+
+`composables/useDepartmentDashboard.ts` 与 `useProcessDashboard.ts` 封装 query 同步、初始化、数据装配、卡片刷新及生命周期清理。大屏与 PC 保留独立页面入口，分别调用同一 composable；PC 显式传入 `pc`，URL 构造函数默认使用大屏路径。
+
+PC 部门、工序页复用 `FactoryDashboardView`，设置 `showDailyReport=false` 隐藏日报操作，样式通过 `src/pages-pc/factory-dashboard.css` 按 1920×1080 设计，左右等宽、右侧独立滚动。设备跳转仍使用已注册的 PC 占位页。
+
 ## 视图组件
 
 | 目录/组件 | 职责 |
@@ -93,7 +99,7 @@
 
 ## 制造日报入口
 
-部门、工序看板顶部提供“制造日报”，进入独立 `/pages/daily-report/index` 并带入当前部门、工序族、昨日数据日期和返回来源。日报不使用实时看板的 loader、地图显示白名单或 mock 数据。详见 `doc/daily-report.md`。
+大屏部门、工序看板顶部提供“制造日报”，进入独立 `/pages/daily-report/index` 并带入当前部门、工序族、昨日数据日期和返回来源。日报不使用实时看板的 loader、地图显示白名单或 mock 数据。详见 `doc/daily-report.md`。
 
 ## 变化点组件
 

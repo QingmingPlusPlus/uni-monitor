@@ -20,6 +20,7 @@ import FactoryAlertHeader from '../FactoryAlertHeader/FactoryAlertHeader.vue'
 import FactoryDashboardPanel from '../FactoryDashboardPanel/FactoryDashboardPanel.vue'
 
 const props = defineProps<{
+  readonly showDailyReport?: boolean
   readonly data: FactoryDashboardData
   readonly alarms: readonly FactoryAlarmItem[]
   readonly selectionConfig: CssMapSelectionConfig
@@ -68,7 +69,7 @@ function handleSpriteMapFallback(reason: string): void {
 <template>
   <view :class="['factory-dashboard-view', `factory-dashboard-view--${data.kind}`]">
     <FactoryAlertHeader :alarms="alarms">
-      <template #actions><button class="factory-dashboard-view__daily-report" @click="openDailyReport">制造日报</button></template>
+      <template v-if="showDailyReport !== false" #actions><button class="factory-dashboard-view__daily-report" @click="openDailyReport">制造日报</button></template>
     </FactoryAlertHeader>
 
     <view class="factory-dashboard-view__body">
