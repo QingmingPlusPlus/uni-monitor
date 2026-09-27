@@ -9,7 +9,7 @@
 | `src/main.ts` | 通过 `createSSRApp(App)` 创建 Uni-app/Vue 3 应用实例；当前未注册全局插件或全局组件。 |
 | `src/App.vue` | 接收 `onLaunch`、`onShow`、`onHide` 生命周期，并在全局样式中定义颜色、间距和页面基础样式。 |
 | `src/pages.json` | 通过 `PC` 条件编译注册大屏四个页面或 PC 三个页面，统一使用自定义导航栏。 |
-| `src/pages-pc/` | PC 部门、工序、设备独立页面；部门、工序复用大屏组件与数据，设备保留占位文字。 |
+| `src/pages-pc/` | PC 部门、工序、设备独立页面；三个维度均复用大屏组件与数据。 |
 | `package.json` | 定义基于 H5 的 `screen`、`pc` 自定义构建目标和独立输出目录。 |
 | `src/manifest.json` | 保存 Uni-app 应用标识、多端构建清单和平台能力配置。 |
 | `src/uni.scss` | Uni-app 样式入口；项目主要设计变量目前定义在 `src/App.vue`。 |
@@ -34,11 +34,13 @@ PC 构建仅注册以下独立页面，部门页为默认入口：
 | --- | --- | --- |
 | `src/pages-pc/department/index.vue` | `/#/pages-pc/department/index` | 部门地图与业务卡片，读取 `departmentId` |
 | `src/pages-pc/process/index.vue` | `/#/pages-pc/process/index` | 工序地图与业务卡片，读取 `processId` |
-| `src/pages-pc/equipment/index.vue` | `/#/pages-pc/equipment/index` | PC端 · 设备维度（待开发） |
+| `src/pages-pc/equipment/index.vue` | `/#/pages-pc/equipment/index` | 设备详情与计划实绩，读取 `deviceId`、`from` |
 
-PC 部门、工序页复用 `FactoryDashboardView`、地图和全部业务卡片，通过共用 composable 加载真实数据、同步 query 并刷新卡片。制造日报按钮不显示，日报页面仍仅属于大屏端。PC 设备页暂为占位；地图打开设备时进入该 PC 地址。
+PC 部门、工序页复用 `FactoryDashboardView`、地图和全部业务卡片，通过共用 composable 加载真实数据、同步 query 并刷新卡片。制造日报按钮不显示，日报页面仍仅属于大屏端。PC 设备页复用 `EquipmentDetailView` 与 `useEquipmentDashboard`，地图打开设备时进入该 PC 地址；返回按钮根据设备所属工序和 `from` 回到 PC 部门或工序。
 
 PC 布局样式由 `src/pages-pc/factory-dashboard.css` 独立维护，以 1920×1080 为设计基准：页面边距与分区间距均为 16px，顶部告警栏，左右等宽地图与卡片面板，高度跟随浏览器可用视口，右侧独立滚动。小于 1024px 时退化为单列。
+
+设备详情样式独立维护在 `src/pages-pc/equipment/equipment.css`，同样采用 16px 页面边距和分区间距。1920×1080 下展示全宽计划表，四张分析卡并排；展开计划或记录较多时页面纵向滚动，窄屏表格局部横向滚动。
 
 ## 双端构建与共享边界
 

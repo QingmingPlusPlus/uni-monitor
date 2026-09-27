@@ -1,0 +1,40 @@
+/* PC 设备详情以 1920×1080 为设计基准，复用大屏内容和交互。 */
+.pc-equipment-detail.equipment-detail {
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 20px;
+  width: 100%;
+  min-width: 0;
+  gap: 16px;
+  padding: 16px;
+}
+
+.pc-equipment-detail.equipment-detail :deep(.equipment-detail__hero),
+.pc-equipment-detail.equipment-detail :deep(.equipment-detail__grid) {
+  min-width: 0;
+}
+
+.pc-equipment-detail.equipment-detail :deep(.equipment-detail__title),
+.pc-equipment-detail.equipment-detail :deep(.equipment-detail__subtitle) {
+  overflow-wrap: anywhere;
+}
+
+/* 完整保留计划表字段，窄视口由表格自身横向滚动。 */
+.pc-equipment-detail.equipment-detail :deep(.equipment-plan-table) {
+  width: 100%;
+}
+
+/* 1080p 桌面将四张分析卡并排，默认计划收起时可在首屏查看。 */
+@media (min-width: 1600px) {
+  .pc-equipment-detail.equipment-detail :deep(.equipment-detail__grid) {
+    display: grid;
+    grid-template-areas: "loss defect timeline cycle";
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .pc-equipment-detail.equipment-detail :deep(.equipment-detail__card) {
+    margin-bottom: 0;
+  }
+}

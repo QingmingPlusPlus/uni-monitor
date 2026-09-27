@@ -27,9 +27,9 @@
 
 ## 两端共用页面逻辑
 
-`composables/useDepartmentDashboard.ts` 与 `useProcessDashboard.ts` 封装 query 同步、初始化、数据装配、卡片刷新及生命周期清理。大屏与 PC 保留独立页面入口，分别调用同一 composable；PC 显式传入 `pc`，URL 构造函数默认使用大屏路径。
+`composables/useDepartmentDashboard.ts`、`useProcessDashboard.ts` 与 `useEquipmentDashboard.ts` 封装 query 同步、初始化、数据装配、卡片刷新及生命周期清理。大屏与 PC 保留独立页面入口，分别调用同一 composable；PC 显式传入 `pc`，URL 构造函数默认使用大屏路径。
 
-PC 部门、工序页复用 `FactoryDashboardView`，设置 `showDailyReport=false` 隐藏日报操作，样式通过 `src/pages-pc/factory-dashboard.css` 按 1920×1080 设计，左右等宽、右侧独立滚动。设备跳转仍使用已注册的 PC 占位页。
+PC 部门、工序页复用 `FactoryDashboardView`，设置 `showDailyReport=false` 隐藏日报操作，样式通过 `src/pages-pc/factory-dashboard.css` 按 1920×1080 设计，左右等宽、右侧独立滚动。PC 设备页复用 `EquipmentDetailView`，通过 `useEquipmentDashboard('pc')` 加载设备/子设备详情并返回 PC 对应维度；布局由 `src/pages-pc/equipment/equipment.css` 维护。设备 composable 在设备 query 变化时替换详情，请求版本隔离旧结果，卸载时清理路由监听并使未完成请求失效。
 
 ## 视图组件
 

@@ -9,7 +9,7 @@
 | 应用入口与运行时 | `src/main.ts`、`src/App.vue`、`src/pages.json`、`src/manifest.json`、根目录构建配置 | 创建 Uni-app/Vue 应用、注册页面、提供全局样式变量和开发构建配置 | 生效 | `doc/application-runtime.md` |
 | API 访问层 | `src/api/`、`vite.config.ts` | 统一 `/api` 请求前缀、接口类型和后端端点封装 | 生效 | `doc/api-module.md` |
 | 部门、工序、设备页面 | `src/pages/department/`、`src/pages/process/`、`src/pages/equipment/` | 维护三个可视化维度的路由状态、页面生命周期和设备详情返回逻辑 | 生效 | `doc/factory-dimensions.md`、`doc/factory-dashboard-architecture.md` |
-| PC 三维度页面 | `src/pages-pc/department/`、`src/pages-pc/process/`、`src/pages-pc/equipment/` | 独立注册 PC 部门、工序、设备页面，与大屏共用 API 层和业务模块 | 部门、工序已接入；设备仍占位 | `doc/application-runtime.md`、`openspec/specs/dual-terminal-build/spec.md` |
+| PC 三维度页面 | `src/pages-pc/department/`、`src/pages-pc/process/`、`src/pages-pc/equipment/` | 独立注册 PC 部门、工序、设备页面，与大屏共用 API 层和业务模块 | 三个维度均已接入共用视图和数据逻辑 | `doc/application-runtime.md`、`openspec/specs/dual-terminal-build/spec.md` |
 | 看板页面骨架 | `src/pages/factory-dashboard/components/`、`src/pages/factory-dashboard/utils/`、`src/pages/factory-dashboard/composables/` | 组合告警栏、地图、右侧卡片、设备详情和跨运行时路由 | 生效 | `doc/factory-dashboard-architecture.md`、`DESIGN.md` |
 | 看板数据装配 | `src/pages/factory-dashboard/data/` | 定义看板数据模型，按维度并发加载卡片，处理缓存、聚合和 mock 降级 | 生效 | `doc/factory-dashboard-architecture.md`、`doc/factory-dashboard-real-data-mapping.md` |
 | 厂区地图 | `src/components/css-map/`、`src/static/factory-map/` | 加载地图配置和实时设备数据，以 Sprite 为主、CSS3D 为回退渲染厂区 | 生效 | `doc/factory-dimensions.md`、`doc/factory-dashboard-real-data-mapping.md`、`openspec/specs/css-map/spec.md` |
@@ -24,7 +24,7 @@
 ## 配置与静态资源边界
 
 - `src/static/factory-map/devices.json` 保存地图尺寸、工序边界、设备和子设备布局；`src/static/factory-map/selection.json` 保存部门、工序和默认选择关系。
-- `src/pages.json` 按 `PC` 条件编译选择 PC 三页或大屏四页，不保存业务筛选状态；两端部门、工序及大屏设备主状态均来自 URL query。
+- `src/pages.json` 按 `PC` 条件编译选择 PC 三页或大屏四页，不保存业务筛选状态；两端三个维度的主状态均来自 URL query。
 - `src/manifest.json` 是 Uni-app 多端清单；当前厂区 Sprite 地图的产品目标仍是 H5 大屏。
 - 根目录的 `vite.config.ts`、`vitest.config.ts` 和 `tsconfig.json` 分别负责开发代理、单元测试发现和 TypeScript 编译边界。
 
