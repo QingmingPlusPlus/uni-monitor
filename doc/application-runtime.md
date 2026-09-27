@@ -1,6 +1,6 @@
 # 应用入口与运行时说明
 
-本模块负责启动 Uni Monitor、注册四个页面、注入全局设计变量，并配置本地开发、类型检查和测试环境。业务页面和接口映射不在本模块中实现。
+本模块负责启动 Uni Monitor、按构建目标注册大屏或 PC 页面、注入全局设计变量，并配置本地开发、类型检查和测试环境。业务页面和接口映射不在本模块中实现。
 
 ## 主要入口
 
@@ -8,7 +8,9 @@
 | --- | --- |
 | `src/main.ts` | 通过 `createSSRApp(App)` 创建 Uni-app/Vue 3 应用实例；当前未注册全局插件或全局组件。 |
 | `src/App.vue` | 接收 `onLaunch`、`onShow`、`onHide` 生命周期，并在全局样式中定义颜色、间距和页面基础样式。 |
-| `src/pages.json` | 注册部门、工序、设备、制造日报四个页面，统一使用自定义导航栏。 |
+| `src/pages.json` | 通过 `PC` 条件编译注册大屏四个页面或 PC 三个页面，统一使用自定义导航栏。 |
+| `src/pages-pc/` | PC 部门、工序、设备独立页面；当前仅显示对应维度的占位文字。 |
+| `package.json` | 定义基于 H5 的 `screen`、`pc` 自定义构建目标和独立输出目录。 |
 | `src/manifest.json` | 保存 Uni-app 应用标识、多端构建清单和平台能力配置。 |
 | `src/uni.scss` | Uni-app 样式入口；项目主要设计变量目前定义在 `src/App.vue`。 |
 | `vite.config.ts` | 启用 Uni-app Vite 插件，并配置开发环境 `/api` 反向代理。 |
@@ -17,7 +19,7 @@
 
 ## 启动与页面注册
 
-应用启动后由 Uni-app 根据 `src/pages.json` 创建页面。当前页面顺序如下：
+应用启动后由 Uni-app 根据 `src/pages.json` 创建页面。大屏页面顺序如下：
 
 1. `pages/department/index`：默认入口，读取 `departmentId`。
 2. `pages/process/index`：读取 `processId`。
@@ -25,6 +27,26 @@
 4. `pages/daily-report/index`：读取部门、工序族、数据日期和返回来源，详见 `doc/daily-report.md`。
 
 页面职责、query 规则和维度间跳转详见 `doc/factory-dimensions.md` 与 `doc/factory-dashboard-architecture.md`。
+
+PC 构建仅注册以下独立页面，部门页为默认入口：
+
+| 页面 | H5 hash 地址 | 当前内容 |
+| --- | --- | --- |
+| `src/pages-pc/department/index.vue` | `/#/pages-pc/department/index` | PC端 · 部门维度（待开发） |
+| `src/pages-pc/process/index.vue` | `/#/pages-pc/process/index` | PC端 · 工序维度（待开发） |
+| `src/pages-pc/equipment/index.vue` | `/#/pages-pc/equipment/index` | PC端 · 设备维度（待开发） |
+
+PC 页面当前没有导航、业务组件和接口请求，可直接访问上述地址查看各维度。制造日报目前仅属于大屏端。
+
+## 双端构建与共享边界
+
+- 两端共用 `src/main.ts`、`src/App.vue`、`src/manifest.json`、`src/api/`、基础组件和工具，仅页面入口及布局独立。
+- `package.json` 的 `uni-app.scripts` 将 `screen` 和 `pc` 都映射到 `h5`，分别启用 `SCREEN`、`PC` 条件编译标记。
+- `src/pages.json` 用 `#ifndef PC` 保留原大屏页面，用 `#ifdef PC` 注册 PC 页面。原 `dev:h5`、`build:h5` 仍默认使用大屏页面。
+- 构建产物分别写入 `dist/build/screen/` 和 `dist/build/pc/`，可以独立部署，依次打包不会覆盖另一端产物。未被页面引用的业务代码不会因存在于源码目录而自动成为页面入口；`static/` 等静态资源仍按 Uni-app 的资源复制规则处理。
+- 两套系统使用同一套后端 API 和现有 `src/api/` 客户端，不创建 PC 专用 API 副本。PC 接入业务时直接复用现有接口封装；当前占位页不发起业务请求。
+- 当前 `factoryRoutes.ts`、`reportRoutes.ts` 仍服务大屏。后续 PC 接入地图和业务卡片时，需要适配页面跳转地址，不能直接复用写死大屏路径的导航逻辑。
+- 长期边界和验收要求见 `openspec/specs/dual-terminal-build/spec.md`。
 
 ## 全局样式
 
@@ -35,7 +57,7 @@
 ## 开发代理与生产部署
 
 - API 客户端固定请求 `/api`，详见 `doc/api-module.md`。
-- 本地 `npm run dev:h5` 由 Vite 接收 `/api/*`，转发到 `vite.config.ts` 中的开发后端，并在转发时移除 `/api` 前缀。
+- 本地 `dev:h5`、`dev:screen`、`dev:pc` 共用 Vite 的 `/api/*` 代理，转发到 `vite.config.ts` 中的同一开发后端，并在转发时移除 `/api` 前缀。
 - 当前代理目标直接写在 `vite.config.ts`，没有从 `.env` 读取。
 - 生产构建不会自动继承 Vite 开发代理；部署环境需要由同源网关或 Web 服务器提供 `/api` 转发，否则浏览器请求会落到前端站点自身。
 
@@ -43,13 +65,19 @@
 
 | 命令 | 用途 |
 | --- | --- |
-| `npm run dev:h5` | 启动 H5 开发服务。 |
-| `npm run build:h5` | 生成 H5 构建产物。 |
+| `npm run dev:screen` | 启动大屏开发服务，首选端口 `5173`。 |
+| `npm run dev:pc` | 启动 PC 开发服务，首选端口 `5174`。 |
+| `npm run build:screen` | 生成大屏产物 `dist/build/screen/`。 |
+| `npm run build:pc` | 生成 PC 产物 `dist/build/pc/`。 |
+| `npm run dev:h5` | 兼容原命令，启动大屏 H5 开发服务。 |
+| `npm run build:h5` | 兼容原命令，生成大屏产物 `dist/build/h5/`。 |
 | `npm run type-check` | 运行 `vue-tsc --noEmit`。 |
 | `npm test` | 运行全部 Vitest 单元测试。 |
 | `npm run test:watch` | 监听源码并重复运行相关测试。 |
 
 `package.json` 还保留多种小程序、App 和快应用脚本，但当前 WebGL Sprite 厂区地图只承诺 H5 大屏体验。跨端发布前需要单独验证 Three.js、DOM API、`window`、`sessionStorage` 和 hash 路由相关能力。
+
+开发端口被占用时 Vite 会尝试后续端口，以终端输出地址为准。
 
 ## 修改注意事项
 

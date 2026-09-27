@@ -1,5 +1,6 @@
 {
 	"pages": [
+		// #ifndef PC
 		{
 			"path": "pages/department/index",
 			"style": {
@@ -32,6 +33,21 @@
 				"navigationBarBackgroundColor": "#F2F5F8"
 			}
 		}
+		// #endif
+		// #ifdef PC
+		{
+			"path": "pages-pc/department/index",
+			"style": { "navigationBarTitleText": "PC端 · 部门维度" }
+		},
+		{
+			"path": "pages-pc/process/index",
+			"style": { "navigationBarTitleText": "PC端 · 工序维度" }
+		},
+		{
+			"path": "pages-pc/equipment/index",
+			"style": { "navigationBarTitleText": "PC端 · 设备维度" }
+		}
+		// #endif
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
