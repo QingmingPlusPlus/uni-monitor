@@ -153,13 +153,21 @@ function productionDimensionContext(context: ScheduleContext, field: 'zhifan' | 
     incompleteRejectScope: context.incompleteRejectScope || missing(context.rejects) }
 }
 
-export function productionRows(context: ScheduleContext): ReportProductionRow[] {
+export function productionRows(query: DailyReportQuery, context: ScheduleContext): ReportProductionRow[] {
+  if (query.processType !== 'preprocessing') {
+    return [{ id: query.processType, name: processLabels[query.processType],
+      ...productionQuantities(context.plans, context.actuals, context.rejects, context) }]
+  }
+  // 仅前处理依赖制番区分品种；缺制番不能默认计入洗净。
   const scoped = productionDimensionContext(context, 'zhifan')
-  const numbers = new Set([...context.plans, ...context.actuals, ...context.rejects].map(record => text(record.zhifan)).filter(Boolean))
-  return [...numbers].sort().map(number => ({ id: number, name: number,
-    ...productionQuantities(context.plans.filter(record => text(record.zhifan) === number),
-      context.actuals.filter(record => text(record.zhifan) === number),
-      context.rejects.filter(record => text(record.zhifan) === number), scoped) }))
+  const varietyOf = (record: ApiRecord) => {
+    const number = text(record.zhifan)
+    return number ? (number.endsWith('-ZJ') ? 'bonding' : 'washing') : ''
+  }
+  return [{ id: 'washing', name: '洗净' }, { id: 'bonding', name: '粘接' }].map(variety => ({ ...variety,
+    ...productionQuantities(context.plans.filter(record => varietyOf(record) === variety.id),
+      context.actuals.filter(record => varietyOf(record) === variety.id),
+      context.rejects.filter(record => varietyOf(record) === variety.id), scoped) }))
 }
 
 /** 同制番、同现象跨设备和班次合计；其它类型不进入品质现象。 */

@@ -52,7 +52,8 @@ describe('日报真实接口适配', () => {
     const pre = (await getDailyProduction({ ...query, processType: 'preprocessing' })).data.data
     const post = (await getDailyProduction({ ...query, processType: 'post_processing' })).data.data
     expect(pre.rows[0].plan).toMatchObject({ value: 30, status: 'complete' })
-    expect(post.rows[0]).toMatchObject({ plan: { value: 120, status: 'complete' }, actual: { value: 60 } })
+    expect(post.rows).toHaveLength(1)
+    expect(post.rows[0]).toMatchObject({ name: '后处理', plan: { value: 120, status: 'complete' }, actual: { value: 60 } })
     stubSource(getReportPlanSource, [row(), row({ process: '未知工序' })])
     const partial = (await getDailyProduction(query)).data.data
     expect(partial.rows[0].plan).toMatchObject({ value: 100, status: 'partial' })
@@ -99,7 +100,7 @@ describe('日报真实接口适配', () => {
     stubSource(getReportOutputSource, [row({ number: 138845 })])
     stubSource(getReportRejectsSource, [row({ number: 200, type: '不良' }), row({ number: 200, type: '其它' })])
     const production = (await getDailyProduction(query)).data.data.rows[0]
-    expect(production).toMatchObject({ id: 'TEST', name: 'TEST', flowing: { value: 138845 },
+    expect(production).toMatchObject({ id: 'sulfur_addition', name: '加硫', flowing: { value: 138845 },
       defective: { value: 200 }, scrapped: { value: 400 }, actual: { value: 139245 }, qualified: { value: 139045 } })
     expect(percent(production.actual, production.plan)).toBe('98.76%')
     expect(percent(production.qualified, production.actual)).toBe('99.86%')
@@ -111,7 +112,7 @@ describe('日报真实接口适配', () => {
     expect(quality.qualified).toEqual(production.qualified)
   })
 
-  it('制番并集有序，相同制番跨设备班次合计，同设备的不同制番分行', async () => {
+  it('其他工序跨制番设备班次汇总为工序名一行，品质仍按制番分行', async () => {
     stubSource(getReportPlanSource, [row({ zhifan: 'B', number: 20 }), row({ zhifan: 'A', number: 100 }),
       row({ zhifan: 'A', shebei: 'B', banci: '夜', number: 50 }), row({ zhifan: 'PLAN', number: 10 })])
     stubSource(getReportOutputSource, [row({ zhifan: 'B', number: 10 }), row({ zhifan: 'A', number: 70 }),
@@ -119,11 +120,66 @@ describe('日报真实接口适配', () => {
     stubSource(getReportRejectsSource, [row({ zhifan: 'A', type: '不良', number: 2 }),
       row({ zhifan: 'A', shebei: 'B', type: '其他分类', number: 3 }), row({ zhifan: 'REJECT', type: '不良', number: 4 })])
     const rows = (await getDailyProduction(query)).data.data.rows
-    expect(rows.map(item => item.id)).toEqual(['A', 'B', 'OUTPUT', 'PLAN', 'REJECT'])
-    expect(rows[0]).toMatchObject({ plan: { value: 150 }, flowing: { value: 100 }, actual: { value: 105 }, qualified: { value: 103 } })
-    expect(rows[1]).toMatchObject({ defective: { value: 0 }, scrapped: { value: 0 }, actual: { value: 10 } })
-    expect(rows[3].actual.value).toBeNull()
-    expect(rows[4].scrapped.value).toBe(4)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({ name: '加硫', plan: { value: 180 }, flowing: { value: 115 },
+      defective: { value: 6 }, scrapped: { value: 9 }, actual: { value: 124 }, qualified: { value: 118 } })
+    expect(percent(rows[0].actual, rows[0].plan)).toBe('68.89%')
+    const quality = (await getDailyQuality(query)).data.data
+    expect(quality.rows.map(item => item.id)).toEqual(['A', 'B', 'OUTPUT', 'REJECT'])
+    expect(quality.rows[0].actual.value).toBe(105)
+  })
+
+  it('前处理按-ZJ后缀跨制番设备班次汇总为洗净和粘接，比例按数量总和计算', async () => {
+    const preQuery: DailyReportQuery = { ...query, processType: 'preprocessing' }
+    const pre = (values = {}) => row({ process: '前处理1', ...values })
+    stubSource(getReportPlanSource, [pre({ zhifan: 'A', number: 100 }),
+      pre({ zhifan: 'B', process: '前处理2', shebei: 'B', banci: '夜', number: 300 }),
+      pre({ zhifan: 'A-ZJ-X', number: 50 }), pre({ zhifan: 'A-ZJ', number: 200 }),
+      pre({ zhifan: ' B-ZJ ', process: 'preprocessing', shebei: 'B', banci: '夜', number: 50 }),
+      pre({ zhifan: 'OUT-ZJ', date: '2026-07-02', number: 999 }),
+      pre({ zhifan: 'OUT-ZJ', dept: '2', number: 999 }), row({ zhifan: 'OUT-ZJ', number: 999 })])
+    stubSource(getReportOutputSource, [pre({ zhifan: 'A', number: 80 }),
+      pre({ zhifan: 'B', process: '前处理2', shebei: 'B', banci: '夜', number: 240 }),
+      pre({ zhifan: 'A-ZJ', number: 100 }), pre({ zhifan: 'OUTPUT-ZJ', number: 25 })])
+    stubSource(getReportRejectsSource, [pre({ zhifan: 'A', type: '不良', number: 4 }),
+      pre({ zhifan: 'B', type: '其它', number: 6 }), pre({ zhifan: 'A-ZJ', type: '不良', number: 2 }),
+      pre({ zhifan: 'REJECT-ZJ', type: '其它', number: 3 }),
+      pre({ zhifan: 'OUT-ZJ', dept: '2', type: '不良', number: 999 })])
+    const report = (await getDailyProduction(preQuery)).data.data
+    expect(report.rows.map(item => item.name)).toEqual(['洗净', '粘接'])
+    const [washing, bonding] = report.rows
+    expect(washing).toMatchObject({ plan: { value: 450 }, flowing: { value: 320 }, actual: { value: 330 },
+      qualified: { value: 326 }, defective: { value: 4 }, scrapped: { value: 10 } })
+    expect(bonding).toMatchObject({ plan: { value: 250 }, flowing: { value: 125 }, actual: { value: 130 },
+      qualified: { value: 128 }, defective: { value: 2 }, scrapped: { value: 5 } })
+    expect(percent(washing.actual, washing.plan)).toBe('73.33%')
+    expect(percent(bonding.actual, bonding.plan)).toBe('52.00%')
+    expect(percent(bonding.qualified, bonding.actual)).toBe('98.46%')
+    expect(validProduction(report.rows)).toBe(true)
+  })
+
+  it.each([
+    ['preprocessing', ['洗净', '粘接']], ['sulfur_addition', ['加硫']], ['post_processing', ['后处理']],
+  ] as const)('工序%s无记录时保留品种名，计划实绩缺失、不良成功为空按零', async (processType, names) => {
+    stubSource(getReportPlanSource, [])
+    stubSource(getReportOutputSource, [])
+    const report = (await getDailyProduction({ ...query, processType })).data.data
+    expect(report.rows.map(item => item.name)).toEqual(names)
+    for (const value of report.rows) {
+      expect(value).toMatchObject({ plan: { value: null }, flowing: { value: null }, actual: { value: null },
+        qualified: { value: null }, defective: { value: 0 }, scrapped: { value: 0 } })
+      expect(percent(value.actual, value.plan)).toBe('—')
+    }
+  })
+
+  it('其他工序只依赖已确认工序归属，缺制番也计入工序汇总', async () => {
+    stubSource(getReportOutputSource, [row({ number: 80 }), row({ number: 20, zhifan: '' })])
+    stubSource(getReportRejectsSource, [row({ number: 2, zhifan: '', type: '不良' })])
+    const report = (await getDailyProduction(query)).data.data
+    expect(report.rows[0]).toMatchObject({ name: '加硫', flowing: { value: 100, status: 'complete' },
+      defective: { value: 2, status: 'complete' }, actual: { value: 102, status: 'complete' } })
+    expect(percent(report.rows[0].actual, report.rows[0].plan)).toBe('102.00%')
+    expect(report.meta.notes.join('')).not.toContain('缺少制番')
   })
 
   it.each([
@@ -142,12 +198,22 @@ describe('日报真实接口适配', () => {
     expect([quality.defective.value, quality.actual.value, quality.qualified.value]).toEqual([defective, actual, qualified])
   })
 
-  it('制番或设备归属缺失不能生成完整小计及排行', async () => {
-    stubSource(getReportOutputSource, [row({ number: 80 }), row({ number: 20, zhifan: '' })])
-    const production = (await getDailyProduction(query)).data.data
-    expect(production.rows).toHaveLength(1)
+  it('前处理缺制番不归洗净且小计不完整，设备归属缺失不能排行', async () => {
+    stubSource(getReportPlanSource, [row({ process: '前处理1' })])
+    stubSource(getReportOutputSource, [row({ process: '前处理1', number: 80 }), row({ process: '前处理2', number: 20, zhifan: '' })])
+    const production = (await getDailyProduction({ ...query, processType: 'preprocessing' })).data.data
+    expect(production.rows).toHaveLength(2)
     expect(production.rows[0].actual).toMatchObject({ value: 80, status: 'partial' })
+    expect(production.rows[1].actual.value).toBeNull()
+    expect(percent(production.rows[0].actual, production.rows[0].plan)).toBe('—')
     expect(production.meta.notes.join('')).toContain('缺少制番')
+    stubSource(getReportRejectsSource, [row({ process: '前处理1', type: '不良', number: 2 }),
+      row({ process: '前处理1', type: '不良', number: 9, zhifan: '' })])
+    const partial = (await getDailyProduction({ ...query, processType: 'preprocessing' })).data.data
+    expect(partial.rows[0].scrapped).toMatchObject({ value: 2, status: 'partial' })
+    expect(partial.rows[1].scrapped.value).toBeNull()
+    stubSource(getReportPlanSource, [row()])
+    stubSource(getReportOutputSource, [row({ number: 80 })])
     stubSource(getReportRejectsSource, [row({ shebei: '', type: '不良', number: 5 })])
     const lines = (await getDailyLineLosses(query)).data.data
     expect(lines.meta.notes.join('')).toContain('缺少设备编码')

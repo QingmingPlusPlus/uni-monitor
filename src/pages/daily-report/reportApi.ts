@@ -43,8 +43,8 @@ export async function getDailyProduction(query: DailyReportQuery, signal?: Abort
   const sources = await reportScheduleSources(query, signal)
   if (sources.every(source => source.records === null)) throw new Error('生产数据源均不可用')
   const context = scheduleContext(query, sources, true)
-  const rows = productionRows(context)
-  return response({ meta: sourceMeta(query, [...context.notes, '按记录日期、部门和工序筛选后按制番合计；流动数取实绩接口，实绩数为流动加废弃，合格数为流动加非不良。',
+  const rows = productionRows(query, context)
+  return response({ meta: sourceMeta(query, [...context.notes, '按记录日期、部门和工序筛选后按品种合计；前处理制番以-ZJ结尾归粘接，其余有效制番归洗净，其他工序各汇总一行。流动数取实绩接口，实绩数为流动加废弃，合格数为流动加非不良。',
     '废弃数包含不良接口全部类型；不良来源成功且范围完整时，无记录按零处理。']), rows })
 }
 

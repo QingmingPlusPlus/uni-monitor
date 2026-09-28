@@ -62,6 +62,7 @@ export interface ReportAttendanceRow {
 
 export interface ReportProductionRow {
   id: string
+  /** 前处理为洗净/粘接，其他工序为所选工序族名称。 */
   name: string
   plan: ReportMetric
   actual: ReportMetric
