@@ -6,7 +6,10 @@ import { absenceTotal, attendanceIssues, attendanceRate, formatMetric, formatRep
 
 vi.mock('../../api/dailyReport', () => ({ getReportAttendanceSource: vi.fn(), getReportPlanSource: vi.fn(), getReportOutputSource: vi.fn(), getReportRejectsSource: vi.fn(), getReportDeviceSource: vi.fn() }))
 const query: DailyReportQuery = { date: '2026-07-01', department: '4', processType: 'sulfur_addition' }
-const row = (values = {}) => ({ date: query.date, dept: '4', process: '加硫', shebei: 'A', zhifan: 'TEST', banci: '早', number: 100, ...values })
+const row = (values = {}) => {
+  const record = { date: query.date, dept: '4', process: '加硫', shebei: 'A', zhifan: 'TEST', banci: '早', number: 100, ...values }
+  return { devCode: record.shebei, ...record }
+}
 const response = (data: unknown, success = true) => ({ data: { success, code: success ? '00000' : 'B0001', message: '', data } })
 function stubSource(mock: typeof getReportPlanSource | typeof getReportRejectsSource, data: unknown, success = true) {
   vi.mocked(mock).mockResolvedValue(response(data, success) as Awaited<ReturnType<typeof mock>>)
@@ -77,6 +80,87 @@ describe('日报真实接口适配', () => {
     const production = (await getDailyProduction(query)).data.data
     expect(production.rows[0].defective.value).toBeNull()
     expect(production.meta.notes.join('')).toContain('无法确认')
+  })
+
+  it('设备排行以不良devCode关联历史归属并汇总，不按shebei名称或其他编码错配', async () => {
+    stubSource(getReportPlanSource, [row(), row({ shebei: 'B' })])
+    stubSource(getReportOutputSource, [row({ number: 70 }), row({ shebei: 'B', number: 80 })])
+    const reject = Object.freeze(row({ devCode: ' a ', shebei: 'B', dept: undefined, process: undefined, type: '不良', number: 20 }))
+    stubSource(getReportRejectsSource, [reject])
+    vi.mocked(getReportDeviceSource).mockResolvedValue(response([
+      { deviceCode: 'A', deviceName: '设备A', departmentId: '4', processType: 'sulfur_addition', day: query.date },
+      { deviceCode: 'B', deviceName: '设备B', departmentId: '4', processType: 'sulfur_addition', day: query.date },
+    ]) as Awaited<ReturnType<typeof getReportDeviceSource>>)
+    const [lines, production] = await Promise.all([getDailyLineLosses(query), getDailyProduction(query)])
+    expect(lines.data.data.rows).toMatchObject([
+      { id: 'A', name: '设备A', actual: { value: 90, status: 'complete' } },
+      { id: 'B', name: '设备B', actual: { value: 80, status: 'complete' } },
+    ])
+    expect(rankLines(lines.data.data.rows).map(item => item.id)).toEqual(['B', 'A'])
+    expect(production.data.data.rows[0].actual.value).toBe(170)
+    expect(reject.shebei).toBe('B')
+    expect(getReportRejectsSource).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['洗净', '粘接'])('设备排行识别不良工序%s为前处理，使用devCode且保留原始共享记录', async process => {
+    const preQuery: DailyReportQuery = { ...query, processType: 'preprocessing' }
+    stubSource(getReportPlanSource, [row({ process: '前处理1' })])
+    stubSource(getReportOutputSource, [row({ process: '前处理1', number: 80 })])
+    const reject = Object.freeze(row({ devCode: 'A', shebei: '设备显示名称', process, dept: undefined, type: '不良', number: 2 }))
+    stubSource(getReportRejectsSource, [reject])
+    const [lines, production] = await Promise.all([getDailyLineLosses(preQuery), getDailyProduction(preQuery)])
+    expect(lines.data.data.rows).toMatchObject([{ id: 'A', actual: { value: 82, status: 'complete' } }])
+    expect(rankLines(lines.data.data.rows)).toHaveLength(1)
+    expect(production.data.data.rows[0].actual.value).toBeNull()
+    expect(reject.process).toBe(process)
+    expect(reject.shebei).toBe('设备显示名称')
+  })
+
+  it.each([undefined, null, '', ' ', 'UNKNOWN'])('不良devCode为%j时不得回退shebei凑出设备排行', async devCode => {
+    stubSource(getReportRejectsSource, [row({ devCode, shebei: 'A', dept: undefined, process: undefined, type: '不良', number: 2 })])
+    const report = (await getDailyLineLosses(query)).data.data
+    expect(report.rows[0].actual.value).toBeNull()
+    expect(rankLines(report.rows)).toEqual([])
+    expect(report.meta.notes.join('')).toContain('无法确认部门与工序归属')
+  })
+
+  it('设备排行忽略归属不全的计划，但有效历史设备归属冲突仍不能排名', async () => {
+    stubSource(getReportPlanSource, [row(), row({ dept: undefined, process: undefined, shebei: 'UNASSIGNED' })])
+    stubSource(getReportRejectsSource, [row({ devCode: 'A', shebei: '设备A', dept: undefined, type: '不良', number: 2 })])
+    const filtered = (await getDailyLineLosses(query)).data.data
+    expect(filtered.rows[0]).toMatchObject({ plan: { value: 100, status: 'complete' }, actual: { value: 82, status: 'complete' } })
+    expect(rankLines(filtered.rows).map(item => item.id)).toEqual(['A'])
+    stubSource(getReportPlanSource, [row(), row({ dept: '2' })])
+    const conflict = (await getDailyLineLosses(query)).data.data
+    expect(conflict.rows[0].actual.value).toBeNull()
+    expect(rankLines(conflict.rows)).toEqual([])
+  })
+
+  it.each(['dept', 'process', 'shebei'])('设备排行排除计划的%s缺失或空白记录，保留共享原始数据', async field => {
+    const excluded = [undefined, null, '', '  '].map(value => Object.freeze(row({ [field]: value, number: 500 })))
+    const plans = Object.freeze([Object.freeze(row()), ...excluded])
+    stubSource(getReportPlanSource, plans)
+    const [lines, production] = await Promise.all([getDailyLineLosses(query), getDailyProduction(query)])
+    expect(rankLines(lines.data.data.rows)).toMatchObject([{ id: 'A', plan: { value: 100, status: 'complete' }, actual: { value: 80 } }])
+    expect(lines.data.data.meta.notes.join('')).toContain('忽略所选日期 4 条')
+    expect(production.data.data.rows[0].plan).toMatchObject(field === 'shebei'
+      ? { value: 2100, status: 'complete' } : { value: 100, status: 'partial' })
+    expect(getReportPlanSource).toHaveBeenCalledTimes(1)
+    expect(plans).toHaveLength(5)
+  })
+
+  it('过滤后无有效计划时不生成排行，未知工序、非法日期、数量及源格式仍保留完整性限制', async () => {
+    const unassigned = { date: query.date, zhifan: 'UNASSIGNED', banci: '早', number: 1792, mh: 0 }
+    stubSource(getReportPlanSource, [unassigned])
+    const empty = (await getDailyLineLosses(query)).data.data
+    expect(empty.rows[0].plan.value).toBeNull()
+    expect(rankLines(empty.rows)).toEqual([])
+    for (const invalid of [row({ process: '未知工序' }), row({ date: undefined }), row({ number: '' }), null]) {
+      stubSource(getReportPlanSource, [row(), unassigned, invalid])
+      const report = (await getDailyLineLosses(query)).data.data
+      expect(report.rows[0].plan).toMatchObject({ value: 100, status: 'partial' })
+      expect(rankLines(report.rows)).toEqual([])
+    }
   })
 
   it('设备日报保留真实小时与原始比率，未明确的可运转时间不强行套公式', async () => {
@@ -214,19 +298,41 @@ describe('日报真实接口适配', () => {
     expect(partial.rows[1].scrapped.value).toBeNull()
     stubSource(getReportPlanSource, [row()])
     stubSource(getReportOutputSource, [row({ number: 80 })])
-    stubSource(getReportRejectsSource, [row({ shebei: '', type: '不良', number: 5 })])
+    stubSource(getReportRejectsSource, [row({ shebei: '', devCode: '', type: '不良', number: 5 })])
     const lines = (await getDailyLineLosses(query)).data.data
     expect(lines.meta.notes.join('')).toContain('缺少设备编码')
     expect(rankLines(lines.rows)).toEqual([])
   })
 
-  it('产线实绩包含废弃，跨过90%退出排行，并列按设备编码且不补位', async () => {
-    stubSource(getReportPlanSource, ['A', 'B', 'C', 'D', 'E'].map(shebei => row({ shebei, number: shebei === 'E' ? 0 : 100 })))
-    stubSource(getReportOutputSource, ['A', 'B', 'C', 'D', 'E'].map(shebei => row({ shebei, number: 80 })))
+  it('本科室本工序按设备跨制番班次汇总，含废弃达成率最低五台入榜', async () => {
+    const devices = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    stubSource(getReportPlanSource, devices.flatMap(shebei => [
+      row({ shebei, zhifan: 'PLAN-1', number: shebei === 'E' ? 0 : 60 }),
+      row({ shebei, zhifan: 'PLAN-2', banci: '夜', number: shebei === 'E' ? 0 : 40 }),
+    ]).concat([row({ dept: '2', number: 999 }), row({ process: '后处理', number: 999 }),
+      row({ date: '2026-07-02', number: 999 }),
+      row({ dept: undefined, process: undefined, shebei: undefined, number: 1792 }),
+      row({ dept: undefined, process: undefined, shebei: undefined, number: 0 })]))
+    stubSource(getReportOutputSource, devices.flatMap(shebei => [
+      row({ shebei, zhifan: 'OUTPUT-1', number: shebei === 'F' ? 65 : shebei === 'G' ? 70 : 50 }),
+      row({ shebei, zhifan: 'OUTPUT-2', banci: '夜', number: 30 }),
+    ]).concat([row({ dept: '2', number: 999 }), row({ process: '后处理', number: 999 }),
+      row({ date: '2026-07-02', number: 999 })]))
     stubSource(getReportRejectsSource, [row({ type: '不良', number: 10 })])
+    vi.mocked(getReportDeviceSource).mockResolvedValue(response(devices.map(deviceCode => ({
+      deviceCode, deviceName: `产线${deviceCode}`, departmentId: query.department, processType: query.processType,
+      day: query.date, totalRunHours: 10, productionHours: 8, obstructionHours: 2, availabilityRate: 0.8,
+      obstructionItems: [{ pauseType: 'TEST', pauseTypeName: '设备故障', obstructionHours: 2, count: 3, ratio: 0.2 }],
+    }))) as Awaited<ReturnType<typeof getReportDeviceSource>>)
     const report = (await getDailyLineLosses(query)).data.data
-    expect(report.rows.find(item => item.id === 'A')?.actual.value).toBe(90)
-    expect(rankLines(report.rows).map(item => item.id)).toEqual(['B', 'C', 'D'])
+    expect(report.rows).toHaveLength(7)
+    expect(report.rows.find(item => item.id === 'A')).toMatchObject({ plan: { value: 100 }, actual: { value: 90 } })
+    const ranked = rankLines(report.rows)
+    expect(ranked.map(item => item.id)).toEqual(['B', 'C', 'D', 'A', 'F'])
+    expect(ranked.map(item => percent(item.actual, item.plan))).toEqual(['80.00%', '80.00%', '80.00%', '90.00%', '95.00%'])
+    expect(ranked[4]).toMatchObject({ name: '产线F', totalRunSeconds: { value: 36000 }, productionSeconds: { value: 28800 },
+      lossSeconds: { value: 7200 }, reportedAvailabilityRate: { value: 0.8 },
+      reasons: [{ name: '设备故障', durationSeconds: { value: 7200 }, count: { value: 3 }, reportedRatio: { value: 0.2 } }] })
     stubSource(getReportPlanSource, [row()])
     stubSource(getReportOutputSource, [row({ number: 80 })])
     stubSource(getReportRejectsSource, [])

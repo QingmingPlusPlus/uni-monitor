@@ -38,7 +38,7 @@
 | `getDeviceAvailabilityByMonth/ByYear` | 与 day 共用时长响应，允许 deviceId 过滤。 |
 | `getScheduleShijiByDate` | date/device 必填；Swagger 标记未完成，两组查询为空，元素保持开放对象。 |
 
-`getRejects.type` 来自 Swagger 文字示例，非空响应仍未验证。`getDeviceload.fuhe` 兼容文字示例的字符串小数与历史 number 类型，地图和设备详情可读取数值字符串；加硫负荷按设备类型汇总，不保证 devCode。
+`getRejects.type` 来自 Swagger 文字示例，2026-09-28已取得2025-11-06的389条非空响应；设备编码使用devCode，shebei不作为设备榜编码，process包含洗净/粘接且缺dept。设备排行在独立副本中适配devCode和工序别名，生产汇总及品质路径未切换；完整契约与剩余计划归属缺口见[接口参考](api-reference.md)。`getDeviceload.fuhe` 兼容文字示例的字符串小数与历史 number 类型，地图和设备详情可读取数值字符串；加硫负荷按设备类型汇总，不保证 devCode。
 
 `getDeviceAvailabilityDailyNet` 已接入部门与工序生产性卡片：按各卡片设备范围查询 period/netHours，单请求超时15秒，字段及聚合规则见字段映射。其他未接入页面的能力仍按上表区分。
 
@@ -67,6 +67,7 @@
 
 - `schedule.ts` 只描述后端当前可能返回的字段，不在此处补造部门、工序或设备归属。
 - 后端字段不稳定、缺失或为空时的现状记录在 `doc/department-api-gaps.md`。
+- 日报设备Top5在页面适配层排除getPlan中dept/process/shebei任一缺失或空白的计划，保留有效记录再排名；不修改共享响应、API封装或其他分区口径。2025-11-06实际缺失记录及影响见`doc/api-reference.md`与`doc/daily-report.md`。
 - 卡片字段来源、过滤与聚合口径记录在 `doc/factory-dashboard-real-data-mapping.md`。
 - 2026-09-11 实测：`getPlan` 含数值 `mh`，用户已确认为计划 MH，前端已补充可选、可空类型并接入生产性推移表；`getWorkhours` 只有 `shebei: string`、`type: string`，不是工时数值接口。`getRukuPlan.dept` 可为 null。2026-09-14 已补齐入库计划部门的可空类型，详情见 `doc/api-reference.md`。
 

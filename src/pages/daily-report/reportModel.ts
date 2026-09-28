@@ -100,9 +100,9 @@ export function attendanceRows(rows: ReportAttendanceRow[], date: string): Repor
     .sort((a, b) => a.date.localeCompare(b.date) || (a.startAt ?? '').localeCompare(b.startAt ?? '') || a.id.localeCompare(b.id))
 }
 export function rankLines(rows: ReportLineRow[]): ReportLineRow[] {
-  return rows.filter(row => { const value = ratio(row.actual, row.plan); return value !== null && value < 0.9 })
+  return rows.filter(row => ratio(row.actual, row.plan) !== null)
     .sort((a, b) => ratio(a.actual, a.plan)! - ratio(b.actual, b.plan)! || a.id.localeCompare(b.id))
-    .slice(0, 3)
+    .slice(0, 5)
 }
 export function rankQuality(rows: ReportQualityRow[], process: ReportProcessType, declaredDimension?: ReportQualityRow['dimension']): ReportQualityRow[] {
   const dimension = declaredDimension ?? (process === 'sulfur_addition' ? 'mold' : 'production_number')

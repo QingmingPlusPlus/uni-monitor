@@ -117,6 +117,21 @@ export function scheduleContext(query: DailyReportQuery, sources: ReportSource[]
     rejects, planSource, actualSource, rejectSource, notes, incompleteRejectScope }
 }
 
+/** 设备排行排除归属字段不全的计划，按不良devCode关联，不改写其他分区共享的原始记录。 */
+export function lineScheduleContext(query: DailyReportQuery, sources: ReportSource[]): ScheduleContext {
+  const [plans, actuals, rejects] = sources
+  const missingPlanScope = (record: ApiRecord) => ['dept', 'process', 'shebei'].some(field => !text(record[field]))
+  const excludedPlans = (plans.records ?? []).filter(record => dateOf(record) === query.date && missingPlanScope(record))
+  const linePlans: ReportSource = { ...plans, records: plans.records?.filter(record => !missingPlanScope(record)) ?? null }
+  const lineRejects: ReportSource = { ...rejects, records: rejects.records?.map(record => ({ ...record,
+    shebei: deviceCode(record.devCode),
+    process: ['洗净', '粘接'].includes(text(record.process)) ? 'preprocessing' : record.process,
+  })) ?? null }
+  const context = scheduleContext(query, [linePlans, actuals, lineRejects], true)
+  if (excludedPlans.length) context.notes.push(`设备排行已忽略所选日期 ${excludedPlans.length} 条缺少科室、工序或设备编码的计划，仅对归属字段完整的记录排名。`)
+  return context
+}
+
 /** 生产与品质共用已确认的数量公式及不良空数据规则。 */
 function productionQuantities(plans: ApiRecord[], actuals: ApiRecord[], rejects: ApiRecord[], context: ScheduleContext) {
   const rejectSource = { ...context.rejectSource, incompleteScope: context.incompleteRejectScope }

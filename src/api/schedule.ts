@@ -66,7 +66,12 @@ export interface ScheduleRukuShijiRecord {
 export interface ScheduleRejectsRecord {
   date: string
   banci: string
+  /** 不良设备显示名称；设备排行不能将此字段当作编码。 */
   shebei: string
+  /** 2026-09-28历史非空响应已核验，设备排行以此字段关联计划/实绩及设备日报。 */
+  devCode?: string | number | null
+  /** 历史不良包含洗净/粘接；设备排行将二者归入前处理。 */
+  process?: string
   number: number | string
   zhifan: string
   /** 仅“不良”计入不良数量及现象；其他明确类型仍计入废弃。 */

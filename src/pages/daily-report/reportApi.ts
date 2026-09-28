@@ -1,6 +1,6 @@
 import type { AttendanceReport, DailyReportQuery, ReportAttendanceRow } from '../../api/dailyReport'
 import { getReportAttendanceSource } from '../../api/dailyReport'
-import { sourceMeta, sourceMetric, productionRows, qualityRows, scheduleContext, lineRows } from './reportAdapters'
+import { sourceMeta, sourceMetric, productionRows, qualityRows, scheduleContext, lineScheduleContext, lineRows } from './reportAdapters'
 import { reportDeviceSource, reportScheduleSources } from './reportSources'
 import { offsetDate } from './reportModel'
 
@@ -51,9 +51,9 @@ export async function getDailyProduction(query: DailyReportQuery, signal?: Abort
 export async function getDailyLineLosses(query: DailyReportQuery, signal?: AbortSignal) {
   const [sources, devices] = await Promise.all([reportScheduleSources(query, signal), reportDeviceSource(query, signal)])
   if ([...sources, devices].every(source => source.records === null)) throw new Error('产线生产数据源均不可用')
-  const context = scheduleContext(query, sources, true)
+  const context = lineScheduleContext(query, sources)
   const rows = lineRows(query, context, devices)
-  return response({ meta: { ...sourceMeta(query, [...context.notes, devices.note, '设备即产线，按设备编码统计，实绩数包含废弃；范围不受地图显示设备限制。',
+  return response({ meta: { ...sourceMeta(query, [...context.notes, devices.note, '设备即产线，计划/实绩以shebei、不良以devCode关联设备日报deviceCode，实绩数包含废弃；范围不受地图显示设备限制。',
     '可动率及阻碍占比直接显示接口原值；计划停止时间暂不展示。']), lineDimension: 'line' as const },
     rows })
 }

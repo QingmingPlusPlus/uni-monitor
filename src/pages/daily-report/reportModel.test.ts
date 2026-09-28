@@ -59,12 +59,24 @@ describe('日报计算与数据完整性', () => {
     const rows = [row, { ...row, id: 'mid', isEarlyShift: false }, { ...row, id: 'next', date: '2026-08-13' }, { ...row, id: 'excluded', date: '2026-08-13', isEarlyShift: false }]
     expect(attendanceRows(rows, '2026-08-12').map(row => row.id)).toEqual(['day', 'mid', 'next'])
   })
-  it('排行限制阈值和数量，稳定排序且不补造数据', () => {
+  it('设备取达成率最低五台，包含90%以上，排除缺失和零计划且不补位', () => {
     const line = fixtures().lines.rows[0]
-    const rows = ['c', 'b', 'a', 'd'].map(id => ({ ...line, id }))
-    rows.push({ ...line, id: 'zero', plan: complete(0) }, { ...line, id: '90', plan: complete(100), actual: complete(90) })
-    expect(rankLines(rows).map(row => row.id)).toEqual(['a', 'b', 'c'])
+    const rows = [
+      { ...line, id: 'above', plan: complete(100), actual: complete(120) },
+      { ...line, id: 'c', plan: complete(200), actual: complete(160) },
+      { ...line, id: 'b', plan: complete(100), actual: complete(80) },
+      { ...line, id: 'a', plan: complete(100), actual: complete(0) },
+      { ...line, id: '90', plan: complete(100), actual: complete(90) },
+      { ...line, id: '100', plan: complete(100), actual: complete(100) },
+      { ...line, id: 'zero', plan: complete(0) },
+      { ...line, id: 'missing', actual: { value: null, status: 'unavailable' as const } },
+      { ...line, id: 'partial', actual: { value: 1, status: 'partial' as const } },
+    ]
+    expect(rankLines(rows).map(row => row.id)).toEqual(['a', 'b', 'c', '90', '100'])
+    expect(rankLines([rows[0]]).map(row => row.id)).toEqual(['above'])
     expect(rankLines([])).toEqual([])
+  })
+  it('品质排行保持正不良率与业务维度限制', () => {
     const quality = fixtures().quality.rows[0]
     expect(rankQuality([quality], 'sulfur_addition')).toEqual([])
     expect(rankQuality([{ ...quality, dimension: 'mold' }], 'sulfur_addition')).toHaveLength(1)
