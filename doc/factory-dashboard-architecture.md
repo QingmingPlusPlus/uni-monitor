@@ -101,6 +101,8 @@ PC 部门、工序页复用 `FactoryDashboardView`，设置 `showDailyReport=fal
 
 大屏部门、工序看板顶部提供“制造日报”，进入独立 `/pages/daily-report/index` 并带入当前部门、工序族、昨日数据日期和返回来源。日报不使用实时看板的 loader、地图显示白名单或 mock 数据。详见 `doc/daily-report.md`。
 
+`FactoryDashboardView` 通过 `withDefaults` 将 `showDailyReport` 默认设为 `true`，大屏页面省略该参数时仍显示入口；PC 页面显式传入 `false`。可选布尔参数未设置默认值时，Vue 会将未传入的值转换为 `false`，不能依赖 `!== false` 判断实现默认显示。
+
 ## 变化点组件
 
 `FactoryDashboardPanel` 在信息汇总之后、稼动之前挂载 `ChangePointCard`，`ChangePointContent` 展示 14 列变化点明细，提供变化日期范围、班次、状态组合筛选；卡片和展开弹层共享筛选状态，切换维度重置。每工序读取全部及已关闭集合以匹配当前状态，班次缺失时显示“—”；解除日期读取 `endDate`，空值留空。部门/工序页面独立并发加载 `changePoint`，不等待其他卡片接口；初始值是 loading 空结构，加载失败返回显式 error 数据，不沿用其他卡片的 mock 降级。页面卡片刷新使用 `changePoint` 标识并保留当前地图选择。详见 `doc/change-point-statistics.md`。

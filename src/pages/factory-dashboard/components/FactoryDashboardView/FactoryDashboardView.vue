@@ -19,14 +19,16 @@ import type {
 import FactoryAlertHeader from '../FactoryAlertHeader/FactoryAlertHeader.vue'
 import FactoryDashboardPanel from '../FactoryDashboardPanel/FactoryDashboardPanel.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   readonly showDailyReport?: boolean
   readonly data: FactoryDashboardData
   readonly alarms: readonly FactoryAlarmItem[]
   readonly selectionConfig: CssMapSelectionConfig
   readonly selectedDepartment: CssMapDepartmentValue
   readonly selectedProcess: CssMapProcessValue | null
-}>()
+}>(), {
+  showDailyReport: true,
+})
 
 const emit = defineEmits<{
   selectDepartment: [value: CssMapDepartmentValue]
