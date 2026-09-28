@@ -365,7 +365,7 @@ describe('日报真实接口适配', () => {
     stubSource(getReportRejectsSource, [row({ zhifan: 'A', type: '不良', number: 10 }), row({ zhifan: 'A', type: '其它', number: 180 }),
       ...['B', 'C'].map(zhifan => row({ zhifan, type: '不良', number: 10 })), row({ zhifan: 'D', type: '不良', number: 20 })])
     const report = (await getDailyQuality(query)).data.data
-    expect(rankQuality(report.rows, query.processType, report.meta.qualityDimension).map(item => item.id)).toEqual(['D', 'B', 'C'])
+    expect(rankQuality(report.rows, query.processType, report.meta.qualityDimension).map(item => item.id)).toEqual(['D', 'B', 'C', 'A'])
     expect(percent(report.rows[0].defective, report.rows[0].actual)).toBe('5.00%')
     const zero = report.rows.find(item => item.id === 'ZERO')!
     expect(percent(zero.defective, zero.actual)).toBe('0.00%')

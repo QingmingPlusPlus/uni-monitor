@@ -78,6 +78,9 @@ describe('日报计算与数据完整性', () => {
   })
   it('品质排行保持正不良率与业务维度限制', () => {
     const quality = fixtures().quality.rows[0]
+    const rows = [1, 5, 3, 6, 2, 4].map(value => ({ ...quality, id: String(value), actual: complete(100), defective: complete(value) }))
+    expect(rankQuality(rows, 'preprocessing').map(row => row.id)).toEqual(['6', '5', '4', '3', '2'])
+    expect(rankQuality([], 'preprocessing')).toEqual([])
     expect(rankQuality([quality], 'sulfur_addition')).toEqual([])
     expect(rankQuality([{ ...quality, dimension: 'mold' }], 'sulfur_addition')).toHaveLength(1)
     expect(rankQuality([{ ...quality, defective: complete(0) }], 'preprocessing')).toEqual([])

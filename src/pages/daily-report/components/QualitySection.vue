@@ -8,9 +8,7 @@ import ReportSection from './ReportSection.vue'
 const props = defineProps<{ state: SectionState<QualityReport>; process: ReportProcessType }>()
 defineEmits<{ retry: [] }>()
 const dimension = computed(() => props.state.data?.meta.qualityDimension ?? (props.process === 'sulfur_addition' ? 'mold' : 'production_number'))
-const rankedRows = computed(() => rankQuality(props.state.data?.rows ?? [], props.process, dimension.value))
-// 全零或缺完整排行输入时保留明细，不生成名次。
-const rows = computed(() => rankedRows.value.length ? rankedRows.value : props.state.data?.rows ?? [])
+const rows = computed(() => rankQuality(props.state.data?.rows ?? [], props.process, dimension.value))
 const reasonRows = (row: QualityReport['rows'][number]) => [row.reasons?.[0], row.reasons?.[1]]
 </script>
 
@@ -24,7 +22,7 @@ const reasonRows = (row: QualityReport['rows'][number]) => [row.reasons?.[0], ro
         <tbody v-for="(row, index) in rows" :key="row.id">
           <tr v-for="(reason, reasonIndex) in reasonRows(row)" :key="reasonIndex">
             <template v-if="reasonIndex === 0">
-              <th rowspan="2" class="quality-rank">{{ rankedRows.length ? 'No.' + (index + 1) : '—' }}</th>
+              <th rowspan="2" class="quality-rank">{{ 'No.' + (index + 1) }}</th>
               <th rowspan="2" class="quality-name">{{ row.name }}<span v-if="row.lines.length" class="quality-associated-names">{{ row.lines.map(line => line.name).join('、') }}</span></th>
               <td rowspan="2"><MetricValue :metric="row.actual" plain /></td>
               <td rowspan="2"><MetricValue :metric="row.qualified" plain /></td>

@@ -108,5 +108,5 @@ export function rankQuality(rows: ReportQualityRow[], process: ReportProcessType
   const dimension = declaredDimension ?? (process === 'sulfur_addition' ? 'mold' : 'production_number')
   return rows.filter(row => row.dimension === dimension && (ratio(row.defective, row.actual) ?? 0) > 0)
     .sort((a, b) => ratio(b.defective, b.actual)! - ratio(a.defective, a.actual)! || a.id.localeCompare(b.id))
-    .slice(0, 3)
+    .slice(0, 5)
 }
