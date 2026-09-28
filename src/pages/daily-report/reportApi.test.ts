@@ -174,8 +174,23 @@ describe('日报真实接口适配', () => {
     expect(getReportDeviceSource).toHaveBeenCalledWith({ day: query.date, departmentId: '4', processType: 'sulfur_addition' }, expect.any(AbortSignal))
     expect(report.rows).toHaveLength(1)
     expect(report.rows[0]).toMatchObject({ totalRunSeconds: { value: 36000 }, productionSeconds: { value: 28800 }, lossSeconds: { value: 7200 },
-      availableSeconds: { value: null }, plannedStopSeconds: { value: null }, reportedAvailabilityRate: { value: 0.8 },
+      availableSeconds: { value: null }, plannedStopSeconds: { value: 50400 }, reportedAvailabilityRate: { value: 0.8 },
       reasons: [{ count: { value: 3 }, durationSeconds: { value: 7200 }, reportedRatio: { value: 0.2 } }] })
+    expect(validLines(report.rows)).toBe(true)
+  })
+
+  it.each([
+    [23, '1.00'], [0, '24.00'], [24, '0.00'], [22.75, '1.25'],
+    [undefined, '—'], [null, '—'], ['', '—'], [-1, '—'], [25, '—'], [NaN, '—'],
+  ])('计划停止时间使用24减总运转小时：%s显示%s，缺失或异常不补零', async (totalRunHours, expected) => {
+    vi.mocked(getReportDeviceSource).mockResolvedValue(response([
+      { deviceCode: 'A', departmentId: query.department, processType: query.processType, day: query.date,
+        totalRunHours, productionHours: 19.44, obstructionHours: 3.56, availabilityRate: 84.5, obstructionItems: [] },
+    ]) as Awaited<ReturnType<typeof getReportDeviceSource>>)
+    const report = (await getDailyLineLosses(query)).data.data
+    expect(formatMetric(report.rows[0].plannedStopSeconds, true)).toBe(expected)
+    expect(report.rows[0].reportedAvailabilityRate?.value).toBe(84.5)
+    expect(rankLines(report.rows)).toHaveLength(1)
     expect(validLines(report.rows)).toBe(true)
   })
 

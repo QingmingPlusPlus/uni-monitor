@@ -256,13 +256,16 @@ export function lineRows(query: DailyReportQuery, context: ScheduleContext, devi
   for (const code of deviceRecords.keys()) codes.add(code)
   return [...codes].sort().map(code => {
     const record = deviceRecords.get(code)
+    const totalRunSeconds = sourceMetric(record?.totalRunHours, false, 3600)
+    const plannedStopSeconds = totalRunSeconds.value === null
+      ? missingMetric('缺少有效总运转时间，无法计算计划停止时间')
+      : sourceMetric(24 * 3600 - totalRunSeconds.value, false)
     const quantities = productionQuantities(context.plans.filter(row => deviceCode(row.shebei) === code),
       context.actuals.filter(row => deviceCode(row.shebei) === code),
       context.rejects.filter(row => deviceCode(row.shebei) === code), scoped)
     return { id: code, name: text(record?.deviceName) || code,
       plan: quantities.plan, actual: quantities.actual,
-      availableSeconds: missingMetric('未明确已扣除计划停止的可运转时间'), plannedStopSeconds: missingMetric('未提供计划停止时间'),
-      totalRunSeconds: sourceMetric(record?.totalRunHours, false, 3600),
+      availableSeconds: missingMetric('未明确已扣除计划停止的可运转时间'), plannedStopSeconds, totalRunSeconds,
       productionSeconds: sourceMetric(record?.productionHours, false, 3600), lossSeconds: sourceMetric(record?.obstructionHours, false, 3600),
       reportedAvailabilityRate: sourceMetric(record?.availabilityRate, false), reasons: obstructionReasons(record?.obstructionItems) }
   })

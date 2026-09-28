@@ -36,7 +36,7 @@
 .daily-report .report-table-scroll { width: 100%; overflow-x: auto; }
 .daily-report .report-table { width: 100%; border-collapse: collapse; font-size: 17px; font-variant-numeric: tabular-nums; }
 .daily-report .report-table th, .daily-report .report-table td { padding: 12px 14px; border-bottom: 1px solid var(--um-color-border); text-align: right; white-space: nowrap; vertical-align: middle; }
-.daily-report .report-table thead th { color: var(--um-color-text-secondary); background: var(--um-color-surface-subtle); font-size: 15px; font-weight: 600; }
+.daily-report .report-table thead th, .daily-report .report-table .report-table-label-row > th, .daily-report .report-table th.report-table-label { color: var(--um-color-text-secondary); background: var(--um-color-surface-subtle); font-size: 15px; font-weight: 600; }
 .daily-report .report-table th:first-child { text-align: left; }
 .daily-report .report-table tbody th { font-weight: 600; }
 .daily-report .report-table tbody tr:last-child > * { border-bottom: 0; }
@@ -63,18 +63,17 @@
 .daily-report .production-section .report-production-table th, .daily-report .production-section .report-production-table td { text-align: center; padding: 12px 10px; }
 .daily-report .report-section.production-lines { border: 0; border-radius: 0; padding: 0; margin: 24px 0 0; }
 .daily-report .production-ranking-list { display: grid; gap: 24px; }
-.daily-report .production-line-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); border: 1px solid var(--um-color-border); border-radius: 8px; overflow: hidden; }
-.daily-report .production-rank-number { padding: 14px 10px; background: var(--um-color-surface-subtle); border-right: 1px solid var(--um-color-border); }
-.daily-report .production-line-tables { display: grid; grid-template-columns: 3fr 2fr; min-width: 920px; align-items: start; }
-.daily-report .production-line-metrics { table-layout: fixed; border-right: 1px solid var(--um-color-border); }
-.daily-report .production-line-tables .report-table th, .daily-report .production-line-tables .report-table td { padding: 12px 6px; text-align: center; border-right: 1px solid var(--um-color-border); }
-.daily-report .production-line-tables .report-table th:last-child, .daily-report .production-line-tables .report-table td:last-child { border-right: 0; }
-.daily-report .production-line-tables .production-label-row { background: var(--um-color-surface-subtle); color: var(--um-color-text-secondary); font-size: 15px; }
-.daily-report .production-line-tables .production-value-row { font-size: 20px; font-weight: 700; }
-.daily-report .production-line-metrics th { white-space: normal; overflow-wrap: anywhere; }
-.daily-report .production-highlight-cell, .daily-report .production-alert-cell { background: var(--um-color-changeover-soft); }
-.daily-report .production-alert-cell { color: var(--um-color-danger); }
-.daily-report .production-line-reasons th:first-child { white-space: normal; overflow-wrap: anywhere; text-align: left; min-width: 100px; }
+.daily-report .production-line-card { min-width: 0; }
+.daily-report .production-line-table { min-width: 1000px; table-layout: fixed; background: var(--um-color-surface); }
+.daily-report .report-table.production-line-table th, .daily-report .report-table.production-line-table td { padding: 8px 6px; border-right: 1px solid var(--um-color-border); text-align: center; line-height: 1.45; }
+.daily-report .report-table.production-line-table th:last-child, .daily-report .report-table.production-line-table td:last-child { border-right: 0; }
+.daily-report .report-table.production-line-table .production-rank-number { vertical-align: top; padding: 10px 2px; border-bottom: 0; }
+.daily-report .report-table.production-line-table .production-key-value { font-size: 20px; font-weight: 700; }
+.daily-report .report-table.production-line-table .production-name-cell { white-space: normal; overflow-wrap: anywhere; }
+.daily-report .report-table.production-line-table .production-reason-cell { border-bottom: 0; border-top: 0; font-size: 17px; white-space: normal; overflow-wrap: anywhere; }
+.daily-report .report-table.production-line-table .production-reason-name { text-align: left; }
+.daily-report .production-reason-empty { color: var(--um-color-text-secondary); }
+.daily-report .production-alert-cell { background: var(--um-color-changeover-soft); color: var(--um-color-danger); font-weight: 700; }
 .daily-report .production-section .production-empty-cell { text-align: center; padding: 24px 12px; color: var(--um-color-text-secondary); font-size: 15px; white-space: normal; }
 .daily-report .report-cell-note, .daily-report .report-metric small { display: block; font-size: 15px; font-weight: 400; color: var(--um-color-text-secondary); }
 .daily-report .report-leaders { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; padding-bottom: 20px; }

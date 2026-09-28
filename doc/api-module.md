@@ -109,4 +109,4 @@
 
 ### 生产日报数量适配（2026-09-21）
 
-无新增后端接口。生产汇总和产线排行均读取getPlan/getOutput/getRejects，进行中请求共享保持不变。生产上表按品种、产线排行按设备分组，实绩包含全部废弃、合格包含明确非不良、流动直接取getOutput；不良成功且范围完整时无记录按0。品质区与生产共用productionQuantities，继承空不良按0规则；getDailyQuality同时共享设备日报补充产线名称，失败回退编码，不影响有效数量。设备即产线，availabilityRate/ratio按原数值展示，计划停止列暂不显示。详细公式与边界见[制造日报](daily-report.md)。
+无新增后端接口。生产汇总和产线排行均读取getPlan/getOutput/getRejects，进行中请求共享保持不变。生产上表按品种、产线排行按设备分组，实绩包含全部废弃、合格包含明确非不良、流动直接取getOutput；不良成功且范围完整时无记录按0。品质区与生产共用productionQuantities，继承空不良按0规则；getDailyQuality同时共享设备日报补充产线名称，失败回退编码，不影响有效数量。设备即产线，availabilityRate/ratio按原数值展示，计划停止时间按24−totalRunHours计算。详细公式与边界见[制造日报](daily-report.md)。
